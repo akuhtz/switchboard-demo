@@ -7,13 +7,18 @@ import java.util.stream.Stream;
 
 /**
  * Represents an aspect of a railway turnout (points).
- * Each aspect has a unique integer ordinal (starting from 0) and can be
- * looked up by {@link #valueOf(String) name} or {@link #of(int) ordinal}.
+ * <ul>
+ *   <li>2-way turnout uses: STRAIGHT (0), DIVERTED (1)</li>
+ *   <li>3-way turnout uses: STRAIGHT (0), DIVERTED_LEFT (1), DIVERTED_RIGHT (2)</li>
+ * </ul>
+ * Each aspect has a unique integer ordinal starting from 0 and can be looked up
+ * by {@link #valueOf(String) name} or {@link #of(int) ordinal}.
  */
 public enum TurnoutAspect {
 
     STRAIGHT(0),
-    DIVERTED(1);
+    DIVERTED_LEFT(1),
+    DIVERTED_RIGHT(2);
 
     private static final Map<Integer, TurnoutAspect> BY_ORDINAL =
             Stream.of(values()).collect(Collectors.toUnmodifiableMap(TurnoutAspect::getAspect, Function.identity()));

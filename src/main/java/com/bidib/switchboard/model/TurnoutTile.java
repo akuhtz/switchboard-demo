@@ -1,40 +1,66 @@
 package com.bidib.switchboard.model;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * A tile representing a turnout (points) on the switchboard.
- * Has two SVG icons: one for the straight aspect and one for the diverted aspect.
+ * Supports multiple aspects, each with its own SVG icon.
  * The active icon is determined by the turnout's current aspect in the model.
  */
 public class TurnoutTile extends Tile {
 
-    private final String svgStraight;
-    private final String svgDiverted;
+    private final Map<TurnoutAspect, String> svgByAspect;
 
     /**
-     * @param col         column index (0-based)
-     * @param row         row index (0-based)
-     * @param elementId   turnout identifier in the model (e.g. "W1")
-     * @param svgStraight classpath resource path to the SVG icon for the STRAIGHT aspect
-     * @param svgDiverted classpath resource path to the SVG icon for the DIVERTED aspect
+     * Creates a 2-way turnout tile.
+     *
+     * @param col              column index (0-based)
+     * @param row              row index (0-based)
+     * @param elementId        turnout identifier in the model (e.g. "W1")
+     * @param svgStraight      SVG resource for the STRAIGHT aspect
+     * @param svgDivertedLeft  SVG resource for the DIVERTED_LEFT aspect
      */
-    public TurnoutTile(int col, int row, String elementId, String svgStraight, String svgDiverted) {
+    public TurnoutTile(int col, int row, String elementId, String svgStraight, String svgDivertedLeft) {
         super(col, row, elementId, svgStraight);
-        this.svgStraight = svgStraight;
-        this.svgDiverted = svgDiverted;
+        Map<TurnoutAspect, String> map = new LinkedHashMap<>();
+        map.put(TurnoutAspect.STRAIGHT, svgStraight);
+        map.put(TurnoutAspect.DIVERTED_LEFT, svgDivertedLeft);
+        this.svgByAspect = Collections.unmodifiableMap(map);
     }
 
-    public String getSvgStraight() {
-        return svgStraight;
-    }
-
-    public String getSvgDiverted() {
-        return svgDiverted;
+    /**
+     * Creates a 3-way turnout tile.
+     *
+     * @param col              column index (0-based)
+     * @param row              row index (0-based)
+     * @param elementId        turnout identifier in the model (e.g. "W1")
+     * @param svgStraight      SVG resource for the STRAIGHT aspect
+     * @param svgDivertedLeft  SVG resource for the DIVERTED_LEFT aspect
+     * @param svgDivertedRight SVG resource for the DIVERTED_RIGHT aspect
+     */
+    public TurnoutTile(int col, int row, String elementId, String svgStraight, String svgDivertedLeft, String svgDivertedRight) {
+        super(col, row, elementId, svgStraight);
+        Map<TurnoutAspect, String> map = new LinkedHashMap<>();
+        map.put(TurnoutAspect.STRAIGHT, svgStraight);
+        map.put(TurnoutAspect.DIVERTED_LEFT, svgDivertedLeft);
+        map.put(TurnoutAspect.DIVERTED_RIGHT, svgDivertedRight);
+        this.svgByAspect = Collections.unmodifiableMap(map);
     }
 
     /**
      * Returns the SVG resource matching the given turnout aspect.
+     * Falls back to the STRAIGHT icon if the aspect is not mapped.
      */
     public String getSvgForAspect(TurnoutAspect aspect) {
-        return (aspect == TurnoutAspect.DIVERTED) ? svgDiverted : svgStraight;
+        return svgByAspect.getOrDefault(aspect, svgByAspect.get(TurnoutAspect.STRAIGHT));
+    }
+
+    /**
+     * Returns all aspect-to-SVG mappings.
+     */
+    public Map<TurnoutAspect, String> getSvgByAspect() {
+        return svgByAspect;
     }
 }

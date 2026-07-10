@@ -7,13 +7,23 @@ import java.util.stream.Stream;
 
 /**
  * Represents an aspect of a railway signal.
- * Each aspect has a unique integer ordinal (starting from 0) and can be
- * looked up by {@link #valueOf(String) name} or {@link #of(int) ordinal}.
+ * Supports up to 8 aspects (ordinals 0–7). A specific signal type uses a subset
+ * of these (e.g. a 2-aspect signal uses ASPECT_0 and ASPECT_1, a 3-aspect signal
+ * uses ASPECT_0 through ASPECT_2).
+ * <p>
+ * Each aspect has a unique integer ordinal starting from 0 and can be looked up
+ * by {@link #valueOf(String) name} or {@link #of(int) ordinal}.
  */
 public enum SignalAspect {
 
-    RED(0),
-    GREEN(1);
+    ASPECT_0(0),
+    ASPECT_1(1),
+    ASPECT_2(2),
+    ASPECT_3(3),
+    ASPECT_4(4),
+    ASPECT_5(5),
+    ASPECT_6(6),
+    ASPECT_7(7);
 
     private static final Map<Integer, SignalAspect> BY_ORDINAL =
             Stream.of(values()).collect(Collectors.toUnmodifiableMap(SignalAspect::getAspect, Function.identity()));

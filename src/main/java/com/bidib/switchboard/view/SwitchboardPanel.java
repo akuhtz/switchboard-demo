@@ -3,6 +3,8 @@ package com.bidib.switchboard.view;
 import com.bidib.switchboard.command.Command;
 import com.bidib.switchboard.command.ToggleTurnoutCommand;
 import com.bidib.switchboard.model.RailwayModel;
+import com.bidib.switchboard.model.SignalAspect;
+import com.bidib.switchboard.model.SignalTile;
 import com.bidib.switchboard.model.Tile;
 import com.bidib.switchboard.model.TurnoutAspect;
 import com.bidib.switchboard.model.TurnoutTile;
@@ -155,6 +157,11 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             TurnoutAspect aspect = (id != null) ? model.getTurnoutAspect(id) : null;
             return turnoutTile.getSvgForAspect(aspect != null ? aspect : TurnoutAspect.STRAIGHT);
         }
+        if (tile instanceof SignalTile signalTile) {
+            String id = signalTile.getElementId();
+            SignalAspect aspect = (id != null) ? model.getSignalAspect(id) : null;
+            return signalTile.getSvgForAspect(aspect != null ? aspect : SignalAspect.ASPECT_0);
+        }
         return tile.getSvgResource();
     }
 
@@ -180,6 +187,8 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             Command cmd = new ToggleTurnoutCommand(model, id);
             cmd.execute();
             undoStack.push(cmd);
+        } else if (model.getSignalAspect(id) != null) {
+            model.toggleSignal(id);
         }
     }
 
