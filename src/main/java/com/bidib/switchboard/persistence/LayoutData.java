@@ -5,9 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * DTO for full layout state serialization to/from JSON.
- */
 public class LayoutData {
 
     private int cols;
@@ -37,18 +34,8 @@ public class LayoutData {
         private int col;
         private int row;
         private String elementId;
-        private String type; // "plain", "turnout2", "turnout3", "signal2", "signal3"
-
-        // plain and fallback
-        private String svgResource;
-
-        // turnout
-        private String svgStraight;
-        private String svgDivertedLeft;
-        private String svgDivertedRight;
-
-        // signal
-        private List<String> svgAspects;
+        private String type;      // e.g. "T2", "T3", "S2", "S3", "P1"
+        private List<String> svgPaths;
 
         public int getCol() { return col; }
         public void setCol(int col) { this.col = col; }
@@ -62,40 +49,20 @@ public class LayoutData {
         public String getType() { return type; }
         public void setType(String type) { this.type = type; }
 
-        public String getSvgResource() { return svgResource; }
-        public void setSvgResource(String svgResource) { this.svgResource = svgResource; }
-
-        public String getSvgStraight() { return svgStraight; }
-        public void setSvgStraight(String svgStraight) { this.svgStraight = svgStraight; }
-
-        public String getSvgDivertedLeft() { return svgDivertedLeft; }
-        public void setSvgDivertedLeft(String svgDivertedLeft) { this.svgDivertedLeft = svgDivertedLeft; }
-
-        public String getSvgDivertedRight() { return svgDivertedRight; }
-        public void setSvgDivertedRight(String svgDivertedRight) { this.svgDivertedRight = svgDivertedRight; }
-
-        public List<String> getSvgAspects() { return svgAspects; }
-        public void setSvgAspects(List<String> svgAspects) { this.svgAspects = svgAspects; }
+        public List<String> getSvgPaths() { return svgPaths; }
+        public void setSvgPaths(List<String> svgPaths) { this.svgPaths = svgPaths; }
     }
 
     // --- Model state ---
 
     public static class ModelStateData {
-        private Map<String, Integer> turnouts = new LinkedHashMap<>();
-        private Map<String, Integer> turnoutAspectCounts = new LinkedHashMap<>();
-        private Map<String, Integer> signals = new LinkedHashMap<>();
-        private Map<String, Integer> signalAspectCounts = new LinkedHashMap<>();
+        private Map<String, Integer> aspects = new LinkedHashMap<>();
+        private Map<String, Integer> aspectCounts = new LinkedHashMap<>();
 
-        public Map<String, Integer> getTurnouts() { return turnouts; }
-        public void setTurnouts(Map<String, Integer> turnouts) { this.turnouts = turnouts; }
+        public Map<String, Integer> getAspects() { return aspects; }
+        public void setAspects(Map<String, Integer> aspects) { this.aspects = aspects; }
 
-        public Map<String, Integer> getTurnoutAspectCounts() { return turnoutAspectCounts; }
-        public void setTurnoutAspectCounts(Map<String, Integer> turnoutAspectCounts) { this.turnoutAspectCounts = turnoutAspectCounts; }
-
-        public Map<String, Integer> getSignals() { return signals; }
-        public void setSignals(Map<String, Integer> signals) { this.signals = signals; }
-
-        public Map<String, Integer> getSignalAspectCounts() { return signalAspectCounts; }
-        public void setSignalAspectCounts(Map<String, Integer> signalAspectCounts) { this.signalAspectCounts = signalAspectCounts; }
+        public Map<String, Integer> getAspectCounts() { return aspectCounts; }
+        public void setAspectCounts(Map<String, Integer> aspectCounts) { this.aspectCounts = aspectCounts; }
     }
 }

@@ -1,15 +1,10 @@
 package com.bidib.switchboard;
 
-import com.bidib.switchboard.model.RailwayModel;
-import com.bidib.switchboard.model.SignalTile;
-import com.bidib.switchboard.model.Tile;
-import com.bidib.switchboard.model.TurnoutTile;
-import com.bidib.switchboard.persistence.LayoutPersistence;
-import com.bidib.switchboard.persistence.SettingsManager;
-import com.bidib.switchboard.view.SwitchboardPanel;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -20,22 +15,30 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
-/**
- * Main application class that wires the model and view together and launches the tile-based switchboard window.
- */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bidib.switchboard.model.ElementTile;
+import com.bidib.switchboard.model.ElementType;
+import com.bidib.switchboard.model.RailwayModel;
+import com.bidib.switchboard.model.Tile;
+import com.bidib.switchboard.persistence.LayoutPersistence;
+import com.bidib.switchboard.persistence.SettingsManager;
+import com.bidib.switchboard.view.SwitchboardPanel;
+
 public class SwitchboardApp {
 
     private static final Logger log = LoggerFactory.getLogger(SwitchboardApp.class);
 
     private final RailwayModel model;
+
     private final SwitchboardPanel panel;
+
     private final JFrame frame;
+
     private final SettingsManager settings;
+
     private Path currentFilePath;
 
     private SwitchboardApp() {
@@ -56,19 +59,29 @@ public class SwitchboardApp {
     // --- Setup ---
 
     private void buildDefaultLayout() {
-        model.addTurnout("W1");
-        model.addTurnout("W2");
-        model.addTurnout("W3", 3);
-        model.addSignal("S1");
-        model.addSignal("S2", 3);
+        model.addElement("T-001", 2);
+        model.addElement("T-002", 2);
+        model.addElement("T-003", 3);
+        model.addElement("S-001", 2);
+        model.addElement("S-002", 3);
 
-        panel.setTile(new TurnoutTile(2, 3, "W1", "/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg"));
-        panel.setTile(new TurnoutTile(3, 3, "W2", "/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg"));
-        panel.setTile(new TurnoutTile(4, 3, "W3", "/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg", "/icons/turnout_diverted_right.svg"));
-        panel.setTile(new SignalTile(10, 3, "S1", "/icons/signal_red.svg", "/icons/signal_green.svg"));
-        panel.setTile(new SignalTile(11, 3, "S2", "/icons/signal_red.svg", "/icons/signal_yellow.svg", "/icons/signal_green.svg"));
+        panel.setTile(new ElementTile(2, 3, "T-001", ElementType.TURNOUT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg")));
+        panel.setTile(new ElementTile(3, 3, "T-002", ElementType.TURNOUT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg")));
+        panel
+            .setTile(new ElementTile(4, 3, "T-003", ElementType.TURNOUT,
+                List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg", "/icons/turnout_diverted_right.svg")));
+        panel.setTile(new ElementTile(10, 3, "S-001", ElementType.SIGNAL, List.of("/icons/signal_red.svg", "/icons/signal_green.svg")));
+        panel
+            .setTile(
+                new ElementTile(11, 3, "S-002", ElementType.SIGNAL, List.of("/icons/signal_red.svg", "/icons/signal_yellow.svg", "/icons/signal_green.svg")));
 
         for (int col = 0; col < 5; col++) {
+            String id = "P-" + String.format("%03d", col + 1);
+            model.addElement(id, 1);
+            panel.setTile(new ElementTile(col, 0, id, ElementType.PLAIN, List.of("/icons/turnout_straight.svg")));
+        }
+
+        for (int col = 5; col < SwitchboardPanel.DEFAULT_COLS; col++) {
             panel.setTile(new Tile(col, 0, null, "/icons/empty.svg"));
         }
     }
@@ -86,10 +99,12 @@ public class SwitchboardApp {
                 currentFilePath = path;
                 updateTitle();
                 log.info("Layout loaded from {}", path);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 log.warn("Failed to load layout from {}, falling back to default", path, e);
             }
-        } else {
+        }
+        else {
             log.info("Layout file {} not found, using default layout", path);
         }
     }
@@ -141,10 +156,10 @@ public class SwitchboardApp {
                 settings.setLastLayoutFile(path);
                 updateTitle();
                 log.info("Loaded layout from {}", path);
-            } catch (IOException ex) {
+            }
+            catch (IOException ex) {
                 log.error("Error loading layout from {}", path, ex);
-                JOptionPane.showMessageDialog(frame, "Error loading file:\n" + ex.getMessage(),
-                        "Load Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Error loading file:\n" + ex.getMessage(), "Load Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -157,10 +172,10 @@ public class SwitchboardApp {
         try {
             LayoutPersistence.save(panel, currentFilePath);
             log.info("Saved layout to {}", currentFilePath);
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             log.error("Error saving layout to {}", currentFilePath, ex);
-            JOptionPane.showMessageDialog(frame, "Error saving file:\n" + ex.getMessage(),
-                    "Save Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Error saving file:\n" + ex.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -180,10 +195,10 @@ public class SwitchboardApp {
                 settings.setLastLayoutFile(path);
                 updateTitle();
                 log.info("Saved layout to {}", path);
-            } catch (IOException ex) {
+            }
+            catch (IOException ex) {
                 log.error("Error saving layout to {}", path, ex);
-                JOptionPane.showMessageDialog(frame, "Error saving file:\n" + ex.getMessage(),
-                        "Save Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Error saving file:\n" + ex.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

@@ -1,13 +1,10 @@
 package com.bidib.switchboard.view;
 
 import com.bidib.switchboard.command.Command;
-import com.bidib.switchboard.command.ToggleTurnoutCommand;
+import com.bidib.switchboard.command.CycleElementCommand;
+import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.RailwayModel;
-import com.bidib.switchboard.model.SignalAspect;
-import com.bidib.switchboard.model.SignalTile;
 import com.bidib.switchboard.model.Tile;
-import com.bidib.switchboard.model.TurnoutAspect;
-import com.bidib.switchboard.model.TurnoutTile;
 import com.bidib.switchboard.util.SvgIconLoader;
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.view.ViewBox;
@@ -28,19 +25,10 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Tile-based switchboard panel.
- * The board is a grid of {@code cols} x {@code rows} tiles, each {@code tileSize} x {@code tileSize} pixels.
- * Each tile can display an SVG icon loaded via jsvg.
- * {@link TurnoutTile}s automatically display the icon matching their current model state.
- */
 public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
-    /** Default tile dimension in pixels. */
     public static final int DEFAULT_TILE_SIZE = 32;
-    /** Default number of columns. */
     public static final int DEFAULT_COLS = 60;
-    /** Default number of rows. */
     public static final int DEFAULT_ROWS = 30;
 
     private static final Color COLOR_BACKGROUND = new Color(45, 45, 50);
@@ -51,7 +39,6 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     private final int rows;
     private final RailwayModel model;
 
-    /** Tiles keyed by "col,row". */
     private final Map<String, Tile> tiles = new LinkedHashMap<>();
     private final Deque<Command> undoStack = new ArrayDeque<>();
 
@@ -103,9 +90,6 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         return model;
     }
 
-    /**
-     * Removes all tiles.
-     */
     public void clearTiles() {
         tiles.clear();
         repaint();
@@ -159,20 +143,17 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         }
     }
 
-    /**
-     * Resolves the SVG resource path for a tile.
-     * For {@link TurnoutTile}s the icon is chosen based on the current model state.
-     */
     private String resolveSvgResource(Tile tile) {
-        if (tile instanceof TurnoutTile turnoutTile) {
-            String id = turnoutTile.getElementId();
-            TurnoutAspect aspect = (id != null) ? model.getTurnoutAspect(id) : null;
-            return turnoutTile.getSvgForAspect(aspect != null ? aspect : TurnoutAspect.STRAIGHT);
-        }
-        if (tile instanceof SignalTile signalTile) {
-            String id = signalTile.getElementId();
-            SignalAspect aspect = (id != null) ? model.getSignalAspect(id) : null;
-            return signalTile.getSvgForAspect(aspect != null ? aspect : SignalAspect.ASPECT_0);
+        if (tile instanceof ElementTile et) {
+            String id = et.getElementId();
+            int aspect = 0;
+            if (id != null) {
+                Integer a = model.getElementAspect(id);
+                if (a != null) {
+                    aspect = a;
+                }
+            }
+            return et.getSvgForAspect(aspect);
         }
         return tile.getSvgResource();
     }
@@ -191,16 +172,13 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     }
 
     protected void onTileClicked(Tile tile) {
-        String id = tile.getElementId();
-        if (id == null) {
-            return;
-        }
-        if (model.getTurnoutAspect(id) != null) {
-            Command cmd = new ToggleTurnoutCommand(model, id);
-            cmd.execute();
-            undoStack.push(cmd);
-        } else if (model.getSignalAspect(id) != null) {
-            model.toggleSignal(id);
+        if (tile instanceof ElementTile et) {
+            String id = et.getElementId();
+            if (id != null && model.getElementAspectCount(id) > 1) {
+                Command cmd = new CycleElementCommand(model, id);
+                cmd.execute();
+                undoStack.push(cmd);
+            }
         }
     }
 

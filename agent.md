@@ -3,8 +3,8 @@
 ## Overview
 
 A Java Swing-based switchboard component for controlling and visualising a model railway layout.
-The component manages turnouts (points) and signals, responds to user interaction, and can be
-extended for DCC hardware integration.
+The component manages turnouts (points), signals, and straight track pieces via a unified
+element model and responds to user interaction.
 
 The switchboard is rendered as a 60x30 tile grid (each tile 32x32 px). Every tile displays an
 SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsvg:2.1.0`).
@@ -19,9 +19,9 @@ SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsv
 |---------------|-----------------------------------------------------------------------------|
 | **MVC**       | Separates layout state (Model), rendering (View), and user actions (Controller) |
 | **Observer**  | Propagates model state changes to the UI via `PropertyChangeSupport`              |
-| **Command**   | Encapsulates actions (toggle turnout) with undo/redo support                |
-| **State**     | Models per-element aspects (turnout: straight/diverted, signal: aspect 0-7) |
-| **Composite** | Composes tiles (plain, turnout, signal) into a unified grid panel           |
+| **Command**   | Encapsulates actions (cycle element) with undo/redo support                |
+| **State**     | Models per-element aspects as integer ordinals (0..N-1)                    |
+| **Composite** | Composes all tile types into a unified grid panel                          |
 
 ---
 
@@ -38,60 +38,51 @@ SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsv
 
 ## Components
 
-### **Aspects**
+### **Unified Element System**
 
-Aspects define the discrete states an element can be in. Each aspect has an integer ordinal
-(starting at 0) and can be looked up by name or by ordinal.
+All railway elements use int ordinals (0..N-1) for their aspect/state. There are no
+type-specific enums — just element types distinguished by prefix.
 
-#### `TurnoutAspect`
-- `STRAIGHT(0)`, `DIVERTED_LEFT(1)`, `DIVERTED_RIGHT(2)`
-- 2-way turnouts use `STRAIGHT` and `DIVERTED_LEFT`
-- 3-way turnouts use `STRAIGHT`, `DIVERTED_LEFT`, and `DIVERTED_RIGHT`
-- Lookup: `TurnoutAspect.valueOf("STRAIGHT")`, `TurnoutAspect.of(0)`
+#### `ElementType` (enum)
+- `TURNOUT("T")` — 2-way or 3-way turnouts
+- `SIGNAL("S")` — 2..8 aspect signals
+- `PLAIN("P")` — straight track / decorative pieces
 
-#### `SignalAspect`
-- 8 values: `ASPECT_0(0)` through `ASPECT_7(7)`
-- A specific signal uses a subset (e.g. 2-aspect: `ASPECT_0`, `ASPECT_1`)
-- Lookup: `SignalAspect.valueOf("ASPECT_3")`, `SignalAspect.of(3)`
+Element IDs follow the pattern `{prefix}-{number}`, e.g. `"T-001"`, `"S-002"`, `"P-001"`.
+Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
 
 ---
 
 ### `RailwayModel`
-- Central model class holding the state of all railway elements.
+- Single unified model holding all elements.
 - Uses `PropertyChangeSupport` (idiomatic Java Observer).
-- Manages:
-  - **Turnouts** (`Map<String, TurnoutAspect>` + aspect count per turnout)
-  - **Signals** (`Map<String, SignalAspect>` + aspect count per signal)
+- **State**:
+  - `Map<String, Integer> elements` — elementId → current aspect ordinal
+  - `Map<String, Integer> aspectCounts` — elementId → max aspect count
 - Fires `PropertyChangeEvent` on every state mutation.
 - Methods:
-  - `addTurnout(String id)` / `addTurnout(String id, int aspectCount)`
-  - `toggleTurnout(String id)` / `setTurnoutAspect(String id, TurnoutAspect)`
-  - `getTurnoutAspect(String id)` / `getTurnoutAspectCount(String id)`
-  - `addSignal(String id)` / `addSignal(String id, int aspectCount)`
-  - `toggleSignal(String id)` / `setSignal(String id, SignalAspect)`
-  - `getSignalAspect(String id)` / `getSignalAspectCount(String id)`
+  - `addElement(String id, int aspectCount)` — adds with aspect 0
+  - `cycleElement(String id)` — cycles (ordinal + 1) % count
+  - `setElementAspect(String id, int aspect)`
+  - `getElementAspect(String id)` / `getElementAspectCount(String id)`
+  - `getElementAspects()` / `getElementAspectCounts()` — unmodifiable snapshots
   - `clear()` — removes all elements
-  - `addPropertyChangeListener(PropertyChangeListener l)`
+  - `addPropertyChangeListener` / `removePropertyChangeListener`
 
 ---
 
 ### `Tile` (base class)
 - Represents a single grid cell at `(col, row)`.
-- Carries an optional `elementId` linking to a model element, and an SVG resource path.
-- Subclasses: `TurnoutTile`, `SignalTile`.
+- Carries an optional `elementId` and a single `svgResource` path.
+- Used for decorative tiles with no elementId.
+- Subclass: `ElementTile`.
 
-### `TurnoutTile extends Tile`
-- Maps each `TurnoutAspect` to an SVG resource path.
-- 2-way constructor: `TurnoutTile(col, row, id, svgStraight, svgDivertedLeft)`
-- 3-way constructor: `TurnoutTile(col, row, id, svgStraight, svgDivertedLeft, svgDivertedRight)`
-- `getSvgForAspect(TurnoutAspect)` — returns the matching SVG path.
-
-### `SignalTile extends Tile`
-- Maps each `SignalAspect` to an SVG resource path.
-- 2-aspect constructor: `SignalTile(col, row, id, svgAspect0, svgAspect1)`
-- 3-aspect constructor: `SignalTile(col, row, id, svgAspect0, svgAspect1, svgAspect2)`
-- General constructor: `SignalTile(col, row, id, Map<SignalAspect, String>)`
-- `getSvgForAspect(SignalAspect)` — returns the matching SVG path.
+### `ElementTile extends Tile`
+- Unified tile for any railway element (turnout, signal, straight).
+- Contains a `List<String> svgPaths` indexed by aspect ordinal.
+- Contains an `ElementType` for serialization/creation.
+- `getSvgForAspect(int ordinal)` — returns the matching SVG path (falls back to index 0).
+- `getAspectCount()` — returns `svgPaths.size()`.
 
 ---
 
@@ -103,29 +94,27 @@ Aspects define the discrete states an element can be in. Each aspect has an inte
   - Uses `Graphics2D` with antialiasing and bilinear interpolation.
   - Draws tiles first, then grid lines on top so the grid is always visible.
   - Each tile renders its SVG icon via `SVGDocument.render(Component, Graphics2D, ViewBox)`.
+  - For `ElementTile` tiles, resolves the SVG path from the model's current aspect.
 - **Interaction**:
-  - `MouseListener` converts pixel coordinates to grid `(col, row)` and delegates to `onTileClicked`.
-  - Turnouts are toggled via `ToggleTurnoutCommand` (undoable).
-  - Signals are toggled via `model.toggleSignal(id)`.
+  - `MouseListener` converts pixel coordinates to grid `(col, row)`.
+  - `ElementTile` tiles with `aspectCount > 1` are clickable — cycles via `CycleElementCommand`.
+  - `ElementTile` tiles with `aspectCount == 1` (e.g. straight pieces) do nothing on click.
 - **Thread safety**:
   - All repaints triggered via `SwingUtilities.invokeLater`.
 - Public API:
-  - `setTile(Tile tile)` — places a tile at its grid position.
-  - `getTile(int col, int row)` — retrieves a tile.
-  - `clearTiles()` — removes all tiles.
-  - `getModel()` — returns the `RailwayModel`.
-  - `undoLast()` — undoes the last turnout command.
+  - `setTile(Tile tile)` / `getTile(int col, int row)`
+  - `clearTiles()` / `getModel()`
+  - `undoLast()` — undoes the last cycle command.
 
 ---
 
 ### `Command` (Interface)
-- `void execute()`
-- `void undo()`
+- `void execute()` / `void undo()`
 
-### `ToggleTurnoutCommand`
+### `CycleElementCommand`
 - Implements `Command`.
-- Encapsulates a turnout toggle operation on `RailwayModel`.
-- `execute()` and `undo()` both call `model.toggleTurnout(id)` (toggle is self-inverse).
+- Encapsulates a cycle operation on any element via `model.cycleElement(id)`.
+- `execute()` and `undo()` both call `cycleElement` (cycle is self-inverse).
 
 ---
 
@@ -136,9 +125,10 @@ Aspects define the discrete states an element can be in. Each aspect has an inte
 ---
 
 ### `LayoutPersistence`
-- Serializes the full switchboard state (tiles + model) to/from JSON using Jackson 3.
+- Serializes the full switchboard state (tiles + model) to JSON using Jackson 3.
 - `capture(SwitchboardPanel)` / `save(SwitchboardPanel, Path)` — write state.
 - `load(SwitchboardPanel, Path)` / `apply(SwitchboardPanel, LayoutData)` — read state.
+- Tile type string format: `{prefix}{count}`, e.g. `"T2"`, `"T3"`, `"S2"`, `"S3"`, `"P1"`.
 
 ### `SettingsManager`
 - Manages `settings.json` at the project root, separate from the layout file.
@@ -147,7 +137,8 @@ Aspects define the discrete states an element can be in. Each aspect has an inte
 
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
-- `LayoutData` holds grid dimensions, tile list (with type discriminator), and model aspect state.
+- `LayoutData` holds grid dimensions, tile list (with type discriminator + svgPaths list), and unified model aspect state.
+- `ModelStateData` uses flat `Map<String, Integer>` for both aspects and aspectCounts.
 - `SettingsData` holds application-level settings (extensible).
 
 ---
@@ -165,6 +156,11 @@ On startup:
 1. Load `settings.json` from project root
 2. Read the `lastLayoutFile` path → load layout from that file (if it exists)
 3. Fall back to the hardcoded default layout if no settings or file is found
+
+Default layout creates elements with prefixed IDs:
+- `"T-001"`, `"T-002"` (2-way turnouts), `"T-003"` (3-way turnout)
+- `"S-001"` (2-aspect signal), `"S-002"` (3-aspect signal)
+- `"P-001"`..`"P-005"` (straight track pieces, 1 aspect each)
 
 ---
 
