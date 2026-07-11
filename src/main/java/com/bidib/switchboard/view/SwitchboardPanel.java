@@ -99,6 +99,18 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         return rows;
     }
 
+    public RailwayModel getModel() {
+        return model;
+    }
+
+    /**
+     * Removes all tiles.
+     */
+    public void clearTiles() {
+        tiles.clear();
+        repaint();
+    }
+
     // --- Rendering ---
 
     @Override

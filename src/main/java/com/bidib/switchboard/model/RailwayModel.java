@@ -150,6 +150,16 @@ public class RailwayModel {
 
     // --- Observer support ---
 
+    /**
+     * Removes all elements from the model.
+     */
+    public void clear() {
+        turnouts.clear();
+        turnoutAspectCounts.clear();
+        signals.clear();
+        signalAspectCounts.clear();
+    }
+
     public void addPropertyChangeListener(PropertyChangeListener l) {
         pcs.addPropertyChangeListener(l);
     }
