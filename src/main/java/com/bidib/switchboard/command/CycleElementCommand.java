@@ -6,19 +6,23 @@ public class CycleElementCommand implements Command {
 
     private final RailwayModel model;
     private final String elementId;
+    private final int oldAspect;
+    private final int newAspect;
 
-    public CycleElementCommand(RailwayModel model, String elementId) {
+    public CycleElementCommand(RailwayModel model, String elementId, int aspectCount) {
         this.model = model;
         this.elementId = elementId;
+        this.oldAspect = model.getElementAspect(elementId);
+        this.newAspect = (oldAspect + 1) % aspectCount;
     }
 
     @Override
     public void execute() {
-        model.cycleElement(elementId);
+        model.setElementAspect(elementId, newAspect);
     }
 
     @Override
     public void undo() {
-        model.cycleElement(elementId);
+        model.setElementAspect(elementId, oldAspect);
     }
 }

@@ -38,7 +38,6 @@ public class LayoutPersistence {
 
         RailwayModel model = panel.getModel();
 
-        // Tiles
         List<LayoutData.TileData> tileList = new ArrayList<>();
         for (int col = 0; col < panel.getCols(); col++) {
             for (int row = 0; row < panel.getRows(); row++) {
@@ -50,10 +49,8 @@ public class LayoutPersistence {
         }
         data.setTiles(tileList);
 
-        // Model state
         LayoutData.ModelStateData ms = new LayoutData.ModelStateData();
         ms.setAspects(new java.util.LinkedHashMap<>(model.getElementAspects()));
-        ms.setAspectCounts(new java.util.LinkedHashMap<>(model.getElementAspectCounts()));
         data.setModelState(ms);
 
         return data;
@@ -90,22 +87,13 @@ public class LayoutPersistence {
         panel.clearTiles();
         model.clear();
 
-        // Restore model state
-        if (data.getModelState() != null) {
-            LayoutData.ModelStateData ms = data.getModelState();
-            if (ms.getAspectCounts() != null) {
-                for (Map.Entry<String, Integer> e : ms.getAspectCounts().entrySet()) {
-                    model.addElement(e.getKey(), e.getValue());
-                }
-            }
-            if (ms.getAspects() != null) {
-                for (Map.Entry<String, Integer> e : ms.getAspects().entrySet()) {
-                    model.setElementAspect(e.getKey(), e.getValue());
-                }
+        if (data.getModelState() != null && data.getModelState().getAspects() != null) {
+            for (Map.Entry<String, Integer> e : data.getModelState().getAspects().entrySet()) {
+                model.addElement(e.getKey());
+                model.setElementAspect(e.getKey(), e.getValue());
             }
         }
 
-        // Restore tiles
         if (data.getTiles() != null) {
             for (LayoutData.TileData td : data.getTiles()) {
                 Tile tile = reconstructTile(td);
@@ -125,7 +113,6 @@ public class LayoutPersistence {
             return new Tile(td.getCol(), td.getRow(), td.getElementId(), td.getSvgPaths().get(0));
         }
 
-        // Type format: prefix + count, e.g. "T2", "S3", "P1"
         String typeStr = td.getType();
         if (typeStr == null || typeStr.length() < 2) {
             return null;

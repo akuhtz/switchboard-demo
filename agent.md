@@ -56,16 +56,14 @@ Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
 ### `RailwayModel`
 - Single unified model holding all elements.
 - Uses `PropertyChangeSupport` (idiomatic Java Observer).
-- **State**:
-  - `Map<String, Integer> elements` — elementId → current aspect ordinal
-  - `Map<String, Integer> aspectCounts` — elementId → max aspect count
+- **State**: `Map<String, Integer> elements` — elementId → current aspect ordinal.
+- Aspect counts live on the tile (`ElementTile.getAspectCount()`) rather than in the model.
 - Fires `PropertyChangeEvent` on every state mutation.
 - Methods:
-  - `addElement(String id, int aspectCount)` — adds with aspect 0
-  - `cycleElement(String id)` — cycles (ordinal + 1) % count
+  - `addElement(String id)` — adds with aspect 0
   - `setElementAspect(String id, int aspect)`
-  - `getElementAspect(String id)` / `getElementAspectCount(String id)`
-  - `getElementAspects()` / `getElementAspectCounts()` — unmodifiable snapshots
+  - `getElementAspect(String id)`
+  - `getElementAspects()` — unmodifiable snapshot
   - `clear()` — removes all elements
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
@@ -113,8 +111,9 @@ Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
 
 ### `CycleElementCommand`
 - Implements `Command`.
-- Encapsulates a cycle operation on any element via `model.cycleElement(id)`.
-- `execute()` and `undo()` both call `cycleElement` (cycle is self-inverse).
+- Computes `(oldAspect + 1) % aspectCount` in constructor, stores both old and new values.
+- `execute()` calls `model.setElementAspect(id, newAspect)`.
+- `undo()` calls `model.setElementAspect(id, oldAspect)`.
 
 ---
 
@@ -137,8 +136,8 @@ Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
 
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
-- `LayoutData` holds grid dimensions, tile list (with type discriminator + svgPaths list), and unified model aspect state.
-- `ModelStateData` uses flat `Map<String, Integer>` for both aspects and aspectCounts.
+- `LayoutData` holds grid dimensions, tile list (with type discriminator + svgPaths list), and model aspect state.
+- `ModelStateData` uses a flat `Map<String, Integer>` for element aspects only (counts derive from tiles).
 - `SettingsData` holds application-level settings (extensible).
 
 ---

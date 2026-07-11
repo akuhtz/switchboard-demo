@@ -59,11 +59,11 @@ public class SwitchboardApp {
     // --- Setup ---
 
     private void buildDefaultLayout() {
-        model.addElement("T-001", 2);
-        model.addElement("T-002", 2);
-        model.addElement("T-003", 3);
-        model.addElement("S-001", 2);
-        model.addElement("S-002", 3);
+        model.addElement("T-001");
+        model.addElement("T-002");
+        model.addElement("T-003");
+        model.addElement("S-001");
+        model.addElement("S-002");
 
         panel.setTile(new ElementTile(2, 3, "T-001", ElementType.TURNOUT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg")));
         panel.setTile(new ElementTile(3, 3, "T-002", ElementType.TURNOUT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg")));
@@ -77,7 +77,7 @@ public class SwitchboardApp {
 
         for (int col = 0; col < 5; col++) {
             String id = "P-" + String.format("%03d", col + 1);
-            model.addElement(id, 1);
+            model.addElement(id);
             panel.setTile(new ElementTile(col, 0, id, ElementType.PLAIN, List.of("/icons/turnout_straight.svg")));
         }
 

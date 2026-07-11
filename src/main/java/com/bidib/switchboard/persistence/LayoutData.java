@@ -57,12 +57,8 @@ public class LayoutData {
 
     public static class ModelStateData {
         private Map<String, Integer> aspects = new LinkedHashMap<>();
-        private Map<String, Integer> aspectCounts = new LinkedHashMap<>();
 
         public Map<String, Integer> getAspects() { return aspects; }
         public void setAspects(Map<String, Integer> aspects) { this.aspects = aspects; }
-
-        public Map<String, Integer> getAspectCounts() { return aspectCounts; }
-        public void setAspectCounts(Map<String, Integer> aspectCounts) { this.aspectCounts = aspectCounts; }
     }
 }

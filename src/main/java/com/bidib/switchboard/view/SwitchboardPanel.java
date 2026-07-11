@@ -174,8 +174,9 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     protected void onTileClicked(Tile tile) {
         if (tile instanceof ElementTile et) {
             String id = et.getElementId();
-            if (id != null && model.getElementAspectCount(id) > 1) {
-                Command cmd = new CycleElementCommand(model, id);
+            int count = et.getAspectCount();
+            if (id != null && count > 1) {
+                Command cmd = new CycleElementCommand(model, id, count);
                 cmd.execute();
                 undoStack.push(cmd);
             }
