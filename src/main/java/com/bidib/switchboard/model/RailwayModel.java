@@ -6,12 +6,19 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RailwayModel {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RailwayModel.class);
+
     private final Map<String, Integer> elements = new LinkedHashMap<>();
+
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     public void addElement(String id) {
+        LOGGER.info("Add element: {}", id);
         elements.put(id, 0);
     }
 
@@ -34,6 +41,15 @@ public class RailwayModel {
 
     public void clear() {
         elements.clear();
+    }
+
+    public void removeElement(String id) {
+        LOGGER.info("Remove element: {}", id);
+        elements.remove(id);
+    }
+
+    public boolean containsElement(String id) {
+        return elements.containsKey(id);
     }
 
     public void addPropertyChangeListener(PropertyChangeListener l) {

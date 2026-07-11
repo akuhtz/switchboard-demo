@@ -3,13 +3,16 @@ package com.bidib.switchboard.view;
 import com.bidib.switchboard.command.Command;
 import com.bidib.switchboard.command.CycleElementCommand;
 import com.bidib.switchboard.model.ElementTile;
+import com.bidib.switchboard.model.ElementType;
 import com.bidib.switchboard.model.RailwayModel;
 import com.bidib.switchboard.model.Tile;
 import com.bidib.switchboard.util.SvgIconLoader;
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.view.ViewBox;
 
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -27,6 +30,11 @@ import java.util.Map;
 
 public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
+    @FunctionalInterface
+    public interface TileContextHandler {
+        void handle(int col, int row, ElementType type);
+    }
+
     public static final int DEFAULT_TILE_SIZE = 32;
     public static final int DEFAULT_COLS = 60;
     public static final int DEFAULT_ROWS = 30;
@@ -41,6 +49,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
     private final Map<String, Tile> tiles = new LinkedHashMap<>();
     private final Deque<Command> undoStack = new ArrayDeque<>();
+    private TileContextHandler tileContextHandler;
 
     public SwitchboardPanel(RailwayModel model) {
         this(model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
@@ -58,7 +67,23 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                handleClick(e.getX(), e.getY());
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    handleClick(e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showContextMenu(e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showContextMenu(e.getX(), e.getY());
+                }
             }
         });
     }
@@ -93,6 +118,50 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     public void clearTiles() {
         tiles.clear();
         repaint();
+    }
+
+    public void removeTile(int col, int row) {
+        tiles.remove(tileKey(col, row));
+        repaint();
+    }
+
+    public void setTileContextHandler(TileContextHandler handler) {
+        this.tileContextHandler = handler;
+    }
+
+    // --- Context menu ---
+
+    private void showContextMenu(int x, int y) {
+        int col = x / tileSize;
+        int row = y / tileSize;
+        if (col < 0 || col >= cols || row < 0 || row >= rows) {
+            return;
+        }
+
+        JPopupMenu menu = new JPopupMenu();
+
+        for (ElementType type : ElementType.values()) {
+            JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
+            item.addActionListener(e -> {
+                if (tileContextHandler != null) {
+                    tileContextHandler.handle(col, row, type);
+                }
+            });
+            menu.add(item);
+        }
+
+        if (getTile(col, row) != null) {
+            menu.addSeparator();
+            JMenuItem clearItem = new JMenuItem("Clear");
+            clearItem.addActionListener(e -> {
+                if (tileContextHandler != null) {
+                    tileContextHandler.handle(col, row, null);
+                }
+            });
+            menu.add(clearItem);
+        }
+
+        menu.show(this, x, y);
     }
 
     // --- Rendering ---

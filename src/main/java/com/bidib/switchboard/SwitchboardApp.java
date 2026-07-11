@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -41,12 +42,15 @@ public class SwitchboardApp {
 
     private Path currentFilePath;
 
+    private final AtomicInteger idCounter = new AtomicInteger(100);
+
     private SwitchboardApp() {
         model = new RailwayModel();
         panel = new SwitchboardPanel(model);
         frame = new JFrame("Model Railway Switchboard");
         settings = new SettingsManager();
         buildDefaultLayout();
+        panel.setTileContextHandler(this::onTileContextAction);
         tryAutoLoad();
         buildMenu();
         buildFrame();
@@ -107,6 +111,33 @@ public class SwitchboardApp {
         else {
             log.info("Layout file {} not found, using default layout", path);
         }
+    }
+
+    // --- Tile context menu ---
+
+    private void onTileContextAction(int col, int row, ElementType type) {
+        Tile existing = panel.getTile(col, row);
+        if (existing != null && existing.getElementId() != null) {
+            model.removeElement(existing.getElementId());
+        }
+        if (type == null) {
+            panel.removeTile(col, row);
+            return;
+        }
+        String id = type.getPrefix() + "-" + idCounter.getAndIncrement();
+        model.addElement(id);
+        panel.setTile(createDefaultTile(col, row, id, type));
+    }
+
+    private static Tile createDefaultTile(int col, int row, String id, ElementType type) {
+        return switch (type) {
+            case TURNOUT -> new ElementTile(col, row, id, type,
+                    List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg"));
+            case SIGNAL -> new ElementTile(col, row, id, type,
+                    List.of("/icons/signal_red.svg", "/icons/signal_green.svg"));
+            case PLAIN -> new ElementTile(col, row, id, type,
+                    List.of("/icons/turnout_straight.svg"));
+        };
     }
 
     // --- Menu ---
