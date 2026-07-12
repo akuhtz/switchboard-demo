@@ -2,20 +2,28 @@ package com.bidib.switchboard.model;
 
 public enum ElementType {
 
-    TURNOUT("T"),
-    SIGNAL("S"),
-    PLAIN("P"),
-    CURVE_LEFT("CL"),
-    CURVE_RIGHT("CR");
+    TURNOUT_LEFT("TL", true),
+    TURNOUT_RIGHT("TR", true),
+    TURNOUT_3WAY("T3", true),
+    SIGNAL("S", true),
+    STRAIGHT("P", true),
+    CURVE_LEFT("CL", true),
+    CURVE_RIGHT("CR", true);
 
     private final String prefix;
+    private final boolean visible;
 
-    ElementType(String prefix) {
+    ElementType(String prefix, boolean visible) {
         this.prefix = prefix;
+        this.visible = visible;
     }
 
     public String getPrefix() {
         return prefix;
+    }
+
+    public boolean isVisible() {
+        return visible;
     }
 
     public static ElementType fromPrefix(String prefix) {

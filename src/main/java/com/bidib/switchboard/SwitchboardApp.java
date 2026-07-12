@@ -64,16 +64,16 @@ public class SwitchboardApp {
     // --- Setup ---
 
     private void buildDefaultLayout() {
-        model.addElement("T-001");
-        model.addElement("T-002");
-        model.addElement("T-003");
+        model.addElement("TL-001");
+        model.addElement("TR-001");
+        model.addElement("T3-001");
         model.addElement("S-001");
         model.addElement("S-002");
 
-        panel.setTile(new ElementTile(2, 3, "T-001", ElementType.TURNOUT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg")));
-        panel.setTile(new ElementTile(3, 3, "T-002", ElementType.TURNOUT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg")));
+        panel.setTile(new ElementTile(2, 3, "TL-001", ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg")));
+        panel.setTile(new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_right.svg")));
         panel
-            .setTile(new ElementTile(4, 3, "T-003", ElementType.TURNOUT,
+            .setTile(new ElementTile(4, 3, "T3-001", ElementType.TURNOUT_3WAY,
                 List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg", "/icons/turnout_diverted_right.svg")));
         panel.setTile(new ElementTile(10, 3, "S-001", ElementType.SIGNAL, List.of("/icons/signal_red.svg", "/icons/signal_green.svg")));
         panel
@@ -83,7 +83,7 @@ public class SwitchboardApp {
         for (int col = 0; col < 5; col++) {
             String id = "P-" + String.format("%03d", col + 1);
             model.addElement(id);
-            panel.setTile(new ElementTile(col, 0, id, ElementType.PLAIN, List.of("/icons/turnout_straight.svg")));
+            panel.setTile(new ElementTile(col, 0, id, ElementType.STRAIGHT, List.of("/icons/turnout_straight.svg")));
         }
 
         for (int col = 5; col < SwitchboardPanel.DEFAULT_COLS; col++) {
@@ -147,11 +147,15 @@ public class SwitchboardApp {
 
     private static Tile createDefaultTile(int col, int row, String id, ElementType type) {
         return switch (type) {
-            case TURNOUT -> new ElementTile(col, row, id, type,
+            case TURNOUT_LEFT -> new ElementTile(col, row, id, type,
                     List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg"));
+            case TURNOUT_RIGHT -> new ElementTile(col, row, id, type,
+                    List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_right.svg"));
+            case TURNOUT_3WAY -> new ElementTile(col, row, id, type,
+                    List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg", "/icons/turnout_diverted_right.svg"));
             case SIGNAL -> new ElementTile(col, row, id, type,
                     List.of("/icons/signal_red.svg", "/icons/signal_green.svg"));
-            case PLAIN -> new ElementTile(col, row, id, type,
+            case STRAIGHT -> new ElementTile(col, row, id, type,
                     List.of("/icons/straight.svg"));
             case CURVE_LEFT -> new ElementTile(col, row, id, type,
                     List.of("/icons/curve_left.svg"));

@@ -3,7 +3,7 @@
 ## Overview
 
 A Java Swing-based switchboard component for controlling and visualising a model railway layout.
-The component manages turnouts (points), signals, and straight track pieces via a unified
+The component manages turnouts (points), signals, curves, and straight track via a unified
 element model and responds to user interaction.
 
 The switchboard is rendered as a 60x30 tile grid (each tile 32x32 px). Every tile displays an
@@ -44,12 +44,18 @@ All railway elements use int ordinals (0..N-1) for their aspect/state. There are
 type-specific enums — just element types distinguished by prefix.
 
 #### `ElementType` (enum)
-- `TURNOUT("T")` — 2-way or 3-way turnouts
-- `SIGNAL("S")` — 2..8 aspect signals
-- `PLAIN("P")` — straight track / decorative pieces
+| Enum | Prefix | Visible | Aspects | Clickable |
+|------|--------|---------|---------|-----------|
+| `TURNOUT_LEFT` | `TL` | yes | 2 (straight, diverted left) | yes |
+| `TURNOUT_RIGHT` | `TR` | yes | 2 (straight, diverted right) | yes |
+| `TURNOUT_3WAY` | `T3` | yes | 3 (straight, left, right) | yes |
+| `SIGNAL` | `S` | yes | 2 (red, green) | yes |
+| `STRAIGHT` | `P` | yes | 1 | no |
+| `CURVE_LEFT` | `CL` | yes | 1 | no |
+| `CURVE_RIGHT` | `CR` | yes | 1 | no |
 
-Element IDs follow the pattern `{prefix}-{number}`, e.g. `"T-001"`, `"S-002"`, `"P-001"`.
-Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
+Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"TR-001"`, `"T3-001"`.
+IDs are generated uniquely per prefix by scanning existing model elements for the highest suffix.
 
 ---
 
@@ -64,7 +70,7 @@ Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
   - `setElementAspect(String id, int aspect)`
   - `getElementAspect(String id)`
   - `getElementAspects()` — unmodifiable snapshot
-  - `clear()` — removes all elements
+  - `clear()` / `removeElement(String id)` / `containsElement(String id)`
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
 ---
@@ -72,11 +78,12 @@ Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
 ### `Tile` (base class)
 - Represents a single grid cell at `(col, row)`.
 - Carries an optional `elementId` and a single `svgResource` path.
+- Has a `rotation` field (0/90/180/270) applied as a transform during rendering.
 - Used for decorative tiles with no elementId.
 - Subclass: `ElementTile`.
 
 ### `ElementTile extends Tile`
-- Unified tile for any railway element (turnout, signal, straight).
+- Unified tile for any railway element (turnout, signal, curve, straight).
 - Contains a `List<String> svgPaths` indexed by aspect ordinal.
 - Contains an `ElementType` for serialization/creation.
 - `getSvgForAspect(int ordinal)` — returns the matching SVG path (falls back to index 0).
@@ -88,21 +95,26 @@ Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
 - Extends `JPanel`, implements `PropertyChangeListener`.
 - Default grid: 60 columns x 30 rows, 32 px per tile (1920×960 px total).
 - Registers as observer on the `RailwayModel`.
+- **Modes**:
+  - **Normal**: left-click cycles aspects on clickable tiles (aspectCount > 1).
+  - **Edit**: left-click selects tiles (cyan border), Ctrl+R rotates selected tile 90°, right-click context menu to place/clear tiles. No aspect cycling.
 - **Rendering** (`paintComponent`):
   - Uses `Graphics2D` with antialiasing and bilinear interpolation.
-  - Draws tiles first, then grid lines on top so the grid is always visible.
+  - Draws tiles first, then grid lines, then selection border (edit mode only).
   - Each tile renders its SVG icon via `SVGDocument.render(Component, Graphics2D, ViewBox)`.
+  - Rotation is applied via `Graphics2D.rotate()` around the tile center.
   - For `ElementTile` tiles, resolves the SVG path from the model's current aspect.
 - **Interaction**:
-  - `MouseListener` converts pixel coordinates to grid `(col, row)`.
-  - `ElementTile` tiles with `aspectCount > 1` are clickable — cycles via `CycleElementCommand`.
-  - `ElementTile` tiles with `aspectCount == 1` (e.g. straight pieces) do nothing on click.
+  - Left-click: selects position + cycles aspect (normal) or selects only (edit).
+  - Right-click: context menu with visible ElementTypes + Clear (occupied only).
+  - Ctrl+R: rotates selected tile 90° (edit mode only).
 - **Thread safety**:
   - All repaints triggered via `SwingUtilities.invokeLater`.
 - Public API:
-  - `setTile(Tile tile)` / `getTile(int col, int row)`
-  - `clearTiles()` / `getModel()`
-  - `undoLast()` — undoes the last cycle command.
+  - `setTile(Tile tile)` / `getTile(int col, int row)` / `removeTile(int col, int row)`
+  - `clearTiles()` / `getModel()` / `undoLast()`
+  - `isEditMode()` / `setEditMode(boolean)`
+  - `setTileContextHandler(TileContextHandler)` — callback for context menu actions.
 
 ---
 
@@ -127,7 +139,8 @@ Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
 - Serializes the full switchboard state (tiles + model) to JSON using Jackson 3.
 - `capture(SwitchboardPanel)` / `save(SwitchboardPanel, Path)` — write state.
 - `load(SwitchboardPanel, Path)` / `apply(SwitchboardPanel, LayoutData)` — read state.
-- Tile type string format: `{prefix}{count}`, e.g. `"T2"`, `"T3"`, `"S2"`, `"S3"`, `"P1"`.
+- Tile type string format: `{prefix}{count}`, e.g. `"TL2"`, `"TR2"`, `"T32"`, `"S2"`, `"P1"`, `"CL1"`, `"CR1"`.
+- Type is matched by iterating `ElementType.values()` and testing `typeStr.startsWith(prefix)`.
 
 ### `SettingsManager`
 - Manages `settings.json` at the project root, separate from the layout file.
@@ -136,7 +149,7 @@ Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
 
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
-- `LayoutData` holds grid dimensions, tile list (with type discriminator + svgPaths list), and model aspect state.
+- `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation), and model aspect state.
 - `ModelStateData` uses a flat `Map<String, Integer>` for element aspects only (counts derive from tiles).
 - `SettingsData` holds application-level settings (extensible).
 
@@ -144,22 +157,31 @@ Lookup: `ElementType.fromPrefix("T")` returns `ElementType.TURNOUT`.
 
 ## Application (`SwitchboardApp`)
 
-| Menu Item | Shortcut | Action |
-|-----------|----------|--------|
-| File > Load... | `Ctrl+L` | JFileChooser to load a `.json` layout |
-| File > Save | `Ctrl+S` | Save to current file, or Save As if none |
-| File > Save As... | `Ctrl+Shift+S` | JFileChooser to save to a new location |
-| File > Exit | — | Exit application |
+### Menu
 
-On startup:
+| Menu | Item | Shortcut | Action |
+|------|------|----------|--------|
+| File | Load... | `Ctrl+L` | JFileChooser to load a `.json` layout |
+| File | Save | `Ctrl+S` | Save to current file, or Save As if none |
+| File | Save As... | `Ctrl+Shift+S` | JFileChooser to save to a new location |
+| File | Exit | — | Exit application |
+| Edit | Edit Mode | `Ctrl+E` | Toggle normal/edit mode |
+
+### Toolbar
+- `[Edit Mode]` toggle button synced with the Edit menu item.
+
+### On startup
 1. Load `settings.json` from project root
 2. Read the `lastLayoutFile` path → load layout from that file (if it exists)
 3. Fall back to the hardcoded default layout if no settings or file is found
 
-Default layout creates elements with prefixed IDs:
-- `"T-001"`, `"T-002"` (2-way turnouts), `"T-003"` (3-way turnout)
-- `"S-001"` (2-aspect signal), `"S-002"` (3-aspect signal)
-- `"P-001"`..`"P-005"` (straight track pieces, 1 aspect each)
+### Default layout
+- `"TL-001"` (2-way left turnout at 2,3)
+- `"TR-001"` (2-way right turnout at 3,3)
+- `"T3-001"` (3-way turnout at 4,3)
+- `"S-001"` (2-aspect signal at 10,3)
+- `"S-002"` (3-aspect signal at 11,3)
+- `"P-001"`..`"P-005"` (straight track at row 0, cols 0-4)
 
 ---
 
@@ -168,9 +190,12 @@ Default layout creates elements with prefixed IDs:
 | File | Description |
 |------|-------------|
 | `empty.svg` | Dark background only |
-| `turnout_straight.svg` | Cyan horizontal line (straight route) |
-| `turnout_diverted_left.svg` | Cyan line splitting to upper-right orange branch |
-| `turnout_diverted_right.svg` | Cyan line splitting to lower-right orange branch |
+| `straight.svg` | Full cyan horizontal line (plain track) |
+| `turnout_straight.svg` | Cyan left half + orange right half (turnout set straight) |
+| `turnout_diverted_left.svg` | Cyan left half + orange diagonal to top-right corner |
+| `turnout_diverted_right.svg` | Cyan left half + orange diagonal to bottom-right corner |
+| `curve_left.svg` | Cyan left half + cyan diagonal to top-right corner |
+| `curve_right.svg` | Cyan left half + cyan diagonal to bottom-right corner |
 | `signal_red.svg` | Red filled circle |
 | `signal_yellow.svg` | Yellow filled circle |
 | `signal_green.svg` | Green filled circle |

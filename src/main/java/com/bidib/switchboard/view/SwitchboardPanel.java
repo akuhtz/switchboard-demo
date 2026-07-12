@@ -173,6 +173,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         JPopupMenu menu = new JPopupMenu();
 
         for (ElementType type : ElementType.values()) {
+            if (!type.isVisible()) continue;
             JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
             item.addActionListener(e -> {
                 if (tileContextHandler != null) {
