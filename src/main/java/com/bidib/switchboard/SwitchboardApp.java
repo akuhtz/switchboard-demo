@@ -67,18 +67,18 @@ public class SwitchboardApp {
         model.addElement("TL-001");
         model.addElement("TR-001");
         model.addElement("T3-001");
-        model.addElement("S-001");
-        model.addElement("S-002");
+        model.addElement("S2-001");
+        model.addElement("S3-001");
 
         panel.setTile(new ElementTile(2, 3, "TL-001", ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg")));
         panel.setTile(new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_right.svg")));
         panel
             .setTile(new ElementTile(4, 3, "T3-001", ElementType.TURNOUT_3WAY,
                 List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg", "/icons/turnout_diverted_right.svg")));
-        panel.setTile(new ElementTile(10, 3, "S-001", ElementType.SIGNAL, List.of("/icons/signal_red.svg", "/icons/signal_green.svg")));
+        panel.setTile(new ElementTile(10, 3, "S2-001", ElementType.SIGNAL_2, List.of("/icons/signal_2_red.svg", "/icons/signal_2_green.svg")));
         panel
             .setTile(
-                new ElementTile(11, 3, "S-002", ElementType.SIGNAL, List.of("/icons/signal_red.svg", "/icons/signal_yellow.svg", "/icons/signal_green.svg")));
+                new ElementTile(11, 3, "S3-001", ElementType.SIGNAL_3, List.of("/icons/signal_3_red.svg", "/icons/signal_3_yellow.svg", "/icons/signal_3_green.svg")));
 
         for (int col = 0; col < 5; col++) {
             String id = "P-" + String.format("%03d", col + 1);
@@ -153,8 +153,10 @@ public class SwitchboardApp {
                     List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_right.svg"));
             case TURNOUT_3WAY -> new ElementTile(col, row, id, type,
                     List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg", "/icons/turnout_diverted_right.svg"));
-            case SIGNAL -> new ElementTile(col, row, id, type,
-                    List.of("/icons/signal_red.svg", "/icons/signal_green.svg"));
+            case SIGNAL_2 -> new ElementTile(col, row, id, type,
+                    List.of("/icons/signal_2_red.svg", "/icons/signal_2_green.svg"));
+            case SIGNAL_3 -> new ElementTile(col, row, id, type,
+                    List.of("/icons/signal_3_red.svg", "/icons/signal_3_yellow.svg", "/icons/signal_3_green.svg"));
             case STRAIGHT -> new ElementTile(col, row, id, type,
                     List.of("/icons/straight.svg"));
             case CURVE_LEFT -> new ElementTile(col, row, id, type,

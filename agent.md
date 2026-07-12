@@ -49,12 +49,13 @@ type-specific enums — just element types distinguished by prefix.
 | `TURNOUT_LEFT` | `TL` | yes | 2 (straight, diverted left) | yes |
 | `TURNOUT_RIGHT` | `TR` | yes | 2 (straight, diverted right) | yes |
 | `TURNOUT_3WAY` | `T3` | yes | 3 (straight, left, right) | yes |
-| `SIGNAL` | `S` | yes | 2 (red, green) | yes |
+| `SIGNAL_2` | `S2` | yes | 2 (red, green) | yes |
+| `SIGNAL_3` | `S3` | yes | 3 (red, yellow, green) | yes |
 | `STRAIGHT` | `P` | yes | 1 | no |
 | `CURVE_LEFT` | `CL` | yes | 1 | no |
 | `CURVE_RIGHT` | `CR` | yes | 1 | no |
 
-Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"TR-001"`, `"T3-001"`.
+Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"S2-001"`, `"P-001"`.
 IDs are generated uniquely per prefix by scanning existing model elements for the highest suffix.
 
 ---
@@ -106,7 +107,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - For `ElementTile` tiles, resolves the SVG path from the model's current aspect.
 - **Interaction**:
   - Left-click: selects position + cycles aspect (normal) or selects only (edit).
-  - Right-click: context menu with visible ElementTypes + Clear (occupied only).
+  - Right-click: context menu with ElementTypes + Signals submenu + Clear (occupied only).
   - Ctrl+R: rotates selected tile 90° (edit mode only).
 - **Thread safety**:
   - All repaints triggered via `SwingUtilities.invokeLater`.
@@ -139,7 +140,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Serializes the full switchboard state (tiles + model) to JSON using Jackson 3.
 - `capture(SwitchboardPanel)` / `save(SwitchboardPanel, Path)` — write state.
 - `load(SwitchboardPanel, Path)` / `apply(SwitchboardPanel, LayoutData)` — read state.
-- Tile type string format: `{prefix}{count}`, e.g. `"TL2"`, `"TR2"`, `"T32"`, `"S2"`, `"P1"`, `"CL1"`, `"CR1"`.
+- Tile type string format: `{prefix}{count}`, e.g. `"TL2"`, `"T32"`, `"S22"`, `"S32"`, `"P1"`, `"CL1"`, `"CR1"`.
 - Type is matched by iterating `ElementType.values()` and testing `typeStr.startsWith(prefix)`.
 
 ### `SettingsManager`
@@ -179,8 +180,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - `"TL-001"` (2-way left turnout at 2,3)
 - `"TR-001"` (2-way right turnout at 3,3)
 - `"T3-001"` (3-way turnout at 4,3)
-- `"S-001"` (2-aspect signal at 10,3)
-- `"S-002"` (3-aspect signal at 11,3)
+- `"S2-001"` (2-aspect signal at 10,3)
+- `"S3-001"` (3-aspect signal at 11,3)
 - `"P-001"`..`"P-005"` (straight track at row 0, cols 0-4)
 
 ---
@@ -190,15 +191,17 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | File | Description |
 |------|-------------|
 | `empty.svg` | Dark background only |
-| `straight.svg` | Full cyan horizontal line (plain track) |
-| `turnout_straight.svg` | Cyan left half + orange right half (turnout set straight) |
-| `turnout_diverted_left.svg` | Cyan left half + orange diagonal to top-right corner |
-| `turnout_diverted_right.svg` | Cyan left half + orange diagonal to bottom-right corner |
-| `curve_left.svg` | Cyan left half + cyan diagonal to top-right corner |
-| `curve_right.svg` | Cyan left half + cyan diagonal to bottom-right corner |
-| `signal_red.svg` | Red filled circle |
-| `signal_yellow.svg` | Yellow filled circle |
-| `signal_green.svg` | Green filled circle |
+| `straight.svg` | Full cyan horizontal line |
+| `turnout_straight.svg` | Cyan left half + orange right half (turnout straight) |
+| `turnout_diverted_left.svg` | Cyan left half + orange diagonal to top-right |
+| `turnout_diverted_right.svg` | Cyan left half + orange diagonal to bottom-right |
+| `curve_left.svg` | Cyan straight + diagonal to top-right |
+| `curve_right.svg` | Cyan straight + diagonal to bottom-right |
+| `signal_2_red.svg` | Track + green(dim) red(bright) circles — red active |
+| `signal_2_green.svg` | Track + green(bright) red(dim) circles — green active |
+| `signal_3_red.svg` | Track + green(dim) yellow(dim) red(bright) — red active |
+| `signal_3_yellow.svg` | Track + green(dim) yellow(bright) red(dim) — yellow active |
+| `signal_3_green.svg` | Track + green(bright) yellow(dim) red(dim) — green active |
 
 All icons are 32×32 viewBox with a dark background (#2d2d32).
 

@@ -13,6 +13,7 @@ import com.github.weisj.jsvg.view.ViewBox;
 import javax.swing.AbstractAction;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -171,16 +172,32 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         }
 
         JPopupMenu menu = new JPopupMenu();
+        JMenu signalMenu = null;
 
         for (ElementType type : ElementType.values()) {
             if (!type.isVisible()) continue;
-            JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
-            item.addActionListener(e -> {
-                if (tileContextHandler != null) {
-                    tileContextHandler.handle(col, row, type);
+
+            if (type.getPrefix().startsWith("S")) {
+                if (signalMenu == null) {
+                    signalMenu = new JMenu("Signals");
+                    menu.add(signalMenu);
                 }
-            });
-            menu.add(item);
+                JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
+                item.addActionListener(e -> {
+                    if (tileContextHandler != null) {
+                        tileContextHandler.handle(col, row, type);
+                    }
+                });
+                signalMenu.add(item);
+            } else {
+                JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
+                item.addActionListener(e -> {
+                    if (tileContextHandler != null) {
+                        tileContextHandler.handle(col, row, type);
+                    }
+                });
+                menu.add(item);
+            }
         }
 
         if (getTile(col, row) != null) {

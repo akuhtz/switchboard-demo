@@ -5,7 +5,8 @@ public enum ElementType {
     TURNOUT_LEFT("TL", true),
     TURNOUT_RIGHT("TR", true),
     TURNOUT_3WAY("T3", true),
-    SIGNAL("S", true),
+    SIGNAL_2("S2", true),
+    SIGNAL_3("S3", true),
     STRAIGHT("P", true),
     CURVE_LEFT("CL", true),
     CURVE_RIGHT("CR", true);
