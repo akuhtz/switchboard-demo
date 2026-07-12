@@ -61,6 +61,7 @@ public class LayoutPersistence {
         td.setCol(tile.getCol());
         td.setRow(tile.getRow());
         td.setElementId(tile.getElementId());
+        td.setRotation(tile.getRotation());
 
         if (tile instanceof ElementTile et) {
             td.setType(et.getElementType().getPrefix() + et.getAspectCount());
@@ -109,23 +110,28 @@ public class LayoutPersistence {
             return null;
         }
 
+        Tile tile;
         if ("plain".equals(td.getType())) {
-            return new Tile(td.getCol(), td.getRow(), td.getElementId(), td.getSvgPaths().get(0));
+            tile = new Tile(td.getCol(), td.getRow(), td.getElementId(), td.getSvgPaths().get(0));
+        } else {
+            String typeStr = td.getType();
+            if (typeStr == null || typeStr.isEmpty()) {
+                return null;
+            }
+            ElementType elementType = null;
+            for (ElementType et : ElementType.values()) {
+                if (typeStr.startsWith(et.getPrefix())) {
+                    elementType = et;
+                    break;
+                }
+            }
+            if (elementType == null) {
+                return null;
+            }
+            tile = new ElementTile(td.getCol(), td.getRow(), td.getElementId(),
+                    elementType, td.getSvgPaths());
         }
-
-        String typeStr = td.getType();
-        if (typeStr == null || typeStr.length() < 2) {
-            return null;
-        }
-        String prefix = typeStr.substring(0, 1);
-        ElementType elementType;
-        try {
-            elementType = ElementType.fromPrefix(prefix);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-
-        return new ElementTile(td.getCol(), td.getRow(), td.getElementId(),
-                elementType, td.getSvgPaths());
+        tile.setRotation(td.getRotation());
+        return tile;
     }
 }

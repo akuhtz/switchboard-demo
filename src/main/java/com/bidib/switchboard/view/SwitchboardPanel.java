@@ -10,15 +10,21 @@ import com.bidib.switchboard.util.SvgIconLoader;
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.view.ViewBox;
 
+import javax.swing.AbstractAction;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -41,6 +47,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
     private static final Color COLOR_BACKGROUND = new Color(45, 45, 50);
     private static final Color COLOR_GRID_LINE = new Color(60, 60, 65);
+    private static final Color COLOR_SELECTION = new Color(0, 200, 200);
 
     private final int tileSize;
     private final int cols;
@@ -50,6 +57,9 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     private final Map<String, Tile> tiles = new LinkedHashMap<>();
     private final Deque<Command> undoStack = new ArrayDeque<>();
     private TileContextHandler tileContextHandler;
+    private int selectedCol = -1;
+    private int selectedRow = -1;
+    private boolean editMode;
 
     public SwitchboardPanel(RailwayModel model) {
         this(model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
@@ -63,6 +73,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         model.addPropertyChangeListener(this);
         setBackground(COLOR_BACKGROUND);
         setPreferredSize(new Dimension(cols * tileSize, rows * tileSize));
+        setFocusable(true);
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -84,6 +95,15 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                 if (e.isPopupTrigger()) {
                     showContextMenu(e.getX(), e.getY());
                 }
+            }
+        });
+
+        InputMap inputMap = getInputMap(JComponent.WHEN_FOCUSED);
+        inputMap.put(KeyStroke.getKeyStroke("control R"), "rotateTile");
+        getActionMap().put("rotateTile", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                rotateSelectedTile();
             }
         });
     }
@@ -122,11 +142,23 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
     public void removeTile(int col, int row) {
         tiles.remove(tileKey(col, row));
+        if (selectedCol == col && selectedRow == row) {
+            selectedCol = -1;
+            selectedRow = -1;
+        }
         repaint();
     }
 
     public void setTileContextHandler(TileContextHandler handler) {
         this.tileContextHandler = handler;
+    }
+
+    public boolean isEditMode() {
+        return editMode;
+    }
+
+    public void setEditMode(boolean editMode) {
+        this.editMode = editMode;
     }
 
     // --- Context menu ---
@@ -175,6 +207,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
         drawTiles(g2);
         drawGrid(g2);
+        drawSelection(g2);
     }
 
     private void drawGrid(Graphics2D g2) {
@@ -187,6 +220,17 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         for (int y = 0; y <= rows; y++) {
             g2.drawLine(0, y * tileSize, width, y * tileSize);
         }
+    }
+
+    private void drawSelection(Graphics2D g2) {
+        if (!editMode || selectedCol < 0 || selectedRow < 0) {
+            return;
+        }
+        int px = selectedCol * tileSize;
+        int py = selectedRow * tileSize;
+        g2.setColor(COLOR_SELECTION);
+        g2.setStroke(new BasicStroke(2));
+        g2.drawRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
     }
 
     private void drawTiles(Graphics2D g2) {
@@ -205,6 +249,10 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
             Graphics2D tileG = (Graphics2D) g2.create(px, py, tileSize, tileSize);
             try {
+                int rot = tile.getRotation();
+                if (rot != 0) {
+                    tileG.rotate(Math.toRadians(rot), tileSize / 2.0, tileSize / 2.0);
+                }
                 doc.render(null, tileG, new ViewBox(0, 0, tileSize, tileSize));
             } finally {
                 tileG.dispose();
@@ -233,14 +281,21 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         int col = x / tileSize;
         int row = y / tileSize;
         if (col >= 0 && col < cols && row >= 0 && row < rows) {
+            selectedCol = col;
+            selectedRow = row;
+            requestFocusInWindow();
             Tile tile = getTile(col, row);
             if (tile != null) {
                 onTileClicked(tile);
             }
+            repaint();
         }
     }
 
     protected void onTileClicked(Tile tile) {
+        if (editMode) {
+            return;
+        }
         if (tile instanceof ElementTile et) {
             String id = et.getElementId();
             int count = et.getAspectCount();
@@ -249,6 +304,17 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                 cmd.execute();
                 undoStack.push(cmd);
             }
+        }
+    }
+
+    private void rotateSelectedTile() {
+        if (!editMode || selectedCol < 0 || selectedRow < 0) {
+            return;
+        }
+        Tile tile = getTile(selectedCol, selectedRow);
+        if (tile != null) {
+            tile.setRotation(tile.getRotation() + 90);
+            repaint();
         }
     }
 

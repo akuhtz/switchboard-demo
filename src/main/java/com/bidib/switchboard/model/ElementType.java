@@ -4,7 +4,9 @@ public enum ElementType {
 
     TURNOUT("T"),
     SIGNAL("S"),
-    PLAIN("P");
+    PLAIN("P"),
+    CURVE_LEFT("CL"),
+    CURVE_RIGHT("CR");
 
     private final String prefix;
 

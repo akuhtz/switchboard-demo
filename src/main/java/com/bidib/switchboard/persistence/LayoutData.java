@@ -36,6 +36,7 @@ public class LayoutData {
         private String elementId;
         private String type;      // e.g. "T2", "T3", "S2", "S3", "P1"
         private List<String> svgPaths;
+        private int rotation;
 
         public int getCol() { return col; }
         public void setCol(int col) { this.col = col; }
@@ -51,6 +52,9 @@ public class LayoutData {
 
         public List<String> getSvgPaths() { return svgPaths; }
         public void setSvgPaths(List<String> svgPaths) { this.svgPaths = svgPaths; }
+
+        public int getRotation() { return rotation; }
+        public void setRotation(int rotation) { this.rotation = rotation; }
     }
 
     // --- Model state ---

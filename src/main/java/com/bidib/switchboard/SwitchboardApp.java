@@ -1,12 +1,13 @@
 package com.bidib.switchboard;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -14,6 +15,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -41,8 +44,6 @@ public class SwitchboardApp {
     private final SettingsManager settings;
 
     private Path currentFilePath;
-
-    private final AtomicInteger idCounter = new AtomicInteger(100);
 
     private SwitchboardApp() {
         model = new RailwayModel();
@@ -124,9 +125,24 @@ public class SwitchboardApp {
             panel.removeTile(col, row);
             return;
         }
-        String id = type.getPrefix() + "-" + idCounter.getAndIncrement();
+        String id = generateId(type);
         model.addElement(id);
         panel.setTile(createDefaultTile(col, row, id, type));
+    }
+
+    private String generateId(ElementType type) {
+        String prefix = type.getPrefix();
+        int max = 0;
+        for (String existingId : model.getElementAspects().keySet()) {
+            if (existingId.startsWith(prefix + "-")) {
+                try {
+                    int num = Integer.parseInt(existingId.substring(prefix.length() + 1));
+                    if (num > max) max = num;
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return prefix + "-" + String.format("%03d", max + 1);
     }
 
     private static Tile createDefaultTile(int col, int row, String id, ElementType type) {
@@ -136,11 +152,18 @@ public class SwitchboardApp {
             case SIGNAL -> new ElementTile(col, row, id, type,
                     List.of("/icons/signal_red.svg", "/icons/signal_green.svg"));
             case PLAIN -> new ElementTile(col, row, id, type,
-                    List.of("/icons/turnout_straight.svg"));
+                    List.of("/icons/straight.svg"));
+            case CURVE_LEFT -> new ElementTile(col, row, id, type,
+                    List.of("/icons/curve_left.svg"));
+            case CURVE_RIGHT -> new ElementTile(col, row, id, type,
+                    List.of("/icons/curve_right.svg"));
         };
     }
 
     // --- Menu ---
+
+    private JCheckBoxMenuItem editModeItem;
+    private JToggleButton editToggle;
 
     private void buildMenu() {
         JMenuBar menuBar = new JMenuBar();
@@ -174,7 +197,23 @@ public class SwitchboardApp {
         fileMenu.add(exitItem);
 
         menuBar.add(fileMenu);
+
+        JMenu editMenu = new JMenu("Edit");
+        editMenu.setMnemonic('E');
+        editModeItem = new JCheckBoxMenuItem("Edit Mode");
+        editModeItem.setMnemonic('M');
+        editModeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control E"));
+        editModeItem.addActionListener(e -> setEditMode(editModeItem.isSelected()));
+        editMenu.add(editModeItem);
+        menuBar.add(editMenu);
+
         frame.setJMenuBar(menuBar);
+    }
+
+    private void setEditMode(boolean enabled) {
+        panel.setEditMode(enabled);
+        editModeItem.setSelected(enabled);
+        editToggle.setSelected(enabled);
     }
 
     private void onLoad(ActionEvent e) {
@@ -237,12 +276,21 @@ public class SwitchboardApp {
     // --- Frame ---
 
     private void buildFrame() {
+        editToggle = new JToggleButton("Edit Mode");
+        editToggle.addActionListener(e -> setEditMode(editToggle.isSelected()));
+
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.add(editToggle);
+
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(32);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(32);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setContentPane(scrollPane);
+        frame.setLayout(new BorderLayout());
+        frame.add(toolbar, BorderLayout.PAGE_START);
+        frame.add(scrollPane, BorderLayout.CENTER);
         frame.setSize(1024, 768);
         frame.setLocationRelativeTo(null);
         updateTitle();
