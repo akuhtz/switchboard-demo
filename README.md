@@ -25,6 +25,12 @@ SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsv
 
 ---
 
+## Requirements
+
+- **Java 21+** required. The project uses Java 21 features including
+  `SequencedCollection`, `indexOfFirst`/`indexOfLast`, `Math.clamp`, and
+  `String.repeat`/`String.stripIndent`.
+
 ## Dependencies
 
 | Library | Version | Purpose |
