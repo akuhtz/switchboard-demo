@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect x="0" y="0" width="32" height="32" fill="#2d2d32"/>
+  <g transform="translate(16, 16) rotate(90) scale(0.116) translate(40, -120)">
+    <g id="signal" data-bidib="signal">
+      <path d="M 1 20 L 1 130 L 20 149 L 80 149 L 99 130 L 99 20 L 80 1 L 20 1 L 1 20 Z" fill="white" stroke="black" stroke-width="6"/>
+      <path d="M 10 25 L 10 125 L 25 140 L 75 140 L 90 125 L 90 25 L 75 10 L 25 10 L 10 25 Z" fill="black"/>
+      <circle id="hs2_f1" data-bidib-key="hs2_f1" cx="50" cy="50" r="20" fill="#00FF40"/>
+      <circle id="hs2_h" data-bidib-key="hs2_h" cx="50" cy="100" r="20" fill="#FF0020"/>
+    </g>
+  </g>
+</svg>

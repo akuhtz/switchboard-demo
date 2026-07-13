@@ -33,3 +33,4 @@ test-output
 
 ## Postgres
 /app/server/core/database
+settings.json
