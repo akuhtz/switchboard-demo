@@ -1,9 +1,7 @@
 package com.bidib.switchboard.persistence;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class LayoutData {
 
@@ -34,7 +32,7 @@ public class LayoutData {
         private int col;
         private int row;
         private String elementId;
-        private String type;      // e.g. "T2", "T3", "S2", "S3", "P1"
+        private String type;      // e.g. "TL2", "T32", "S22"
         private List<String> svgPaths;
         private int rotation;
 
@@ -60,9 +58,28 @@ public class LayoutData {
     // --- Model state ---
 
     public static class ModelStateData {
-        private Map<String, Integer> aspects = new LinkedHashMap<>();
+        private List<ElementData> elements = new ArrayList<>();
 
-        public Map<String, Integer> getAspects() { return aspects; }
-        public void setAspects(Map<String, Integer> aspects) { this.aspects = aspects; }
+        public List<ElementData> getElements() { return elements; }
+        public void setElements(List<ElementData> elements) { this.elements = elements; }
+    }
+
+    public static class ElementData {
+        private String id;
+        private long nodeId;
+        private long accessoryId;
+        private int aspect;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+
+        public long getNodeId() { return nodeId; }
+        public void setNodeId(long nodeId) { this.nodeId = nodeId; }
+
+        public long getAccessoryId() { return accessoryId; }
+        public void setAccessoryId(long accessoryId) { this.accessoryId = accessoryId; }
+
+        public int getAspect() { return aspect; }
+        public void setAspect(int aspect) { this.aspect = aspect; }
     }
 }

@@ -23,6 +23,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bidib.switchboard.model.Element;
 import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.ElementType;
 import com.bidib.switchboard.model.RailwayModel;
@@ -64,11 +65,11 @@ public class SwitchboardApp {
     // --- Setup ---
 
     private void buildDefaultLayout() {
-        model.addElement("TL-001");
-        model.addElement("TR-001");
-        model.addElement("T3-001");
-        model.addElement("S2-001");
-        model.addElement("S3-001");
+        model.addElement(new Element("TL-001", 0, 0));
+        model.addElement(new Element("TR-001", 0, 0));
+        model.addElement(new Element("T3-001", 0, 0));
+        model.addElement(new Element("S2-001", 0, 0));
+        model.addElement(new Element("S3-001", 0, 0));
 
         panel.setTile(new ElementTile(2, 3, "TL-001", ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg")));
         panel.setTile(new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_right.svg")));
@@ -82,7 +83,7 @@ public class SwitchboardApp {
 
         for (int col = 0; col < 5; col++) {
             String id = "P-" + String.format("%03d", col + 1);
-            model.addElement(id);
+            model.addElement(new Element(id, 0, 0));
             panel.setTile(new ElementTile(col, 0, id, ElementType.STRAIGHT, List.of("/icons/turnout_straight.svg")));
         }
 
@@ -126,14 +127,14 @@ public class SwitchboardApp {
             return;
         }
         String id = generateId(type);
-        model.addElement(id);
+        model.addElement(new Element(id, 0, 0));
         panel.setTile(createDefaultTile(col, row, id, type));
     }
 
     private String generateId(ElementType type) {
         String prefix = type.getPrefix();
         int max = 0;
-        for (String existingId : model.getElementAspects().keySet()) {
+        for (String existingId : model.getElements().keySet()) {
             if (existingId.startsWith(prefix + "-")) {
                 try {
                     int num = Integer.parseInt(existingId.substring(prefix.length() + 1));

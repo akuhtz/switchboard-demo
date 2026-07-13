@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import com.bidib.switchboard.model.Element;
 import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.ElementType;
 import com.bidib.switchboard.model.RailwayModel;
@@ -50,7 +50,16 @@ public class LayoutPersistence {
         data.setTiles(tileList);
 
         LayoutData.ModelStateData ms = new LayoutData.ModelStateData();
-        ms.setAspects(new java.util.LinkedHashMap<>(model.getElementAspects()));
+        List<LayoutData.ElementData> elementList = new ArrayList<>();
+        for (Element el : model.getElements().values()) {
+            LayoutData.ElementData ed = new LayoutData.ElementData();
+            ed.setId(el.getId());
+            ed.setNodeId(el.getNodeId());
+            ed.setAccessoryId(el.getAccessoryId());
+            ed.setAspect(el.getCurrentAspect());
+            elementList.add(ed);
+        }
+        ms.setElements(elementList);
         data.setModelState(ms);
 
         return data;
@@ -88,10 +97,11 @@ public class LayoutPersistence {
         panel.clearTiles();
         model.clear();
 
-        if (data.getModelState() != null && data.getModelState().getAspects() != null) {
-            for (Map.Entry<String, Integer> e : data.getModelState().getAspects().entrySet()) {
-                model.addElement(e.getKey());
-                model.setElementAspect(e.getKey(), e.getValue());
+        if (data.getModelState() != null && data.getModelState().getElements() != null) {
+            for (LayoutData.ElementData ed : data.getModelState().getElements()) {
+                Element element = new Element(ed.getId(), ed.getNodeId(), ed.getAccessoryId());
+                element.setCurrentAspect(ed.getAspect());
+                model.addElement(element);
             }
         }
 

@@ -66,17 +66,23 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ---
 
+### `Element`
+- Value class for a railway element.
+- Fields: `id` (String), `nodeId` (long), `accessoryId` (long), `currentAspect` (int).
+- Constructed with `new Element(id, nodeId, accessoryId)` — aspect starts at 0.
+- Properties exposed via getters; `currentAspect` has a setter.
+
 ### `RailwayModel`
 - Single unified model holding all elements.
 - Uses `PropertyChangeSupport` (idiomatic Java Observer).
-- **State**: `Map<String, Integer> elements` — elementId → current aspect ordinal.
+- **State**: `Map<String, Element> elements` — elementId → Element object.
 - Aspect counts live on the tile (`ElementTile.getAspectCount()`) rather than in the model.
 - Fires `PropertyChangeEvent` on every state mutation.
 - Methods:
-  - `addElement(String id)` — adds with aspect 0
+  - `addElement(Element element)`
   - `setElementAspect(String id, int aspect)`
-  - `getElementAspect(String id)`
-  - `getElementAspects()` — unmodifiable snapshot
+  - `getElementAspect(String id)` / `getElement(String id)`
+  - `getElements()` — unmodifiable snapshot `Map<String, Element>`
   - `clear()` / `removeElement(String id)` / `containsElement(String id)`
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
@@ -156,8 +162,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
-- `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation), and model aspect state.
-- `ModelStateData` uses a flat `Map<String, Integer>` for element aspects only (counts derive from tiles).
+- `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation), and `ModelStateData`.
+- `ModelStateData` holds a `List<ElementData>`, each containing `id`, `nodeId`, `accessoryId`, and `aspect`.
 - `SettingsData` holds application-level settings (extensible).
 
 ---

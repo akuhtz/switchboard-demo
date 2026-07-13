@@ -13,29 +13,36 @@ public class RailwayModel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RailwayModel.class);
 
-    private final Map<String, Integer> elements = new LinkedHashMap<>();
+    private final Map<String, Element> elements = new LinkedHashMap<>();
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-    public void addElement(String id) {
-        LOGGER.info("Add element: {}", id);
-        elements.put(id, 0);
+    public void addElement(Element element) {
+        LOGGER.info("Add element: {} (nodeId={}, accessoryId={})",
+                element.getId(), element.getNodeId(), element.getAccessoryId());
+        elements.put(element.getId(), element);
     }
 
     public void setElementAspect(String id, int aspect) {
-        Integer old = elements.get(id);
-        if (old == null) {
+        Element el = elements.get(id);
+        if (el == null) {
             throw new IllegalArgumentException("Unknown element: " + id);
         }
-        elements.put(id, aspect);
-        pcs.firePropertyChange(id, (Object) old, (Object) aspect);
+        int old = el.getCurrentAspect();
+        el.setCurrentAspect(aspect);
+        pcs.firePropertyChange(id, old, aspect);
     }
 
     public Integer getElementAspect(String id) {
+        Element el = elements.get(id);
+        return el != null ? el.getCurrentAspect() : null;
+    }
+
+    public Element getElement(String id) {
         return elements.get(id);
     }
 
-    public Map<String, Integer> getElementAspects() {
+    public Map<String, Element> getElements() {
         return Collections.unmodifiableMap(elements);
     }
 
