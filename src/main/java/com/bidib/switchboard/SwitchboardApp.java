@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -14,6 +15,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -29,8 +31,11 @@ import com.bidib.switchboard.model.ElementType;
 import com.bidib.switchboard.model.RailwayModel;
 import com.bidib.switchboard.model.Tile;
 import com.bidib.switchboard.persistence.LayoutPersistence;
+import com.bidib.switchboard.persistence.SettingsData.LookAndFeel;
 import com.bidib.switchboard.persistence.SettingsManager;
 import com.bidib.switchboard.view.SwitchboardPanel;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 
 public class SwitchboardApp {
 
@@ -49,8 +54,16 @@ public class SwitchboardApp {
     private SwitchboardApp() {
         model = new RailwayModel();
         panel = new SwitchboardPanel(model);
-        frame = new JFrame("Model Railway Switchboard");
         settings = new SettingsManager();
+
+        if (LookAndFeel.DARK == settings.getLookAndFeel()) {
+            FlatDarkLaf.setup();
+        }
+        else {
+            FlatLightLaf.setup();
+        }
+
+        frame = new JFrame("Model Railway Switchboard");
         buildDefaultLayout();
         panel.setTileContextHandler(this::onTileContextAction);
         tryAutoLoad();
@@ -71,8 +84,12 @@ public class SwitchboardApp {
         model.addElement(new Element("S2-001", 0, 0));
         model.addElement(new Element("S3-001", 0, 0));
 
-        panel.setTile(new ElementTile(2, 3, "TL-001", ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg")));
-        panel.setTile(new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg")));
+        panel
+            .setTile(
+                new ElementTile(2, 3, "TL-001", ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg")));
+        panel
+            .setTile(
+                new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg")));
         panel
             .setTile(new ElementTile(4, 3, "T3-001", ElementType.TURNOUT_3WAY,
                 List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg")));
@@ -159,10 +176,8 @@ public class SwitchboardApp {
             case SIGNAL_3 -> new ElementTile(col, row, id, type, List.of("/icons/signal_3_red.svg", "/icons/signal_3_yellow.svg", "/icons/signal_3_green.svg"));
             case STRAIGHT -> new ElementTile(col, row, id, type, List.of("/icons/straight.svg"));
             case CURVE_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/curve_left.svg"));
-            case CURVE_RIGHT -> new ElementTile(col, row, id, type,
-                    List.of("/icons/curve_right.svg"));
-            case DIAGONAL -> new ElementTile(col, row, id, type,
-                    List.of("/icons/diagonal.svg"));
+            case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/curve_right.svg"));
+            case DIAGONAL -> new ElementTile(col, row, id, type, List.of("/icons/diagonal.svg"));
         };
     }
 
@@ -198,6 +213,23 @@ public class SwitchboardApp {
 
         fileMenu.addSeparator();
 
+        JMenu settingsMenu = new JMenu("Settings");
+        settingsMenu.setMnemonic('S');
+        ButtonGroup lafGroup = new ButtonGroup();
+        JRadioButtonMenuItem lightItem = new JRadioButtonMenuItem("Light Look and Feel");
+        lightItem.setSelected(settings.getLookAndFeel() == LookAndFeel.LIGHT);
+        lightItem.addActionListener(e -> applyLookAndFeel(LookAndFeel.LIGHT));
+        lafGroup.add(lightItem);
+        settingsMenu.add(lightItem);
+        JRadioButtonMenuItem darkItem = new JRadioButtonMenuItem("Dark Look and Feel");
+        darkItem.setSelected(settings.getLookAndFeel() == LookAndFeel.DARK);
+        darkItem.addActionListener(e -> applyLookAndFeel(LookAndFeel.DARK));
+        lafGroup.add(darkItem);
+        settingsMenu.add(darkItem);
+        fileMenu.add(settingsMenu);
+
+        fileMenu.addSeparator();
+
         JMenuItem exitItem = new JMenuItem("Exit");
         exitItem.setMnemonic('X');
         exitItem.addActionListener(e -> System.exit(0));
@@ -221,6 +253,16 @@ public class SwitchboardApp {
         panel.setEditMode(enabled);
         editModeItem.setSelected(enabled);
         editToggle.setSelected(enabled);
+    }
+
+    private void applyLookAndFeel(LookAndFeel laf) {
+        settings.setLookAndFeel(laf);
+        if (laf == LookAndFeel.DARK) {
+            FlatDarkLaf.setup();
+        } else {
+            FlatLightLaf.setup();
+        }
+        SwingUtilities.updateComponentTreeUI(frame);
     }
 
     private void onLoad(ActionEvent e) {
