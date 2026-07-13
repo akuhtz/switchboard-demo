@@ -71,11 +71,11 @@ public class SwitchboardApp {
         model.addElement(new Element("S2-001", 0, 0));
         model.addElement(new Element("S3-001", 0, 0));
 
-        panel.setTile(new ElementTile(2, 3, "TL-001", ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg")));
-        panel.setTile(new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_right.svg")));
+        panel.setTile(new ElementTile(2, 3, "TL-001", ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg")));
+        panel.setTile(new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg")));
         panel
             .setTile(new ElementTile(4, 3, "T3-001", ElementType.TURNOUT_3WAY,
-                List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg", "/icons/turnout_diverted_right.svg")));
+                List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg")));
         panel.setTile(new ElementTile(10, 3, "S2-001", ElementType.SIGNAL_2, List.of("/icons/signal_2_red.svg", "/icons/signal_2_green.svg")));
         panel
             .setTile(new ElementTile(11, 3, "S3-001", ElementType.SIGNAL_3,
@@ -84,7 +84,7 @@ public class SwitchboardApp {
         for (int col = 0; col < 5; col++) {
             String id = "P-" + String.format("%03d", col + 1);
             model.addElement(new Element(id, 0, 0));
-            panel.setTile(new ElementTile(col, 0, id, ElementType.STRAIGHT, List.of("/icons/turnout_straight.svg")));
+            panel.setTile(new ElementTile(col, 0, id, ElementType.STRAIGHT, List.of("/icons/straight.svg")));
         }
 
         for (int col = 5; col < SwitchboardPanel.DEFAULT_COLS; col++) {
@@ -151,15 +151,18 @@ public class SwitchboardApp {
 
     private static Tile createDefaultTile(int col, int row, String id, ElementType type) {
         return switch (type) {
-            case TURNOUT_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg"));
-            case TURNOUT_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_right.svg"));
+            case TURNOUT_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg"));
+            case TURNOUT_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg"));
             case TURNOUT_3WAY -> new ElementTile(col, row, id, type,
-                List.of("/icons/turnout_straight.svg", "/icons/turnout_diverted_left.svg", "/icons/turnout_diverted_right.svg"));
+                List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg"));
             case SIGNAL_2 -> new ElementTile(col, row, id, type, List.of("/icons/signal_2_red.svg", "/icons/signal_2_green.svg"));
             case SIGNAL_3 -> new ElementTile(col, row, id, type, List.of("/icons/signal_3_red.svg", "/icons/signal_3_yellow.svg", "/icons/signal_3_green.svg"));
             case STRAIGHT -> new ElementTile(col, row, id, type, List.of("/icons/straight.svg"));
             case CURVE_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/curve_left.svg"));
-            case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/curve_right.svg"));
+            case CURVE_RIGHT -> new ElementTile(col, row, id, type,
+                    List.of("/icons/curve_right.svg"));
+            case DIAGONAL -> new ElementTile(col, row, id, type,
+                    List.of("/icons/diagonal.svg"));
         };
     }
 

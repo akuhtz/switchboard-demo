@@ -9,7 +9,8 @@ public enum ElementType {
     SIGNAL_3("S3", true),
     STRAIGHT("P", true),
     CURVE_LEFT("CL", true),
-    CURVE_RIGHT("CR", true);
+    CURVE_RIGHT("CR", true),
+    DIAGONAL("DG", true);
 
     private final String prefix;
     private final boolean visible;

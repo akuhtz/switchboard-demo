@@ -1,24 +1,5 @@
 package com.bidib.switchboard.view;
 
-import com.bidib.switchboard.command.Command;
-import com.bidib.switchboard.command.CycleElementCommand;
-import com.bidib.switchboard.model.ElementTile;
-import com.bidib.switchboard.model.ElementType;
-import com.bidib.switchboard.model.RailwayModel;
-import com.bidib.switchboard.model.Tile;
-import com.bidib.switchboard.util.SvgIconLoader;
-import com.github.weisj.jsvg.SVGDocument;
-import com.github.weisj.jsvg.view.ViewBox;
-
-import javax.swing.AbstractAction;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -35,7 +16,32 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bidib.switchboard.command.Command;
+import com.bidib.switchboard.command.CycleElementCommand;
+import com.bidib.switchboard.model.ElementTile;
+import com.bidib.switchboard.model.ElementType;
+import com.bidib.switchboard.model.RailwayModel;
+import com.bidib.switchboard.model.Tile;
+import com.bidib.switchboard.util.SvgIconLoader;
+import com.github.weisj.jsvg.SVGDocument;
+import com.github.weisj.jsvg.view.ViewBox;
+
 public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SwitchboardPanel.class);
 
     @FunctionalInterface
     public interface TileContextHandler {
@@ -43,23 +49,35 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     }
 
     public static final int DEFAULT_TILE_SIZE = 32;
+
     public static final int DEFAULT_COLS = 60;
+
     public static final int DEFAULT_ROWS = 30;
 
     private static final Color COLOR_BACKGROUND = new Color(45, 45, 50);
+
     private static final Color COLOR_GRID_LINE = new Color(60, 60, 65);
+
     private static final Color COLOR_SELECTION = new Color(0, 200, 200);
 
     private final int tileSize;
+
     private final int cols;
+
     private final int rows;
+
     private final RailwayModel model;
 
     private final Map<String, Tile> tiles = new LinkedHashMap<>();
+
     private final Deque<Command> undoStack = new ArrayDeque<>();
+
     private TileContextHandler tileContextHandler;
+
     private int selectedCol = -1;
+
     private int selectedRow = -1;
+
     private boolean editMode;
 
     public SwitchboardPanel(RailwayModel model) {
@@ -160,6 +178,11 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
     public void setEditMode(boolean editMode) {
         this.editMode = editMode;
+        if (!editMode) {
+            selectedCol = -1;
+            selectedRow = -1;
+        }
+        repaint();
     }
 
     // --- Context menu ---
@@ -175,7 +198,9 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         JMenu signalMenu = null;
 
         for (ElementType type : ElementType.values()) {
-            if (!type.isVisible()) continue;
+            if (!type.isVisible()) {
+                continue;
+            }
 
             if (type.getPrefix().startsWith("S")) {
                 if (signalMenu == null) {
@@ -189,7 +214,8 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                     }
                 });
                 signalMenu.add(item);
-            } else {
+            }
+            else {
                 JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
                 item.addActionListener(e -> {
                     if (tileContextHandler != null) {
@@ -272,7 +298,8 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                     tileG.rotate(Math.toRadians(rot), tileSize / 2.0, tileSize / 2.0);
                 }
                 doc.render(null, tileG, new ViewBox(0, 0, tileSize, tileSize));
-            } finally {
+            }
+            finally {
                 tileG.dispose();
             }
         }
@@ -303,6 +330,9 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             selectedRow = row;
             requestFocusInWindow();
             Tile tile = getTile(col, row);
+
+            LOGGER.info("Click on col: {}, row: {}, tile: {}", col, row, tile);
+
             if (tile != null) {
                 onTileClicked(tile);
             }
