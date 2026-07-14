@@ -12,9 +12,14 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.InputMap;
@@ -25,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,36 +55,31 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     }
 
     public static final int DEFAULT_TILE_SIZE = 32;
-
     public static final int DEFAULT_COLS = 60;
-
     public static final int DEFAULT_ROWS = 30;
 
     private static final Color COLOR_BACKGROUND = new Color(45, 45, 50);
-
     private static final Color COLOR_GRID_LINE = new Color(60, 60, 65);
-
     private static final Color COLOR_SELECTION = new Color(0, 200, 200);
+    private static final Color COLOR_ROUTE = new Color(180, 40, 40);
+    private static final Color COLOR_ROUTE_SOURCE = new Color(100, 200, 100);
 
     private final int tileSize;
-
     private final int cols;
-
     private final int rows;
-
     private final RailwayModel model;
 
     private final Map<String, Tile> tiles = new LinkedHashMap<>();
-
     private final Deque<Command> undoStack = new ArrayDeque<>();
 
     private TileContextHandler tileContextHandler;
-
     private int selectedCol = -1;
-
     private int selectedRow = -1;
-
     private boolean editMode;
+
+    private int routeSourceCol = -1;
+    private int routeSourceRow = -1;
+    private Set<String> routeTiles = new HashSet<>();
 
     public SwitchboardPanel(RailwayModel model) {
         this(model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
@@ -93,12 +94,13 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         setBackground(COLOR_BACKGROUND);
         setPreferredSize(new Dimension(cols * tileSize, rows * tileSize));
         setFocusable(true);
+        ToolTipManager.sharedInstance().registerComponent(this);
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    handleClick(e.getX(), e.getY());
+                    handleClick(e);
                 }
             }
 
@@ -156,6 +158,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
     public void clearTiles() {
         tiles.clear();
+        clearRoute();
         repaint();
     }
 
@@ -164,6 +167,9 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         if (selectedCol == col && selectedRow == row) {
             selectedCol = -1;
             selectedRow = -1;
+        }
+        if (routeSourceCol == col && routeSourceRow == row) {
+            clearRoute();
         }
         repaint();
     }
@@ -183,6 +189,293 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             selectedRow = -1;
         }
         repaint();
+    }
+
+    // --- Tooltip ---
+
+    @Override
+    public String getToolTipText(MouseEvent e) {
+        if (!editMode) {
+            return null;
+        }
+        int col = e.getX() / tileSize;
+        int row = e.getY() / tileSize;
+        Tile tile = getTile(col, row);
+        if (tile == null || tile.getElementId() == null) {
+            return null;
+        }
+        return tile.getElementId();
+    }
+
+    // --- Route ---
+
+    private void clearRoute() {
+        routeSourceCol = -1;
+        routeSourceRow = -1;
+        routeTiles.clear();
+    }
+
+    private void findRoute(int targetCol, int targetRow) {
+        routeTiles.clear();
+
+        if (routeSourceCol == targetCol && routeSourceRow == targetRow) {
+            clearRoute();
+            repaint();
+            return;
+        }
+
+        List<int[]> path = bfsRoute(routeSourceCol, routeSourceRow, targetCol, targetRow);
+        if (path != null) {
+            for (int[] p : path) {
+                routeTiles.add(tileKey(p[0], p[1]));
+            }
+            setRouteAspects(path);
+            LOGGER.info("Route found: {} tiles", path.size());
+        } else {
+            LOGGER.info("No route found from ({},{}) to ({},{})",
+                    routeSourceCol, routeSourceRow, targetCol, targetRow);
+            clearRoute();
+        }
+        repaint();
+    }
+
+    private void setRouteAspects(List<int[]> path) {
+        for (int i = 1; i < path.size() - 1; i++) {
+            int[] prev = path.get(i - 1);
+            int[] curr = path.get(i);
+            int[] next = path.get(i + 1);
+
+            Tile tile = getTile(curr[0], curr[1]);
+            if (!(tile instanceof ElementTile et)) continue;
+
+            ElementType type = et.getElementType();
+            int aspectCount = type.getAspectCount();
+            if (aspectCount <= 1) continue;
+
+            int entryPort = diagonalAwarePort(prev[0], prev[1], curr[0], curr[1], true);
+            int exitPort = diagonalAwarePort(curr[0], curr[1], next[0], next[1], false);
+
+            int aspect = type.aspectForRoute(entryPort, exitPort, tile.getRotation());
+            String id = et.getElementId();
+            if (id != null) {
+                model.setElementAspect(id, aspect);
+            }
+        }
+    }
+
+    private int diagonalAwarePort(int fromCol, int fromRow, int toCol, int toRow, boolean isEntry) {
+        int dc = toCol - fromCol;
+        int dr = toRow - fromRow;
+        if (dc != 0 && dr != 0) {
+            return isEntry
+                ? (dr > 0 ? ElementType.PORT_TOP : ElementType.PORT_BOTTOM)
+                : (dr > 0 ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP);
+        }
+        if (dc == 1) return isEntry ? ElementType.PORT_LEFT : ElementType.PORT_RIGHT;
+        if (dc == -1) return isEntry ? ElementType.PORT_RIGHT : ElementType.PORT_LEFT;
+        if (dr == 1) return isEntry ? ElementType.PORT_TOP : ElementType.PORT_BOTTOM;
+        return isEntry ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP;
+    }
+
+    private List<int[]> bfsRoute(int startCol, int startRow, int endCol, int endRow) {
+        String startKey = tileKey(startCol, startRow);
+        String endKey = tileKey(endCol, endRow);
+
+        if (!tiles.containsKey(startKey) || !tiles.containsKey(endKey)) {
+            return null;
+        }
+
+        Deque<int[]> queue = new ArrayDeque<>();
+        Map<String, int[]> cameFrom = new HashMap<>();
+        Set<String> visited = new HashSet<>();
+        Map<String, int[]> entryPorts = new HashMap<>();
+
+        queue.add(new int[] { startCol, startRow });
+        visited.add(startKey);
+        cameFrom.put(startKey, null);
+        entryPorts.put(startKey, new int[] { -1, -1 });
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            int c = current[0];
+            int r = current[1];
+            String cKey = tileKey(c, r);
+
+            if (c == endCol && r == endRow) {
+                List<int[]> path = new ArrayList<>();
+                String cur = endKey;
+                while (cur != null) {
+                    String[] parts = cur.split(",");
+                    path.add(0, new int[] { Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) });
+                    cur = cameFrom.get(cur) != null ? tileKey(cameFrom.get(cur)[0], cameFrom.get(cur)[1]) : null;
+                }
+                return path;
+            }
+
+            Tile tile = getTile(c, r);
+            int[] cEntry = entryPorts.get(cKey);
+
+            for (int[] neighbor : getConnectedNeighbors(c, r)) {
+                int nc = neighbor[0];
+                int nr = neighbor[1];
+                String nKey = tileKey(nc, nr);
+
+                if (visited.contains(nKey) || !tiles.containsKey(nKey)) {
+                    continue;
+                }
+
+                int ndc = nc - c;
+                int ndr = nr - r;
+                int exit1 = -1, exit2 = -1;
+                if (ndc == 1) exit1 = ElementType.PORT_RIGHT;
+                else if (ndc == -1) exit1 = ElementType.PORT_LEFT;
+                if (ndr == 1) exit2 = ElementType.PORT_BOTTOM;
+                else if (ndr == -1) exit2 = ElementType.PORT_TOP;
+
+                boolean validThrough = true;
+                if (cEntry[0] != -1) {
+                    validThrough = canTraverse(tile, cEntry[0], cEntry[1], exit1, exit2);
+                }
+
+                if (!validThrough) continue;
+
+                int dc = nc - c;
+                int dr = nr - r;
+                int ne1 = -1, ne2 = -1;
+                if (dc == 1) ne1 = ElementType.PORT_LEFT;
+                else if (dc == -1) ne1 = ElementType.PORT_RIGHT;
+                if (dr == 1) ne2 = ElementType.PORT_TOP;
+                else if (dr == -1) ne2 = ElementType.PORT_BOTTOM;
+
+                entryPorts.put(nKey, new int[] { ne1, ne2 });
+                visited.add(nKey);
+                cameFrom.put(nKey, new int[] { c, r });
+                queue.add(new int[] { nc, nr });
+            }
+        }
+
+        return null;
+    }
+
+    private boolean canTraverse(Tile tile, int entry1, int entry2, int exit1, int exit2) {
+        if (!(tile instanceof ElementTile et)) return false;
+        ElementType type = et.getElementType();
+        int rotation = tile.getRotation();
+        if (exit1 != -1) {
+            if (entry1 != -1 && type.isValidThroughPath(entry1, exit1, rotation)) return true;
+            if (entry2 != -1 && type.isValidThroughPath(entry2, exit1, rotation)) return true;
+        }
+        if (exit2 != -1) {
+            if (entry1 != -1 && type.isValidThroughPath(entry1, exit2, rotation)) return true;
+            if (entry2 != -1 && type.isValidThroughPath(entry2, exit2, rotation)) return true;
+        }
+        return false;
+    }
+
+    private List<int[]> getConnectedNeighbors(int col, int row) {
+        List<int[]> neighbors = new ArrayList<>();
+        Tile tile = getTile(col, row);
+        if (tile == null) {
+            return neighbors;
+        }
+
+        int[] ports = getPhysicalPorts(tile);
+        if (ports == null) {
+            return neighbors;
+        }
+
+        Set<Integer> portSet = new HashSet<>();
+        for (int p : ports) {
+            portSet.add(p);
+        }
+
+        ElementType elemType = null;
+        int rotation = 0;
+        if (tile instanceof ElementTile et) {
+            elemType = et.getElementType();
+            rotation = tile.getRotation();
+        }
+
+        if (portSet.contains(ElementType.PORT_LEFT) && col > 0
+                && hasPhysicalPort(col - 1, row, ElementType.PORT_RIGHT)) {
+            neighbors.add(new int[] { col - 1, row });
+        }
+        if (portSet.contains(ElementType.PORT_TOP) && row > 0
+                && hasPhysicalPort(col, row - 1, ElementType.PORT_BOTTOM)) {
+            neighbors.add(new int[] { col, row - 1 });
+        }
+        if (portSet.contains(ElementType.PORT_RIGHT) && col < cols - 1
+                && hasPhysicalPort(col + 1, row, ElementType.PORT_LEFT)) {
+            neighbors.add(new int[] { col + 1, row });
+        }
+        if (portSet.contains(ElementType.PORT_BOTTOM) && row < rows - 1
+                && hasPhysicalPort(col, row + 1, ElementType.PORT_TOP)) {
+            neighbors.add(new int[] { col, row + 1 });
+        }
+
+        if (elemType != null
+                && portSet.contains(ElementType.PORT_RIGHT) && portSet.contains(ElementType.PORT_BOTTOM)
+                && elemType.hasValidDiagonal(ElementType.PORT_RIGHT, ElementType.PORT_BOTTOM, rotation)
+                && col < cols - 1 && row < rows - 1
+                && (hasPhysicalPort(col + 1, row + 1, ElementType.PORT_LEFT)
+                 || hasPhysicalPort(col + 1, row + 1, ElementType.PORT_TOP))) {
+            neighbors.add(new int[] { col + 1, row + 1 });
+        }
+        if (elemType != null
+                && portSet.contains(ElementType.PORT_LEFT) && portSet.contains(ElementType.PORT_BOTTOM)
+                && elemType.hasValidDiagonal(ElementType.PORT_LEFT, ElementType.PORT_BOTTOM, rotation)
+                && col > 0 && row < rows - 1
+                && (hasPhysicalPort(col - 1, row + 1, ElementType.PORT_RIGHT)
+                 || hasPhysicalPort(col - 1, row + 1, ElementType.PORT_TOP))) {
+            neighbors.add(new int[] { col - 1, row + 1 });
+        }
+        if (elemType != null
+                && portSet.contains(ElementType.PORT_RIGHT) && portSet.contains(ElementType.PORT_TOP)
+                && elemType.hasValidDiagonal(ElementType.PORT_RIGHT, ElementType.PORT_TOP, rotation)
+                && col < cols - 1 && row > 0
+                && (hasPhysicalPort(col + 1, row - 1, ElementType.PORT_LEFT)
+                 || hasPhysicalPort(col + 1, row - 1, ElementType.PORT_BOTTOM))) {
+            neighbors.add(new int[] { col + 1, row - 1 });
+        }
+        if (elemType != null
+                && portSet.contains(ElementType.PORT_LEFT) && portSet.contains(ElementType.PORT_TOP)
+                && elemType.hasValidDiagonal(ElementType.PORT_LEFT, ElementType.PORT_TOP, rotation)
+                && col > 0 && row > 0
+                && (hasPhysicalPort(col - 1, row - 1, ElementType.PORT_RIGHT)
+                 || hasPhysicalPort(col - 1, row - 1, ElementType.PORT_BOTTOM))) {
+            neighbors.add(new int[] { col - 1, row - 1 });
+        }
+
+        return neighbors;
+    }
+
+    private boolean hasPhysicalPort(int col, int row, int port) {
+        Tile t = getTile(col, row);
+        if (t == null) {
+            return false;
+        }
+        int[] ports = getPhysicalPorts(t);
+        if (ports == null) {
+            return false;
+        }
+        for (int p : ports) {
+            if (p == port) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int[] getPhysicalPorts(Tile tile) {
+        if (tile instanceof ElementTile et) {
+            return et.getElementType().getPhysicalPorts(tile.getRotation());
+        }
+        return null;
+    }
+
+    private int tileRotation(Tile tile) {
+        int r = tile.getRotation();
+        return ((r % 360) + 360) % 360;
     }
 
     // --- Context menu ---
@@ -235,6 +528,16 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                 }
             });
             menu.add(clearItem);
+
+            String key = tileKey(col, row);
+            if (routeTiles.contains(key) || (col == routeSourceCol && row == routeSourceRow)) {
+                JMenuItem clearRouteItem = new JMenuItem("Clear route");
+                clearRouteItem.addActionListener(e -> {
+                    clearRoute();
+                    repaint();
+                });
+                menu.add(clearRouteItem);
+            }
         }
 
         menu.show(this, x, y);
@@ -252,6 +555,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         drawTiles(g2);
         drawGrid(g2);
         drawSelection(g2);
+        drawRoute(g2);
     }
 
     private void drawGrid(Graphics2D g2) {
@@ -275,6 +579,27 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         g2.setColor(COLOR_SELECTION);
         g2.setStroke(new BasicStroke(2));
         g2.drawRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
+    }
+
+    private void drawRoute(Graphics2D g2) {
+        for (String key : routeTiles) {
+            String[] parts = key.split(",");
+            int c = Integer.parseInt(parts[0]);
+            int r = Integer.parseInt(parts[1]);
+            int px = c * tileSize;
+            int py = r * tileSize;
+            g2.setColor(COLOR_ROUTE);
+            g2.setStroke(new BasicStroke(3));
+            g2.drawRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
+        }
+
+        if (routeSourceCol >= 0 && routeSourceRow >= 0) {
+            int px = routeSourceCol * tileSize;
+            int py = routeSourceRow * tileSize;
+            g2.setColor(COLOR_ROUTE_SOURCE);
+            g2.setStroke(new BasicStroke(3));
+            g2.drawRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
+        }
     }
 
     private void drawTiles(Graphics2D g2) {
@@ -322,22 +647,41 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
     // --- Interaction ---
 
-    private void handleClick(int x, int y) {
-        int col = x / tileSize;
-        int row = y / tileSize;
-        if (col >= 0 && col < cols && row >= 0 && row < rows) {
-            selectedCol = col;
-            selectedRow = row;
-            requestFocusInWindow();
-            Tile tile = getTile(col, row);
+    private void handleClick(MouseEvent e) {
+        int col = e.getX() / tileSize;
+        int row = e.getY() / tileSize;
+        if (col < 0 || col >= cols || row < 0 || row >= rows) {
+            return;
+        }
 
-            LOGGER.info("Click on col: {}, row: {}, tile: {}", col, row, tile);
+        selectedCol = col;
+        selectedRow = row;
+        requestFocusInWindow();
 
-            if (tile != null) {
-                onTileClicked(tile);
+        if (!routeTiles.isEmpty()) {
+            clearRoute();
+            repaint();
+            return;
+        }
+
+        if (e.isControlDown()) {
+            if (routeSourceCol < 0) {
+                routeSourceCol = col;
+                routeSourceRow = row;
+                routeTiles.clear();
+                LOGGER.info("Route source set at ({},{})", col, row);
+            } else {
+                findRoute(col, row);
             }
             repaint();
+            return;
         }
+
+        Tile tile = getTile(col, row);
+        if (tile != null) {
+            onTileClicked(tile);
+        }
+        repaint();
     }
 
     protected void onTileClicked(Tile tile) {
@@ -370,6 +714,26 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         if (!undoStack.isEmpty()) {
             undoStack.pop().undo();
         }
+    }
+
+    // --- Test support ---
+
+    boolean hasActiveRoute() {
+        return !routeTiles.isEmpty();
+    }
+
+    int routeTileCount() {
+        return routeTiles.size();
+    }
+
+    void testSetRouteSource(int col, int row) {
+        routeSourceCol = col;
+        routeSourceRow = row;
+        routeTiles.clear();
+    }
+
+    void testFindRoute(int targetCol, int targetRow) {
+        findRoute(targetCol, targetRow);
     }
 
     // --- Observer ---

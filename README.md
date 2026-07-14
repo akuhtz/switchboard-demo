@@ -65,6 +65,14 @@ type-specific enums — just element types distinguished by prefix.
 | `CURVE_RIGHT` | `CR` | yes | 1 | no |
 | `DIAGONAL` | `DG` | yes | 1 | no |
 
+Route finding uses `isValidThroughPath(port1, port2, rotation)` which validates that
+a train can traverse the tile from an entry port to an exit port. Turnouts only allow
+common-heel→frog-end paths (e.g., LEFT↔RIGHT and LEFT↔BOTTOM for TURNOUT_RIGHT),
+preventing frog-end→frog-end traversal. DIAGONAL elements allow all combinations
+connecting bottom-left corner ports with top-right corner ports.
+`hasValidDiagonal(port1, port2, rotation)` checks whether a tile's SVG track path has
+an endpoint at the given corner, used for diagonal neighbor connections.
+
 Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"S2-001"`, `"P-001"`.
 IDs are generated uniquely per prefix by scanning existing model elements for the highest suffix.
 
@@ -115,6 +123,17 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Modes**:
   - **Normal**: left-click cycles aspects on clickable tiles (aspectCount > 1).
   - **Edit**: left-click selects tiles (cyan border), Ctrl+R rotates selected tile 90°, right-click context menu to place/clear tiles. No aspect cycling. Selection clears when edit mode is turned off.
+- **Route Finding**:
+  - Ctrl+click source tile, then Ctrl+click target tile.
+  - BFS finds path using physical port connectivity (orthogonal + diagonal).
+  - **Through-path validation**: BFS tracks entry port per tile via `entryPorts` map.
+    Before adding a neighbor, `canTraverse()` checks `isValidThroughPath(entry, exit, rotation)`
+    on the current tile. Turnouts block frog-end→frog-end (backwards) traversal.
+  - Each connection validates BOTH sender and receiver ports (bidirectional).
+  - Diagonal connections require `hasValidDiagonal()` on the sender corner.
+  - Found routes highlight in dark red `(180,40,40)` with green source marker.
+  - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
+  - Any click (no Ctrl required) clears the active route.
 - **Rendering** (`paintComponent`):
   - Uses `Graphics2D` with antialiasing and bilinear interpolation.
   - Draws tiles first, then grid lines, then selection border (edit mode only).
@@ -123,8 +142,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - For `ElementTile` tiles, resolves the SVG path from the model's current aspect.
 - **Interaction**:
   - Left-click: selects position + cycles aspect (normal) or selects only (edit).
-  - Right-click: context menu with ElementTypes + Signals submenu + Clear (occupied only).
+  - Right-click: context menu with ElementTypes + Signals submenu + Clear route on route tiles.
   - Ctrl+R: rotates selected tile 90° (edit mode only).
+  - Edit-mode tooltip shows element ID on hover.
 - **Thread safety**:
   - All repaints triggered via `SwingUtilities.invokeLater`.
 - Public API:
