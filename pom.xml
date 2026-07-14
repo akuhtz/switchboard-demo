@@ -21,6 +21,8 @@
         <logback.version>1.5.37</logback.version>
 		<flatlaf-version>3.7.2</flatlaf-version>
 		<jsvg.version>2.1.0</jsvg.version>
+		<assertj-swing-junit-jupiter.version>4.0.0-beta-3</assertj-swing-junit-jupiter.version>
+		<junit6.version>6.0.3</junit6.version>
     </properties>
 
     <dependencyManagement>
@@ -32,6 +34,43 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+			<!-- https://codeberg.org/miurahr/assertj-swing -->
+			<dependency>
+				<groupId>tokyo.northside</groupId>
+				<artifactId>assertj-swing-junit-jupiter</artifactId>
+				<version>${assertj-swing-junit-jupiter.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>junit</groupId>
+						<artifactId>junit</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>			
+	        <dependency>
+	            <groupId>com.formdev</groupId>
+	            <artifactId>flatlaf</artifactId>
+	            <version>${flatlaf-version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>com.github.weisj</groupId>
+	            <artifactId>jsvg</artifactId>
+	            <version>${jsvg.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-api</artifactId>
+	            <version>${slf4j.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>ch.qos.logback</groupId>
+	            <artifactId>logback-classic</artifactId>
+	            <version>${logback.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.junit.jupiter</groupId>
+	            <artifactId>junit-jupiter-engine</artifactId>
+	            <version>${junit6.version}</version>
+	        </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -43,23 +82,31 @@
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
-            <version>${flatlaf-version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.weisj</groupId>
             <artifactId>jsvg</artifactId>
-            <version>${jsvg.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
         </dependency>
+        
+		<dependency>
+			<groupId>tokyo.northside</groupId>
+			<artifactId>assertj-swing-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>

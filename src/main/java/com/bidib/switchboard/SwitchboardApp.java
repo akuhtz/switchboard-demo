@@ -51,7 +51,7 @@ public class SwitchboardApp {
 
     private Path currentFilePath;
 
-    private SwitchboardApp() {
+    SwitchboardApp() {
         model = new RailwayModel();
         panel = new SwitchboardPanel(model);
         settings = new SettingsManager();
@@ -344,6 +344,10 @@ public class SwitchboardApp {
         frame.setLocationRelativeTo(null);
         updateTitle();
         frame.setVisible(true);
+    }
+
+    JFrame getFrame() {
+        return frame;
     }
 
     private void updateTitle() {
