@@ -37,8 +37,11 @@ SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsv
 |---------|---------|---------|
 | `com.github.weisj:jsvg` | 2.1.0 | SVG rendering |
 | `tools.jackson.core:jackson-databind` | 3.2.0 | JSON serialization (via jackson-bom) |
+| `com.formdev:flatlaf` | 3.7.2 | Look and Feel (Light/Dark) |
 | `org.slf4j:slf4j-api` | 2.0.18 | Logging facade |
 | `ch.qos.logback:logback-classic` | 1.5.37 | Logging implementation |
+| `tokyo.northside:assertj-swing-junit-jupiter` | 4.0.0-beta-3 | GUI testing (test scope) |
+| `org.junit.jupiter:junit-jupiter-engine` | 6.0.3 | Test runner (test scope) |
 
 ---
 
@@ -60,6 +63,7 @@ type-specific enums — just element types distinguished by prefix.
 | `STRAIGHT` | `P` | yes | 1 | no |
 | `CURVE_LEFT` | `CL` | yes | 1 | no |
 | `CURVE_RIGHT` | `CR` | yes | 1 | no |
+| `DIAGONAL` | `DG` | yes | 1 | no |
 
 Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"S2-001"`, `"P-001"`.
 IDs are generated uniquely per prefix by scanning existing model elements for the highest suffix.
@@ -110,7 +114,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Registers as observer on the `RailwayModel`.
 - **Modes**:
   - **Normal**: left-click cycles aspects on clickable tiles (aspectCount > 1).
-  - **Edit**: left-click selects tiles (cyan border), Ctrl+R rotates selected tile 90°, right-click context menu to place/clear tiles. No aspect cycling.
+  - **Edit**: left-click selects tiles (cyan border), Ctrl+R rotates selected tile 90°, right-click context menu to place/clear tiles. No aspect cycling. Selection clears when edit mode is turned off.
 - **Rendering** (`paintComponent`):
   - Uses `Graphics2D` with antialiasing and bilinear interpolation.
   - Draws tiles first, then grid lines, then selection border (edit mode only).
@@ -139,6 +143,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Computes `(oldAspect + 1) % aspectCount` in constructor, stores both old and new values.
 - `execute()` calls `model.setElementAspect(id, newAspect)`.
 - `undo()` calls `model.setElementAspect(id, oldAspect)`.
+- Logs execute/undo via SLF4J.
 
 ---
 
@@ -152,19 +157,19 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Serializes the full switchboard state (tiles + model) to JSON using Jackson 3.
 - `capture(SwitchboardPanel)` / `save(SwitchboardPanel, Path)` — write state.
 - `load(SwitchboardPanel, Path)` / `apply(SwitchboardPanel, LayoutData)` — read state.
-- Tile type string format: `{prefix}{count}`, e.g. `"TL2"`, `"T32"`, `"S22"`, `"S32"`, `"P1"`, `"CL1"`, `"CR1"`.
+- Tile type string format: `{prefix}{count}`, e.g. `"TL2"`, `"T32"`, `"S22"`, `"S32"`, `"P1"`, `"CL1"`, `"CR1"`, `"DG1"`.
 - Type is matched by iterating `ElementType.values()` and testing `typeStr.startsWith(prefix)`.
 
 ### `SettingsManager`
 - Manages `settings.json` at the project root, separate from the layout file.
-- Stores the `lastLayoutFile` path referencing the user's chosen layout `.json`.
+- Stores the `lastLayoutFile` path and `lookAndFeel` setting.
 - Loaded on startup; auto-saves on every change.
 
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
 - `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation), and `ModelStateData`.
 - `ModelStateData` holds a `List<ElementData>`, each containing `id`, `nodeId`, `accessoryId`, and `aspect`.
-- `SettingsData` holds application-level settings (extensible).
+- `SettingsData` holds `lastLayoutFile` and `LookAndFeel` (LIGHT/DARK enum).
 
 ---
 
@@ -177,6 +182,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | File | Load... | `Ctrl+L` | JFileChooser to load a `.json` layout |
 | File | Save | `Ctrl+S` | Save to current file, or Save As if none |
 | File | Save As... | `Ctrl+Shift+S` | JFileChooser to save to a new location |
+| File | Settings > Light Look and Feel | — | Switch to FlatLaf light theme |
+| File | Settings > Dark Look and Feel | — | Switch to FlatLaf dark theme |
 | File | Exit | — | Exit application |
 | Edit | Edit Mode | `Ctrl+E` | Toggle normal/edit mode |
 
@@ -185,8 +192,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### On startup
 1. Load `settings.json` from project root
-2. Read the `lastLayoutFile` path → load layout from that file (if it exists)
-3. Fall back to the hardcoded default layout if no settings or file is found
+2. Apply saved Look and Feel (Light or Dark)
+3. Read the `lastLayoutFile` path → load layout from that file (if it exists)
+4. Fall back to the hardcoded default layout if no settings or file is found
 
 ### Default layout
 - `"TL-001"` (2-way left turnout at 2,3)
@@ -204,18 +212,35 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 |------|-------------|
 | `empty.svg` | Dark background only |
 | `straight.svg` | Full cyan horizontal line |
-| `turnout_straight.svg` | Cyan left half + orange right half (turnout straight) |
-| `turnout_diverted_left.svg` | Cyan left half + orange diagonal to top-right |
-| `turnout_diverted_right.svg` | Cyan left half + orange diagonal to bottom-right |
-| `curve_left.svg` | Cyan straight + diagonal to top-right |
-| `curve_right.svg` | Cyan straight + diagonal to bottom-right |
-| `signal_2_red.svg` | Track + green(dim) red(bright) circles — red active |
-| `signal_2_green.svg` | Track + green(bright) red(dim) circles — green active |
-| `signal_3_red.svg` | Track + green(dim) yellow(dim) red(bright) — red active |
-| `signal_3_yellow.svg` | Track + green(dim) yellow(bright) red(dim) — yellow active |
-| `signal_3_green.svg` | Track + green(bright) yellow(dim) red(dim) — green active |
+| `turnout_straight_left.svg` | Straight active (cyan+orange), diverted left gray |
+| `turnout_straight_right.svg` | Straight active (cyan+orange), diverted right gray |
+| `turnout_diverted_left.svg` | Left diverted active (cyan+orange), straight gray |
+| `turnout_diverted_right.svg` | Right diverted active (cyan+orange), straight gray |
+| `turnout_3way_straight.svg` | Straight active, both diverted gray |
+| `turnout_3way_left.svg` | Left active, straight and right gray |
+| `turnout_3way_right.svg` | Right active, straight and left gray |
+| `curve_left.svg` | Horizontal to center then diagonal to top-right |
+| `curve_right.svg` | Horizontal to center then diagonal to bottom-right |
+| `diagonal.svg` | Diagonal from lower-left to upper-right corner |
+| `signal_2_red.svg` | SBB signal shape — red active, green dim |
+| `signal_2_green.svg` | SBB signal shape — green active, red dim |
+| `signal_3_red.svg` | SBB signal shape — red active, yellow+green dim |
+| `signal_3_yellow.svg` | SBB signal shape — yellow active, red+green dim |
+| `signal_3_green.svg` | SBB signal shape — green active, red+yellow dim |
 
 All icons are 32×32 viewBox with a dark background (#2d2d32).
+
+### Additional resources
+| Path | Description |
+|------|-------------|
+| `src/main/resources/signals/sbb_l/SBB-L-H01.svg` | Source SBB L signal shape (200x400, rotated for icons) |
+
+---
+
+## AI Agent Guidelines
+
+See `AGENTS.md` in the project root for rules governing AI-generated contributions,
+including attribution and co-authorship requirements.
 
 ---
 
@@ -223,4 +248,5 @@ All icons are 32×32 viewBox with a dark background (#2d2d32).
 
 ```
 mvn compile exec:java -Dexec.mainClass=com.bidib.switchboard.SwitchboardApp
+mvn test
 ```
