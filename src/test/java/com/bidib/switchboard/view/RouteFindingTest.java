@@ -83,4 +83,21 @@ class RouteFindingTest {
         assertFalse(panel.hasActiveRoute(),
                 "Route should NOT be found from (2,3) to (10,0)");
     }
+
+    @Test
+    void routeFromRow1Col10ToRow3Col2() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+
+        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
+        LayoutPersistence.load(panel, path);
+
+        panel.testSetRouteSource(10, 1);
+        panel.testFindRoute(2, 3);
+
+        assertTrue(panel.hasActiveRoute(),
+                "Route should be found from (10,1) to (2,3)");
+        assertTrue(panel.routeTileCount() > 0,
+                "Route should contain at least one tile");
+    }
 }

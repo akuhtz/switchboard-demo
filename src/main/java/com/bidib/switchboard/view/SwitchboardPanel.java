@@ -55,31 +55,50 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     }
 
     public static final int DEFAULT_TILE_SIZE = 32;
+
     public static final int DEFAULT_COLS = 60;
+
     public static final int DEFAULT_ROWS = 30;
 
     private static final Color COLOR_BACKGROUND = new Color(45, 45, 50);
+
     private static final Color COLOR_GRID_LINE = new Color(60, 60, 65);
+
     private static final Color COLOR_SELECTION = new Color(0, 200, 200);
-    private static final Color COLOR_ROUTE = new Color(180, 40, 40);
+
+    private static final Color COLOR_ROUTE = new Color(255, 80, 80);
+
     private static final Color COLOR_ROUTE_SOURCE = new Color(100, 200, 100);
 
+    private static final Color COLOR_ROUTE_TARGET = new Color(80, 80, 255);
+
     private final int tileSize;
+
     private final int cols;
+
     private final int rows;
+
     private final RailwayModel model;
 
     private final Map<String, Tile> tiles = new LinkedHashMap<>();
+
     private final Deque<Command> undoStack = new ArrayDeque<>();
 
     private TileContextHandler tileContextHandler;
+
     private int selectedCol = -1;
+
     private int selectedRow = -1;
+
     private boolean editMode;
 
     private int routeSourceCol = -1;
+
     private int routeSourceRow = -1;
+
     private Set<String> routeTiles = new HashSet<>();
+
+    private List<int[]> routePath;
 
     public SwitchboardPanel(RailwayModel model) {
         this(model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
@@ -213,10 +232,12 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         routeSourceCol = -1;
         routeSourceRow = -1;
         routeTiles.clear();
+        routePath = null;
     }
 
     private void findRoute(int targetCol, int targetRow) {
         routeTiles.clear();
+        routePath = null;
 
         if (routeSourceCol == targetCol && routeSourceRow == targetRow) {
             clearRoute();
@@ -229,11 +250,12 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             for (int[] p : path) {
                 routeTiles.add(tileKey(p[0], p[1]));
             }
+            routePath = path;
             setRouteAspects(path);
             LOGGER.info("Route found: {} tiles", path.size());
-        } else {
-            LOGGER.info("No route found from ({},{}) to ({},{})",
-                    routeSourceCol, routeSourceRow, targetCol, targetRow);
+        }
+        else {
+            LOGGER.info("No route found from ({},{}) to ({},{})", routeSourceCol, routeSourceRow, targetCol, targetRow);
             clearRoute();
         }
         repaint();
@@ -246,11 +268,15 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             int[] next = path.get(i + 1);
 
             Tile tile = getTile(curr[0], curr[1]);
-            if (!(tile instanceof ElementTile et)) continue;
+            if (!(tile instanceof ElementTile et)) {
+                continue;
+            }
 
             ElementType type = et.getElementType();
             int aspectCount = type.getAspectCount();
-            if (aspectCount <= 1) continue;
+            if (aspectCount <= 1) {
+                continue;
+            }
 
             int entryPort = diagonalAwarePort(prev[0], prev[1], curr[0], curr[1], true);
             int exitPort = diagonalAwarePort(curr[0], curr[1], next[0], next[1], false);
@@ -267,13 +293,17 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         int dc = toCol - fromCol;
         int dr = toRow - fromRow;
         if (dc != 0 && dr != 0) {
-            return isEntry
-                ? (dr > 0 ? ElementType.PORT_TOP : ElementType.PORT_BOTTOM)
-                : (dr > 0 ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP);
+            return isEntry ? (dr > 0 ? ElementType.PORT_TOP : ElementType.PORT_BOTTOM) : (dr > 0 ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP);
         }
-        if (dc == 1) return isEntry ? ElementType.PORT_LEFT : ElementType.PORT_RIGHT;
-        if (dc == -1) return isEntry ? ElementType.PORT_RIGHT : ElementType.PORT_LEFT;
-        if (dr == 1) return isEntry ? ElementType.PORT_TOP : ElementType.PORT_BOTTOM;
+        if (dc == 1) {
+            return isEntry ? ElementType.PORT_LEFT : ElementType.PORT_RIGHT;
+        }
+        if (dc == -1) {
+            return isEntry ? ElementType.PORT_RIGHT : ElementType.PORT_LEFT;
+        }
+        if (dr == 1) {
+            return isEntry ? ElementType.PORT_TOP : ElementType.PORT_BOTTOM;
+        }
         return isEntry ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP;
     }
 
@@ -327,25 +357,43 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                 int ndc = nc - c;
                 int ndr = nr - r;
                 int exit1 = -1, exit2 = -1;
-                if (ndc == 1) exit1 = ElementType.PORT_RIGHT;
-                else if (ndc == -1) exit1 = ElementType.PORT_LEFT;
-                if (ndr == 1) exit2 = ElementType.PORT_BOTTOM;
-                else if (ndr == -1) exit2 = ElementType.PORT_TOP;
+                if (ndc == 1) {
+                    exit1 = ElementType.PORT_RIGHT;
+                }
+                else if (ndc == -1) {
+                    exit1 = ElementType.PORT_LEFT;
+                }
+                if (ndr == 1) {
+                    exit2 = ElementType.PORT_BOTTOM;
+                }
+                else if (ndr == -1) {
+                    exit2 = ElementType.PORT_TOP;
+                }
 
                 boolean validThrough = true;
                 if (cEntry[0] != -1) {
                     validThrough = canTraverse(tile, cEntry[0], cEntry[1], exit1, exit2);
                 }
 
-                if (!validThrough) continue;
+                if (!validThrough) {
+                    continue;
+                }
 
                 int dc = nc - c;
                 int dr = nr - r;
                 int ne1 = -1, ne2 = -1;
-                if (dc == 1) ne1 = ElementType.PORT_LEFT;
-                else if (dc == -1) ne1 = ElementType.PORT_RIGHT;
-                if (dr == 1) ne2 = ElementType.PORT_TOP;
-                else if (dr == -1) ne2 = ElementType.PORT_BOTTOM;
+                if (dc == 1) {
+                    ne1 = ElementType.PORT_LEFT;
+                }
+                else if (dc == -1) {
+                    ne1 = ElementType.PORT_RIGHT;
+                }
+                if (dr == 1) {
+                    ne2 = ElementType.PORT_TOP;
+                }
+                else if (dr == -1) {
+                    ne2 = ElementType.PORT_BOTTOM;
+                }
 
                 entryPorts.put(nKey, new int[] { ne1, ne2 });
                 visited.add(nKey);
@@ -358,16 +406,26 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     }
 
     private boolean canTraverse(Tile tile, int entry1, int entry2, int exit1, int exit2) {
-        if (!(tile instanceof ElementTile et)) return false;
+        if (!(tile instanceof ElementTile et)) {
+            return false;
+        }
         ElementType type = et.getElementType();
         int rotation = tile.getRotation();
         if (exit1 != -1) {
-            if (entry1 != -1 && type.isValidThroughPath(entry1, exit1, rotation)) return true;
-            if (entry2 != -1 && type.isValidThroughPath(entry2, exit1, rotation)) return true;
+            if (entry1 != -1 && type.isValidThroughPath(entry1, exit1, rotation)) {
+                return true;
+            }
+            if (entry2 != -1 && type.isValidThroughPath(entry2, exit1, rotation)) {
+                return true;
+            }
         }
         if (exit2 != -1) {
-            if (entry1 != -1 && type.isValidThroughPath(entry1, exit2, rotation)) return true;
-            if (entry2 != -1 && type.isValidThroughPath(entry2, exit2, rotation)) return true;
+            if (entry1 != -1 && type.isValidThroughPath(entry1, exit2, rotation)) {
+                return true;
+            }
+            if (entry2 != -1 && type.isValidThroughPath(entry2, exit2, rotation)) {
+                return true;
+            }
         }
         return false;
     }
@@ -396,53 +454,37 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             rotation = tile.getRotation();
         }
 
-        if (portSet.contains(ElementType.PORT_LEFT) && col > 0
-                && hasPhysicalPort(col - 1, row, ElementType.PORT_RIGHT)) {
+        if (portSet.contains(ElementType.PORT_LEFT) && col > 0 && hasPhysicalPort(col - 1, row, ElementType.PORT_RIGHT)) {
             neighbors.add(new int[] { col - 1, row });
         }
-        if (portSet.contains(ElementType.PORT_TOP) && row > 0
-                && hasPhysicalPort(col, row - 1, ElementType.PORT_BOTTOM)) {
+        if (portSet.contains(ElementType.PORT_TOP) && row > 0 && hasPhysicalPort(col, row - 1, ElementType.PORT_BOTTOM)) {
             neighbors.add(new int[] { col, row - 1 });
         }
-        if (portSet.contains(ElementType.PORT_RIGHT) && col < cols - 1
-                && hasPhysicalPort(col + 1, row, ElementType.PORT_LEFT)) {
+        if (portSet.contains(ElementType.PORT_RIGHT) && col < cols - 1 && hasPhysicalPort(col + 1, row, ElementType.PORT_LEFT)) {
             neighbors.add(new int[] { col + 1, row });
         }
-        if (portSet.contains(ElementType.PORT_BOTTOM) && row < rows - 1
-                && hasPhysicalPort(col, row + 1, ElementType.PORT_TOP)) {
+        if (portSet.contains(ElementType.PORT_BOTTOM) && row < rows - 1 && hasPhysicalPort(col, row + 1, ElementType.PORT_TOP)) {
             neighbors.add(new int[] { col, row + 1 });
         }
 
-        if (elemType != null
-                && portSet.contains(ElementType.PORT_RIGHT) && portSet.contains(ElementType.PORT_BOTTOM)
-                && elemType.hasValidDiagonal(ElementType.PORT_RIGHT, ElementType.PORT_BOTTOM, rotation)
-                && col < cols - 1 && row < rows - 1
-                && (hasPhysicalPort(col + 1, row + 1, ElementType.PORT_LEFT)
-                 || hasPhysicalPort(col + 1, row + 1, ElementType.PORT_TOP))) {
+        if (elemType != null && (portSet.contains(ElementType.PORT_RIGHT) || portSet.contains(ElementType.PORT_BOTTOM))
+            && elemType.hasValidDiagonal(ElementType.PORT_RIGHT, ElementType.PORT_BOTTOM, rotation) && col < cols - 1 && row < rows - 1
+            && (hasPhysicalPort(col + 1, row + 1, ElementType.PORT_LEFT) || hasPhysicalPort(col + 1, row + 1, ElementType.PORT_TOP))) {
             neighbors.add(new int[] { col + 1, row + 1 });
         }
-        if (elemType != null
-                && portSet.contains(ElementType.PORT_LEFT) && portSet.contains(ElementType.PORT_BOTTOM)
-                && elemType.hasValidDiagonal(ElementType.PORT_LEFT, ElementType.PORT_BOTTOM, rotation)
-                && col > 0 && row < rows - 1
-                && (hasPhysicalPort(col - 1, row + 1, ElementType.PORT_RIGHT)
-                 || hasPhysicalPort(col - 1, row + 1, ElementType.PORT_TOP))) {
+        if (elemType != null && (portSet.contains(ElementType.PORT_LEFT) || portSet.contains(ElementType.PORT_BOTTOM))
+            && elemType.hasValidDiagonal(ElementType.PORT_LEFT, ElementType.PORT_BOTTOM, rotation) && col > 0 && row < rows - 1
+            && (hasPhysicalPort(col - 1, row + 1, ElementType.PORT_RIGHT) || hasPhysicalPort(col - 1, row + 1, ElementType.PORT_TOP))) {
             neighbors.add(new int[] { col - 1, row + 1 });
         }
-        if (elemType != null
-                && portSet.contains(ElementType.PORT_RIGHT) && portSet.contains(ElementType.PORT_TOP)
-                && elemType.hasValidDiagonal(ElementType.PORT_RIGHT, ElementType.PORT_TOP, rotation)
-                && col < cols - 1 && row > 0
-                && (hasPhysicalPort(col + 1, row - 1, ElementType.PORT_LEFT)
-                 || hasPhysicalPort(col + 1, row - 1, ElementType.PORT_BOTTOM))) {
+        if (elemType != null && (portSet.contains(ElementType.PORT_RIGHT) || portSet.contains(ElementType.PORT_TOP))
+            && elemType.hasValidDiagonal(ElementType.PORT_RIGHT, ElementType.PORT_TOP, rotation) && col < cols - 1 && row > 0
+            && (hasPhysicalPort(col + 1, row - 1, ElementType.PORT_LEFT) || hasPhysicalPort(col + 1, row - 1, ElementType.PORT_BOTTOM))) {
             neighbors.add(new int[] { col + 1, row - 1 });
         }
-        if (elemType != null
-                && portSet.contains(ElementType.PORT_LEFT) && portSet.contains(ElementType.PORT_TOP)
-                && elemType.hasValidDiagonal(ElementType.PORT_LEFT, ElementType.PORT_TOP, rotation)
-                && col > 0 && row > 0
-                && (hasPhysicalPort(col - 1, row - 1, ElementType.PORT_RIGHT)
-                 || hasPhysicalPort(col - 1, row - 1, ElementType.PORT_BOTTOM))) {
+        if (elemType != null && (portSet.contains(ElementType.PORT_LEFT) || portSet.contains(ElementType.PORT_TOP))
+            && elemType.hasValidDiagonal(ElementType.PORT_LEFT, ElementType.PORT_TOP, rotation) && col > 0 && row > 0
+            && (hasPhysicalPort(col - 1, row - 1, ElementType.PORT_RIGHT) || hasPhysicalPort(col - 1, row - 1, ElementType.PORT_BOTTOM))) {
             neighbors.add(new int[] { col - 1, row - 1 });
         }
 
@@ -582,23 +624,35 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     }
 
     private void drawRoute(Graphics2D g2) {
-        for (String key : routeTiles) {
-            String[] parts = key.split(",");
-            int c = Integer.parseInt(parts[0]);
-            int r = Integer.parseInt(parts[1]);
-            int px = c * tileSize;
-            int py = r * tileSize;
+        if (routePath != null && !routePath.isEmpty()) {
+            int half = tileSize / 2;
+            int n = routePath.size();
+            int[] xPoints = new int[n];
+            int[] yPoints = new int[n];
+            for (int i = 0; i < n; i++) {
+                int[] p = routePath.get(i);
+                xPoints[i] = p[0] * tileSize + half;
+                yPoints[i] = p[1] * tileSize + half;
+            }
+
             g2.setColor(COLOR_ROUTE);
-            g2.setStroke(new BasicStroke(3));
-            g2.drawRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
+            g2.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.drawPolyline(xPoints, yPoints, n);
         }
 
         if (routeSourceCol >= 0 && routeSourceRow >= 0) {
-            int px = routeSourceCol * tileSize;
-            int py = routeSourceRow * tileSize;
+            int px = routeSourceCol * tileSize + tileSize / 2;
+            int py = routeSourceRow * tileSize + tileSize / 2;
             g2.setColor(COLOR_ROUTE_SOURCE);
-            g2.setStroke(new BasicStroke(3));
-            g2.drawRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
+            g2.fillOval(px - 6, py - 6, 12, 12);
+        }
+
+        if (routePath != null && routePath.size() > 1) {
+            int[] last = routePath.get(routePath.size() - 1);
+            int px = last[0] * tileSize + tileSize / 2;
+            int py = last[1] * tileSize + tileSize / 2;
+            g2.setColor(COLOR_ROUTE_TARGET);
+            g2.fillOval(px - 6, py - 6, 12, 12);
         }
     }
 
@@ -670,7 +724,8 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                 routeSourceRow = row;
                 routeTiles.clear();
                 LOGGER.info("Route source set at ({},{})", col, row);
-            } else {
+            }
+            else {
                 findRoute(col, row);
             }
             repaint();

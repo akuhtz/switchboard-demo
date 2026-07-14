@@ -123,15 +123,19 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Modes**:
   - **Normal**: left-click cycles aspects on clickable tiles (aspectCount > 1).
   - **Edit**: left-click selects tiles (cyan border), Ctrl+R rotates selected tile 90°, right-click context menu to place/clear tiles. No aspect cycling. Selection clears when edit mode is turned off.
-- **Route Finding**:
+  - **Route Finding**:
   - Ctrl+click source tile, then Ctrl+click target tile.
+  - Source marker (green filled oval) appears immediately on first Ctrl+click.
   - BFS finds path using physical port connectivity (orthogonal + diagonal).
+  - Diagonal port checks use OR (not AND) on corner ports, enabling symmetric traversal
+    through curves and diagonals in both directions.
   - **Through-path validation**: BFS tracks entry port per tile via `entryPorts` map.
     Before adding a neighbor, `canTraverse()` checks `isValidThroughPath(entry, exit, rotation)`
     on the current tile. Turnouts block frog-end→frog-end (backwards) traversal.
   - Each connection validates BOTH sender and receiver ports (bidirectional).
   - Diagonal connections require `hasValidDiagonal()` on the sender corner.
-  - Found routes highlight in dark red `(180,40,40)` with green source marker.
+  - Found route draws as a red polyline (`(255,80,80)`, stroke-width 4) through tile centers,
+    with a green filled oval at the source and a blue filled oval at the target.
   - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
   - Any click (no Ctrl required) clears the active route.
 - **Rendering** (`paintComponent`):
@@ -231,11 +235,11 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | File | Description |
 |------|-------------|
 | `empty.svg` | Dark background only |
-| `straight.svg` | Full cyan horizontal line |
-| `turnout_straight_left.svg` | Straight active (cyan+orange), diverted left gray |
-| `turnout_straight_right.svg` | Straight active (cyan+orange), diverted right gray |
-| `turnout_diverted_left.svg` | Left diverted active (cyan+orange), straight gray |
-| `turnout_diverted_right.svg` | Right diverted active (cyan+orange), straight gray |
+| `straight.svg` | Full light gray horizontal line |
+| `turnout_straight_left.svg` | Straight active (light gray+orange), diverted left gray |
+| `turnout_straight_right.svg` | Straight active (light gray+orange), diverted right gray |
+| `turnout_diverted_left.svg` | Left diverted active (light gray+orange), straight gray |
+| `turnout_diverted_right.svg` | Right diverted active (light gray+orange), straight gray |
 | `turnout_3way_straight.svg` | Straight active, both diverted gray |
 | `turnout_3way_left.svg` | Left active, straight and right gray |
 | `turnout_3way_right.svg` | Right active, straight and left gray |
@@ -248,7 +252,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | `signal_3_yellow.svg` | SBB signal shape — yellow active, red+green dim |
 | `signal_3_green.svg` | SBB signal shape — green active, red+yellow dim |
 
-All icons are 32×32 viewBox with a dark background (#2d2d32).
+All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use light gray `#aaaaaa` for active paths, `#808080` for inactive paths, and `#ffa500` (orange) for the frog-end on turnouts.
 
 ### Additional resources
 | Path | Description |
