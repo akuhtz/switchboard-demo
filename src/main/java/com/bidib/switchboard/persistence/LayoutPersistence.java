@@ -9,6 +9,8 @@ import com.bidib.switchboard.model.Element;
 import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.ElementType;
 import com.bidib.switchboard.model.RailwayModel;
+import com.bidib.switchboard.model.Route;
+import com.bidib.switchboard.model.RouteModel;
 import com.bidib.switchboard.model.Tile;
 import com.bidib.switchboard.view.SwitchboardPanel;
 
@@ -62,6 +64,21 @@ public class LayoutPersistence {
         ms.setElements(elementList);
         data.setModelState(ms);
 
+        List<LayoutData.RouteData> routeList = new ArrayList<>();
+        for (Route r : panel.getRouteModel().getRoutes().values()) {
+            LayoutData.RouteData rd = new LayoutData.RouteData();
+            rd.setId(r.getId());
+            rd.setSourceElementId(r.getSourceElementId());
+            rd.setTargetElementId(r.getTargetElementId());
+            List<List<Integer>> tileKeys = new ArrayList<>();
+            for (int[] p : r.getPath()) {
+                tileKeys.add(List.of(p[0], p[1]));
+            }
+            rd.setTiles(tileKeys);
+            routeList.add(rd);
+        }
+        data.setRoutes(routeList);
+
         return data;
     }
 
@@ -96,6 +113,7 @@ public class LayoutPersistence {
         RailwayModel model = panel.getModel();
         panel.clearTiles();
         model.clear();
+        panel.getRouteModel().clear();
 
         if (data.getModelState() != null && data.getModelState().getElements() != null) {
             for (LayoutData.ElementData ed : data.getModelState().getElements()) {
@@ -111,6 +129,17 @@ public class LayoutPersistence {
                 if (tile != null) {
                     panel.setTile(tile);
                 }
+            }
+        }
+
+        if (data.getRoutes() != null) {
+            for (LayoutData.RouteData rd : data.getRoutes()) {
+                List<int[]> path = new ArrayList<>();
+                for (List<Integer> tileCoord : rd.getTiles()) {
+                    path.add(new int[] { tileCoord.get(0), tileCoord.get(1) });
+                }
+                Route route = new Route(rd.getId(), rd.getSourceElementId(), rd.getTargetElementId(), path);
+                panel.getRouteModel().addRoute(route);
             }
         }
     }

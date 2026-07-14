@@ -98,9 +98,24 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `clear()` / `removeElement(String id)` / `containsElement(String id)`
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
----
+### `Route`
+- Immutable value class for a found route path.
+- Fields: `id` (`"{sourceElementId}-{targetElementId}"`), `sourceElementId`, `targetElementId`, `path` (ordered `List<int[]>` of `[col, row]`).
+- `containsTile(col, row)` — checks if a grid tile is part of the route.
 
-### `Tile` (base class)
+### `RouteModel`
+- Manages multiple simultaneous active routes.
+- Uses `PropertyChangeSupport` for change notifications.
+- Methods:
+  - `addRoute(Route)` — adds a route.
+  - `removeRoute(String id)` — removes a route by ID.
+  - `getRoute(String id)` / `getRoutes()` — access routes.
+  - `isTileReserved(col, row, excludeRouteId)` — checks if a tile is used by any route (except the excluded one).
+  - `routeIdForTile(col, row)` — returns the route ID using a tile, or null.
+  - `clear()` / `size()` / `isEmpty()`
+  - `addPropertyChangeListener` / `removePropertyChangeListener`
+
+---
 - Represents a single grid cell at `(col, row)`.
 - Carries an optional `elementId` and a single `svgResource` path.
 - Has a `rotation` field (0/90/180/270) applied as a transform during rendering.
@@ -127,6 +142,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - Ctrl+click source tile, then Ctrl+click target tile.
   - Source marker (green filled oval) appears immediately on first Ctrl+click.
   - BFS finds path using physical port connectivity (orthogonal + diagonal).
+  - BFS skips tiles already reserved by existing routes (conflict detection).
   - Diagonal port checks use OR (not AND) on corner ports, enabling symmetric traversal
     through curves and diagonals in both directions.
   - **Through-path validation**: BFS tracks entry port per tile via `entryPorts` map.
@@ -134,10 +150,12 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
     on the current tile. Turnouts block frog-end→frog-end (backwards) traversal.
   - Each connection validates BOTH sender and receiver ports (bidirectional).
   - Diagonal connections require `hasValidDiagonal()` on the sender corner.
-  - Found route draws as a red polyline (`(255,80,80)`, stroke-width 4) through tile centers,
+  - Found routes are stored in a `RouteModel` supporting multiple simultaneous routes.
+    Each route has an ID `{sourceElementId}-{targetElementId}`.
+  - Routes render as red polylines (`(255,80,80)`, stroke-width 4) through tile centers,
     with a green filled oval at the source and a blue filled oval at the target.
   - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
-  - Any click (no Ctrl required) clears the active route.
+  - Context menu shows "Clear route ({id})" on tiles belonging to a route.
 - **Rendering** (`paintComponent`):
   - Uses `Graphics2D` with antialiasing and bilinear interpolation.
   - Draws tiles first, then grid lines, then selection border (edit mode only).
@@ -258,6 +276,40 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | Path | Description |
 |------|-------------|
 | `src/main/resources/signals/sbb_l/SBB-L-H01.svg` | Source SBB L signal shape (200x400, rotated for icons) |
+
+---
+
+## Tests
+
+Two test classes (18 tests total):
+
+### `SwitchboardAppTest` (5 tests)
+| Test | Description |
+|------|-------------|
+| `frameTitleContainsSwitchboard` | Frame title includes "Model Railway Switchboard" |
+| `fileMenuContainsLoadSaveSaveAsSettingsAndExit` | File menu items visible |
+| `editMenuContainsEditMode` | Edit > Edit Mode visible |
+| `toolbarContainsEditModeToggle` | Edit Mode toggle button visible |
+| `settingsMenuHasLightAndDarkItems` | Light/Dark Look and Feel items visible |
+
+### `RouteFindingTest` (13 tests)
+| Test | Description |
+|------|-------------|
+| `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
+| `routeFromRow3Col2ToRow5Col10` | (2,3)→(10,5) found |
+| `routeFromRow3Col2ToRow4Col10` | (2,3)→(10,4) found |
+| `routeFromRow3Col2ToRow0Col10` | (2,3)→(10,0) blocked by turnout through-path constraints |
+| `routeFromRow1Col10ToRow3Col2` | (10,1)→(2,3) reverse-direction found |
+| `twoNonOverlappingRoutesCoexist` | Two disjoint routes exist simultaneously in `RouteModel` |
+| `routeConflictBlocksOverlappingRoute` | BFS skips tiles reserved by existing routes |
+| `removeRouteById` | Route removed from model by ID |
+| `routeModelClearRemovesAllRoutes` | Clearing `RouteModel` removes all routes |
+| `routePersistenceRoundTrip` | Routes survive `capture()`/`apply()` round-trip |
+| `routeModelIsTileReserved` | `isTileReserved()` correctness with/without exclusion |
+| `routeIdFormat` | Route ID format `"{source}-{target}"` |
+| `routeContainsTile` | Route includes source/target, excludes out-of-bounds |
+
+Uses `switchboard3.json` test layout (2 turnouts, curves, diagonals, signals on a 60×30 grid).
 
 ---
 

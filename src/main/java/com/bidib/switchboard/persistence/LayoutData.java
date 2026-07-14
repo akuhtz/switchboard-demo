@@ -10,6 +10,7 @@ public class LayoutData {
     private int tileSize;
     private List<TileData> tiles = new ArrayList<>();
     private ModelStateData modelState;
+    private List<RouteData> routes = new ArrayList<>();
 
     public int getCols() { return cols; }
     public void setCols(int cols) { this.cols = cols; }
@@ -26,13 +27,16 @@ public class LayoutData {
     public ModelStateData getModelState() { return modelState; }
     public void setModelState(ModelStateData modelState) { this.modelState = modelState; }
 
+    public List<RouteData> getRoutes() { return routes; }
+    public void setRoutes(List<RouteData> routes) { this.routes = routes; }
+
     // --- Tile data ---
 
     public static class TileData {
         private int col;
         private int row;
         private String elementId;
-        private String type;      // e.g. "TL2", "T32", "S22"
+        private String type;
         private List<String> svgPaths;
         private int rotation;
 
@@ -81,5 +85,26 @@ public class LayoutData {
 
         public int getAspect() { return aspect; }
         public void setAspect(int aspect) { this.aspect = aspect; }
+    }
+
+    // --- Route data ---
+
+    public static class RouteData {
+        private String id;
+        private String sourceElementId;
+        private String targetElementId;
+        private List<List<Integer>> tiles = new ArrayList<>();
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+
+        public String getSourceElementId() { return sourceElementId; }
+        public void setSourceElementId(String sourceElementId) { this.sourceElementId = sourceElementId; }
+
+        public String getTargetElementId() { return targetElementId; }
+        public void setTargetElementId(String targetElementId) { this.targetElementId = targetElementId; }
+
+        public List<List<Integer>> getTiles() { return tiles; }
+        public void setTiles(List<List<Integer>> tiles) { this.tiles = tiles; }
     }
 }

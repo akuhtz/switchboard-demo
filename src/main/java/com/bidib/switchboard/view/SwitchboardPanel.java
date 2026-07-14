@@ -40,6 +40,8 @@ import com.bidib.switchboard.command.CycleElementCommand;
 import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.ElementType;
 import com.bidib.switchboard.model.RailwayModel;
+import com.bidib.switchboard.model.Route;
+import com.bidib.switchboard.model.RouteModel;
 import com.bidib.switchboard.model.Tile;
 import com.bidib.switchboard.util.SvgIconLoader;
 import com.github.weisj.jsvg.SVGDocument;
@@ -92,13 +94,11 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
     private boolean editMode;
 
+    private final RouteModel routeModel = new RouteModel();
+
     private int routeSourceCol = -1;
 
     private int routeSourceRow = -1;
-
-    private Set<String> routeTiles = new HashSet<>();
-
-    private List<int[]> routePath;
 
     public SwitchboardPanel(RailwayModel model) {
         this(model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
@@ -175,9 +175,15 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         return model;
     }
 
+    public RouteModel getRouteModel() {
+        return routeModel;
+    }
+
     public void clearTiles() {
         tiles.clear();
-        clearRoute();
+        routeModel.clear();
+        routeSourceCol = -1;
+        routeSourceRow = -1;
         repaint();
     }
 
@@ -188,7 +194,8 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             selectedRow = -1;
         }
         if (routeSourceCol == col && routeSourceRow == row) {
-            clearRoute();
+            routeSourceCol = -1;
+            routeSourceRow = -1;
         }
         repaint();
     }
@@ -228,36 +235,46 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
     // --- Route ---
 
-    private void clearRoute() {
+    private void clearPendingRoute() {
         routeSourceCol = -1;
         routeSourceRow = -1;
-        routeTiles.clear();
-        routePath = null;
     }
 
     private void findRoute(int targetCol, int targetRow) {
-        routeTiles.clear();
-        routePath = null;
-
+        if (routeSourceCol < 0 || routeSourceRow < 0) {
+            return;
+        }
         if (routeSourceCol == targetCol && routeSourceRow == targetRow) {
-            clearRoute();
+            clearPendingRoute();
+            repaint();
+            return;
+        }
+
+        Tile srcTile = getTile(routeSourceCol, routeSourceRow);
+        Tile dstTile = getTile(targetCol, targetRow);
+        if (srcTile == null || dstTile == null) {
+            clearPendingRoute();
+            repaint();
+            return;
+        }
+        String srcId = srcTile.getElementId();
+        String dstId = dstTile.getElementId();
+        if (srcId == null || dstId == null) {
+            clearPendingRoute();
             repaint();
             return;
         }
 
         List<int[]> path = bfsRoute(routeSourceCol, routeSourceRow, targetCol, targetRow);
         if (path != null) {
-            for (int[] p : path) {
-                routeTiles.add(tileKey(p[0], p[1]));
-            }
-            routePath = path;
+            Route route = new Route(srcId, dstId, path);
+            routeModel.addRoute(route);
             setRouteAspects(path);
-            LOGGER.info("Route found: {} tiles", path.size());
-        }
-        else {
+            LOGGER.info("Route {} added: {} tiles", route.getId(), path.size());
+        } else {
             LOGGER.info("No route found from ({},{}) to ({},{})", routeSourceCol, routeSourceRow, targetCol, targetRow);
-            clearRoute();
         }
+        clearPendingRoute();
         repaint();
     }
 
@@ -350,7 +367,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                 int nr = neighbor[1];
                 String nKey = tileKey(nc, nr);
 
-                if (visited.contains(nKey) || !tiles.containsKey(nKey)) {
+                if (visited.contains(nKey) || !tiles.containsKey(nKey) || routeModel.isTileReserved(nc, nr, null)) {
                     continue;
                 }
 
@@ -571,11 +588,11 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             });
             menu.add(clearItem);
 
-            String key = tileKey(col, row);
-            if (routeTiles.contains(key) || (col == routeSourceCol && row == routeSourceRow)) {
-                JMenuItem clearRouteItem = new JMenuItem("Clear route");
+            String routeId = routeModel.routeIdForTile(col, row);
+            if (routeId != null) {
+                JMenuItem clearRouteItem = new JMenuItem("Clear route (" + routeId + ")");
                 clearRouteItem.addActionListener(e -> {
-                    clearRoute();
+                    routeModel.removeRoute(routeId);
                     repaint();
                 });
                 menu.add(clearRouteItem);
@@ -624,13 +641,18 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     }
 
     private void drawRoute(Graphics2D g2) {
-        if (routePath != null && !routePath.isEmpty()) {
+        for (Route route : routeModel.getRoutes().values()) {
+            List<int[]> path = route.getPath();
+            if (path.isEmpty()) {
+                continue;
+            }
+
             int half = tileSize / 2;
-            int n = routePath.size();
+            int n = path.size();
             int[] xPoints = new int[n];
             int[] yPoints = new int[n];
             for (int i = 0; i < n; i++) {
-                int[] p = routePath.get(i);
+                int[] p = path.get(i);
                 xPoints[i] = p[0] * tileSize + half;
                 yPoints[i] = p[1] * tileSize + half;
             }
@@ -638,20 +660,26 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             g2.setColor(COLOR_ROUTE);
             g2.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             g2.drawPolyline(xPoints, yPoints, n);
+
+            int[] first = path.get(0);
+            int sx = first[0] * tileSize + half;
+            int sy = first[1] * tileSize + half;
+            g2.setColor(COLOR_ROUTE_SOURCE);
+            g2.fillOval(sx - 6, sy - 6, 12, 12);
+
+            if (n > 1) {
+                int[] last = path.get(n - 1);
+                int tx = last[0] * tileSize + half;
+                int ty = last[1] * tileSize + half;
+                g2.setColor(COLOR_ROUTE_TARGET);
+                g2.fillOval(tx - 6, ty - 6, 12, 12);
+            }
         }
 
         if (routeSourceCol >= 0 && routeSourceRow >= 0) {
             int px = routeSourceCol * tileSize + tileSize / 2;
             int py = routeSourceRow * tileSize + tileSize / 2;
             g2.setColor(COLOR_ROUTE_SOURCE);
-            g2.fillOval(px - 6, py - 6, 12, 12);
-        }
-
-        if (routePath != null && routePath.size() > 1) {
-            int[] last = routePath.get(routePath.size() - 1);
-            int px = last[0] * tileSize + tileSize / 2;
-            int py = last[1] * tileSize + tileSize / 2;
-            g2.setColor(COLOR_ROUTE_TARGET);
             g2.fillOval(px - 6, py - 6, 12, 12);
         }
     }
@@ -712,20 +740,12 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         selectedRow = row;
         requestFocusInWindow();
 
-        if (!routeTiles.isEmpty()) {
-            clearRoute();
-            repaint();
-            return;
-        }
-
         if (e.isControlDown()) {
             if (routeSourceCol < 0) {
                 routeSourceCol = col;
                 routeSourceRow = row;
-                routeTiles.clear();
                 LOGGER.info("Route source set at ({},{})", col, row);
-            }
-            else {
+            } else {
                 findRoute(col, row);
             }
             repaint();
@@ -774,17 +794,20 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     // --- Test support ---
 
     boolean hasActiveRoute() {
-        return !routeTiles.isEmpty();
+        return !routeModel.isEmpty();
     }
 
     int routeTileCount() {
-        return routeTiles.size();
+        int count = 0;
+        for (Route r : routeModel.getRoutes().values()) {
+            count += r.getPath().size();
+        }
+        return count;
     }
 
     void testSetRouteSource(int col, int row) {
         routeSourceCol = col;
         routeSourceRow = row;
-        routeTiles.clear();
     }
 
     void testFindRoute(int targetCol, int targetRow) {
