@@ -5,10 +5,13 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -17,10 +20,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.AbstractTableModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.bidib.switchboard.model.Element;
 import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.ElementType;
+import com.bidib.switchboard.model.Occupancy;
 import com.bidib.switchboard.model.RailwayModel;
 import com.bidib.switchboard.model.Tile;
 import com.bidib.switchboard.persistence.LayoutPersistence;
@@ -263,6 +269,11 @@ public class SwitchboardApp {
         loadDefaultItem.addActionListener(e -> loadDefaultLayout());
         editMenu.add(loadDefaultItem);
 
+        editMenu.addSeparator();
+        JMenuItem occupanciesItem = new JMenuItem("Occupancies...");
+        occupanciesItem.addActionListener(e -> showOccupanciesDialog());
+        editMenu.add(occupanciesItem);
+
         menuBar.add(editMenu);
 
         frame.setJMenuBar(menuBar);
@@ -381,6 +392,50 @@ public class SwitchboardApp {
     }
 
     // --- Helpers ---
+
+    private void showOccupanciesDialog() {
+        Map<String, Occupancy> occs = model.getOccupancies();
+        List<Occupancy> sorted = occs.values().stream()
+            .sorted(Comparator.comparingLong(Occupancy::getNodeId)
+                .thenComparingInt(Occupancy::getPortId))
+            .toList();
+
+        JTable table = new JTable(new AbstractTableModel() {
+            private final String[] columns = { "Node ID", "Port ID", "State" };
+
+            @Override
+            public int getRowCount() {
+                return sorted.size();
+            }
+
+            @Override
+            public int getColumnCount() {
+                return columns.length;
+            }
+
+            @Override
+            public Object getValueAt(int row, int col) {
+                Occupancy o = sorted.get(row);
+                return switch (col) {
+                    case 0 -> o.getNodeId();
+                    case 1 -> o.getPortId();
+                    case 2 -> o.getState();
+                    default -> null;
+                };
+            }
+
+            @Override
+            public String getColumnName(int col) {
+                return columns[col];
+            }
+        });
+
+        JDialog dialog = new JDialog(frame, "Occupancies", false);
+        dialog.add(new JScrollPane(table));
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(frame);
+        dialog.setVisible(true);
+    }
 
     private static JFileChooser createFileChooser() {
         JFileChooser chooser = new JFileChooser();

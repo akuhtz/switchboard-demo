@@ -1,9 +1,6 @@
 package com.bidib.switchboard.view;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,11 +32,11 @@ class RouteFindingTest {
         panel.testSetRouteSource(0, 0);
         panel.testFindRoute(10, 1);
 
-        assertTrue(panel.hasActiveRoute(), "Route should be found from (0,0) to (10,1) through diverted turnouts");
-        assertTrue(panel.routeTileCount() > 0, "Route should contain at least one tile");
+        assertThat(panel.hasActiveRoute()).as("Route should be found from (0,0) to (10,1) through diverted turnouts").isTrue();
+        assertThat(panel.routeTileCount() > 0).as("Route should contain at least one tile").isTrue();
 
         int tr003aspect = model.getElementAspect("TR-003");
-        assertEquals(1, tr003aspect, "TR-003 should be set to diverted (aspect=1)");
+        assertThat(tr003aspect).as("TR-003 should be set to diverted (aspect=1)").isEqualTo(1);
     }
 
     @Test
@@ -52,10 +49,8 @@ class RouteFindingTest {
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(10, 5);
 
-        assertTrue(panel.hasActiveRoute(),
-                "Route should be found from (2,3) to (10,5)");
-        assertTrue(panel.routeTileCount() > 0,
-                "Route should contain at least one tile");
+        assertThat(panel.hasActiveRoute()).as("Route should be found from (2,3) to (10,5)").isTrue();
+        assertThat(panel.routeTileCount() > 0).as("Route should contain at least one tile").isTrue();
     }
 
     @Test
@@ -68,10 +63,8 @@ class RouteFindingTest {
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(10, 4);
 
-        assertTrue(panel.hasActiveRoute(),
-                "Route should be found from (2,3) to (10,4)");
-        assertTrue(panel.routeTileCount() > 0,
-                "Route should contain at least one tile");
+        assertThat(panel.hasActiveRoute()).as("Route should be found from (2,3) to (10,5)").isTrue();
+        assertThat(panel.routeTileCount() > 0).as("Route should contain at least one tile").isTrue();
     }
 
     @Test
@@ -84,8 +77,7 @@ class RouteFindingTest {
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(10, 0);
 
-        assertFalse(panel.hasActiveRoute(),
-                "Route should NOT be found from (2,3) to (10,0)");
+        assertThat(panel.hasActiveRoute()).as("Route should NOT be found from (2,3) to (10,0)").isFalse();
     }
 
     @Test
@@ -98,10 +90,8 @@ class RouteFindingTest {
         panel.testSetRouteSource(10, 1);
         panel.testFindRoute(2, 3);
 
-        assertTrue(panel.hasActiveRoute(),
-                "Route should be found from (10,1) to (2,3)");
-        assertTrue(panel.routeTileCount() > 0,
-                "Route should contain at least one tile");
+        assertThat(panel.hasActiveRoute()).as("Route should be found from (10,1) to (2,3)").isTrue();
+        assertThat(panel.routeTileCount() > 0).as("Route should contain at least one tile").isTrue();
     }
 
     @Test
@@ -117,15 +107,15 @@ class RouteFindingTest {
         // Route A: (0,0) -> (10,1) through diverted turnouts
         panel.testSetRouteSource(0, 0);
         panel.testFindRoute(10, 1);
-        assertEquals(1, panel.getRouteModel().size(), "One route should exist after first find");
+        assertThat(panel.getRouteModel().size()).as("One route should exist after first find").isEqualTo(1);
 
         // Route B: (2,3) -> (10,5) via row 3+4+5 — non-overlapping
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(10, 5);
-        assertEquals(2, panel.getRouteModel().size(), "Two routes should coexist");
+        assertThat(panel.getRouteModel().size()).as("Two routes should coexist").isEqualTo(2);
 
         int totalTiles = panel.routeTileCount();
-        assertTrue(totalTiles >= 4, "Two routes should cover ≥4 tiles combined");
+        assertThat(totalTiles >= 4).as("Two routes should cover ≥4 tiles combined").isTrue();
     }
 
     @Test
@@ -148,8 +138,8 @@ class RouteFindingTest {
         panel.testSetRouteSource(10, 0);
         panel.testFindRoute(0, 0);
 
-        assertEquals(routeASize, panel.getRouteModel().size(), "No new route should be added when blocked by conflict");
-        assertEquals(routeATiles, panel.routeTileCount(), "Tile count should be unchanged");
+        assertThat(panel.getRouteModel().size()).as("No new route should be added when blocked by conflict").isEqualTo(routeASize);
+        assertThat(panel.routeTileCount()).as("Tile count should be unchanged").isEqualTo(routeATiles);
     }
 
     @Test
@@ -161,14 +151,14 @@ class RouteFindingTest {
 
         panel.testSetRouteSource(0, 0);
         panel.testFindRoute(10, 1);
-        assertTrue(panel.hasActiveRoute());
+        assertThat(panel.hasActiveRoute()).isTrue();
 
         String routeId = panel.getRouteModel().getRoutes().keySet().iterator().next();
         panel.getRouteModel().removeRoute(routeId);
 
-        assertFalse(panel.hasActiveRoute(), "Route should be removed");
-        assertEquals(0, panel.getRouteModel().size());
-        assertEquals(0, panel.routeTileCount());
+        assertThat(panel.hasActiveRoute()).as("Route should be removed").isFalse();
+        assertThat(panel.getRouteModel().size()).isEqualTo(0);
+        assertThat(panel.routeTileCount()).isEqualTo(0);
     }
 
     @Test
@@ -187,13 +177,13 @@ class RouteFindingTest {
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(10, 5);
 
-        assertEquals(2, panel.getRouteModel().size());
+        assertThat(panel.getRouteModel().size()).isEqualTo(2);
 
         panel.getRouteModel().clear();
 
-        assertEquals(0, panel.getRouteModel().size());
-        assertFalse(panel.hasActiveRoute());
-        assertEquals(0, panel.routeTileCount());
+        assertThat(panel.getRouteModel().size()).isEqualTo(0);
+        assertThat(panel.hasActiveRoute()).isFalse();
+        assertThat(panel.routeTileCount()).isEqualTo(0);
     }
 
     @Test
@@ -212,26 +202,26 @@ class RouteFindingTest {
         panel1.testSetRouteSource(2, 3);
         panel1.testFindRoute(10, 5);
 
-        assertEquals(2, panel1.getRouteModel().size());
+        assertThat(panel1.getRouteModel().size()).isEqualTo(2);
 
         // Capture
         LayoutData data = LayoutPersistence.capture(panel1);
-        assertNotNull(data.getRoutes());
-        assertEquals(2, data.getRoutes().size());
+        assertThat(data.getRoutes()).isNotNull();
+        assertThat(data.getRoutes()).hasSize(2);
 
         // Apply to fresh panel
         RailwayModel model2 = new RailwayModel();
         SwitchboardPanel panel2 = new SwitchboardPanel(model2);
         LayoutPersistence.apply(panel2, data);
 
-        assertEquals(2, panel2.getRouteModel().size(), "Routes should survive round-trip");
-        assertTrue(panel2.hasActiveRoute());
+        assertThat(panel2.getRouteModel().size()).as("Routes should survive round-trip").isEqualTo(2);
+        assertThat(panel2.hasActiveRoute()).isTrue();
 
         Route r1 = panel2.getRouteModel().getRoute("P-001-P-011");
-        assertNotNull(r1, "Route P-001-P-011 should exist after load");
+        assertThat(r1).as("Route P-001-P-011 should exist after load").isNotNull();
 
         Route r2 = panel2.getRouteModel().getRoute("P-015-P-024");
-        assertNotNull(r2, "Route P-015-P-024 should exist after load");
+        assertThat(r2).as("Route P-015-P-024 should exist after load").isNotNull();
     }
 
     @Test
@@ -248,14 +238,14 @@ class RouteFindingTest {
         panel.testFindRoute(10, 1);
 
         // Tile (5,0) is on the route path — should be reserved
-        assertTrue(panel.getRouteModel().isTileReserved(5, 0, null));
+        assertThat(panel.getRouteModel().isTileReserved(5, 0, null)).isTrue();
 
         // Tile (99,99) is out of bounds — should not be reserved
-        assertFalse(panel.getRouteModel().isTileReserved(99, 99, null));
+        assertThat(panel.getRouteModel().isTileReserved(99, 99, null)).isFalse();
 
         // With excludeRouteId, tile should not be reserved
         String routeId = panel.getRouteModel().getRoutes().keySet().iterator().next();
-        assertFalse(panel.getRouteModel().isTileReserved(5, 0, routeId));
+        assertThat(panel.getRouteModel().isTileReserved(5, 0, routeId)).isFalse();
     }
 
     @Test
@@ -269,9 +259,9 @@ class RouteFindingTest {
         panel.testFindRoute(10, 1);
 
         Route route = panel.getRouteModel().getRoutes().values().iterator().next();
-        assertEquals("P-001-P-011", route.getId());
-        assertEquals("P-001", route.getSourceElementId());
-        assertEquals("P-011", route.getTargetElementId());
+        assertThat(route.getId()).isEqualTo("P-001-P-011");
+        assertThat(route.getSourceElementId()).isEqualTo("P-001");
+        assertThat(route.getTargetElementId()).isEqualTo("P-011");
     }
 
     @Test
@@ -285,8 +275,8 @@ class RouteFindingTest {
         panel.testFindRoute(10, 1);
 
         Route route = panel.getRouteModel().getRoutes().values().iterator().next();
-        assertTrue(route.containsTile(0, 0));
-        assertTrue(route.containsTile(10, 1));
-        assertFalse(route.containsTile(99, 99));
+        assertThat(route.containsTile(0, 0)).isTrue();
+        assertThat(route.containsTile(10, 1)).isTrue();
+        assertThat(route.containsTile(99, 99)).isFalse();
     }
 }

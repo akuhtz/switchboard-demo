@@ -80,14 +80,16 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `Element`
 - Value class for a railway element.
-- Fields: `id` (String), `nodeId` (long), `accessoryId` (long), `currentAspect` (int).
+- Fields: `id` (String), `nodeId` (long), `accessoryId` (long), `currentAspect` (int),
+  `occupancy` (Occupancy, nullable).
 - Constructed with `new Element(id, nodeId, accessoryId)` — aspect starts at 0.
-- Properties exposed via getters; `currentAspect` has a setter.
+- Properties exposed via getters; `currentAspect` and `occupancy` have setters.
 
 ### `RailwayModel`
-- Single unified model holding all elements.
+- Single unified model holding all elements and occupancies.
 - Uses `PropertyChangeSupport` (idiomatic Java Observer).
 - **State**: `Map<String, Element> elements` — elementId → Element object.
+  `Map<String, Occupancy> occupancies` — `nodeId:portId` → Occupancy object.
 - Aspect counts live on the tile (`ElementTile.getAspectCount()`) rather than in the model.
 - Fires `PropertyChangeEvent` on every state mutation.
 - Methods:
@@ -95,6 +97,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `setElementAspect(String id, int aspect)`
   - `getElementAspect(String id)` / `getElement(String id)`
   - `getElements()` — unmodifiable snapshot `Map<String, Element>`
+  - `addOccupancy(Occupancy occupancy)` / `removeOccupancy(long nodeId, int portId)`
+  - `getOccupancy(long nodeId, int portId)` / `getOccupancies()` — unmodifiable `Map<String, Occupancy>`
   - `clear()` / `removeElement(String id)` / `containsElement(String id)`
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
@@ -114,6 +118,14 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `routeIdForTile(col, row)` — returns the route ID using a tile, or null.
   - `clear()` / `size()` / `isEmpty()`
   - `addPropertyChangeListener` / `removePropertyChangeListener`
+
+### `Occupancy`
+- Represents a track occupancy sensor with `nodeId` (long), `portId` (int), and `state` (FREE/OCCUPIED).
+- Created via static factories `create(nodeId, portId)` and `create(nodeId, portId, state)`.
+- Stored in `RailwayModel.occupancies` keyed by `nodeId:portId`.
+- Elements can reference an `Occupancy` via `getOccupancy()` / `setOccupancy()`.
+- Persisted in `LayoutData.ModelStateData.occupancies` and restored on load.
+- Visualised in the "Occupancies..." dialog (Edit menu).
 
 ---
 - Represents a single grid cell at `(col, row)`.
@@ -164,7 +176,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - For `ElementTile` tiles, resolves the SVG path from the model's current aspect.
 - **Interaction**:
   - Left-click: selects position + cycles aspect (normal) or selects only (edit).
-  - Right-click: context menu with Info (element data dialog), ElementTypes + Signals submenu, Clear route on route tiles.
+   - Right-click: context menu with Info (element data dialog), ElementTypes + Signals submenu,
+     Assign Occupancy / Remove Occupancy (edit mode only), Clear route on route tiles.
   - Ctrl+R: rotates selected tile 90° (edit mode only).
   - Edit-mode tooltip shows element ID on hover.
 - **Thread safety**:
@@ -196,11 +209,12 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 ---
 
 ### `LayoutPersistence`
-- Serializes the full switchboard state (tiles + model) to JSON using Jackson 3.
+- Serializes the full switchboard state (tiles + model + occupancies) to JSON using Jackson 3.
 - `capture(SwitchboardPanel)` / `save(SwitchboardPanel, Path)` — write state.
 - `load(SwitchboardPanel, Path)` / `apply(SwitchboardPanel, LayoutData)` — read state.
 - Tile type string format: `{prefix}{count}`, e.g. `"TL2"`, `"T32"`, `"S22"`, `"S32"`, `"P1"`, `"CL1"`, `"CR1"`, `"DG1"`.
 - Type is matched by iterating `ElementType.values()` and testing `typeStr.startsWith(prefix)`.
+- Occupancies are serialised in `ModelStateData.occupancies` and element→occupancy references via `OccupancyData` nodeId/portId on each `ElementData`.
 
 ### `SettingsManager`
 - Manages `settings.json` at the project root, separate from the layout file.
@@ -210,7 +224,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
 - `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation), and `ModelStateData`.
-- `ModelStateData` holds a `List<ElementData>`, each containing `id`, `nodeId`, `accessoryId`, and `aspect`.
+- `ModelStateData` holds a `List<ElementData>` (each containing `id`, `nodeId`, `accessoryId`, `aspect`, `occupancyNodeId`, `occupancyPortId`) and a `List<OccupancyData>` (each containing `nodeId`, `portId`, `state`).
 - `SettingsData` holds `lastLayoutFile` and `LookAndFeel` (LIGHT/DARK enum).
 
 ---
@@ -228,6 +242,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | File | Settings > Dark Look and Feel | — | Switch to FlatLaf dark theme |
 | File | Exit | — | Exit application |
 | Edit | Edit Mode | `Ctrl+E` | Toggle normal/edit mode |
+| Edit | Load Default Layout | — | Load the built-in default layout |
+| Edit | Occupancies... | — | Show dialog with all occupancies sorted by nodeId/portId |
 
 ### Toolbar
 - `[Edit Mode]` toggle button synced with the Edit menu item.
@@ -281,16 +297,18 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-Two test classes (18 tests total):
+20 tests across two test classes:
 
-### `SwitchboardAppTest` (5 tests)
+### `SwitchboardAppTest` (7 tests)
 | Test | Description |
 |------|-------------|
 | `frameTitleContainsSwitchboard` | Frame title includes "Model Railway Switchboard" |
 | `fileMenuContainsLoadSaveSaveAsSettingsAndExit` | File menu items visible |
-| `editMenuContainsEditMode` | Edit > Edit Mode visible |
+| `editMenuContainsEditModeLoadDefaultAndOccupancies` | Edit menu items visible |
 | `toolbarContainsEditModeToggle` | Edit Mode toggle button visible |
 | `settingsMenuHasLightAndDarkItems` | Light/Dark Look and Feel items visible |
+| `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
+| `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
 ### `RouteFindingTest` (13 tests)
 | Test | Description |

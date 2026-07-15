@@ -8,6 +8,7 @@ import java.util.List;
 import com.bidib.switchboard.model.Element;
 import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.ElementType;
+import com.bidib.switchboard.model.Occupancy;
 import com.bidib.switchboard.model.RailwayModel;
 import com.bidib.switchboard.model.Route;
 import com.bidib.switchboard.model.RouteModel;
@@ -59,9 +60,24 @@ public class LayoutPersistence {
             ed.setNodeId(el.getNodeId());
             ed.setAccessoryId(el.getAccessoryId());
             ed.setAspect(el.getCurrentAspect());
+            Occupancy occ = el.getOccupancy();
+            if (occ != null) {
+                ed.setOccupancyNodeId(occ.getNodeId());
+                ed.setOccupancyPortId(occ.getPortId());
+            }
             elementList.add(ed);
         }
         ms.setElements(elementList);
+
+        List<LayoutData.OccupancyData> occList = new ArrayList<>();
+        for (Occupancy occ : model.getOccupancies().values()) {
+            LayoutData.OccupancyData od = new LayoutData.OccupancyData();
+            od.setNodeId(occ.getNodeId());
+            od.setPortId(occ.getPortId());
+            od.setState(occ.getState().name());
+            occList.add(od);
+        }
+        ms.setOccupancies(occList);
         data.setModelState(ms);
 
         List<LayoutData.RouteData> routeList = new ArrayList<>();
@@ -115,11 +131,27 @@ public class LayoutPersistence {
         model.clear();
         panel.getRouteModel().clear();
 
-        if (data.getModelState() != null && data.getModelState().getElements() != null) {
-            for (LayoutData.ElementData ed : data.getModelState().getElements()) {
-                Element element = new Element(ed.getId(), ed.getNodeId(), ed.getAccessoryId());
-                element.setCurrentAspect(ed.getAspect());
-                model.addElement(element);
+        if (data.getModelState() != null) {
+            if (data.getModelState().getOccupancies() != null) {
+                for (LayoutData.OccupancyData od : data.getModelState().getOccupancies()) {
+                    Occupancy occ = Occupancy.create(od.getNodeId(), od.getPortId(),
+                            Occupancy.OccupancyState.valueOf(od.getState()));
+                    model.addOccupancy(occ);
+                }
+            }
+
+            if (data.getModelState().getElements() != null) {
+                for (LayoutData.ElementData ed : data.getModelState().getElements()) {
+                    Element element = new Element(ed.getId(), ed.getNodeId(), ed.getAccessoryId());
+                    element.setCurrentAspect(ed.getAspect());
+                    if (ed.getOccupancyPortId() >= 0) {
+                        Occupancy occ = model.getOccupancy(ed.getOccupancyNodeId(), ed.getOccupancyPortId());
+                        if (occ != null) {
+                            element.setOccupancy(occ);
+                        }
+                    }
+                    model.addElement(element);
+                }
             }
         }
 

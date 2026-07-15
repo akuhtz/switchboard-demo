@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 
+import org.assertj.core.api.Assertions;
 import org.assertj.swing.core.GenericTypeMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.bidib.switchboard.model.Occupancy;
+import com.bidib.switchboard.model.RailwayModel;
 import com.bidib.switchboard.persistence.LayoutPersistence;
 import com.bidib.switchboard.view.SwitchboardPanel;
 
@@ -46,8 +49,7 @@ class SwitchboardAppTest {
 
     @Test
     void frameTitleContainsSwitchboard() {
-        org.assertj.core.api.Assertions.assertThat(window.target().getTitle())
-            .contains("Model Railway Switchboard");
+        Assertions.assertThat(window.target().getTitle()).contains("Model Railway Switchboard");
     }
 
     @Test
@@ -61,9 +63,10 @@ class SwitchboardAppTest {
     }
 
     @Test
-    void editMenuContainsEditModeAndLoadDefaultLayout() {
+    void editMenuContainsEditModeLoadDefaultAndOccupancies() {
         window.menuItemWithPath("Edit", "Edit Mode").requireVisible();
         window.menuItemWithPath("Edit", "Load Default Layout").requireVisible();
+        window.menuItemWithPath("Edit", "Occupancies...").requireVisible();
     }
 
     @Test
@@ -101,8 +104,36 @@ class SwitchboardAppTest {
         JPopupMenuFixture popupFixture2 = new JPopupMenuFixture(window.robot(), popup2);
         try {
             popupFixture2.menuItemWithPath("Clear selection").requireNotVisible();
-        } catch (org.assertj.swing.exception.ComponentLookupException ex) {
+        }
+        catch (org.assertj.swing.exception.ComponentLookupException ex) {
             // Item not found — correct for normal mode
         }
+    }
+
+    @Test
+    void occupancyPersistenceRoundtrip() {
+        var model = panel.getModel();
+        var el = model.getElement("P-001");
+
+        Occupancy occ = Occupancy.create(42, 7);
+        model.addOccupancy(occ);
+        el.setOccupancy(occ);
+
+        var data = LayoutPersistence.capture(panel);
+
+        var freshModel = new RailwayModel();
+        var freshPanel = new SwitchboardPanel(freshModel);
+        LayoutPersistence.apply(freshPanel, data);
+
+        Assertions.assertThat(freshModel.getOccupancies()).hasSize(1);
+        var restored = freshModel.getOccupancy(42, 7);
+        Assertions.assertThat(restored).isNotNull();
+        Assertions.assertThat(restored.getNodeId()).isEqualTo(42);
+        Assertions.assertThat(restored.getPortId()).isEqualTo(7);
+        Assertions.assertThat(restored.getState()).isEqualTo(Occupancy.OccupancyState.FREE);
+
+        var restoredEl = freshModel.getElement("P-001");
+        Assertions.assertThat(restoredEl).isNotNull();
+        Assertions.assertThat(restoredEl.getOccupancy()).isSameAs(restored);
     }
 }

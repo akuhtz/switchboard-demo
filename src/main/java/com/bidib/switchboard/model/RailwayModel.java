@@ -14,6 +14,7 @@ public class RailwayModel {
     private static final Logger LOGGER = LoggerFactory.getLogger(RailwayModel.class);
 
     private final Map<String, Element> elements = new LinkedHashMap<>();
+    private final Map<String, Occupancy> occupancies = new LinkedHashMap<>();
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -48,6 +49,7 @@ public class RailwayModel {
 
     public void clear() {
         elements.clear();
+        occupancies.clear();
     }
 
     public void removeElement(String id) {
@@ -57,6 +59,22 @@ public class RailwayModel {
 
     public boolean containsElement(String id) {
         return elements.containsKey(id);
+    }
+
+    public void addOccupancy(Occupancy occupancy) {
+        occupancies.put(occupancy.getNodeId() + ":" + occupancy.getPortId(), occupancy);
+    }
+
+    public Occupancy removeOccupancy(long nodeId, int portId) {
+        return occupancies.remove(nodeId + ":" + portId);
+    }
+
+    public Occupancy getOccupancy(long nodeId, int portId) {
+        return occupancies.get(nodeId + ":" + portId);
+    }
+
+    public Map<String, Occupancy> getOccupancies() {
+        return Collections.unmodifiableMap(occupancies);
     }
 
     public void addPropertyChangeListener(PropertyChangeListener l) {

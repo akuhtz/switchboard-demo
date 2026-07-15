@@ -25,3 +25,8 @@ These rules apply to ALL AI agents working on this codebase.
 - AI coding agents MUST be configured to add co-authorship trailers to commits
   (e.g., `Co-authored-by`). For Claude Code, enable this via the
   [attribution settings](https://code.claude.com/docs/en/settings#attribution-settings).
+
+### Testing
+
+- Use AssertJ assertions (`assertThat(...)`) in all tests. Do NOT use JUnit Jupiter
+  assertions (`assertEquals`, `assertTrue`, `assertFalse`, `assertNotNull`, etc.).

@@ -6,6 +6,7 @@ public class Element {
     private final long nodeId;
     private final long accessoryId;
     private int currentAspect;
+    private Occupancy occupancy;
 
     public Element(String id, long nodeId, long accessoryId) {
         this.id = id;
@@ -32,5 +33,13 @@ public class Element {
 
     public void setCurrentAspect(int currentAspect) {
         this.currentAspect = currentAspect;
+    }
+
+    public Occupancy getOccupancy() {
+        return occupancy;
+    }
+
+    public void setOccupancy(Occupancy occupancy) {
+        this.occupancy = occupancy;
     }
 }

@@ -63,9 +63,28 @@ public class LayoutData {
 
     public static class ModelStateData {
         private List<ElementData> elements = new ArrayList<>();
+        private List<OccupancyData> occupancies = new ArrayList<>();
 
         public List<ElementData> getElements() { return elements; }
         public void setElements(List<ElementData> elements) { this.elements = elements; }
+
+        public List<OccupancyData> getOccupancies() { return occupancies; }
+        public void setOccupancies(List<OccupancyData> occupancies) { this.occupancies = occupancies; }
+    }
+
+    public static class OccupancyData {
+        private long nodeId;
+        private int portId;
+        private String state;
+
+        public long getNodeId() { return nodeId; }
+        public void setNodeId(long nodeId) { this.nodeId = nodeId; }
+
+        public int getPortId() { return portId; }
+        public void setPortId(int portId) { this.portId = portId; }
+
+        public String getState() { return state; }
+        public void setState(String state) { this.state = state; }
     }
 
     public static class ElementData {
@@ -73,6 +92,8 @@ public class LayoutData {
         private long nodeId;
         private long accessoryId;
         private int aspect;
+        private int occupancyPortId = -1;
+        private long occupancyNodeId;
 
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
@@ -85,6 +106,12 @@ public class LayoutData {
 
         public int getAspect() { return aspect; }
         public void setAspect(int aspect) { this.aspect = aspect; }
+
+        public int getOccupancyPortId() { return occupancyPortId; }
+        public void setOccupancyPortId(int occupancyPortId) { this.occupancyPortId = occupancyPortId; }
+
+        public long getOccupancyNodeId() { return occupancyNodeId; }
+        public void setOccupancyNodeId(long occupancyNodeId) { this.occupancyNodeId = occupancyNodeId; }
     }
 
     // --- Route data ---

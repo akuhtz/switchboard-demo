@@ -5,6 +5,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -13,6 +16,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,11 +28,13 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -41,6 +47,7 @@ import com.bidib.switchboard.command.CycleElementCommand;
 import com.bidib.switchboard.model.Element;
 import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.ElementType;
+import com.bidib.switchboard.model.Occupancy;
 import com.bidib.switchboard.model.RailwayModel;
 import com.bidib.switchboard.model.Route;
 import com.bidib.switchboard.model.RouteModel;
@@ -603,6 +610,20 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             }
 
             if (tile != null) {
+                if (tile instanceof ElementTile et && et.getElementId() != null) {
+                    Element el = model.getElement(et.getElementId());
+                    if (el != null) {
+                        if (el.getOccupancy() != null) {
+                            JMenuItem removeOccItem = new JMenuItem("Remove Occupancy");
+                            removeOccItem.addActionListener(e -> el.setOccupancy(null));
+                            menu.add(removeOccItem);
+                        }
+                        JMenuItem assignOccItem = new JMenuItem("Assign Occupancy...");
+                        assignOccItem.addActionListener(e -> showAssignOccupancyDialog(el));
+                        menu.add(assignOccItem);
+                        menu.addSeparator();
+                    }
+                }
                 JMenuItem clearItem = new JMenuItem("Clear");
                 clearItem.addActionListener(e -> {
                     if (tileContextHandler != null) {
@@ -658,12 +679,56 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                 sb.append("Current aspect: ").append(el.getCurrentAspect()).append("\n");
                 sb.append("Node ID: ").append(el.getNodeId()).append("\n");
                 sb.append("Accessory ID: ").append(el.getAccessoryId()).append("\n");
+                if (el.getOccupancy() != null) {
+                    sb.append("Occupancy: ").append(el.getOccupancy().getNodeId())
+                        .append(":").append(el.getOccupancy().getPortId()).append("\n");
+                }
             }
             sb.append("Aspects: ").append(et.getAspectCount()).append("\n");
         } else {
             sb.append("Type: plain\n");
         }
         JOptionPane.showMessageDialog(this, sb.toString(), "Tile Info", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showAssignOccupancyDialog(Element el) {
+        JTextField nodeIdField = new JTextField("0", 10);
+        JTextField portIdField = new JTextField("0", 10);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2, 2, 2, 2);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(new JLabel("Node ID:"), gbc);
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(nodeIdField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        panel.add(new JLabel("Port ID:"), gbc);
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(portIdField, gbc);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Assign Occupancy",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                long nodeId = Long.parseLong(nodeIdField.getText().trim());
+                int portId = Integer.parseInt(portIdField.getText().trim());
+                Occupancy occ = Occupancy.create(nodeId, portId);
+                model.addOccupancy(occ);
+                el.setOccupancy(occ);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid number", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     // --- Rendering ---
