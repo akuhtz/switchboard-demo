@@ -78,9 +78,9 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     private static final Color COLOR_SELECTION = new Color(0, 200, 200);
 
     private static final Color COLOR_ROUTE = new Color(255, 80, 80);
-
+    private static final Color COLOR_ROUTE_ALT = new Color(80, 255, 80);
+    private static final Color COLOR_ROUTE_ALT_OTHER = new Color(80, 80, 255);
     private static final Color COLOR_ROUTE_SOURCE = new Color(100, 200, 100);
-
     private static final Color COLOR_ROUTE_TARGET = new Color(80, 80, 255);
 
     private final int tileSize;
@@ -280,12 +280,24 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             return;
         }
 
-        List<int[]> path = bfsRoute(routeSourceCol, routeSourceRow, targetCol, targetRow);
+        List<int[]> path = bfsRoute(routeSourceCol, routeSourceRow, targetCol, targetRow, null);
         if (path != null) {
             Route route = new Route(srcId, dstId, path);
+            LOGGER.info("Route {} added: {} tiles {}", route.getId(), path.size(), pathToString(path));
+
+            List<List<int[]>> alts = bfsAlternativeRoutes(routeSourceCol, routeSourceRow, targetCol, targetRow, path);
+            if (!alts.isEmpty()) {
+                for (List<int[]> altPath : alts) {
+                    Route alt = new Route(srcId, dstId, altPath);
+                    routeModel.addAlternativeRoute(route.getId(), alt);
+                    LOGGER.info("Alternative route found: {} tiles {}", altPath.size(), pathToString(altPath));
+                }
+            } else {
+                LOGGER.info("No alternative route found for {}", route.getId());
+            }
+
             routeModel.addRoute(route);
             setRouteAspects(path);
-            LOGGER.info("Route {} added: {} tiles", route.getId(), path.size());
         } else {
             LOGGER.info("No route found from ({},{}) to ({},{})", routeSourceCol, routeSourceRow, targetCol, targetRow);
         }
@@ -339,13 +351,88 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         return isEntry ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP;
     }
 
-    private List<int[]> bfsRoute(int startCol, int startRow, int endCol, int endRow) {
+    private List<int[]> bfsRoute(int startCol, int startRow, int endCol, int endRow, List<int[]> blockedPath) {
         String startKey = tileKey(startCol, startRow);
         String endKey = tileKey(endCol, endRow);
-
         if (!tiles.containsKey(startKey) || !tiles.containsKey(endKey)) {
             return null;
         }
+        return bfsRouteInternal(startCol, startRow, endCol, endRow, new HashSet<>());
+    }
+
+    private List<List<int[]>> bfsAlternativeRoutes(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath) {
+        String startKey = tileKey(startCol, startRow);
+        String endKey = tileKey(endCol, endRow);
+        if (!tiles.containsKey(startKey) || !tiles.containsKey(endKey) || primaryPath == null || primaryPath.size() < 2) {
+            return List.of();
+        }
+
+        List<List<int[]>> alts = new ArrayList<>();
+
+        for (int i = 0; i < primaryPath.size() - 1; i++) {
+            int[] from = primaryPath.get(i);
+            int[] to = primaryPath.get(i + 1);
+            if (i == 0) continue;
+            int[] prev = primaryPath.get(i - 1);
+            int entryDir1 = from[0] - prev[0];
+            int entryDir2 = from[1] - prev[1];
+            int ne1 = -1, ne2 = -1;
+            if (entryDir1 == 1) ne1 = ElementType.PORT_LEFT;
+            else if (entryDir1 == -1) ne1 = ElementType.PORT_RIGHT;
+            if (entryDir2 == 1) ne2 = ElementType.PORT_TOP;
+            else if (entryDir2 == -1) ne2 = ElementType.PORT_BOTTOM;
+            List<int[]> neighbors = getConnectedNeighbors(from[0], from[1]);
+            boolean hasAlt = false;
+            for (int[] n : neighbors) {
+                if (n[0] == to[0] && n[1] == to[1]) continue;
+                int ndc = n[0] - from[0];
+                int ndr = n[1] - from[1];
+                int exit1 = -1, exit2 = -1;
+                if (ndc == 1) exit1 = ElementType.PORT_RIGHT;
+                else if (ndc == -1) exit1 = ElementType.PORT_LEFT;
+                if (ndr == 1) exit2 = ElementType.PORT_BOTTOM;
+                else if (ndr == -1) exit2 = ElementType.PORT_TOP;
+                if ((ne1 != -1 && (exit1 == ne1 || exit2 == ne1))
+                    || (ne2 != -1 && (exit1 == ne2 || exit2 == ne2))) {
+                    continue;
+                }
+                hasAlt = true;
+                break;
+            }
+            if (hasAlt) {
+                Set<String> block = new HashSet<>();
+                block.add(edgeKey(from[0], from[1], to[0], to[1]));
+                List<int[]> result = bfsRouteInternal(startCol, startRow, endCol, endRow, block);
+                if (result != null) {
+                    boolean duplicate = false;
+                    for (List<int[]> existing : alts) {
+                        if (existing.size() == result.size()) {
+                            boolean same = true;
+                            for (int j = 0; j < existing.size(); j++) {
+                                if (existing.get(j)[0] != result.get(j)[0] || existing.get(j)[1] != result.get(j)[1]) {
+                                    same = false;
+                                    break;
+                                }
+                            }
+                            if (same) {
+                                duplicate = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!duplicate) {
+                        alts.add(result);
+                    }
+                }
+            }
+        }
+
+        return alts;
+    }
+
+    private List<int[]> bfsRouteInternal(int startCol, int startRow, int endCol, int endRow, Set<String> blockedEdges) {
+        String startKey = tileKey(startCol, startRow);
+        String endKey = tileKey(endCol, endRow);
 
         Deque<int[]> queue = new ArrayDeque<>();
         Map<String, int[]> cameFrom = new HashMap<>();
@@ -382,7 +469,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                 int nr = neighbor[1];
                 String nKey = tileKey(nc, nr);
 
-                if (visited.contains(nKey) || !tiles.containsKey(nKey) || routeModel.isTileReserved(nc, nr, null)) {
+                if (visited.contains(nKey) || !tiles.containsKey(nKey) || routeModel.isTileReserved(nc, nr, null) || blockedEdges.contains(edgeKey(c, r, nc, nr))) {
                     continue;
                 }
 
@@ -639,6 +726,34 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             if (menu.getComponentCount() > 0) {
                 menu.addSeparator();
             }
+            if (routeModel.hasAlternativeRoute(routeId)) {
+                List<Route> alts = routeModel.getAlternativeRoutes(routeId);
+                int selectedIdx = routeModel.getSelectedAlternativeIndex(routeId);
+                JMenuItem primaryItem = new JMenuItem("Use primary route");
+                primaryItem.addActionListener(e -> {
+                    routeModel.clearAlternatives(routeId);
+                    repaint();
+                });
+                menu.add(primaryItem);
+                for (int i = 0; i < alts.size(); i++) {
+                    Route alt = alts.get(i);
+                    String label = "Alternative " + (i + 1)
+                        + " (" + alt.getSourceElementId() + " → " + alt.getTargetElementId() + ")";
+                    JMenuItem item = new JMenuItem(label);
+                    int idx = i;
+                    item.addActionListener(e -> {
+                        routeModel.setSelectedAlternativeIndex(routeId, idx);
+                        repaint();
+                    });
+                    menu.add(item);
+                }
+                JMenuItem useItem = new JMenuItem("Use selected alternative");
+                useItem.addActionListener(e -> {
+                    routeModel.swapWithAlternative(routeId);
+                    repaint();
+                });
+                menu.add(useItem);
+            }
             JMenuItem clearRouteItem = new JMenuItem("Clear route (" + routeId + ")");
             clearRouteItem.addActionListener(e -> {
                 routeModel.removeRoute(routeId);
@@ -803,6 +918,29 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                 g2.setColor(COLOR_ROUTE_TARGET);
                 g2.fillOval(tx - 6, ty - 6, 12, 12);
             }
+
+            int selectedIdx = routeModel.getSelectedAlternativeIndex(route.getId());
+            if (selectedIdx >= 0) {
+                List<Route> alts = routeModel.getAlternativeRoutes(route.getId());
+                for (int ai = 0; ai < alts.size(); ai++) {
+                    Route alt = alts.get(ai);
+                    List<int[]> altPath = alt.getPath();
+                    if (!altPath.isEmpty()) {
+                        int m = altPath.size();
+                        int[] ax = new int[m];
+                        int[] ay = new int[m];
+                        for (int i = 0; i < m; i++) {
+                            int[] p = altPath.get(i);
+                            ax[i] = p[0] * tileSize + half;
+                            ay[i] = p[1] * tileSize + half;
+                        }
+                        g2.setColor(ai == selectedIdx ? COLOR_ROUTE_ALT : COLOR_ROUTE_ALT_OTHER);
+                        g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND,
+                                1f, new float[] { 4f, 4f }, 0f));
+                        g2.drawPolyline(ax, ay, m);
+                    }
+                }
+            }
         }
 
         if (routeSourceCol >= 0 && routeSourceRow >= 0) {
@@ -954,5 +1092,19 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
     private static String tileKey(int col, int row) {
         return col + "," + row;
+    }
+
+    private static String edgeKey(int fromCol, int fromRow, int toCol, int toRow) {
+        return fromCol + "," + fromRow + "->" + toCol + "," + toRow;
+    }
+
+    private static String pathToString(List<int[]> path) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < path.size(); i++) {
+            if (i > 0) sb.append(" -> ");
+            sb.append("(").append(path.get(i)[0]).append(",").append(path.get(i)[1]).append(")");
+        }
+        sb.append("]");
+        return sb.toString();
     }
 }

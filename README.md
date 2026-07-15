@@ -110,10 +110,18 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 ### `RouteModel`
 - Manages multiple simultaneous active routes.
 - Uses `PropertyChangeSupport` for change notifications.
+- **Alternative routes**: Each route ID can have a list of alternative paths found via BFS.
+  A `selectedAlternativeIndex` map tracks which alternative is currently previewed (-1 = none).
 - Methods:
   - `addRoute(Route)` — adds a route.
-  - `removeRoute(String id)` — removes a route by ID.
+  - `addAlternativeRoute(Route)` — adds an alternative for a route ID; sets index to 0 on first addition.
+  - `removeRoute(String id)` — removes a route by ID (including its alternatives).
   - `getRoute(String id)` / `getRoutes()` — access routes.
+  - `getAlternativeRoutes(String id)` — returns all alternatives for a route ID.
+  - `getAlternativeRoute(String id)` — returns the alternative at the selected index, or null.
+  - `setSelectedAlternativeIndex(String id, int index)` — sets preview index (-1 = no preview).
+  - `clearAlternatives(String id)` — removes all alternatives and the index entry.
+  - `swapWithAlternative(String id)` — promotes previewed alternative to primary, clears alternatives.
   - `isTileReserved(col, row, excludeRouteId)` — checks if a tile is used by any route (except the excluded one).
   - `routeIdForTile(col, row)` — returns the route ID using a tile, or null.
   - `clear()` / `size()` / `isEmpty()`
@@ -166,8 +174,14 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
     Each route has an ID `{sourceElementId}-{targetElementId}`.
   - Routes render as red polylines (`(255,80,80)`, stroke-width 4) through tile centers,
     with a green filled oval at the source and a blue filled oval at the target.
-  - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
-  - Context menu shows "Clear route ({id})" on tiles belonging to a route.
+   - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
+   - **Alternative routes**: When a route is created, BFS continues to find up to 2 alternative paths (by removing previously found route tiles from the search space). All alternatives are stored in `RouteModel` as a list keyed by route ID.
+     - Right-clicking a route tile shows "Use primary route", "Alternative 1/2" (preview), and "Use selected alternative" in the context menu.
+     - Previewing an alternative draws it as a dotted green line (`(80,255,80)`); other alternatives as dotted blue lines (`(80,80,255)`).
+     - "Use primary route" discards all alternatives and restores normal red rendering.
+     - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
+     - Dotted lines are only visible during preview (index >= 0); they disappear after committing to primary or an alternative.
+   - Context menu shows "Clear route ({id})" on tiles belonging to a route.
 - **Rendering** (`paintComponent`):
   - Uses `Graphics2D` with antialiasing and bilinear interpolation.
   - Draws tiles first, then grid lines, then selection border (edit mode only).
@@ -297,7 +311,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-20 tests across two test classes:
+21 tests across two test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -310,7 +324,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
 | `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
-### `RouteFindingTest` (13 tests)
+### `RouteFindingTest` (14 tests)
 | Test | Description |
 |------|-------------|
 | `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
@@ -326,6 +340,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `routeModelIsTileReserved` | `isTileReserved()` correctness with/without exclusion |
 | `routeIdFormat` | Route ID format `"{source}-{target}"` |
 | `routeContainsTile` | Route includes source/target, excludes out-of-bounds |
+| `alternativeRouteFoundForP015ToP065` | BFS finds 2 alternative routes via T3-001/T3-002 diagonals |
 
 Uses `switchboard3.json` test layout (2 turnouts, curves, diagonals, signals on a 60×30 grid).
 

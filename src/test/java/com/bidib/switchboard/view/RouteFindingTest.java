@@ -279,4 +279,26 @@ class RouteFindingTest {
         assertThat(route.containsTile(10, 1)).isTrue();
         assertThat(route.containsTile(99, 99)).isFalse();
     }
+
+    @Test
+    void alternativeRouteFoundForP015ToP065() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+
+        var url = RouteFindingTest.class.getResource("/test-data/switchboard4.json");
+        LayoutPersistence.load(panel, Paths.get(url.toURI()));
+
+        panel.testSetRouteSource(2, 3);
+        panel.testFindRoute(24, 6);
+
+        assertThat(panel.hasActiveRoute()).isTrue();
+        assertThat(panel.getRouteModel().size()).isEqualTo(2);
+
+        // The new route is P-015-P-065
+        String routeId = "P-015-P-065";
+        Route r = panel.getRouteModel().getRoute(routeId);
+        assertThat(r).isNotNull();
+        assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
+        assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(2);
+    }
 }
