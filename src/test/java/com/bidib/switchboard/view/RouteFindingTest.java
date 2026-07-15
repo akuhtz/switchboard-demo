@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
@@ -16,13 +17,17 @@ import com.bidib.switchboard.persistence.LayoutPersistence;
 
 class RouteFindingTest {
 
+    private static Path testLayout() throws Exception {
+        var url = RouteFindingTest.class.getResource("/test-data/switchboard3.json");
+        return Paths.get(url.toURI());
+    }
+
     @Test
     void routeThroughDivertedTurnouts() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         model.setElementAspect("TR-003", 1);
         model.setElementAspect("TR-002", 1);
@@ -42,14 +47,15 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(10, 5);
 
-        assertTrue(panel.hasActiveRoute(), "Route should be found from (2,3) to (10,5)");
-        assertTrue(panel.routeTileCount() > 0, "Route should contain at least one tile");
+        assertTrue(panel.hasActiveRoute(),
+                "Route should be found from (2,3) to (10,5)");
+        assertTrue(panel.routeTileCount() > 0,
+                "Route should contain at least one tile");
     }
 
     @Test
@@ -57,14 +63,15 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(10, 4);
 
-        assertTrue(panel.hasActiveRoute(), "Route should be found from (2,3) to (10,4)");
-        assertTrue(panel.routeTileCount() > 0, "Route should contain at least one tile");
+        assertTrue(panel.hasActiveRoute(),
+                "Route should be found from (2,3) to (10,4)");
+        assertTrue(panel.routeTileCount() > 0,
+                "Route should contain at least one tile");
     }
 
     @Test
@@ -72,13 +79,13 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(10, 0);
 
-        assertFalse(panel.hasActiveRoute(), "Route should NOT be found from (2,3) to (10,0)");
+        assertFalse(panel.hasActiveRoute(),
+                "Route should NOT be found from (2,3) to (10,0)");
     }
 
     @Test
@@ -86,14 +93,15 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         panel.testSetRouteSource(10, 1);
         panel.testFindRoute(2, 3);
 
-        assertTrue(panel.hasActiveRoute(), "Route should be found from (10,1) to (2,3)");
-        assertTrue(panel.routeTileCount() > 0, "Route should contain at least one tile");
+        assertTrue(panel.hasActiveRoute(),
+                "Route should be found from (10,1) to (2,3)");
+        assertTrue(panel.routeTileCount() > 0,
+                "Route should contain at least one tile");
     }
 
     @Test
@@ -101,8 +109,7 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         model.setElementAspect("TR-003", 1);
         model.setElementAspect("TR-002", 1);
@@ -126,8 +133,7 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         model.setElementAspect("TR-003", 1);
         model.setElementAspect("TR-002", 1);
@@ -151,8 +157,7 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         panel.testSetRouteSource(0, 0);
         panel.testFindRoute(10, 1);
@@ -171,8 +176,7 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         model.setElementAspect("TR-003", 1);
         model.setElementAspect("TR-002", 1);
@@ -197,8 +201,7 @@ class RouteFindingTest {
         RailwayModel model1 = new RailwayModel();
         SwitchboardPanel panel1 = new SwitchboardPanel(model1);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel1, path);
+        LayoutPersistence.load(panel1, testLayout());
 
         model1.setElementAspect("TR-003", 1);
         model1.setElementAspect("TR-002", 1);
@@ -236,8 +239,7 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         model.setElementAspect("TR-003", 1);
         model.setElementAspect("TR-002", 1);
@@ -261,8 +263,7 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         panel.testSetRouteSource(0, 0);
         panel.testFindRoute(10, 1);
@@ -278,8 +279,7 @@ class RouteFindingTest {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
 
-        var path = Paths.get("src/test/resources/test-data/switchboard3.json");
-        LayoutPersistence.load(panel, path);
+        LayoutPersistence.load(panel, testLayout());
 
         panel.testSetRouteSource(0, 0);
         panel.testFindRoute(10, 1);

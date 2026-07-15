@@ -164,7 +164,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - For `ElementTile` tiles, resolves the SVG path from the model's current aspect.
 - **Interaction**:
   - Left-click: selects position + cycles aspect (normal) or selects only (edit).
-  - Right-click: context menu with ElementTypes + Signals submenu + Clear route on route tiles.
+  - Right-click: context menu with Info (element data dialog), ElementTypes + Signals submenu, Clear route on route tiles.
   - Ctrl+R: rotates selected tile 90° (edit mode only).
   - Edit-mode tooltip shows element ID on hover.
 - **Thread safety**:

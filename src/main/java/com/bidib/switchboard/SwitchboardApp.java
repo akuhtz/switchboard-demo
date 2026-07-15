@@ -52,6 +52,11 @@ public class SwitchboardApp {
     private Path currentFilePath;
 
     SwitchboardApp() {
+        this(true);
+        // frame.setVisible(true);
+    }
+
+    SwitchboardApp(boolean autoLoad) {
         model = new RailwayModel();
         panel = new SwitchboardPanel(model);
         settings = new SettingsManager();
@@ -64,9 +69,10 @@ public class SwitchboardApp {
         }
 
         frame = new JFrame("Model Railway Switchboard");
-        buildDefaultLayout();
         panel.setTileContextHandler(this::onTileContextAction);
-        tryAutoLoad();
+        if (autoLoad) {
+            tryAutoLoad();
+        }
         buildMenu();
         buildFrame();
     }
@@ -112,7 +118,7 @@ public class SwitchboardApp {
     private void tryAutoLoad() {
         Path path = settings.getLastLayoutFile();
         if (path == null) {
-            log.info("No layout file referenced in settings, using default layout");
+            log.info("No layout file referenced in settings");
             return;
         }
         log.info("Auto-loading layout from: {}", path);
@@ -132,7 +138,13 @@ public class SwitchboardApp {
         }
     }
 
-    // --- Tile context menu ---
+    private void loadDefaultLayout() {
+        panel.clearTiles();
+        model.clear();
+        currentFilePath = null;
+        updateTitle();
+        buildDefaultLayout();
+    }
 
     private void onTileContextAction(int col, int row, ElementType type) {
         Tile existing = panel.getTile(col, row);
@@ -146,6 +158,7 @@ public class SwitchboardApp {
         String id = generateId(type);
         model.addElement(new Element(id, 0, 0));
         panel.setTile(createDefaultTile(col, row, id, type));
+        panel.setSelectedTile(col, row);
     }
 
     private String generateId(ElementType type) {
@@ -244,6 +257,12 @@ public class SwitchboardApp {
         editModeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control E"));
         editModeItem.addActionListener(e -> setEditMode(editModeItem.isSelected()));
         editMenu.add(editModeItem);
+
+        editMenu.addSeparator();
+        JMenuItem loadDefaultItem = new JMenuItem("Load Default Layout");
+        loadDefaultItem.addActionListener(e -> loadDefaultLayout());
+        editMenu.add(loadDefaultItem);
+
         menuBar.add(editMenu);
 
         frame.setJMenuBar(menuBar);
@@ -259,7 +278,8 @@ public class SwitchboardApp {
         settings.setLookAndFeel(laf);
         if (laf == LookAndFeel.DARK) {
             FlatDarkLaf.setup();
-        } else {
+        }
+        else {
             FlatLightLaf.setup();
         }
         SwingUtilities.updateComponentTreeUI(frame);
@@ -343,11 +363,16 @@ public class SwitchboardApp {
         frame.setSize(1024, 768);
         frame.setLocationRelativeTo(null);
         updateTitle();
+
         frame.setVisible(true);
     }
 
     JFrame getFrame() {
         return frame;
+    }
+
+    SwitchboardPanel getPanel() {
+        return panel;
     }
 
     private void updateTitle() {

@@ -26,6 +26,7 @@ import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bidib.switchboard.command.Command;
 import com.bidib.switchboard.command.CycleElementCommand;
+import com.bidib.switchboard.model.Element;
 import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.ElementType;
 import com.bidib.switchboard.model.RailwayModel;
@@ -177,6 +179,12 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
     public RouteModel getRouteModel() {
         return routeModel;
+    }
+
+    public void setSelectedTile(int col, int row) {
+        selectedCol = col;
+        selectedRow = row;
+        repaint();
     }
 
     public void clearTiles() {
@@ -546,60 +554,116 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             return;
         }
 
+        selectedCol = col;
+        selectedRow = row;
+
         JPopupMenu menu = new JPopupMenu();
-        JMenu signalMenu = null;
 
-        for (ElementType type : ElementType.values()) {
-            if (!type.isVisible()) {
-                continue;
+        Tile tile = getTile(col, row);
+        if (tile != null) {
+            JMenuItem infoItem = new JMenuItem("Info");
+            infoItem.addActionListener(e -> showTileInfo(tile));
+            menu.add(infoItem);
+        }
+
+        if (editMode) {
+            if (menu.getComponentCount() > 0) {
+                menu.addSeparator();
             }
 
-            if (type.getPrefix().startsWith("S")) {
-                if (signalMenu == null) {
-                    signalMenu = new JMenu("Signals");
-                    menu.add(signalMenu);
+            JMenu signalMenu = null;
+
+            for (ElementType type : ElementType.values()) {
+                if (!type.isVisible()) {
+                    continue;
                 }
-                JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
-                item.addActionListener(e -> {
-                    if (tileContextHandler != null) {
-                        tileContextHandler.handle(col, row, type);
+
+                if (type.getPrefix().startsWith("S")) {
+                    if (signalMenu == null) {
+                        signalMenu = new JMenu("Signals");
+                        menu.add(signalMenu);
                     }
-                });
-                signalMenu.add(item);
+                    JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
+                    item.addActionListener(e -> {
+                        if (tileContextHandler != null) {
+                            tileContextHandler.handle(col, row, type);
+                        }
+                    });
+                    signalMenu.add(item);
+                }
+                else {
+                    JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
+                    item.addActionListener(e -> {
+                        if (tileContextHandler != null) {
+                            tileContextHandler.handle(col, row, type);
+                        }
+                    });
+                    menu.add(item);
+                }
             }
-            else {
-                JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
-                item.addActionListener(e -> {
+
+            if (tile != null) {
+                JMenuItem clearItem = new JMenuItem("Clear");
+                clearItem.addActionListener(e -> {
                     if (tileContextHandler != null) {
-                        tileContextHandler.handle(col, row, type);
+                        tileContextHandler.handle(col, row, null);
                     }
                 });
-                menu.add(item);
+                menu.add(clearItem);
             }
         }
 
-        if (getTile(col, row) != null) {
-            menu.addSeparator();
-            JMenuItem clearItem = new JMenuItem("Clear");
-            clearItem.addActionListener(e -> {
-                if (tileContextHandler != null) {
-                    tileContextHandler.handle(col, row, null);
-                }
+        String routeId = tile != null ? routeModel.routeIdForTile(col, row) : null;
+        if (routeId != null) {
+            if (menu.getComponentCount() > 0) {
+                menu.addSeparator();
+            }
+            JMenuItem clearRouteItem = new JMenuItem("Clear route (" + routeId + ")");
+            clearRouteItem.addActionListener(e -> {
+                routeModel.removeRoute(routeId);
+                repaint();
             });
-            menu.add(clearItem);
-
-            String routeId = routeModel.routeIdForTile(col, row);
-            if (routeId != null) {
-                JMenuItem clearRouteItem = new JMenuItem("Clear route (" + routeId + ")");
-                clearRouteItem.addActionListener(e -> {
-                    routeModel.removeRoute(routeId);
-                    repaint();
-                });
-                menu.add(clearRouteItem);
-            }
+            menu.add(clearRouteItem);
         }
 
-        menu.show(this, x, y);
+        if (editMode && tile != null && selectedCol >= 0 && selectedRow >= 0) {
+            if (menu.getComponentCount() > 0) {
+                menu.addSeparator();
+            }
+            JMenuItem clearSelectionItem = new JMenuItem("Clear selection");
+            clearSelectionItem.addActionListener(e -> {
+                selectedCol = -1;
+                selectedRow = -1;
+                repaint();
+            });
+            menu.add(clearSelectionItem);
+        }
+
+        if (menu.getComponentCount() > 0) {
+            menu.show(this, x, y);
+        }
+    }
+
+    private void showTileInfo(Tile tile) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Position: (").append(tile.getCol()).append(", ").append(tile.getRow()).append(")\n");
+        sb.append("Rotation: ").append(tile.getRotation()).append("\n");
+        if (tile.getElementId() != null) {
+            sb.append("Element ID: ").append(tile.getElementId()).append("\n");
+        }
+        if (tile instanceof ElementTile et) {
+            sb.append("Type: ").append(et.getElementType().getPrefix()).append("\n");
+            Element el = model.getElement(tile.getElementId());
+            if (el != null) {
+                sb.append("Current aspect: ").append(el.getCurrentAspect()).append("\n");
+                sb.append("Node ID: ").append(el.getNodeId()).append("\n");
+                sb.append("Accessory ID: ").append(el.getAccessoryId()).append("\n");
+            }
+            sb.append("Aspects: ").append(et.getAspectCount()).append("\n");
+        } else {
+            sb.append("Type: plain\n");
+        }
+        JOptionPane.showMessageDialog(this, sb.toString(), "Tile Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     // --- Rendering ---
