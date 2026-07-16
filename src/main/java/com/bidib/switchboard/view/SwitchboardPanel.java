@@ -280,6 +280,11 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             return;
         }
 
+        // Temporarily remove any existing route with this ID so its tiles
+        // don't block the BFS for the replacement route.
+        if (routeModel.getRoute(srcId + "-" + dstId) != null) {
+            routeModel.removeRoute(srcId + "-" + dstId);
+        }
         List<int[]> path = bfsRoute(routeSourceCol, routeSourceRow, targetCol, targetRow, null);
         if (path != null) {
             Route route = new Route(srcId, dstId, path);
@@ -372,29 +377,30 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         for (int i = 0; i < primaryPath.size() - 1; i++) {
             int[] from = primaryPath.get(i);
             int[] to = primaryPath.get(i + 1);
-            if (i == 0) continue;
-            int[] prev = primaryPath.get(i - 1);
-            int entryDir1 = from[0] - prev[0];
-            int entryDir2 = from[1] - prev[1];
-            int ne1 = -1, ne2 = -1;
-            if (entryDir1 == 1) ne1 = ElementType.PORT_LEFT;
-            else if (entryDir1 == -1) ne1 = ElementType.PORT_RIGHT;
-            if (entryDir2 == 1) ne2 = ElementType.PORT_TOP;
-            else if (entryDir2 == -1) ne2 = ElementType.PORT_BOTTOM;
             List<int[]> neighbors = getConnectedNeighbors(from[0], from[1]);
             boolean hasAlt = false;
             for (int[] n : neighbors) {
                 if (n[0] == to[0] && n[1] == to[1]) continue;
-                int ndc = n[0] - from[0];
-                int ndr = n[1] - from[1];
-                int exit1 = -1, exit2 = -1;
-                if (ndc == 1) exit1 = ElementType.PORT_RIGHT;
-                else if (ndc == -1) exit1 = ElementType.PORT_LEFT;
-                if (ndr == 1) exit2 = ElementType.PORT_BOTTOM;
-                else if (ndr == -1) exit2 = ElementType.PORT_TOP;
-                if ((ne1 != -1 && (exit1 == ne1 || exit2 == ne1))
-                    || (ne2 != -1 && (exit1 == ne2 || exit2 == ne2))) {
-                    continue;
+                if (i > 0) {
+                    int[] prev = primaryPath.get(i - 1);
+                    int entryDir1 = from[0] - prev[0];
+                    int entryDir2 = from[1] - prev[1];
+                    int ne1 = -1, ne2 = -1;
+                    if (entryDir1 == 1) ne1 = ElementType.PORT_LEFT;
+                    else if (entryDir1 == -1) ne1 = ElementType.PORT_RIGHT;
+                    if (entryDir2 == 1) ne2 = ElementType.PORT_TOP;
+                    else if (entryDir2 == -1) ne2 = ElementType.PORT_BOTTOM;
+                    int ndc = n[0] - from[0];
+                    int ndr = n[1] - from[1];
+                    int exit1 = -1, exit2 = -1;
+                    if (ndc == 1) exit1 = ElementType.PORT_RIGHT;
+                    else if (ndc == -1) exit1 = ElementType.PORT_LEFT;
+                    if (ndr == 1) exit2 = ElementType.PORT_BOTTOM;
+                    else if (ndr == -1) exit2 = ElementType.PORT_TOP;
+                    if ((ne1 != -1 && (exit1 == ne1 || exit2 == ne1))
+                        || (ne2 != -1 && (exit1 == ne2 || exit2 == ne2))) {
+                        continue;
+                    }
                 }
                 hasAlt = true;
                 break;
