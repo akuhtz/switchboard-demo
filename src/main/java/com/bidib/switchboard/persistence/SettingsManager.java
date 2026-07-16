@@ -56,6 +56,15 @@ public class SettingsManager {
         save();
     }
 
+    public boolean isExhaustiveRouting() {
+        return data.isExhaustiveRouting();
+    }
+
+    public void setExhaustiveRouting(boolean exhaustive) {
+        data.setExhaustiveRouting(exhaustive);
+        save();
+    }
+
     // --- Internal ---
 
     private static SettingsData load() {

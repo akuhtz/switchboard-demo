@@ -59,6 +59,7 @@ class SwitchboardAppTest {
         window.menuItemWithPath("File", "Save As...").requireVisible();
         window.menuItemWithPath("File", "Settings", "Light Look and Feel").requireVisible();
         window.menuItemWithPath("File", "Settings", "Dark Look and Feel").requireVisible();
+        window.menuItemWithPath("File", "Settings", "Exhaustive Route Search").requireVisible();
         window.menuItemWithPath("File", "Exit").requireVisible();
     }
 
@@ -80,9 +81,10 @@ class SwitchboardAppTest {
     }
 
     @Test
-    void settingsMenuHasLightAndDarkItems() {
+    void settingsMenuHasLightAndDarkAndExhaustiveItems() {
         window.menuItemWithPath("File", "Settings", "Light Look and Feel").requireVisible();
         window.menuItemWithPath("File", "Settings", "Dark Look and Feel").requireVisible();
+        window.menuItemWithPath("File", "Settings", "Exhaustive Route Search").requireVisible();
     }
 
     @Test

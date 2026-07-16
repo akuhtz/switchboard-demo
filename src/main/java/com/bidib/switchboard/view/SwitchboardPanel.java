@@ -83,6 +83,8 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     private static final Color COLOR_ROUTE_SOURCE = new Color(100, 200, 100);
     private static final Color COLOR_ROUTE_TARGET = new Color(80, 80, 255);
 
+    private static final int MAX_ALTERNATIVES = 10;
+
     private final int tileSize;
 
     private final int cols;
@@ -96,6 +98,12 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     private final Deque<Command> undoStack = new ArrayDeque<>();
 
     private TileContextHandler tileContextHandler;
+
+    private boolean exhaustiveRouting = false;
+
+    public void setExhaustiveRouting(boolean exhaustive) {
+        this.exhaustiveRouting = exhaustive;
+    }
 
     private int selectedCol = -1;
 
@@ -256,6 +264,10 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     }
 
     private void findRoute(int targetCol, int targetRow) {
+        findRoute(targetCol, targetRow, this.exhaustiveRouting);
+    }
+
+    private void findRoute(int targetCol, int targetRow, boolean exhaustive) {
         if (routeSourceCol < 0 || routeSourceRow < 0) {
             return;
         }
@@ -290,7 +302,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
             Route route = new Route(srcId, dstId, path);
             LOGGER.info("Route {} added: {} tiles {}", route.getId(), path.size(), pathToString(path));
 
-            List<List<int[]>> alts = bfsAlternativeRoutes(routeSourceCol, routeSourceRow, targetCol, targetRow, path);
+            List<List<int[]>> alts = bfsAlternativeRoutes(routeSourceCol, routeSourceRow, targetCol, targetRow, path, exhaustive);
             if (!alts.isEmpty()) {
                 for (List<int[]> altPath : alts) {
                     Route alt = new Route(srcId, dstId, altPath);
@@ -366,6 +378,10 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     }
 
     private List<List<int[]>> bfsAlternativeRoutes(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath) {
+        return bfsAlternativeRoutes(startCol, startRow, endCol, endRow, primaryPath, false);
+    }
+
+    private List<List<int[]>> bfsAlternativeRoutes(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath, boolean exhaustive) {
         String startKey = tileKey(startCol, startRow);
         String endKey = tileKey(endCol, endRow);
         if (!tiles.containsKey(startKey) || !tiles.containsKey(endKey) || primaryPath == null || primaryPath.size() < 2) {
@@ -374,7 +390,7 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
 
         List<List<int[]>> alts = new ArrayList<>();
 
-        for (int i = 0; i < primaryPath.size() - 1; i++) {
+        for (int i = 0; i < primaryPath.size() - 1 && alts.size() < MAX_ALTERNATIVES; i++) {
             int[] from = primaryPath.get(i);
             int[] to = primaryPath.get(i + 1);
             List<int[]> neighbors = getConnectedNeighbors(from[0], from[1]);
@@ -410,30 +426,49 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
                 block.add(edgeKey(from[0], from[1], to[0], to[1]));
                 List<int[]> result = bfsRouteInternal(startCol, startRow, endCol, endRow, block);
                 if (result != null) {
-                    boolean duplicate = false;
-                    for (List<int[]> existing : alts) {
-                        if (existing.size() == result.size()) {
-                            boolean same = true;
-                            for (int j = 0; j < existing.size(); j++) {
-                                if (existing.get(j)[0] != result.get(j)[0] || existing.get(j)[1] != result.get(j)[1]) {
-                                    same = false;
-                                    break;
-                                }
-                            }
-                            if (same) {
-                                duplicate = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!duplicate) {
+                    if (!isDuplicatePath(alts, result)) {
                         alts.add(result);
+                        if (exhaustive) {
+                            findAdditionalAlternatives(startCol, startRow, endCol, endRow, block, result, alts);
+                        }
                     }
                 }
             }
         }
 
         return alts;
+    }
+
+    private void findAdditionalAlternatives(int startCol, int startRow, int endCol, int endRow, Set<String> baseBlock, List<int[]> altPath, List<List<int[]>> alts) {
+        for (int j = 1; j < altPath.size() - 1 && alts.size() < MAX_ALTERNATIVES; j++) {
+            int[] f = altPath.get(j);
+            int[] t = altPath.get(j + 1);
+            String ek = edgeKey(f[0], f[1], t[0], t[1]);
+            if (baseBlock.contains(ek)) continue;
+
+            Set<String> block = new HashSet<>(baseBlock);
+            block.add(ek);
+            List<int[]> result = bfsRouteInternal(startCol, startRow, endCol, endRow, block);
+            if (result != null && !isDuplicatePath(alts, result)) {
+                alts.add(result);
+            }
+        }
+    }
+
+    private boolean isDuplicatePath(List<List<int[]>> alts, List<int[]> candidate) {
+        for (List<int[]> existing : alts) {
+            if (existing.size() == candidate.size()) {
+                boolean same = true;
+                for (int j = 0; j < existing.size(); j++) {
+                    if (existing.get(j)[0] != candidate.get(j)[0] || existing.get(j)[1] != candidate.get(j)[1]) {
+                        same = false;
+                        break;
+                    }
+                }
+                if (same) return true;
+            }
+        }
+        return false;
     }
 
     private List<int[]> bfsRouteInternal(int startCol, int startRow, int endCol, int endRow, Set<String> blockedEdges) {
@@ -1084,7 +1119,11 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
     }
 
     void testFindRoute(int targetCol, int targetRow) {
-        findRoute(targetCol, targetRow);
+        findRoute(targetCol, targetRow, this.exhaustiveRouting);
+    }
+
+    void testFindRoute(int targetCol, int targetRow, boolean exhaustive) {
+        findRoute(targetCol, targetRow, exhaustive);
     }
 
     // --- Observer ---

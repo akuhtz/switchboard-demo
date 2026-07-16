@@ -301,4 +301,29 @@ class RouteFindingTest {
         assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
         assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(2);
     }
+
+    @Test
+    void alternativeRouteFoundForP015ToTL004() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+
+        var url = RouteFindingTest.class.getResource("/test-data/switchboard5.json");
+        LayoutPersistence.load(panel, Paths.get(url.toURI()));
+
+        panel.setExhaustiveRouting(true);
+        panel.testSetRouteSource(2, 3);
+        panel.testFindRoute(7, 11);
+
+        assertThat(panel.hasActiveRoute()).isTrue();
+
+        String routeId = "P-015-TL-004";
+        Route r = panel.getRouteModel().getRoute(routeId);
+        assertThat(r).as("Route %s should exist", routeId).isNotNull();
+
+        // Exhaustive search should find 4 alternatives
+        assertThat(panel.getRouteModel().hasAlternativeRoute(routeId))
+            .as("Route %s should have alternatives", routeId).isTrue();
+        assertThat(panel.getRouteModel().getAlternativeRoutes(routeId))
+            .as("Route %s should have 4 alternatives", routeId).hasSize(4);
+    }
 }

@@ -13,6 +13,16 @@ public class SettingsData {
 
     private LookAndFeel lookAndFeel = LookAndFeel.LIGHT;
 
+    private boolean exhaustiveRouting;
+
+    public boolean isExhaustiveRouting() {
+        return exhaustiveRouting;
+    }
+
+    public void setExhaustiveRouting(boolean exhaustiveRouting) {
+        this.exhaustiveRouting = exhaustiveRouting;
+    }
+
     public String getLastLayoutFile() {
         return lastLayoutFile;
     }

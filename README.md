@@ -110,7 +110,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 ### `RouteModel`
 - Manages multiple simultaneous active routes.
 - Uses `PropertyChangeSupport` for change notifications.
-- **Alternative routes**: Each route ID can have a list of alternative paths found via BFS.
+- **Alternative routes**: Each route ID can have a list of alternative paths found via BFS
+  (short mode: block one primary edge at a time; exhaustive mode: also block edges of found alternatives).
   A `selectedAlternativeIndex` map tracks which alternative is currently previewed (-1 = none).
 - Methods:
   - `addRoute(Route)` — adds a route.
@@ -175,8 +176,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - Routes render as red polylines (`(255,80,80)`, stroke-width 4) through tile centers,
     with a green filled oval at the source and a blue filled oval at the target.
    - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
-   - **Alternative routes**: When a route is created, BFS continues to find up to 2 alternative paths (by removing previously found route tiles from the search space). All alternatives are stored in `RouteModel` as a list keyed by route ID.
-     - Right-clicking a route tile shows "Use primary route", "Alternative 1/2" (preview), and "Use selected alternative" in the context menu.
+   - **Alternative routes**: When a route is created, BFS finds alternative paths by blocking each edge of the primary path one at a time and re-running. By default this finds short alternatives. When "Exhaustive Route Search" is enabled (File > Settings), alternatives are also found by blocking edges of previously found alternatives (k-shortest-paths iteration), up to `MAX_ALTERNATIVES` (10). All alternatives are stored in `RouteModel` as a list keyed by route ID.
+      - Right-clicking a route tile shows "Use primary route", "Alternative 1/2/..." (preview), and "Use selected alternative" in the context menu.
      - Previewing an alternative draws it as a dotted green line (`(80,255,80)`); other alternatives as dotted blue lines (`(80,80,255)`).
      - "Use primary route" discards all alternatives and restores normal red rendering.
      - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
@@ -252,8 +253,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | File | Load... | `Ctrl+L` | JFileChooser to load a `.json` layout |
 | File | Save | `Ctrl+S` | Save to current file, or Save As if none |
 | File | Save As... | `Ctrl+Shift+S` | JFileChooser to save to a new location |
-| File | Settings > Light Look and Feel | — | Switch to FlatLaf light theme |
+ | File | Settings > Light Look and Feel | — | Switch to FlatLaf light theme |
 | File | Settings > Dark Look and Feel | — | Switch to FlatLaf dark theme |
+| File | Settings > Exhaustive Route Search | — | Toggle k-shortest-paths search for more alternative routes |
 | File | Exit | — | Exit application |
 | Edit | Edit Mode | `Ctrl+E` | Toggle normal/edit mode |
 | Edit | Load Default Layout | — | Load the built-in default layout |
@@ -311,7 +313,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-21 tests across two test classes:
+23 tests across two test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -320,11 +322,11 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `fileMenuContainsLoadSaveSaveAsSettingsAndExit` | File menu items visible |
 | `editMenuContainsEditModeLoadDefaultAndOccupancies` | Edit menu items visible |
 | `toolbarContainsEditModeToggle` | Edit Mode toggle button visible |
-| `settingsMenuHasLightAndDarkItems` | Light/Dark Look and Feel items visible |
+| `settingsMenuHasLightAndDarkAndExhaustiveItems` | Light/Dark Look and Feel + Exhaustive Route Search items visible |
 | `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
 | `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
-### `RouteFindingTest` (14 tests)
+### `RouteFindingTest` (15 tests)
 | Test | Description |
 |------|-------------|
 | `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
@@ -341,8 +343,10 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `routeIdFormat` | Route ID format `"{source}-{target}"` |
 | `routeContainsTile` | Route includes source/target, excludes out-of-bounds |
 | `alternativeRouteFoundForP015ToP065` | BFS finds 2 alternative routes via T3-001/T3-002 diagonals |
+| `alternativeRouteFoundForP015ToTL004` | Exhaustive BFS finds 4 alternatives via T3 diagonals + row-11 corridor |
 
 Uses `switchboard3.json` test layout (2 turnouts, curves, diagonals, signals on a 60×30 grid).
+Uses `switchboard5.json` for the exhaustive alternative route test.
 
 ---
 

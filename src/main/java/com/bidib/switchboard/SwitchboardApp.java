@@ -245,6 +245,18 @@ public class SwitchboardApp {
         darkItem.addActionListener(e -> applyLookAndFeel(LookAndFeel.DARK));
         lafGroup.add(darkItem);
         settingsMenu.add(darkItem);
+
+        settingsMenu.addSeparator();
+        JCheckBoxMenuItem exhaustiveItem = new JCheckBoxMenuItem("Exhaustive Route Search");
+        exhaustiveItem.setSelected(settings.isExhaustiveRouting());
+        exhaustiveItem.addActionListener(e -> {
+            boolean selected = exhaustiveItem.isSelected();
+            panel.setExhaustiveRouting(selected);
+            settings.setExhaustiveRouting(selected);
+        });
+        settingsMenu.add(exhaustiveItem);
+        panel.setExhaustiveRouting(settings.isExhaustiveRouting());
+
         fileMenu.add(settingsMenu);
 
         fileMenu.addSeparator();
