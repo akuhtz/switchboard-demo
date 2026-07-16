@@ -30,6 +30,7 @@ test-output
 
 
 .flattened-pom.xml
+dependency-reduced-pom.xml
 
 ## Postgres
 /app/server/core/database
