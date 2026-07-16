@@ -156,6 +156,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Extends `JPanel`, implements `PropertyChangeListener`.
 - Default grid: 60 columns x 30 rows, 32 px per tile (1920×960 px total).
 - Registers as observer on the `RailwayModel`.
+- Delegates route finding to `RouterService`.
 - **Modes**:
   - **Normal**: left-click cycles aspects on clickable tiles (aspectCount > 1).
   - **Edit**: left-click selects tiles (cyan border), Ctrl+R rotates selected tile 90°, right-click context menu to place/clear tiles. No aspect cycling. Selection clears when edit mode is turned off.
@@ -222,6 +223,15 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Thread-safe `ConcurrentHashMap` cache.
 
 ---
+
+### `RouterService`
+- Stateless service class encapsulating the route-finding logic.
+- Constructed with `Map<String, Tile> tiles`, `int cols`, `int rows`, `RouteModel routeModel`.
+- `bfsRoute(startCol, startRow, endCol, endRow)` — BFS-based shortest path using physical port connectivity. Returns `List<int[]>` path or `null`.
+- `bfsAlternativeRoutes(startCol, startRow, endCol, endRow, primaryPath, exhaustive)` — finds alternative routes by blocking edges of the primary path (and of found alternatives when `exhaustive=true`). Returns `List<List<int[]>>`.
+- `setRouteAspects(path, model)` — sets turnouts on a found route to the correct aspect using `aspectForRoute(entryPort, exitPort, rotation)`.
+- `diagonalAwarePort(from, to, isEntry)` — computes which port a diagonal movement enters/exits through.
+- Extracted from `SwitchboardPanel` to enable direct testing and reuse.
 
 ### `LayoutPersistence`
 - Serializes the full switchboard state (tiles + model + occupancies) to JSON using Jackson 3.
@@ -313,7 +323,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-23 tests across two test classes:
+32 tests across four test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -345,8 +355,25 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `alternativeRouteFoundForP015ToP065` | BFS finds 2 alternative routes via T3-001/T3-002 diagonals |
 | `alternativeRouteFoundForP015ToTL004` | Exhaustive BFS finds 4 alternatives via T3 diagonals + row-11 corridor |
 
-Uses `switchboard3.json` test layout (2 turnouts, curves, diagonals, signals on a 60×30 grid).
-Uses `switchboard5.json` for the exhaustive alternative route test.
+### `RouterServiceTest` (9 tests)
+| Test | Description |
+|------|-------------|
+| `bfsRouteWithStartOutsideGrid` | Start column or row out of bounds returns null |
+| `bfsRouteWithEndOutsideGrid` | End column or row out of bounds returns null |
+| `bfsRouteWithBothOutsideGrid` | Both start and end out of bounds returns null |
+| `bfsRouteWithNullStartTile` | Tile not present at start coordinates returns null |
+| `bfsRouteWithNullEndTile` | Tile not present at end coordinates returns null |
+| `bfsRouteFindsValidPath` | BFS finds path from (2,3) to (10,5) on default layout |
+| `bfsAlternativeRoutesReturnsAlternatives` | BFS finds 2 alternative paths from (2,3) to (24,6) |
+| `bfsAlternativeRoutesExhaustive` | Exhaustive BFS finds 4 alternative paths from (2,3) to (7,11) |
+| `diagonalAwarePort` | Correct port mapping for 8-direction neighbor offsets |
+
+### `DebugTest` (1 test)
+| Test | Description |
+|------|-------------|
+| `debugP015toTL004` | Convenience test with `System.out` output for manual debugging of route finding |
+
+Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts.
 
 ---
 

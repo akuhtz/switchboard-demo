@@ -4,13 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import com.bidib.switchboard.model.RailwayModel;
 import com.bidib.switchboard.model.Route;
+import com.bidib.switchboard.model.RouteModel;
 import com.bidib.switchboard.persistence.LayoutData;
 import com.bidib.switchboard.persistence.LayoutPersistence;
+import com.bidib.switchboard.service.RouterService;
 
 class RouteFindingTest {
 
@@ -19,22 +22,52 @@ class RouteFindingTest {
         return Paths.get(url.toURI());
     }
 
+    private static RouterService routerService(SwitchboardPanel panel) {
+        return new RouterService(panel.getTiles(), panel.getCols(), panel.getRows(), panel.getRouteModel());
+    }
+
+    private static void addRouteToModel(RouteModel routeModel, RouterService routerService,
+            SwitchboardPanel panel, List<int[]> path, RailwayModel model) {
+        String srcId = panel.getTile(path.get(0)[0], path.get(0)[1]).getElementId();
+        String dstId = panel.getTile(path.get(path.size() - 1)[0], path.get(path.size() - 1)[1]).getElementId();
+        routerService.setRouteAspects(path, model);
+        routeModel.addRoute(new Route(srcId, dstId, path));
+    }
+
+    private static void findAndAddRoute(RouteModel routeModel, RouterService routerService,
+            SwitchboardPanel panel, int srcCol, int srcRow, int dstCol, int dstRow, RailwayModel model) {
+        String srcId = panel.getTile(srcCol, srcRow).getElementId();
+        String dstId = panel.getTile(dstCol, dstRow).getElementId();
+        String routeId = srcId + "-" + dstId;
+        if (routeModel.getRoute(routeId) != null) {
+            routeModel.removeRoute(routeId);
+        }
+        List<int[]> path = routerService.bfsRoute(srcCol, srcRow, dstCol, dstRow);
+        if (path == null) return;
+        routerService.setRouteAspects(path, model);
+        List<List<int[]>> alts = routerService.bfsAlternativeRoutes(srcCol, srcRow, dstCol, dstRow, path, false);
+        Route route = new Route(srcId, dstId, path);
+        for (List<int[]> altPath : alts) {
+            routeModel.addAlternativeRoute(route.getId(), new Route(srcId, dstId, altPath));
+        }
+        routeModel.addRoute(route);
+    }
+
     @Test
     void routeThroughDivertedTurnouts() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
 
         model.setElementAspect("TR-003", 1);
         model.setElementAspect("TR-002", 1);
 
-        panel.testSetRouteSource(0, 0);
-        panel.testFindRoute(10, 1);
+        List<int[]> path = rs.bfsRoute(0, 0, 10, 1);
+        assertThat(path).as("Route should be found from (0,0) to (10,1) through diverted turnouts").isNotNull();
+        assertThat(path.size() > 0).as("Route should contain at least one tile").isTrue();
 
-        assertThat(panel.hasActiveRoute()).as("Route should be found from (0,0) to (10,1) through diverted turnouts").isTrue();
-        assertThat(panel.routeTileCount() > 0).as("Route should contain at least one tile").isTrue();
-
+        rs.setRouteAspects(path, model);
         int tr003aspect = model.getElementAspect("TR-003");
         assertThat(tr003aspect).as("TR-003 should be set to diverted (aspect=1)").isEqualTo(1);
     }
@@ -43,179 +76,165 @@ class RouteFindingTest {
     void routeFromRow3Col2ToRow5Col10() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
 
-        panel.testSetRouteSource(2, 3);
-        panel.testFindRoute(10, 5);
-
-        assertThat(panel.hasActiveRoute()).as("Route should be found from (2,3) to (10,5)").isTrue();
-        assertThat(panel.routeTileCount() > 0).as("Route should contain at least one tile").isTrue();
+        List<int[]> path = rs.bfsRoute(2, 3, 10, 5);
+        assertThat(path).as("Route should be found from (2,3) to (10,5)").isNotNull();
+        assertThat(path.size() > 0).as("Route should contain at least one tile").isTrue();
     }
 
     @Test
     void routeFromRow3Col2ToRow4Col10() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
 
-        panel.testSetRouteSource(2, 3);
-        panel.testFindRoute(10, 4);
-
-        assertThat(panel.hasActiveRoute()).as("Route should be found from (2,3) to (10,5)").isTrue();
-        assertThat(panel.routeTileCount() > 0).as("Route should contain at least one tile").isTrue();
+        List<int[]> path = rs.bfsRoute(2, 3, 10, 4);
+        assertThat(path).as("Route should be found from (2,3) to (10,5)").isNotNull();
+        assertThat(path.size() > 0).as("Route should contain at least one tile").isTrue();
     }
 
     @Test
     void routeFromRow3Col2ToRow0Col10() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
 
-        panel.testSetRouteSource(2, 3);
-        panel.testFindRoute(10, 0);
-
-        assertThat(panel.hasActiveRoute()).as("Route should NOT be found from (2,3) to (10,0)").isFalse();
+        List<int[]> path = rs.bfsRoute(2, 3, 10, 0);
+        assertThat(path).as("Route should NOT be found from (2,3) to (10,0)").isNull();
     }
 
     @Test
     void routeFromRow1Col10ToRow3Col2() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
 
-        panel.testSetRouteSource(10, 1);
-        panel.testFindRoute(2, 3);
-
-        assertThat(panel.hasActiveRoute()).as("Route should be found from (10,1) to (2,3)").isTrue();
-        assertThat(panel.routeTileCount() > 0).as("Route should contain at least one tile").isTrue();
+        List<int[]> path = rs.bfsRoute(10, 1, 2, 3);
+        assertThat(path).as("Route should be found from (10,1) to (2,3)").isNotNull();
+        assertThat(path.size() > 0).as("Route should contain at least one tile").isTrue();
     }
 
     @Test
     void twoNonOverlappingRoutesCoexist() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
+        RouteModel routeModel = panel.getRouteModel();
 
         model.setElementAspect("TR-003", 1);
         model.setElementAspect("TR-002", 1);
 
-        // Route A: (0,0) -> (10,1) through diverted turnouts
-        panel.testSetRouteSource(0, 0);
-        panel.testFindRoute(10, 1);
-        assertThat(panel.getRouteModel().size()).as("One route should exist after first find").isEqualTo(1);
+        List<int[]> pathA = rs.bfsRoute(0, 0, 10, 1);
+        assertThat(pathA).isNotNull();
+        addRouteToModel(routeModel, rs, panel, pathA, model);
+        assertThat(routeModel.size()).as("One route should exist after first find").isEqualTo(1);
 
-        // Route B: (2,3) -> (10,5) via row 3+4+5 — non-overlapping
-        panel.testSetRouteSource(2, 3);
-        panel.testFindRoute(10, 5);
-        assertThat(panel.getRouteModel().size()).as("Two routes should coexist").isEqualTo(2);
+        List<int[]> pathB = rs.bfsRoute(2, 3, 10, 5);
+        assertThat(pathB).isNotNull();
+        addRouteToModel(routeModel, rs, panel, pathB, model);
+        assertThat(routeModel.size()).as("Two routes should coexist").isEqualTo(2);
 
-        int totalTiles = panel.routeTileCount();
-        assertThat(totalTiles >= 4).as("Two routes should cover ≥4 tiles combined").isTrue();
+        int totalTiles = routeModel.getRoutes().values().stream().mapToInt(r -> r.getPath().size()).sum();
+        assertThat(totalTiles >= 4).as("Two routes should cover \u22654 tiles combined").isTrue();
     }
 
     @Test
     void routeConflictBlocksOverlappingRoute() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
+        RouteModel routeModel = panel.getRouteModel();
 
         model.setElementAspect("TR-003", 1);
         model.setElementAspect("TR-002", 1);
 
-        // Route A: occupies row 0 tiles
-        panel.testSetRouteSource(0, 0);
-        panel.testFindRoute(10, 1);
-        int routeASize = panel.getRouteModel().size();
-        int routeATiles = panel.routeTileCount();
+        List<int[]> pathA = rs.bfsRoute(0, 0, 10, 1);
+        assertThat(pathA).isNotNull();
+        addRouteToModel(routeModel, rs, panel, pathA, model);
+        int routeASize = routeModel.size();
+        int routeATiles = routeModel.getRoutes().values().stream().mapToInt(r -> r.getPath().size()).sum();
 
-        // Route B: (10,0) -> (0,0) would need to go through route A's row 0 tiles — blocked
-        panel.testSetRouteSource(10, 0);
-        panel.testFindRoute(0, 0);
-
-        assertThat(panel.getRouteModel().size()).as("No new route should be added when blocked by conflict").isEqualTo(routeASize);
-        assertThat(panel.routeTileCount()).as("Tile count should be unchanged").isEqualTo(routeATiles);
+        List<int[]> pathB = rs.bfsRoute(10, 0, 0, 0);
+        assertThat(pathB).as("Route B should be blocked by conflict").isNull();
+        assertThat(routeModel.size()).as("No new route should be added when blocked by conflict").isEqualTo(routeASize);
+        assertThat(routeModel.getRoutes().values().stream().mapToInt(r -> r.getPath().size()).sum())
+                .as("Tile count should be unchanged").isEqualTo(routeATiles);
     }
 
     @Test
     void removeRouteById() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
+        RouteModel routeModel = panel.getRouteModel();
 
-        panel.testSetRouteSource(0, 0);
-        panel.testFindRoute(10, 1);
-        assertThat(panel.hasActiveRoute()).isTrue();
+        List<int[]> path = rs.bfsRoute(0, 0, 10, 1);
+        assertThat(path).isNotNull();
+        addRouteToModel(routeModel, rs, panel, path, model);
+        assertThat(routeModel.isEmpty()).as("Route should exist").isFalse();
 
-        String routeId = panel.getRouteModel().getRoutes().keySet().iterator().next();
-        panel.getRouteModel().removeRoute(routeId);
+        String routeId = routeModel.getRoutes().keySet().iterator().next();
+        routeModel.removeRoute(routeId);
 
-        assertThat(panel.hasActiveRoute()).as("Route should be removed").isFalse();
-        assertThat(panel.getRouteModel().size()).isEqualTo(0);
-        assertThat(panel.routeTileCount()).isEqualTo(0);
+        assertThat(routeModel.isEmpty()).as("Route should be removed").isTrue();
+        assertThat(routeModel.size()).isEqualTo(0);
     }
 
     @Test
     void routeModelClearRemovesAllRoutes() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
+        RouteModel routeModel = panel.getRouteModel();
 
         model.setElementAspect("TR-003", 1);
         model.setElementAspect("TR-002", 1);
 
-        panel.testSetRouteSource(0, 0);
-        panel.testFindRoute(10, 1);
+        addRouteToModel(routeModel, rs, panel, rs.bfsRoute(0, 0, 10, 1), model);
+        addRouteToModel(routeModel, rs, panel, rs.bfsRoute(2, 3, 10, 5), model);
 
-        panel.testSetRouteSource(2, 3);
-        panel.testFindRoute(10, 5);
+        assertThat(routeModel.size()).isEqualTo(2);
 
-        assertThat(panel.getRouteModel().size()).isEqualTo(2);
+        routeModel.clear();
 
-        panel.getRouteModel().clear();
-
-        assertThat(panel.getRouteModel().size()).isEqualTo(0);
-        assertThat(panel.hasActiveRoute()).isFalse();
-        assertThat(panel.routeTileCount()).isEqualTo(0);
+        assertThat(routeModel.size()).isEqualTo(0);
+        assertThat(routeModel.isEmpty()).isTrue();
     }
 
     @Test
     void routePersistenceRoundTrip() throws Exception {
         RailwayModel model1 = new RailwayModel();
         SwitchboardPanel panel1 = new SwitchboardPanel(model1);
-
         LayoutPersistence.load(panel1, testLayout());
+        RouterService rs1 = routerService(panel1);
 
         model1.setElementAspect("TR-003", 1);
         model1.setElementAspect("TR-002", 1);
 
-        panel1.testSetRouteSource(0, 0);
-        panel1.testFindRoute(10, 1);
-
-        panel1.testSetRouteSource(2, 3);
-        panel1.testFindRoute(10, 5);
+        findAndAddRoute(panel1.getRouteModel(), rs1, panel1, 0, 0, 10, 1, model1);
+        findAndAddRoute(panel1.getRouteModel(), rs1, panel1, 2, 3, 10, 5, model1);
 
         assertThat(panel1.getRouteModel().size()).isEqualTo(2);
 
-        // Capture
         LayoutData data = LayoutPersistence.capture(panel1);
         assertThat(data.getRoutes()).isNotNull();
         assertThat(data.getRoutes()).hasSize(2);
 
-        // Apply to fresh panel
         RailwayModel model2 = new RailwayModel();
         SwitchboardPanel panel2 = new SwitchboardPanel(model2);
         LayoutPersistence.apply(panel2, data);
 
         assertThat(panel2.getRouteModel().size()).as("Routes should survive round-trip").isEqualTo(2);
-        assertThat(panel2.hasActiveRoute()).isTrue();
+        assertThat(panel2.getRouteModel().isEmpty()).isFalse();
 
         Route r1 = panel2.getRouteModel().getRoute("P-001-P-011");
         assertThat(r1).as("Route P-001-P-011 should exist after load").isNotNull();
@@ -228,35 +247,33 @@ class RouteFindingTest {
     void routeModelIsTileReserved() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
+        RouteModel routeModel = panel.getRouteModel();
 
         model.setElementAspect("TR-003", 1);
         model.setElementAspect("TR-002", 1);
 
-        panel.testSetRouteSource(0, 0);
-        panel.testFindRoute(10, 1);
+        addRouteToModel(routeModel, rs, panel, rs.bfsRoute(0, 0, 10, 1), model);
 
-        // Tile (5,0) is on the route path — should be reserved
-        assertThat(panel.getRouteModel().isTileReserved(5, 0, null)).isTrue();
+        assertThat(routeModel.isTileReserved(5, 0, null)).isTrue();
 
-        // Tile (99,99) is out of bounds — should not be reserved
-        assertThat(panel.getRouteModel().isTileReserved(99, 99, null)).isFalse();
+        assertThat(routeModel.isTileReserved(99, 99, null)).isFalse();
 
-        // With excludeRouteId, tile should not be reserved
-        String routeId = panel.getRouteModel().getRoutes().keySet().iterator().next();
-        assertThat(panel.getRouteModel().isTileReserved(5, 0, routeId)).isFalse();
+        String routeId = routeModel.getRoutes().keySet().iterator().next();
+        assertThat(routeModel.isTileReserved(5, 0, routeId)).isFalse();
     }
 
     @Test
     void routeIdFormat() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
 
-        panel.testSetRouteSource(0, 0);
-        panel.testFindRoute(10, 1);
+        List<int[]> path = rs.bfsRoute(0, 0, 10, 1);
+        assertThat(path).isNotNull();
+        addRouteToModel(panel.getRouteModel(), rs, panel, path, model);
 
         Route route = panel.getRouteModel().getRoutes().values().iterator().next();
         assertThat(route.getId()).isEqualTo("P-001-P-011");
@@ -268,11 +285,12 @@ class RouteFindingTest {
     void routeContainsTile() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         LayoutPersistence.load(panel, testLayout());
+        RouterService rs = routerService(panel);
 
-        panel.testSetRouteSource(0, 0);
-        panel.testFindRoute(10, 1);
+        List<int[]> path = rs.bfsRoute(0, 0, 10, 1);
+        assertThat(path).isNotNull();
+        addRouteToModel(panel.getRouteModel(), rs, panel, path, model);
 
         Route route = panel.getRouteModel().getRoutes().values().iterator().next();
         assertThat(route.containsTile(0, 0)).isTrue();
@@ -284,46 +302,59 @@ class RouteFindingTest {
     void alternativeRouteFoundForP015ToP065() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         var url = RouteFindingTest.class.getResource("/test-data/switchboard4.json");
         LayoutPersistence.load(panel, Paths.get(url.toURI()));
+        RouterService rs = routerService(panel);
+        RouteModel routeModel = panel.getRouteModel();
 
-        panel.testSetRouteSource(2, 3);
-        panel.testFindRoute(24, 6);
+        findAndAddRoute(routeModel, rs, panel, 2, 3, 24, 6, model);
 
-        assertThat(panel.hasActiveRoute()).isTrue();
-        assertThat(panel.getRouteModel().size()).isEqualTo(2);
+        assertThat(routeModel.getRoutes().isEmpty()).isFalse();
+        assertThat(routeModel.size()).isEqualTo(2);
 
-        // The new route is P-015-P-065
         String routeId = "P-015-P-065";
-        Route r = panel.getRouteModel().getRoute(routeId);
+        Route r = routeModel.getRoute(routeId);
         assertThat(r).isNotNull();
-        assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
-        assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(2);
+        assertThat(routeModel.hasAlternativeRoute(routeId)).isTrue();
+        assertThat(routeModel.getAlternativeRoutes(routeId)).hasSize(2);
     }
 
     @Test
     void alternativeRouteFoundForP015ToTL004() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);
-
         var url = RouteFindingTest.class.getResource("/test-data/switchboard5.json");
         LayoutPersistence.load(panel, Paths.get(url.toURI()));
+        RouterService rs = routerService(panel);
+        RouteModel routeModel = panel.getRouteModel();
 
-        panel.setExhaustiveRouting(true);
-        panel.testSetRouteSource(2, 3);
-        panel.testFindRoute(7, 11);
+        Route existing = routeModel.getRoute("TL-003-S2-003");
+        assertThat(existing).isNotNull();
 
-        assertThat(panel.hasActiveRoute()).isTrue();
+        String srcId = panel.getTile(2, 3).getElementId();
+        String dstId = panel.getTile(7, 11).getElementId();
+        String routeId = srcId + "-" + dstId;
+        if (routeModel.getRoute(routeId) != null) {
+            routeModel.removeRoute(routeId);
+        }
+        List<int[]> path = rs.bfsRoute(2, 3, 7, 11);
+        assertThat(path).isNotNull();
+        rs.setRouteAspects(path, model);
+        List<List<int[]>> alts = rs.bfsAlternativeRoutes(2, 3, 7, 11, path, true);
+        Route route = new Route(srcId, dstId, path);
+        for (List<int[]> altPath : alts) {
+            routeModel.addAlternativeRoute(route.getId(), new Route(srcId, dstId, altPath));
+        }
+        routeModel.addRoute(route);
 
-        String routeId = "P-015-TL-004";
-        Route r = panel.getRouteModel().getRoute(routeId);
+        assertThat(routeModel.isEmpty()).isFalse();
+
+        Route r = routeModel.getRoute(routeId);
         assertThat(r).as("Route %s should exist", routeId).isNotNull();
 
-        // Exhaustive search should find 4 alternatives
-        assertThat(panel.getRouteModel().hasAlternativeRoute(routeId))
+        assertThat(routeModel.hasAlternativeRoute(routeId))
             .as("Route %s should have alternatives", routeId).isTrue();
-        assertThat(panel.getRouteModel().getAlternativeRoutes(routeId))
+        assertThat(routeModel.getAlternativeRoutes(routeId))
             .as("Route %s should have 4 alternatives", routeId).hasSize(4);
     }
 }
