@@ -23,6 +23,9 @@
 		<jsvg.version>2.1.0</jsvg.version>
 		<assertj-swing-junit-jupiter.version>4.0.0-beta-3</assertj-swing-junit-jupiter.version>
 		<junit6.version>6.0.3</junit6.version>
+		<jgoodies-forms.version>1.9.0</jgoodies-forms.version>
+		<jgoodies-validation.version>2.5.1</jgoodies-validation.version>
+		<jgoodies-binding.version>2.13.0</jgoodies-binding.version>
     </properties>
 
     <dependencyManagement>
@@ -56,6 +59,23 @@
 	            <artifactId>jsvg</artifactId>
 	            <version>${jsvg.version}</version>
 	        </dependency>
+	        
+	        <dependency>
+	            <groupId>com.jgoodies</groupId>
+	            <artifactId>jgoodies-binding</artifactId>
+	            <version>${jgoodies-binding.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>com.jgoodies</groupId>
+	            <artifactId>jgoodies-forms</artifactId>
+	            <version>${jgoodies-forms.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>com.jgoodies</groupId>
+	            <artifactId>jgoodies-validation</artifactId>
+	            <version>${jgoodies-validation.version}</version>
+	        </dependency>
+
 	        <dependency>
 	            <groupId>org.slf4j</groupId>
 	            <artifactId>slf4j-api</artifactId>
@@ -87,6 +107,20 @@
             <groupId>com.github.weisj</groupId>
             <artifactId>jsvg</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>com.jgoodies</groupId>
+            <artifactId>jgoodies-binding</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jgoodies</groupId>
+            <artifactId>jgoodies-forms</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jgoodies</groupId>
+            <artifactId>jgoodies-validation</artifactId>
+        </dependency>
+                
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

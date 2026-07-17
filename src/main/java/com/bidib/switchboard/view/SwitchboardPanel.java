@@ -5,9 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -36,6 +33,9 @@ import javax.swing.ToolTipManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.jgoodies.forms.builder.FormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 import com.bidib.switchboard.command.Command;
 import com.bidib.switchboard.command.CycleElementCommand;
@@ -503,25 +503,14 @@ public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
         JTextField nodeIdField = new JTextField("0", 10);
         JTextField portIdField = new JTextField("0", 10);
 
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(2, 2, 2, 2);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(new JLabel("Node ID:"), gbc);
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(nodeIdField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("Port ID:"), gbc);
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(portIdField, gbc);
+        FormBuilder builder = FormBuilder.create()
+            .columns("right:pref, 3dlu, 60dlu:grow")
+            .rows("pref, 3dlu, pref");
+        builder.addLabel("Node ID:").xy(1, 1);
+        builder.add(nodeIdField).xy(3, 1);
+        builder.addLabel("Port ID:").xy(1, 3);
+        builder.add(portIdField).xy(3, 3);
+        JPanel panel = builder.getPanel();
 
         int result = JOptionPane.showConfirmDialog(this, panel, "Assign Occupancy",
             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
