@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.ElementType;
+import com.bidib.switchboard.model.Route;
 import com.bidib.switchboard.model.RouteModel;
 import com.bidib.switchboard.model.Tile;
 
@@ -184,5 +185,22 @@ class RouterServiceTest {
         assertThat(r).isNotNull();
         assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
         assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(4);
+    }
+
+    @Test
+    void getRoutesReturnsEmptyMapWhenNoRoutes() {
+        RouterService svc = new RouterService(Map.of(), 10, 10, new RouteModel());
+        assertThat(svc.getRoutes()).isEmpty();
+    }
+
+    @Test
+    void getRoutesReturnsRoutesAfterAddingToModel() {
+        RouteModel rm = new RouteModel();
+        RouterService svc = new RouterService(Map.of(), 10, 10, rm);
+
+        rm.addRoute(new Route("src", "dst", List.of(new int[]{0, 0}, new int[]{1, 0})));
+
+        assertThat(svc.getRoutes()).hasSize(1);
+        assertThat(svc.getRoutes()).containsKey("src-dst");
     }
 }

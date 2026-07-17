@@ -12,6 +12,7 @@ import java.util.Set;
 import com.bidib.switchboard.model.ElementTile;
 import com.bidib.switchboard.model.ElementType;
 import com.bidib.switchboard.model.RailwayModel;
+import com.bidib.switchboard.model.Route;
 import com.bidib.switchboard.model.RouteModel;
 import com.bidib.switchboard.model.Tile;
 
@@ -32,6 +33,10 @@ public class RouterService {
         this.cols = cols;
         this.rows = rows;
         this.routeModel = routeModel;
+    }
+
+    public Map<String, Route> getRoutes() {
+        return routeModel.getRoutes();
     }
 
     public List<int[]> bfsRoute(int startCol, int startRow, int endCol, int endRow) {
