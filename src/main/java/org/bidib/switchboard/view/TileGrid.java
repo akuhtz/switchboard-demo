@@ -8,6 +8,8 @@ public interface TileGrid {
 
     void setTile(Tile tile);
 
+    void removeTile(int col, int row);
+
     void clearTiles();
 
     Tile getTile(int col, int row);

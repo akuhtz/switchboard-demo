@@ -8,9 +8,11 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import org.bidib.switchboard.model.ElementType;
 import org.bidib.switchboard.model.RailwayModel;
 import org.bidib.switchboard.model.Route;
 import org.bidib.switchboard.model.RouteModel;
+import org.bidib.switchboard.model.Tile;
 import org.bidib.switchboard.persistence.LayoutData;
 import org.bidib.switchboard.persistence.LayoutPersistence;
 import org.bidib.switchboard.service.RouterService;
@@ -356,5 +358,92 @@ class RouteFindingTest {
             .as("Route %s should have alternatives", routeId).isTrue();
         assertThat(routeModel.getAlternativeRoutes(routeId))
             .as("Route %s should have 4 alternatives", routeId).hasSize(4);
+    }
+
+    @Test
+    void undoRouteCreation() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+        LayoutPersistence.load(panel, testLayout());
+
+        panel.testSetRouteSource(0, 0);
+        panel.testFindRoute(10, 1);
+
+        assertThat(panel.getRouteModel().isEmpty()).as("Route should exist after creation").isFalse();
+        assertThat(panel.hasActiveRoute()).isTrue();
+
+        panel.undoLast();
+
+        assertThat(panel.getRouteModel().isEmpty()).as("Route should be removed after undo").isTrue();
+    }
+
+    @Test
+    void undoRouteReplaceRestoresPreviousRoute() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+        LayoutPersistence.load(panel, testLayout());
+
+        panel.testSetRouteSource(0, 0);
+        panel.testFindRoute(10, 1);
+        String routeId = panel.getRouteModel().getRoutes().keySet().iterator().next();
+
+        panel.testSetRouteSource(0, 0);
+        panel.testFindRoute(10, 1);
+
+        assertThat(panel.getRouteModel().isEmpty()).as("Route should still exist after replacement").isFalse();
+
+        panel.undoLast();
+
+        assertThat(panel.getRouteModel().isEmpty()).as("Route should still exist after undo of replacement").isFalse();
+        assertThat(panel.getRouteModel().getRoute(routeId)).as("Original route should be restored").isNotNull();
+    }
+
+    @Test
+    void undoTileCreationOnEmptyCell() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+        LayoutPersistence.load(panel, testLayout());
+
+        int col = 15;
+        int row = 5;
+        Tile before = panel.getTile(col, row);
+        assertThat(before).as("Cell should be empty initially").isNull();
+
+        panel.testTileContextAction(col, row, ElementType.STRAIGHT);
+
+        Tile afterCreate = panel.getTile(col, row);
+        assertThat(afterCreate).as("Tile should exist after creation").isNotNull();
+        assertThat(afterCreate.getElementId()).as("Tile should have an element ID").isNotNull();
+        assertThat(model.getElement(afterCreate.getElementId())).as("Element should exist in model").isNotNull();
+
+        panel.undoLast();
+
+        assertThat(panel.getTile(col, row)).as("Cell should be empty after undo").isNull();
+        assertThat(model.getElement(afterCreate.getElementId())).as("Element should be removed from model after undo").isNull();
+    }
+
+    @Test
+    void undoTileReplaceRestoresOriginalTile() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+        LayoutPersistence.load(panel, testLayout());
+
+        int col = 0;
+        int row = 0;
+        Tile original = panel.getTile(col, row);
+        assertThat(original).as("Cell should have a tile initially").isNotNull();
+        String originalId = original.getElementId();
+
+        panel.testTileContextAction(col, row, ElementType.STRAIGHT);
+
+        Tile replaced = panel.getTile(col, row);
+        assertThat(replaced.getElementId()).as("Tile should be replaced").isNotEqualTo(originalId);
+
+        panel.undoLast();
+
+        Tile restored = panel.getTile(col, row);
+        assertThat(restored).as("Original tile should be restored after undo").isNotNull();
+        assertThat(restored.getElementId()).as("Original element ID should be restored").isEqualTo(originalId);
+        assertThat(model.getElement(originalId)).as("Original element should exist in model after undo").isNotNull();
     }
 }

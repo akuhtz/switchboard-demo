@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.bidib.switchboard.command.Command;
 import org.bidib.switchboard.command.CreateRouteCommand;
 import org.bidib.switchboard.command.CycleElementCommand;
+import org.bidib.switchboard.command.TileCommand;
 import org.bidib.switchboard.model.Element;
 import org.bidib.switchboard.model.ElementTile;
 import org.bidib.switchboard.model.ElementType;
@@ -496,18 +497,22 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private void onTileContextAction(int col, int row, ElementType type) {
-        Tile existing = getTile(col, row);
-        if (existing != null && existing.getElementId() != null) {
-            model.removeElement(existing.getElementId());
+        Tile oldTile = getTile(col, row);
+        String oldElementId = oldTile != null ? oldTile.getElementId() : null;
+        if (oldElementId != null) {
+            model.removeElement(oldElementId);
         }
         if (type == null) {
             removeTile(col, row);
+            undoStack.push(new TileCommand(this, model, col, row, oldTile, oldElementId, null, null));
             return;
         }
         String id = generateId(type);
         model.addElement(new Element(id, 0, 0));
-        setTile(createDefaultTile(col, row, id, type));
+        Tile newTile = createDefaultTile(col, row, id, type);
+        setTile(newTile);
         setSelectedTile(col, row);
+        undoStack.push(new TileCommand(this, model, col, row, oldTile, oldElementId, newTile, id));
     }
 
     private String generateId(ElementType type) {
@@ -780,6 +785,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     public void testFindRoute(int targetCol, int targetRow, boolean exhaustive) {
         findRoute(targetCol, targetRow, exhaustive);
+    }
+
+    public void testTileContextAction(int col, int row, ElementType type) {
+        onTileContextAction(col, row, type);
     }
 
     // --- Observer ---
