@@ -1,7 +1,6 @@
 package org.bidib.switchboard;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -21,15 +20,15 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.bidib.switchboard.model.Occupancy;
 import org.bidib.switchboard.model.RailwayModel;
 import org.bidib.switchboard.persistence.SettingsData.LookAndFeel;
 import org.bidib.switchboard.persistence.SettingsManager;
 import org.bidib.switchboard.service.LayoutService;
 import org.bidib.switchboard.view.SwitchboardPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -92,7 +91,10 @@ public class SwitchboardApp {
         JMenuItem loadItem = new JMenuItem("Load...");
         loadItem.setMnemonic('L');
         loadItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control L"));
-        loadItem.addActionListener(e -> { layoutService.onLoad(); updateTitle(); });
+        loadItem.addActionListener(e -> {
+            layoutService.onLoad();
+            updateTitle();
+        });
         fileMenu.add(loadItem);
 
         JMenuItem saveItem = new JMenuItem("Save");
@@ -104,7 +106,10 @@ public class SwitchboardApp {
         JMenuItem saveAsItem = new JMenuItem("Save As...");
         saveAsItem.setMnemonic('A');
         saveAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control shift S"));
-        saveAsItem.addActionListener(e -> { layoutService.onSaveAs(); updateTitle(); });
+        saveAsItem.addActionListener(e -> {
+            layoutService.onSaveAs();
+            updateTitle();
+        });
         fileMenu.add(saveAsItem);
 
         fileMenu.addSeparator();
@@ -147,6 +152,11 @@ public class SwitchboardApp {
 
         JMenu editMenu = new JMenu("Edit");
         editMenu.setMnemonic('E');
+        JMenuItem undoItem = new JMenuItem("Undo");
+        undoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control Z"));
+        undoItem.addActionListener(e -> panel.undoLast());
+        editMenu.add(undoItem);
+        editMenu.addSeparator();
         editModeItem = new JCheckBoxMenuItem("Edit Mode");
         editModeItem.setMnemonic('M');
         editModeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control E"));
@@ -155,7 +165,10 @@ public class SwitchboardApp {
 
         editMenu.addSeparator();
         JMenuItem loadDefaultItem = new JMenuItem("Load Default Layout");
-        loadDefaultItem.addActionListener(e -> { layoutService.loadDefaultLayout(); updateTitle(); });
+        loadDefaultItem.addActionListener(e -> {
+            layoutService.loadDefaultLayout();
+            updateTitle();
+        });
         editMenu.add(loadDefaultItem);
 
         editMenu.addSeparator();
@@ -227,10 +240,7 @@ public class SwitchboardApp {
 
     private void showOccupanciesDialog() {
         Map<String, Occupancy> occs = model.getOccupancies();
-        List<Occupancy> sorted = occs.values().stream()
-            .sorted(Comparator.comparingLong(Occupancy::getNodeId)
-                .thenComparingInt(Occupancy::getPortId))
-            .toList();
+        List<Occupancy> sorted = occs.values().stream().sorted(Comparator.comparingLong(Occupancy::getNodeId).thenComparingInt(Occupancy::getPortId)).toList();
 
         JTable table = new JTable(new AbstractTableModel() {
             private final String[] columns = { "Node ID", "Port ID", "State" };
