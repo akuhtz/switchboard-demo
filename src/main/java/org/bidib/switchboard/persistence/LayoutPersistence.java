@@ -13,7 +13,7 @@ import org.bidib.switchboard.model.RailwayModel;
 import org.bidib.switchboard.model.Route;
 import org.bidib.switchboard.model.RouteModel;
 import org.bidib.switchboard.model.Tile;
-import org.bidib.switchboard.view.SwitchboardPanel;
+import org.bidib.switchboard.view.TileGrid;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
@@ -28,23 +28,23 @@ public class LayoutPersistence {
 
     // --- Save ---
 
-    public static void save(SwitchboardPanel panel, Path path) throws IOException {
-        LayoutData data = capture(panel);
+    public static void save(TileGrid grid, Path path) throws IOException {
+        LayoutData data = capture(grid);
         MAPPER.writeValue(path.toFile(), data);
     }
 
-    public static LayoutData capture(SwitchboardPanel panel) {
+    public static LayoutData capture(TileGrid grid) {
         LayoutData data = new LayoutData();
-        data.setCols(panel.getCols());
-        data.setRows(panel.getRows());
-        data.setTileSize(panel.getTileSize());
+        data.setCols(grid.getCols());
+        data.setRows(grid.getRows());
+        data.setTileSize(grid.getTileSize());
 
-        RailwayModel model = panel.getModel();
+        RailwayModel model = grid.getModel();
 
         List<LayoutData.TileData> tileList = new ArrayList<>();
-        for (int col = 0; col < panel.getCols(); col++) {
-            for (int row = 0; row < panel.getRows(); row++) {
-                Tile tile = panel.getTile(col, row);
+        for (int col = 0; col < grid.getCols(); col++) {
+            for (int row = 0; row < grid.getRows(); row++) {
+                Tile tile = grid.getTile(col, row);
                 if (tile != null) {
                     tileList.add(captureTile(tile));
                 }
@@ -81,7 +81,7 @@ public class LayoutPersistence {
         data.setModelState(ms);
 
         List<LayoutData.RouteData> routeList = new ArrayList<>();
-        for (Route r : panel.getRouteModel().getRoutes().values()) {
+        for (Route r : grid.getRouteModel().getRoutes().values()) {
             LayoutData.RouteData rd = new LayoutData.RouteData();
             rd.setId(r.getId());
             rd.setSourceElementId(r.getSourceElementId());
@@ -120,16 +120,16 @@ public class LayoutPersistence {
 
     // --- Load ---
 
-    public static void load(SwitchboardPanel panel, Path path) throws IOException {
+    public static void load(TileGrid grid, Path path) throws IOException {
         LayoutData data = MAPPER.readValue(path.toFile(), LayoutData.class);
-        apply(panel, data);
+        apply(grid, data);
     }
 
-    public static void apply(SwitchboardPanel panel, LayoutData data) {
-        RailwayModel model = panel.getModel();
-        panel.clearTiles();
+    public static void apply(TileGrid grid, LayoutData data) {
+        RailwayModel model = grid.getModel();
+        grid.clearTiles();
         model.clear();
-        panel.getRouteModel().clear();
+        grid.getRouteModel().clear();
 
         if (data.getModelState() != null) {
             if (data.getModelState().getOccupancies() != null) {
@@ -159,7 +159,7 @@ public class LayoutPersistence {
             for (LayoutData.TileData td : data.getTiles()) {
                 Tile tile = reconstructTile(td);
                 if (tile != null) {
-                    panel.setTile(tile);
+                    grid.setTile(tile);
                 }
             }
         }
@@ -171,7 +171,7 @@ public class LayoutPersistence {
                     path.add(new int[] { tileCoord.get(0), tileCoord.get(1) });
                 }
                 Route route = new Route(rd.getId(), rd.getSourceElementId(), rd.getTargetElementId(), path);
-                panel.getRouteModel().addRoute(route);
+                grid.getRouteModel().addRoute(route);
             }
         }
     }

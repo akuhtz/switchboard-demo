@@ -2,9 +2,6 @@ package org.bidib.switchboard;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -12,33 +9,26 @@ import java.util.Map;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.bidib.switchboard.model.Element;
-import org.bidib.switchboard.model.ElementTile;
-import org.bidib.switchboard.model.ElementType;
 import org.bidib.switchboard.model.Occupancy;
 import org.bidib.switchboard.model.RailwayModel;
-import org.bidib.switchboard.model.Tile;
-import org.bidib.switchboard.persistence.LayoutPersistence;
 import org.bidib.switchboard.persistence.SettingsData.LookAndFeel;
 import org.bidib.switchboard.persistence.SettingsManager;
+import org.bidib.switchboard.service.LayoutService;
 import org.bidib.switchboard.view.SwitchboardPanel;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -55,11 +45,10 @@ public class SwitchboardApp {
 
     private final SettingsManager settings;
 
-    private Path currentFilePath;
+    private final LayoutService layoutService;
 
     SwitchboardApp() {
         this(true);
-        // frame.setVisible(true);
     }
 
     SwitchboardApp(boolean autoLoad) {
@@ -75,8 +64,10 @@ public class SwitchboardApp {
         }
 
         frame = new JFrame("Model Railway Switchboard");
+        layoutService = new LayoutService(panel, settings, frame);
         if (autoLoad) {
-            tryAutoLoad();
+            layoutService.tryAutoLoad();
+            updateTitle();
         }
         buildMenu();
         buildFrame();
@@ -84,71 +75,6 @@ public class SwitchboardApp {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(SwitchboardApp::new);
-    }
-
-    // --- Setup ---
-
-    private void buildDefaultLayout() {
-        model.addElement(new Element("TL-001", 0, 0));
-        model.addElement(new Element("TR-001", 0, 0));
-        model.addElement(new Element("T3-001", 0, 0));
-        model.addElement(new Element("S2-001", 0, 0));
-        model.addElement(new Element("S3-001", 0, 0));
-
-        panel
-            .setTile(
-                new ElementTile(2, 3, "TL-001", ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg")));
-        panel
-            .setTile(
-                new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg")));
-        panel
-            .setTile(new ElementTile(4, 3, "T3-001", ElementType.TURNOUT_3WAY,
-                List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg")));
-        panel.setTile(new ElementTile(10, 3, "S2-001", ElementType.SIGNAL_2, List.of("/icons/signal_2_red.svg", "/icons/signal_2_green.svg")));
-        panel
-            .setTile(new ElementTile(11, 3, "S3-001", ElementType.SIGNAL_3,
-                List.of("/icons/signal_3_red.svg", "/icons/signal_3_yellow.svg", "/icons/signal_3_green.svg")));
-
-        for (int col = 0; col < 5; col++) {
-            String id = "P-" + String.format("%03d", col + 1);
-            model.addElement(new Element(id, 0, 0));
-            panel.setTile(new ElementTile(col, 0, id, ElementType.STRAIGHT, List.of("/icons/straight.svg")));
-        }
-
-        for (int col = 5; col < SwitchboardPanel.DEFAULT_COLS; col++) {
-            panel.setTile(new Tile(col, 0, null, "/icons/empty.svg"));
-        }
-    }
-
-    private void tryAutoLoad() {
-        Path path = settings.getLastLayoutFile();
-        if (path == null) {
-            log.info("No layout file referenced in settings");
-            return;
-        }
-        log.info("Auto-loading layout from: {}", path);
-        if (path.toFile().exists()) {
-            try {
-                LayoutPersistence.load(panel, path);
-                currentFilePath = path;
-                updateTitle();
-                log.info("Layout loaded from {}", path);
-            }
-            catch (Exception e) {
-                log.warn("Failed to load layout from {}, falling back to default", path, e);
-            }
-        }
-        else {
-            log.info("Layout file {} not found, using default layout", path);
-        }
-    }
-
-    private void loadDefaultLayout() {
-        panel.clearTiles();
-        model.clear();
-        currentFilePath = null;
-        updateTitle();
-        buildDefaultLayout();
     }
 
     // --- Menu ---
@@ -166,19 +92,19 @@ public class SwitchboardApp {
         JMenuItem loadItem = new JMenuItem("Load...");
         loadItem.setMnemonic('L');
         loadItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control L"));
-        loadItem.addActionListener(this::onLoad);
+        loadItem.addActionListener(e -> { layoutService.onLoad(); updateTitle(); });
         fileMenu.add(loadItem);
 
         JMenuItem saveItem = new JMenuItem("Save");
         saveItem.setMnemonic('S');
         saveItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control S"));
-        saveItem.addActionListener(this::onSave);
+        saveItem.addActionListener(e -> layoutService.onSave());
         fileMenu.add(saveItem);
 
         JMenuItem saveAsItem = new JMenuItem("Save As...");
         saveAsItem.setMnemonic('A');
         saveAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control shift S"));
-        saveAsItem.addActionListener(this::onSaveAs);
+        saveAsItem.addActionListener(e -> { layoutService.onSaveAs(); updateTitle(); });
         fileMenu.add(saveAsItem);
 
         fileMenu.addSeparator();
@@ -229,7 +155,7 @@ public class SwitchboardApp {
 
         editMenu.addSeparator();
         JMenuItem loadDefaultItem = new JMenuItem("Load Default Layout");
-        loadDefaultItem.addActionListener(e -> loadDefaultLayout());
+        loadDefaultItem.addActionListener(e -> { layoutService.loadDefaultLayout(); updateTitle(); });
         editMenu.add(loadDefaultItem);
 
         editMenu.addSeparator();
@@ -257,63 +183,6 @@ public class SwitchboardApp {
             FlatLightLaf.setup();
         }
         SwingUtilities.updateComponentTreeUI(frame);
-    }
-
-    private void onLoad(ActionEvent e) {
-        JFileChooser chooser = createFileChooser();
-        if (chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
-            Path path = chooser.getSelectedFile().toPath();
-            try {
-                LayoutPersistence.load(panel, path);
-                currentFilePath = path;
-                settings.setLastLayoutFile(path);
-                updateTitle();
-                log.info("Loaded layout from {}", path);
-            }
-            catch (IOException ex) {
-                log.error("Error loading layout from {}", path, ex);
-                JOptionPane.showMessageDialog(frame, "Error loading file:\n" + ex.getMessage(), "Load Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    private void onSave(ActionEvent e) {
-        if (currentFilePath == null) {
-            onSaveAs(e);
-            return;
-        }
-        try {
-            LayoutPersistence.save(panel, currentFilePath);
-            log.info("Saved layout to {}", currentFilePath);
-        }
-        catch (IOException ex) {
-            log.error("Error saving layout to {}", currentFilePath, ex);
-            JOptionPane.showMessageDialog(frame, "Error saving file:\n" + ex.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void onSaveAs(ActionEvent e) {
-        JFileChooser chooser = createFileChooser();
-        if (currentFilePath != null) {
-            chooser.setSelectedFile(currentFilePath.toFile());
-        }
-        if (chooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
-            Path path = chooser.getSelectedFile().toPath();
-            if (!path.toString().endsWith(".json")) {
-                path = Paths.get(path + ".json");
-            }
-            try {
-                LayoutPersistence.save(panel, path);
-                currentFilePath = path;
-                settings.setLastLayoutFile(path);
-                updateTitle();
-                log.info("Saved layout to {}", path);
-            }
-            catch (IOException ex) {
-                log.error("Error saving layout to {}", path, ex);
-                JOptionPane.showMessageDialog(frame, "Error saving file:\n" + ex.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
     }
 
     // --- Frame ---
@@ -350,7 +219,7 @@ public class SwitchboardApp {
     }
 
     private void updateTitle() {
-        String name = (currentFilePath != null) ? currentFilePath.getFileName().toString() : "untitled";
+        String name = layoutService.getCurrentFilePath() != null ? layoutService.getCurrentFilePath().getFileName().toString() : "untitled";
         frame.setTitle("Model Railway Switchboard - " + name);
     }
 
@@ -400,11 +269,4 @@ public class SwitchboardApp {
         dialog.setVisible(true);
     }
 
-    private static JFileChooser createFileChooser() {
-        JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Switchboard Layout");
-        chooser.setFileFilter(new FileNameExtensionFilter("Switchboard Layout (*.json)", "json"));
-        chooser.setAcceptAllFileFilterUsed(true);
-        return chooser;
-    }
 }

@@ -46,7 +46,7 @@ import org.bidib.switchboard.util.SvgIconLoader;
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.view.ViewBox;
 
-public class SwitchboardPanel extends JPanel implements PropertyChangeListener {
+public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChangeListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SwitchboardPanel.class);
 
