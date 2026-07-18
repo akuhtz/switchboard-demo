@@ -3,7 +3,7 @@
 ## 1. Run the application
 
 ```sh
-mvn compile exec:java -Dexec.mainClass=com.bidib.switchboard.SwitchboardApp
+mvn compile exec:java -Dexec.mainClass=org.bidib.switchboard.SwitchboardApp
 ```
 
 Or build and run the executable JAR:

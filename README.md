@@ -387,6 +387,6 @@ including attribution and co-authorship requirements.
 ## Build & Run
 
 ```
-mvn compile exec:java -Dexec.mainClass=com.bidib.switchboard.SwitchboardApp
+mvn compile exec:java -Dexec.mainClass=org.bidib.switchboard.SwitchboardApp
 mvn test
 ```
