@@ -1,11 +1,19 @@
 package org.bidib.switchboard.model;
 
-public class Element {
+import com.jgoodies.binding.beans.Model;
+
+public class Element extends Model {
+
+    private static final long serialVersionUID = 1L;
 
     private final String id;
+
     private final long nodeId;
+
     private final long accessoryId;
+
     private int currentAspect;
+
     private Occupancy occupancy;
 
     public Element(String id, long nodeId, long accessoryId) {
@@ -32,7 +40,10 @@ public class Element {
     }
 
     public void setCurrentAspect(int currentAspect) {
+        int oldValue = this.currentAspect;
         this.currentAspect = currentAspect;
+
+        firePropertyChange("currentAspect", oldValue, this.currentAspect);
     }
 
     public Occupancy getOccupancy() {
@@ -40,6 +51,9 @@ public class Element {
     }
 
     public void setOccupancy(Occupancy occupancy) {
+        Occupancy oldValue = this.occupancy;
         this.occupancy = occupancy;
+
+        firePropertyChange("occupancy", oldValue, this.occupancy);
     }
 }

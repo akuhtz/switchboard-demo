@@ -1,6 +1,10 @@
 package org.bidib.switchboard.model;
 
-public class Occupancy {
+import com.jgoodies.binding.beans.Model;
+
+public class Occupancy extends Model {
+
+    private static final long serialVersionUID = 1L;
 
     public enum OccupancyState {
         FREE, OCCUPIED
@@ -45,7 +49,10 @@ public class Occupancy {
     }
 
     public void setState(OccupancyState state) {
+        OccupancyState oldValue = this.state;
         this.state = state;
+
+        firePropertyChange("state", oldValue, this.state);
     }
 
     @Override

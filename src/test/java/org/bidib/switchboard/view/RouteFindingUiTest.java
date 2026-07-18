@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.awt.Dimension;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -14,17 +15,23 @@ import javax.swing.JMenuItem;
 
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
+import org.bidib.switchboard.model.Element;
 import org.bidib.switchboard.model.ElementType;
+import org.bidib.switchboard.model.Occupancy;
 import org.bidib.switchboard.model.RailwayModel;
 import org.bidib.switchboard.model.Tile;
 import org.bidib.switchboard.persistence.LayoutPersistence;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 
 class RouteFindingUiTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RouteFindingUiTest.class);
 
     private FrameFixture window;
 
@@ -175,5 +182,54 @@ class RouteFindingUiTest {
         assertThat(restored).isNotNull();
         assertThat(restored.getElementId()).isEqualTo(originalId);
         assertThat(panel.getModel().getElement(originalId)).isNotNull();
+    }
+
+    @Test
+    void occupiedRouteTilesDetectedViaUI() {
+        GuiActionRunner.execute(() -> {
+            panel.testSetRouteSource(0, 0);
+            panel.testFindRoute(10, 1);
+        });
+
+        List<int[]> path = panel.getRouteModel().getRoutes().values().iterator().next().getPath();
+
+        GuiActionRunner.execute(() -> {
+            for (int[] p : path) {
+                assertThat(panel.isTileOccupied(p[0], p[1])).as("Tile (%d,%d) should not be occupied initially", p[0], p[1]).isFalse();
+            }
+
+            // int[] mid = path.get(path.size() / 2);
+
+            int row = 0;
+
+            for (int col = 5; col < 8; col++) {
+                LOGGER.info("Get tile, col: {}, row: {}", col, row);
+                Tile tile = panel.getTile(col, row);
+                String elId = tile.getElementId();
+                LOGGER.info("Current elId: {}", elId);
+
+                Element el = panel.getModel().getElement(elId);
+
+                if ("TR-003".equals(el.getId())) {
+                    LOGGER.info("Current aspect: {}", el.getCurrentAspect());
+                    el.setCurrentAspect(1);
+                }
+
+                if (el.getOccupancy() == null) {
+                    LOGGER.info("Create new occupancy.");
+                    Occupancy occ = Occupancy.create(1, 1, Occupancy.OccupancyState.OCCUPIED);
+                    panel.getModel().addOccupancy(occ);
+                    el.setOccupancy(occ);
+                }
+                else {
+                    LOGGER.info("Update existing occupancy.");
+                    el.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
+                }
+
+                assertThat(panel.isTileOccupied(col, row)).isTrue();
+            }
+        });
+
+        LOGGER.info("After the test.");
     }
 }

@@ -31,9 +31,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.bidib.switchboard.command.Command;
 import org.bidib.switchboard.command.CreateRouteCommand;
 import org.bidib.switchboard.command.CycleElementCommand;
@@ -41,12 +38,16 @@ import org.bidib.switchboard.command.TileCommand;
 import org.bidib.switchboard.model.Element;
 import org.bidib.switchboard.model.ElementTile;
 import org.bidib.switchboard.model.ElementType;
+import org.bidib.switchboard.model.Occupancy;
 import org.bidib.switchboard.model.RailwayModel;
 import org.bidib.switchboard.model.Route;
 import org.bidib.switchboard.model.RouteModel;
 import org.bidib.switchboard.model.Tile;
 import org.bidib.switchboard.service.RouterService;
 import org.bidib.switchboard.util.SvgIconLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.view.ViewBox;
 
@@ -66,15 +67,17 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private static final Color COLOR_SELECTION = new Color(0, 200, 200);
 
-    private static final Color COLOR_ROUTE = new Color(255, 80, 80);
+    private static final Color COLOR_ROUTE = new Color(80, 80, 160);
+
+    private static final Color COLOR_OCCUPIED = new Color(255, 80, 80);
 
     private static final Color COLOR_ROUTE_ALT = new Color(80, 255, 80);
 
-    private static final Color COLOR_ROUTE_ALT_OTHER = new Color(80, 80, 255);
+    private static final Color COLOR_ROUTE_ALT_OTHER = new Color(80, 255, 255);
 
     private static final Color COLOR_ROUTE_SOURCE = new Color(100, 200, 100);
 
-    private static final Color COLOR_ROUTE_TARGET = new Color(80, 80, 255);
+    private static final Color COLOR_ROUTE_TARGET = new Color(100, 160, 255);
 
     private final RouterService routerService;
 
@@ -159,11 +162,13 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     // --- Tile management ---
 
+    @Override
     public void setTile(Tile tile) {
         tiles.put(tileKey(tile.getCol(), tile.getRow()), tile);
         repaint();
     }
 
+    @Override
     public Tile getTile(int col, int row) {
         return tiles.get(tileKey(col, row));
     }
@@ -172,22 +177,27 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         return tiles;
     }
 
+    @Override
     public int getTileSize() {
         return tileSize;
     }
 
+    @Override
     public int getCols() {
         return cols;
     }
 
+    @Override
     public int getRows() {
         return rows;
     }
 
+    @Override
     public RailwayModel getModel() {
         return model;
     }
 
+    @Override
     public RouteModel getRouteModel() {
         return routeModel;
     }
@@ -198,6 +208,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         repaint();
     }
 
+    @Override
     public void clearTiles() {
         tiles.clear();
         routeModel.clear();
@@ -206,6 +217,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         repaint();
     }
 
+    @Override
     public void removeTile(int col, int row) {
         tiles.remove(tileKey(col, row));
         if (selectedCol == col && selectedRow == row) {
@@ -299,7 +311,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 Tile tile = getTile(p[0], p[1]);
                 if (tile instanceof ElementTile et && et.getElementId() != null) {
                     Integer a = model.getElementAspect(et.getElementId());
-                    if (a != null) oldAspects.put(et.getElementId(), a);
+                    if (a != null) {
+                        oldAspects.put(et.getElementId(), a);
+                    }
                 }
             }
 
@@ -564,6 +578,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         drawGrid(g2);
         drawSelection(g2);
         drawRoute(g2);
+        drawOccupancy(g2);
     }
 
     private void drawGrid(Graphics2D g2) {
@@ -653,6 +668,46 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             g2.setColor(COLOR_ROUTE_SOURCE);
             g2.fillOval(px - 6, py - 6, 12, 12);
         }
+    }
+
+    private void drawOccupancy(Graphics2D g2) {
+        int half = tileSize / 2;
+        g2.setColor(COLOR_OCCUPIED);
+        g2.setStroke(new BasicStroke(4, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
+        for (Tile tile : tiles.values()) {
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null && el.getOccupancy() != null && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
+                    int cx = tile.getCol() * tileSize + half;
+                    int cy = tile.getRow() * tileSize + half;
+                    int[] ports = et.getElementType().getActivePorts(el.getCurrentAspect(), tile.getRotation());
+                    for (int port : ports) {
+                        drawPortLine(g2, cx, cy, port, tileSize);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void drawPortLine(Graphics2D g2, int cx, int cy, int port, int tileSize) {
+        int d = (tileSize - 2) / 2;
+        switch (port) {
+            case ElementType.PORT_LEFT -> g2.drawLine(cx - d, cy, cx, cy);
+            case ElementType.PORT_TOP -> g2.drawLine(cx, cy - d, cx, cy);
+            case ElementType.PORT_RIGHT -> g2.drawLine(cx, cy, cx + d, cy);
+            case ElementType.PORT_BOTTOM -> g2.drawLine(cx, cy, cx + d, cy + d);
+        }
+    }
+
+    boolean isTileOccupied(int col, int row) {
+        Tile tile = getTile(col, row);
+        if (tile instanceof ElementTile et && et.getElementId() != null) {
+            Element el = model.getElement(et.getElementId());
+            if (el != null && el.getOccupancy() != null) {
+                return el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED;
+            }
+        }
+        return false;
     }
 
     private void drawTiles(Graphics2D g2) {

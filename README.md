@@ -84,6 +84,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   `occupancy` (Occupancy, nullable).
 - Constructed with `new Element(id, nodeId, accessoryId)` — aspect starts at 0.
 - Properties exposed via getters; `currentAspect` and `occupancy` have setters.
+- Extends `com.jgoodies.binding.beans.Model` — `setOccupancy()` fires `"occupancy"` property change.
 
 ### `RailwayModel`
 - Single unified model holding all elements and occupancies.
@@ -92,6 +93,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   `Map<String, Occupancy> occupancies` — `nodeId:portId` → Occupancy object.
 - Aspect counts live on the tile (`ElementTile.getAspectCount()`) rather than in the model.
 - Fires `PropertyChangeEvent` on every state mutation.
+- `addElement()` bridges the Element's property changes to the model's `PropertyChangeSupport`.
+- `addOccupancy()` bridges the Occupancy's property changes similarly.
 - Methods:
   - `addElement(Element element)`
   - `setElementAspect(String id, int aspect)`
@@ -135,6 +138,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Elements can reference an `Occupancy` via `getOccupancy()` / `setOccupancy()`.
 - Persisted in `LayoutData.ModelStateData.occupancies` and restored on load.
 - Visualised in the "Occupancies..." dialog (Edit menu).
+- Extends `com.jgoodies.binding.beans.Model` — fires `"state"` property changes via `firePropertyChange` in `setState()`.
 
 ---
 - Represents a single grid cell at `(col, row)`.
@@ -184,6 +188,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
      - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
      - Dotted lines are only visible during preview (index >= 0); they disappear after committing to primary or an alternative.
    - Context menu shows "Clear route ({id})" on tiles belonging to a route.
+- **Occupancy rendering**: In `paintComponent`, `drawOccupancy()` is called last, after routes. For each tile with an OCCUPIED occupancy, it draws port-based line segments using the element's current aspect: `getActivePorts(el.getCurrentAspect(), tile.getRotation())`. Lines are drawn from tile center to each active port edge. `PORT_BOTTOM` draws to the lower-right corner `(cx + d, cy + d)` to match the physical track path of diverted turnouts. Color: `COLOR_OCCUPIED` = `(255, 80, 80)` with stroke-width 4.
+- - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
+   `getActivePorts(aspect, rotation)` returns only the ports active for a given aspect (1 port for straight/curve/diagonal, 2 for turnouts, 4 for crossings).
 - **Rendering** (`paintComponent`):
   - Uses `Graphics2D` with antialiasing and bilinear interpolation.
   - Draws tiles first, then grid lines, then selection border (edit mode only).
@@ -338,7 +345,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-44 tests across five test classes:
+46 tests across five test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -351,7 +358,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
 | `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
-### `RouteFindingTest` (20 tests)
+### `RouteFindingTest` (21 tests)
 | Test | Description |
 |------|-------------|
 | `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
@@ -374,6 +381,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoRouteClearRestoresPreviousRoute` | Original route restored after undo of BFS-failed re-route |
 | `undoTileCreationOnEmptyCell` | Empty cell and element removed from model after undo |
 | `undoTileReplaceRestoresOriginalTile` | Original tile and element restored after undo |
+| `occupiedTileOnRouteIsDetected` | Tile on a route detected as occupied when its occupancy is set to OCCUPIED |
 
 ### `RouterServiceTest` (11 tests)
 | Test | Description |
@@ -395,7 +403,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 |------|-------------|
 | `debugP015toTL004` | Convenience test with `System.out` output for manual debugging of route finding |
 
-### `RouteFindingUiTest` (5 tests)
+### `RouteFindingUiTest` (6 tests)
 | Test | Description |
 |------|-------------|
 | `undoRouteCreationViaUI` | Route removed after undo via Edit > Undo menu |
@@ -403,8 +411,9 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoRouteClearViaUI` | Original route restored after undo of BFS-failed UI re-route |
 | `undoTileCreationOnEmptyCellViaUI` | Empty cell restored after undo via Edit > Undo menu |
 | `undoTileReplaceViaUI` | Original tile restored after undo of UI tile replacement |
+| `occupiedRouteTilesDetectedViaUI` | Occupied route tiles show occupancy color via `drawOccupancy` |
 
-Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. All 39 tests pass.
+Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. All 46 tests pass.
 
 ---
 

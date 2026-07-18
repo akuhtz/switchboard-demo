@@ -8,7 +8,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import org.bidib.switchboard.model.Element;
+import org.bidib.switchboard.model.ElementTile;
 import org.bidib.switchboard.model.ElementType;
+import org.bidib.switchboard.model.Occupancy;
 import org.bidib.switchboard.model.RailwayModel;
 import org.bidib.switchboard.model.Route;
 import org.bidib.switchboard.model.RouteModel;
@@ -468,5 +471,35 @@ class RouteFindingTest {
         assertThat(restored).as("Original tile should be restored after undo").isNotNull();
         assertThat(restored.getElementId()).as("Original element ID should be restored").isEqualTo(originalId);
         assertThat(model.getElement(originalId)).as("Original element should exist in model after undo").isNotNull();
+    }
+
+    @Test
+    void occupiedTileOnRouteIsDetected() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+        LayoutPersistence.load(panel, testLayout());
+
+        panel.testSetRouteSource(0, 0);
+        panel.testFindRoute(10, 1);
+
+        List<int[]> path = panel.getRouteModel().getRoutes().values().iterator().next().getPath();
+        int[] targetTile = path.get(path.size() / 2);
+        Tile tile = panel.getTile(targetTile[0], targetTile[1]);
+        assertThat(tile).isInstanceOf(ElementTile.class);
+        String elId = ((ElementTile) tile).getElementId();
+        Element el = model.getElement(elId);
+        assertThat(el).isNotNull();
+
+        assertThat(el.getOccupancy()).as("Should have no occupancy initially").isNull();
+
+        Occupancy occ = Occupancy.create(1, 1, Occupancy.OccupancyState.OCCUPIED);
+        model.addOccupancy(occ);
+        el.setOccupancy(occ);
+
+        assertThat(panel.isTileOccupied(targetTile[0], targetTile[1])).isTrue();
+
+        el.setOccupancy(null);
+
+        assertThat(panel.isTileOccupied(targetTile[0], targetTile[1])).isFalse();
     }
 }

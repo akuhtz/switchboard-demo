@@ -22,6 +22,7 @@ public class RailwayModel {
         LOGGER.info("Add element: {} (nodeId={}, accessoryId={})",
                 element.getId(), element.getNodeId(), element.getAccessoryId());
         elements.put(element.getId(), element);
+        element.addPropertyChangeListener(e -> pcs.firePropertyChange(e));
     }
 
     public void setElementAspect(String id, int aspect) {
@@ -63,6 +64,7 @@ public class RailwayModel {
 
     public void addOccupancy(Occupancy occupancy) {
         occupancies.put(occupancy.getNodeId() + ":" + occupancy.getPortId(), occupancy);
+        occupancy.addPropertyChangeListener(e -> pcs.firePropertyChange(e));
     }
 
     public Occupancy removeOccupancy(long nodeId, int portId) {
