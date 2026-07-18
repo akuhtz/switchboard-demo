@@ -12,7 +12,9 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.bidib.switchboard.command.Command;
+import org.bidib.switchboard.command.CreateRouteCommand;
 import org.bidib.switchboard.command.CycleElementCommand;
 import org.bidib.switchboard.model.Element;
 import org.bidib.switchboard.model.ElementTile;
@@ -280,20 +283,31 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             return;
         }
 
-        // Temporarily remove any existing route with this ID so its tiles
-        // don't block the BFS for the replacement route.
-        if (routeModel.getRoute(srcId + "-" + dstId) != null) {
-            routeModel.removeRoute(srcId + "-" + dstId);
+        String routeId = srcId + "-" + dstId;
+        Route previousRoute = routeModel.getRoute(routeId);
+        if (previousRoute != null) {
+            routeModel.removeRoute(routeId);
         }
         List<int[]> path = routerService.bfsRoute(routeSourceCol, routeSourceRow, targetCol, targetRow);
         if (path != null) {
             Route route = new Route(srcId, dstId, path);
             LOGGER.info("Route {} added: {} tiles {}", route.getId(), path.size(), pathToString(path));
 
+            Map<String, Integer> oldAspects = new HashMap<>();
+            for (int[] p : path) {
+                Tile tile = getTile(p[0], p[1]);
+                if (tile instanceof ElementTile et && et.getElementId() != null) {
+                    Integer a = model.getElementAspect(et.getElementId());
+                    if (a != null) oldAspects.put(et.getElementId(), a);
+                }
+            }
+
+            List<Route> altRoutes = new ArrayList<>();
             List<List<int[]>> alts = routerService.bfsAlternativeRoutes(routeSourceCol, routeSourceRow, targetCol, targetRow, path, exhaustive);
             if (!alts.isEmpty()) {
                 for (List<int[]> altPath : alts) {
                     Route alt = new Route(srcId, dstId, altPath);
+                    altRoutes.add(alt);
                     routeModel.addAlternativeRoute(route.getId(), alt);
                     LOGGER.info("Alternative route found: {} tiles {}", altPath.size(), pathToString(altPath));
                 }
@@ -304,6 +318,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
             routeModel.addRoute(route);
             setRouteAspects(path);
+
+            undoStack.push(new CreateRouteCommand(routeModel, model, route, previousRoute, altRoutes, oldAspects));
         }
         else {
             LOGGER.info("No route found from ({},{}) to ({},{})", routeSourceCol, routeSourceRow, targetCol, targetRow);
