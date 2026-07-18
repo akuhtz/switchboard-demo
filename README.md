@@ -338,7 +338,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-39 tests across four test classes:
+44 tests across five test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -394,6 +394,15 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | Test | Description |
 |------|-------------|
 | `debugP015toTL004` | Convenience test with `System.out` output for manual debugging of route finding |
+
+### `RouteFindingUiTest` (5 tests)
+| Test | Description |
+|------|-------------|
+| `undoRouteCreationViaUI` | Route removed after undo via Edit > Undo menu |
+| `undoRouteReplaceViaUI` | Original route restored after undo of UI replacement |
+| `undoRouteClearViaUI` | Original route restored after undo of BFS-failed UI re-route |
+| `undoTileCreationOnEmptyCellViaUI` | Empty cell restored after undo via Edit > Undo menu |
+| `undoTileReplaceViaUI` | Original tile restored after undo of UI tile replacement |
 
 Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. All 39 tests pass.
 
