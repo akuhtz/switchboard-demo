@@ -36,18 +36,22 @@ public class CreateRouteCommand implements Command {
     @Override
     public void execute() {
         if (previousRoute != null) {
-            routeModel.removeRoute(newRoute.getId());
+            routeModel.removeRoute(previousRoute.getId());
         }
-        for (Route alt : newAlternatives) {
-            routeModel.addAlternativeRoute(newRoute.getId(), alt);
+        if (newRoute != null) {
+            for (Route alt : newAlternatives) {
+                routeModel.addAlternativeRoute(newRoute.getId(), alt);
+            }
+            routeModel.addRoute(newRoute);
         }
-        routeModel.addRoute(newRoute);
         oldAspects.forEach((id, aspect) -> model.setElementAspect(id, aspect));
     }
 
     @Override
     public void undo() {
-        routeModel.removeRoute(newRoute.getId());
+        if (newRoute != null) {
+            routeModel.removeRoute(newRoute.getId());
+        }
         if (previousRoute != null) {
             routeModel.addRoute(previousRoute);
         }

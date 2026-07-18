@@ -399,6 +399,29 @@ class RouteFindingTest {
     }
 
     @Test
+    void undoRouteClearRestoresPreviousRoute() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+        LayoutPersistence.load(panel, testLayout());
+
+        panel.testSetRouteSource(0, 0);
+        panel.testFindRoute(10, 1);
+
+        assertThat(panel.getRouteModel().isEmpty()).as("Route should exist after creation").isFalse();
+
+        panel.testTileContextAction(5, 0, null);
+
+        panel.testSetRouteSource(0, 0);
+        panel.testFindRoute(10, 1);
+
+        assertThat(panel.getRouteModel().isEmpty()).as("Route should be cleared when no path found").isTrue();
+
+        panel.undoLast();
+
+        assertThat(panel.getRouteModel().isEmpty()).as("Route should be restored after undo of cleared route").isFalse();
+    }
+
+    @Test
     void undoTileCreationOnEmptyCell() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(model);

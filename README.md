@@ -203,6 +203,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `clearTiles()` / `getModel()` / `undoLast()`
   - `isEditMode()` / `setEditMode(boolean)`
   - `setTileContextHandler(TileContextHandler)` — callback for context menu actions.
+- **Undo stack**: `Deque<Command> undoStack` — pushed by route finding, tile creation/clearing, aspect cycling. Accessible via `undoLast()`. Menu item Edit > Undo (Ctrl+Z).
 
 ---
 
@@ -215,6 +216,19 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - `execute()` calls `model.setElementAspect(id, newAspect)`.
 - `undo()` calls `model.setElementAspect(id, oldAspect)`.
 - Logs execute/undo via SLF4J.
+
+### `CreateRouteCommand`
+- Implements `Command`.
+- Captures new route, previous route (if replacing), alternatives, and pre-route aspects.
+- `execute()` removes previous route (if any), then adds new route + alternatives + sets old aspects.
+- `undo()` removes new route, restores previous route, restores pre-route aspects.
+- Handles `newRoute == null` for the case where a route is cleared (BFS failure on re-route).
+
+### `TileCommand`
+- Implements `Command`.
+- Captures old tile and new tile state at a grid cell.
+- `execute()` removes old tile/element, creates new tile/element.
+- `undo()` removes new tile/element, restores old tile/element.
 
 ---
 
@@ -267,6 +281,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | File | Settings > Dark Look and Feel | — | Switch to FlatLaf dark theme |
 | File | Settings > Exhaustive Route Search | — | Toggle k-shortest-paths search for more alternative routes |
 | File | Exit | — | Exit application |
+| Edit | Undo | `Ctrl+Z` | Undo last tile or route operation |
 | Edit | Edit Mode | `Ctrl+E` | Toggle normal/edit mode |
 | Edit | Load Default Layout | — | Load the built-in default layout |
 | Edit | Occupancies... | — | Show dialog with all occupancies sorted by nodeId/portId |
@@ -323,7 +338,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-32 tests across four test classes:
+39 tests across four test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -336,7 +351,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
 | `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
-### `RouteFindingTest` (15 tests)
+### `RouteFindingTest` (20 tests)
 | Test | Description |
 |------|-------------|
 | `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
@@ -354,8 +369,13 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `routeContainsTile` | Route includes source/target, excludes out-of-bounds |
 | `alternativeRouteFoundForP015ToP065` | BFS finds 2 alternative routes via T3-001/T3-002 diagonals |
 | `alternativeRouteFoundForP015ToTL004` | Exhaustive BFS finds 4 alternatives via T3 diagonals + row-11 corridor |
+| `undoRouteCreation` | Route removed from model after undo |
+| `undoRouteReplaceRestoresPreviousRoute` | Original route restored after undo of replacement |
+| `undoRouteClearRestoresPreviousRoute` | Original route restored after undo of BFS-failed re-route |
+| `undoTileCreationOnEmptyCell` | Empty cell and element removed from model after undo |
+| `undoTileReplaceRestoresOriginalTile` | Original tile and element restored after undo |
 
-### `RouterServiceTest` (9 tests)
+### `RouterServiceTest` (11 tests)
 | Test | Description |
 |------|-------------|
 | `bfsRouteWithStartOutsideGrid` | Start column or row out of bounds returns null |
@@ -367,13 +387,15 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `bfsAlternativeRoutesReturnsAlternatives` | BFS finds 2 alternative paths from (2,3) to (24,6) |
 | `bfsAlternativeRoutesExhaustive` | Exhaustive BFS finds 4 alternative paths from (2,3) to (7,11) |
 | `diagonalAwarePort` | Correct port mapping for 8-direction neighbor offsets |
+| `bfsRouteReturnsNullWhenBlocked` | BFS returns null when no path exists between valid tiles |
+| `diagonalConnectsThroughDiagonalTiles` | Diagonal tiles connect via corner ports in both directions |
 
 ### `DebugTest` (1 test)
 | Test | Description |
 |------|-------------|
 | `debugP015toTL004` | Convenience test with `System.out` output for manual debugging of route finding |
 
-Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts.
+Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. All 39 tests pass.
 
 ---
 

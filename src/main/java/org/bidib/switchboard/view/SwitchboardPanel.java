@@ -324,6 +324,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         }
         else {
             LOGGER.info("No route found from ({},{}) to ({},{})", routeSourceCol, routeSourceRow, targetCol, targetRow);
+            if (previousRoute != null) {
+                undoStack.push(new CreateRouteCommand(routeModel, model, null, previousRoute, List.of(), Map.of()));
+            }
         }
         clearPendingRoute();
         repaint();
