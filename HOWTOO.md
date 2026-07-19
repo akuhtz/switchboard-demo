@@ -3,21 +3,21 @@
 ## 1. Run the application
 
 ```sh
-mvn compile exec:java -Dexec.mainClass=org.bidib.switchboard.SwitchboardApp
+mvn compile exec:java -Dexec.mainClass=org.bidib.switchboard.demoapp.SwitchboardApp -pl switchboard-demo-app
 ```
 
 Or build and run the executable JAR:
 
 ```sh
 mvn clean package -DskipTests
-java -jar target/switchboard-demo-1.0-SNAPSHOT.jar
+java -jar switchboard-demo-app/target/switchboard-demo-app-1.0-SNAPSHOT.jar
 ```
 
 ## 2. Reset to a blank grid
 
 - Press **Ctrl+E** to enter edit mode.
 - From the menu: **File → Load...** and select an empty JSON layout (or start fresh by removing all tiles manually via **Clear** in the context menu).
-- Alternatively, delete `settings.json` if present, then delete the last loaded layout file — the app will start with the hardcoded default. You can then clear tiles one by one.
+- Alternatively, delete `switchboard-demo-app/settings.json` if present, then delete the last loaded layout file — the app will start with the hardcoded default. You can then clear tiles one by one.
 
 ## 3. Add tiles
 
@@ -56,7 +56,7 @@ In **normal mode** (Ctrl+E to toggle):
   - **Alternative 1 / Alternative 2 / ...** — preview the alternative as a dotted green line.
   - **Use primary route** — discard alternatives and show the original red route.
   - **Use selected alternative** — promote the previewed alternative to the primary route.
-- **Exhaustive Route Search**: Enable in **File → Settings → Exhaustive Route Search**. When active, the BFS also blocks edges from found alternatives (k-shortest-paths iteration), finding more distinct routes. The setting is persisted in `settings.json`.
+- **Exhaustive Route Search**: Enable in **File → Settings → Exhaustive Route Search**. When active, the BFS also blocks edges from found alternatives (k-shortest-paths iteration), finding more distinct routes. The setting is persisted in `switchboard-demo-app/settings.json`.
 
 ### Manage routes
 
