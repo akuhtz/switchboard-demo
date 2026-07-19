@@ -7,30 +7,45 @@
     <groupId>org.bidib.jbidib.demo</groupId>
     <artifactId>switchboard-demo</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>Model Railway Switchboard</name>
     <description>Java Swing-based switchboard component for controlling and visualising a model railway layout</description>
 
+    <modules>
+        <module>switchboard-component</module>
+        <module>switchboard-demo-app</module>
+    </modules>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
-        <mainClass>org.bidib.switchboard.SwitchboardApp</mainClass>
         <jackson.version>3.2.0</jackson.version>
         <slf4j.version>2.0.18</slf4j.version>
         <logback.version>1.5.37</logback.version>
-		<flatlaf-version>3.7.2</flatlaf-version>
-		<jsvg.version>2.1.0</jsvg.version>
-		<assertj-swing-junit-jupiter.version>4.0.0-beta-3</assertj-swing-junit-jupiter.version>
+        <flatlaf-version>3.7.2</flatlaf-version>
+        <jsvg.version>2.1.0</jsvg.version>
+        <assertj-swing-junit-jupiter.version>4.0.0-beta-3</assertj-swing-junit-jupiter.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
-		<jgoodies-forms.version>1.9.0</jgoodies-forms.version>
-		<jgoodies-validation.version>2.5.1</jgoodies-validation.version>
-		<jgoodies-binding.version>2.13.0</jgoodies-binding.version>
-		<junit6.version>6.0.3</junit6.version>
+        <jgoodies-forms.version>1.9.0</jgoodies-forms.version>
+        <jgoodies-validation.version>2.5.1</jgoodies-validation.version>
+        <jgoodies-binding.version>2.13.0</jgoodies-binding.version>
+        <junit6.version>6.0.3</junit6.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.bidib.jbidib.demo</groupId>
+                <artifactId>switchboard-component</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bidib.jbidib.demo</groupId>
+                <artifactId>switchboard-component</artifactId>
+                <classifier>tests</classifier>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>tools.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
@@ -38,174 +53,95 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-			<!-- https://codeberg.org/miurahr/assertj-swing -->
-			<dependency>
-				<groupId>tokyo.northside</groupId>
-				<artifactId>assertj-swing-junit-jupiter</artifactId>
-				<version>${assertj-swing-junit-jupiter.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>junit</groupId>
-						<artifactId>junit</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>			
-	        <dependency>
-	            <groupId>com.formdev</groupId>
-	            <artifactId>flatlaf</artifactId>
-	            <version>${flatlaf-version}</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>com.github.weisj</groupId>
-	            <artifactId>jsvg</artifactId>
-	            <version>${jsvg.version}</version>
-	        </dependency>
-	        
-	        <dependency>
-	            <groupId>com.jgoodies</groupId>
-	            <artifactId>jgoodies-binding</artifactId>
-	            <version>${jgoodies-binding.version}</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>com.jgoodies</groupId>
-	            <artifactId>jgoodies-forms</artifactId>
-	            <version>${jgoodies-forms.version}</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>com.jgoodies</groupId>
-	            <artifactId>jgoodies-validation</artifactId>
-	            <version>${jgoodies-validation.version}</version>
-	        </dependency>
-
-	      	<dependency>
-		        <groupId>org.apache.commons</groupId>
-		        <artifactId>commons-lang3</artifactId>
-		        <version>${commons-lang3.version}</version>
-		    </dependency>
-
-	        <dependency>
-	            <groupId>org.slf4j</groupId>
-	            <artifactId>slf4j-api</artifactId>
-	            <version>${slf4j.version}</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>ch.qos.logback</groupId>
-	            <artifactId>logback-classic</artifactId>
-	            <version>${logback.version}</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>org.junit.jupiter</groupId>
-	            <artifactId>junit-jupiter-engine</artifactId>
-	            <version>${junit6.version}</version>
-	        </dependency>
+            <dependency>
+                <groupId>tokyo.northside</groupId>
+                <artifactId>assertj-swing-junit-jupiter</artifactId>
+                <version>${assertj-swing-junit-jupiter.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.formdev</groupId>
+                <artifactId>flatlaf</artifactId>
+                <version>${flatlaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.weisj</groupId>
+                <artifactId>jsvg</artifactId>
+                <version>${jsvg.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jgoodies</groupId>
+                <artifactId>jgoodies-binding</artifactId>
+                <version>${jgoodies-binding.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jgoodies</groupId>
+                <artifactId>jgoodies-forms</artifactId>
+                <version>${jgoodies-forms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jgoodies</groupId>
+                <artifactId>jgoodies-validation</artifactId>
+                <version>${jgoodies-validation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit6.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
-    <dependencies>
-        <dependency>
-            <groupId>tools.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>flatlaf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.weisj</groupId>
-            <artifactId>jsvg</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.jgoodies</groupId>
-            <artifactId>jgoodies-binding</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jgoodies</groupId>
-            <artifactId>jgoodies-forms</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jgoodies</groupId>
-            <artifactId>jgoodies-validation</artifactId>
-        </dependency>
-
-      	<dependency>
-	        <groupId>org.apache.commons</groupId>
-	        <artifactId>commons-lang3</artifactId>
-	    </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-        
-		<dependency>
-			<groupId>tokyo.northside</groupId>
-			<artifactId>assertj-swing-junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
-    </dependencies>
-
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-                <configuration>
-                    <release>${maven.compiler.release}</release>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.2</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>${mainClass}</mainClass>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.3</version>
-                <configuration>
-                    <argLine>--add-opens java.base/java.util=ALL-UNNAMED</argLine>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>${mainClass}</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                    <configuration>
+                        <release>${maven.compiler.release}</release>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.5.3</version>
+                    <configuration>
+                        <argLine>--add-opens java.base/java.util=ALL-UNNAMED</argLine>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.4.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.6.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>
