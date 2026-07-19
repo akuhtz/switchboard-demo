@@ -208,8 +208,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Public API:
   - `setTile(Tile tile)` / `getTile(int col, int row)` / `removeTile(int col, int row)`
   - `clearTiles()` / `getModel()` / `undoLast()`
-  - `isEditMode()` / `setEditMode(boolean)`
-  - `setTileContextHandler(TileContextHandler)` — callback for context menu actions.
+   - `isEditMode()` / `setEditMode(boolean)`
+   - `setTileContextHandler(TileContextHandler)` — callback for context menu actions.
+   - `testSetRouteAspects(List<int[]>)` — applies aspect-for-port/route logic to a given path (test helper).
 - **Undo stack**: `Deque<Command> undoStack` — pushed by route finding, tile creation/clearing, aspect cycling. Accessible via `undoLast()`. Menu item Edit > Undo (Ctrl+Z).
 
 ---
@@ -345,7 +346,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-46 tests across five test classes:
+50 tests across six test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -413,7 +414,20 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoTileReplaceViaUI` | Original tile restored after undo of UI tile replacement |
 | `occupiedRouteTilesDetectedViaUI` | Occupied route tiles show occupancy color via `drawOccupancy` |
 
-Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. All 46 tests pass.
+### `OccupancyUiTest` (4 tests)
+| Test | Description |
+|------|-------------|
+| `occupancyAdvancesAlongRoute` | Timer-driven occupancy animation along a route path, verifying sliding-window pattern |
+| `routeFromTL003ToTR002` | Route found from TL-003 to TR-002 with correct source/target element IDs, TL-003 aspect 1 (diverted) |
+| `routeFromTL003ToTR002Straight` | Primary route TL-003→P-001 along row 0, TL-003 aspect 0 (through), alternatives cleared |
+| `alternativeRouteTL003ToP001` | Alternative route TL-003→P-001 via DG-003/CL-005/row-1 corridor, verified 23-tile path, TL-003 aspect 1 (diverted), TR-003 aspect 1 (diverted) |
+
+Timer-driven tests use a `Semaphore` to synchronise the test thread with the Swing `Timer` tick,
+replacing brittle `Thread.sleep()` delays that could miss steps due to timer coalescing.
+`maven-surefire-plugin` is configured with `--add-opens java.base/java.util=ALL-UNNAMED`
+to prevent `InaccessibleObjectException` from AssertJ Swing's `ProtectingTimerTask`.
+
+Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. All 50 tests pass.
 
 ---
 

@@ -680,8 +680,57 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 if (el != null && el.getOccupancy() != null && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
                     int cx = tile.getCol() * tileSize + half;
                     int cy = tile.getRow() * tileSize + half;
+                    int d = (tileSize - 2) / 2;
+                    int rotSteps = (tile.getRotation() / 90) % 4;
+
+                    if (et.getElementType() == ElementType.DIAGONAL) {
+                        int[][] pairs = { { ElementType.PORT_LEFT, ElementType.PORT_BOTTOM },
+                            { ElementType.PORT_TOP, ElementType.PORT_RIGHT } };
+                        for (int[] pair : pairs) {
+                            int p1 = (pair[0] + rotSteps) % 4;
+                            int p2 = (pair[1] + rotSteps) % 4;
+                            int dx = (p1 == ElementType.PORT_RIGHT || p2 == ElementType.PORT_RIGHT) ? d
+                                : (p1 == ElementType.PORT_LEFT || p2 == ElementType.PORT_LEFT) ? -d : 0;
+                            int dy = (p1 == ElementType.PORT_BOTTOM || p2 == ElementType.PORT_BOTTOM) ? d
+                                : (p1 == ElementType.PORT_TOP || p2 == ElementType.PORT_TOP) ? -d : 0;
+                            g2.drawLine(cx, cy, cx + dx, cy + dy);
+                        }
+                        continue;
+                    }
+
                     int[] ports = et.getElementType().getActivePorts(el.getCurrentAspect(), tile.getRotation());
+
+                    if ((et.getElementType() == ElementType.CURVE_LEFT || et.getElementType() == ElementType.CURVE_RIGHT) && ports.length == 2) {
+                        for (int port : ports) {
+                            if (port == ElementType.PORT_LEFT || port == ElementType.PORT_RIGHT) {
+                                drawPortLine(g2, cx, cy, port, tileSize);
+                            } else {
+                                int otherPort = port == ports[0] ? ports[1] : ports[0];
+                                int dx = otherPort == ElementType.PORT_LEFT ? d
+                                    : otherPort == ElementType.PORT_RIGHT ? -d : 0;
+                                int dy = port == ElementType.PORT_TOP ? -d : d;
+                                g2.drawLine(cx, cy, cx + dx, cy + dy);
+                            }
+                        }
+                        continue;
+                    }
+
                     for (int port : ports) {
+                        if (el.getCurrentAspect() == 1
+                            && (et.getElementType() == ElementType.TURNOUT_RIGHT || et.getElementType() == ElementType.TURNOUT_LEFT)) {
+                            int divertBase = et.getElementType() == ElementType.TURNOUT_RIGHT
+                                ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP;
+                            int divertExit = (divertBase + rotSteps) % 4;
+                            if (port == divertExit) {
+                                int throughPort = (ElementType.PORT_RIGHT + rotSteps) % 4;
+                                int dx = throughPort == ElementType.PORT_RIGHT ? d
+                                    : throughPort == ElementType.PORT_LEFT ? -d : 0;
+                                int dy = divertExit == ElementType.PORT_BOTTOM ? d
+                                    : divertExit == ElementType.PORT_TOP ? -d : 0;
+                                g2.drawLine(cx, cy, cx + dx, cy + dy);
+                                continue;
+                            }
+                        }
                         drawPortLine(g2, cx, cy, port, tileSize);
                     }
                 }
@@ -695,7 +744,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             case ElementType.PORT_LEFT -> g2.drawLine(cx - d, cy, cx, cy);
             case ElementType.PORT_TOP -> g2.drawLine(cx, cy - d, cx, cy);
             case ElementType.PORT_RIGHT -> g2.drawLine(cx, cy, cx + d, cy);
-            case ElementType.PORT_BOTTOM -> g2.drawLine(cx, cy, cx + d, cy + d);
+            case ElementType.PORT_BOTTOM -> g2.drawLine(cx, cy, cx, cy + d);
         }
     }
 
@@ -847,6 +896,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     public void testTileContextAction(int col, int row, ElementType type) {
         onTileContextAction(col, row, type);
+    }
+
+    public void testSetRouteAspects(List<int[]> path) {
+        setRouteAspects(path);
     }
 
     // --- Observer ---

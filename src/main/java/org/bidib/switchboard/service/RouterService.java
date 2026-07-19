@@ -2,6 +2,7 @@ package org.bidib.switchboard.service;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,8 +16,12 @@ import org.bidib.switchboard.model.RailwayModel;
 import org.bidib.switchboard.model.Route;
 import org.bidib.switchboard.model.RouteModel;
 import org.bidib.switchboard.model.Tile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RouterService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RouterService.class);
 
     public static final int MAX_ALTERNATIVES = 10;
 
@@ -111,19 +116,29 @@ public class RouterService {
     }
 
     public void setRouteAspects(List<int[]> path, RailwayModel model) {
-        for (int i = 1; i < path.size() - 1; i++) {
-            int[] prev = path.get(i - 1);
+        for (int i = 0; i < path.size(); i++) {
             int[] curr = path.get(i);
-            int[] next = path.get(i + 1);
             Tile tile = getTile(curr[0], curr[1]);
             if (!(tile instanceof ElementTile et)) continue;
             ElementType type = et.getElementType();
             if (type.getAspectCount() <= 1) continue;
-            int entryPort = diagonalAwarePort(prev[0], prev[1], curr[0], curr[1], true);
-            int exitPort = diagonalAwarePort(curr[0], curr[1], next[0], next[1], false);
-            int aspect = type.aspectForRoute(entryPort, exitPort, tile.getRotation());
             String id = et.getElementId();
-            if (id != null) model.setElementAspect(id, aspect);
+            if (id == null) continue;
+            int aspect;
+            if (i == 0) {
+                int[] next = path.get(i + 1);
+                aspect = type.aspectForPort(diagonalAwarePort(curr[0], curr[1], next[0], next[1], false), tile.getRotation());
+            } else if (i == path.size() - 1) {
+                int[] prev = path.get(i - 1);
+                aspect = type.aspectForPort(diagonalAwarePort(prev[0], prev[1], curr[0], curr[1], true), tile.getRotation());
+            } else {
+                int[] prev = path.get(i - 1);
+                int[] next = path.get(i + 1);
+                int entryPort = diagonalAwarePort(prev[0], prev[1], curr[0], curr[1], true);
+                int exitPort = diagonalAwarePort(curr[0], curr[1], next[0], next[1], false);
+                aspect = type.aspectForRoute(entryPort, exitPort, tile.getRotation());
+            }
+            model.setElementAspect(id, aspect);
         }
     }
 
@@ -181,7 +196,10 @@ public class RouterService {
             Tile tile = getTile(c, r);
             int[] cEntry = entryPorts.get(cKey);
 
-            for (int[] neighbor : getConnectedNeighbors(c, r)) {
+            List<int[]> connected = getConnectedNeighbors(c, r);
+            LOG.info("BFS at ({},{}) entryPorts={} neighbors={}", c, r, cEntry != null ? Arrays.toString(cEntry) : "null",
+                connected.stream().map(n -> "(" + n[0] + "," + n[1] + ")").toList());
+            for (int[] neighbor : connected) {
                 int nc = neighbor[0];
                 int nr = neighbor[1];
                 String nKey = tileKey(nc, nr);
@@ -338,21 +356,25 @@ public class RouterService {
         if (elemType != null && (portSet.contains(ElementType.PORT_RIGHT) || portSet.contains(ElementType.PORT_BOTTOM))
             && elemType.hasValidDiagonal(ElementType.PORT_RIGHT, ElementType.PORT_BOTTOM, rotation) && col < cols - 1 && row < rows - 1
             && (hasPhysicalPort(col + 1, row + 1, ElementType.PORT_LEFT) || hasPhysicalPort(col + 1, row + 1, ElementType.PORT_TOP))) {
+            LOG.info("  DR diagonal added for ({},{}) type={} rot={}", col, row, elemType, rotation);
             neighbors.add(new int[] { col + 1, row + 1 });
         }
         if (elemType != null && (portSet.contains(ElementType.PORT_LEFT) || portSet.contains(ElementType.PORT_BOTTOM))
             && elemType.hasValidDiagonal(ElementType.PORT_LEFT, ElementType.PORT_BOTTOM, rotation) && col > 0 && row < rows - 1
             && (hasPhysicalPort(col - 1, row + 1, ElementType.PORT_RIGHT) || hasPhysicalPort(col - 1, row + 1, ElementType.PORT_TOP))) {
+            LOG.info("  DL diagonal added for ({},{}) type={} rot={}", col, row, elemType, rotation);
             neighbors.add(new int[] { col - 1, row + 1 });
         }
         if (elemType != null && (portSet.contains(ElementType.PORT_RIGHT) || portSet.contains(ElementType.PORT_TOP))
             && elemType.hasValidDiagonal(ElementType.PORT_RIGHT, ElementType.PORT_TOP, rotation) && col < cols - 1 && row > 0
             && (hasPhysicalPort(col + 1, row - 1, ElementType.PORT_LEFT) || hasPhysicalPort(col + 1, row - 1, ElementType.PORT_BOTTOM))) {
+            LOG.info("  UR diagonal added for ({},{}) type={} rot={}", col, row, elemType, rotation);
             neighbors.add(new int[] { col + 1, row - 1 });
         }
         if (elemType != null && (portSet.contains(ElementType.PORT_LEFT) || portSet.contains(ElementType.PORT_TOP))
             && elemType.hasValidDiagonal(ElementType.PORT_LEFT, ElementType.PORT_TOP, rotation) && col > 0 && row > 0
             && (hasPhysicalPort(col - 1, row - 1, ElementType.PORT_RIGHT) || hasPhysicalPort(col - 1, row - 1, ElementType.PORT_BOTTOM))) {
+            LOG.info("  UL diagonal added for ({},{}) type={} rot={}", col, row, elemType, rotation);
             neighbors.add(new int[] { col - 1, row - 1 });
         }
 

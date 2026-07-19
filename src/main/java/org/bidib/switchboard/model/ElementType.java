@@ -91,6 +91,16 @@ public enum ElementType {
         return 0;
     }
 
+    public int aspectForPort(int port, int rotation) {
+        for (int a = 0; a < getAspectCount(); a++) {
+            int[] ports = getActivePorts(a, rotation);
+            for (int p : ports) {
+                if (p == port) return a;
+            }
+        }
+        return 0;
+    }
+
     public boolean hasValidDiagonal(int port1, int port2, int rotation) {
         int rotSteps = ((rotation / 90) % 4 + 4) % 4;
         int base1 = ((port1 - rotSteps) % 4 + 4) % 4;
