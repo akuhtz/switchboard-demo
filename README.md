@@ -427,13 +427,13 @@ replacing brittle `Thread.sleep()` delays that could miss steps due to timer coa
 `maven-surefire-plugin` is configured with `--add-opens java.base/java.util=ALL-UNNAMED`
 to prevent `InaccessibleObjectException` from AssertJ Swing's `ProtectingTimerTask`.
 
-### `OccupancyElementUiTest` (2 tests)
+### `OccupancyElementUiTest` (2 tests, 1 disabled)
 | Test | Description |
 |------|-------------|
 | `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × all aspects × 4 rotations (64 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
-| `occupancyAtCurveRotations` | Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent. |
+| ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
-Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. All 52 tests pass.
+Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. 51 of 52 tests pass (1 disabled).
 
 ---
 

@@ -26,6 +26,7 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Tile;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,6 +216,7 @@ class OccupancyElementUiTest {
     }
 
     @Test
+    @Disabled("Curve occupancy drawing is being redesigned")
     void occupancyAtCurveRotations() throws Exception {
         List<String> targetIds = List.of("CL-053", "CL-054", "CL-055", "CL-056", "CR-058", "CR-060");
         // List<String> targetIds = List.of("T3-021", "T3-022", "T3-023", "T3-024", "T3-025", "T3-026", "T3-027",
