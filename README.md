@@ -315,25 +315,25 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ## SVG Icons (`src/main/resources/icons/`)
 
-| File | Description |
-|------|-------------|
-| `empty.svg` | Dark background only |
-| `straight.svg` | Full light gray horizontal line |
-| `turnout_straight_left.svg` | Straight active (light gray+orange), diverted left gray |
-| `turnout_straight_right.svg` | Straight active (light gray+orange), diverted right gray |
-| `turnout_diverted_left.svg` | Left diverted active (light gray+orange), straight gray |
-| `turnout_diverted_right.svg` | Right diverted active (light gray+orange), straight gray |
-| `turnout_3way_straight.svg` | Straight active, both diverted gray |
-| `turnout_3way_left.svg` | Left active, straight and right gray |
-| `turnout_3way_right.svg` | Right active, straight and left gray |
-| `curve_left.svg` | Horizontal to center then diagonal to top-right |
-| `curve_right.svg` | Horizontal to center then diagonal to bottom-right |
-| `diagonal.svg` | Diagonal from lower-left to upper-right corner |
-| `signal_2_red.svg` | SBB signal shape — red active, green dim |
-| `signal_2_green.svg` | SBB signal shape — green active, red dim |
-| `signal_3_red.svg` | SBB signal shape — red active, yellow+green dim |
-| `signal_3_yellow.svg` | SBB signal shape — yellow active, red+green dim |
-| `signal_3_green.svg` | SBB signal shape — green active, red+yellow dim |
+| File | Preview | Description |
+|------|---------|-------------|
+| `empty.svg` | <img src="src/main/resources/icons/empty.svg" width="32" height="32"> | Dark background only |
+| `straight.svg` | <img src="src/main/resources/icons/straight.svg" width="32" height="32"> | Full light gray horizontal line |
+| `turnout_straight_left.svg` | <img src="src/main/resources/icons/turnout_straight_left.svg" width="32" height="32"> | Straight active (light gray+orange), diverted left gray |
+| `turnout_straight_right.svg` | <img src="src/main/resources/icons/turnout_straight_right.svg" width="32" height="32"> | Straight active (light gray+orange), diverted right gray |
+| `turnout_diverted_left.svg` | <img src="src/main/resources/icons/turnout_diverted_left.svg" width="32" height="32"> | Left diverted active (light gray+orange), straight gray |
+| `turnout_diverted_right.svg` | <img src="src/main/resources/icons/turnout_diverted_right.svg" width="32" height="32"> | Right diverted active (light gray+orange), straight gray |
+| `turnout_3way_straight.svg` | <img src="src/main/resources/icons/turnout_3way_straight.svg" width="32" height="32"> | Straight active, both diverted gray |
+| `turnout_3way_left.svg` | <img src="src/main/resources/icons/turnout_3way_left.svg" width="32" height="32"> | Left active, straight and right gray |
+| `turnout_3way_right.svg` | <img src="src/main/resources/icons/turnout_3way_right.svg" width="32" height="32"> | Right active, straight and left gray |
+| `curve_left.svg` | <img src="src/main/resources/icons/curve_left.svg" width="32" height="32"> | Horizontal to center then diagonal to top-right |
+| `curve_right.svg` | <img src="src/main/resources/icons/curve_right.svg" width="32" height="32"> | Horizontal to center then diagonal to bottom-right |
+| `diagonal.svg` | <img src="src/main/resources/icons/diagonal.svg" width="32" height="32"> | Diagonal from lower-left to upper-right corner |
+| `signal_2_red.svg` | <img src="src/main/resources/icons/signal_2_red.svg" width="32" height="32"> | SBB signal shape — red active, green dim |
+| `signal_2_green.svg` | <img src="src/main/resources/icons/signal_2_green.svg" width="32" height="32"> | SBB signal shape — green active, red dim |
+| `signal_3_red.svg` | <img src="src/main/resources/icons/signal_3_red.svg" width="32" height="32"> | SBB signal shape — red active, yellow+green dim |
+| `signal_3_yellow.svg` | <img src="src/main/resources/icons/signal_3_yellow.svg" width="32" height="32"> | SBB signal shape — yellow active, red+green dim |
+| `signal_3_green.svg` | <img src="src/main/resources/icons/signal_3_green.svg" width="32" height="32"> | SBB signal shape — green active, red+yellow dim |
 
 All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use light gray `#aaaaaa` for active paths, `#808080` for inactive paths, and `#ffa500` (orange) for the frog-end on turnouts.
 
