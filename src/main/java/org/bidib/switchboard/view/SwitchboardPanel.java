@@ -701,14 +701,24 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                     int[] ports = et.getElementType().getActivePorts(el.getCurrentAspect(), tile.getRotation());
 
                     if ((et.getElementType() == ElementType.CURVE_LEFT || et.getElementType() == ElementType.CURVE_RIGHT) && ports.length == 2) {
-                        for (int port : ports) {
-                            if (port == ElementType.PORT_LEFT || port == ElementType.PORT_RIGHT) {
+                        for (int i = 0; i < ports.length; i++) {
+                            int port = ports[i];
+                            if (i == 0) {
                                 drawPortLine(g2, cx, cy, port, tileSize);
                             } else {
-                                int otherPort = port == ports[0] ? ports[1] : ports[0];
-                                int dx = otherPort == ElementType.PORT_LEFT ? d
-                                    : otherPort == ElementType.PORT_RIGHT ? -d : 0;
-                                int dy = port == ElementType.PORT_TOP ? -d : d;
+                                int firstPort = ports[0];
+                                boolean secondIsVertical = port == ElementType.PORT_TOP || port == ElementType.PORT_BOTTOM;
+                                int dx, dy;
+                                if (secondIsVertical) {
+                                    dx = firstPort == ElementType.PORT_LEFT ? d
+                                        : firstPort == ElementType.PORT_RIGHT ? -d : 0;
+                                    dy = port == ElementType.PORT_TOP ? -d : d;
+                                } else {
+                                    dx = port == ElementType.PORT_LEFT ? -d
+                                        : port == ElementType.PORT_RIGHT ? d : 0;
+                                    dy = firstPort == ElementType.PORT_TOP ? d
+                                        : firstPort == ElementType.PORT_BOTTOM ? -d : 0;
+                                }
                                 g2.drawLine(cx, cy, cx + dx, cy + dy);
                             }
                         }

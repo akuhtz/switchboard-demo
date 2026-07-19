@@ -188,7 +188,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
      - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
      - Dotted lines are only visible during preview (index >= 0); they disappear after committing to primary or an alternative.
    - Context menu shows "Clear route ({id})" on tiles belonging to a route.
-- **Occupancy rendering**: In `paintComponent`, `drawOccupancy()` is called last, after routes. For each tile with an OCCUPIED occupancy, it draws port-based line segments using the element's current aspect: `getActivePorts(el.getCurrentAspect(), tile.getRotation())`. Lines are drawn from tile center to each active port edge. `PORT_BOTTOM` draws to the lower-right corner `(cx + d, cy + d)` to match the physical track path of diverted turnouts. Color: `COLOR_OCCUPIED` = `(255, 80, 80)` with stroke-width 4.
+- **Occupancy rendering**: In `paintComponent`, `drawOccupancy()` is called last, after routes. For each tile with an OCCUPIED occupancy, it draws port-based line segments using the element's current aspect: `getActivePorts(el.getCurrentAspect(), tile.getRotation())`. Lines are drawn from tile center to each active port. Straight, diagonal, and crossing elements draw to edge midpoints via `drawPortLine()`. Turnouts draw the main port to its edge midpoint and the diverted port to a corner. Curves (CURVE_LEFT, CURVE_RIGHT) draw port[0] to its edge midpoint and port[1] to a corner: `dx` comes from the port's own x-side if horizontal (or the opposite of port[0]'s x-side if vertical), `dy` comes from the port's own y-side if vertical (or the opposite of port[0]'s y-side if horizontal). Color: `COLOR_OCCUPIED` = `(255, 80, 80)` with stroke-width 4.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
    `getActivePorts(aspect, rotation)` returns only the ports active for a given aspect (1 port for straight/curve/diagonal, 2 for turnouts, 4 for crossings).
 - **Rendering** (`paintComponent`):
@@ -346,7 +346,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-50 tests across six test classes:
+52 tests across seven test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -427,7 +427,13 @@ replacing brittle `Thread.sleep()` delays that could miss steps due to timer coa
 `maven-surefire-plugin` is configured with `--add-opens java.base/java.util=ALL-UNNAMED`
 to prevent `InaccessibleObjectException` from AssertJ Swing's `ProtectingTimerTask`.
 
-Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. All 50 tests pass.
+### `OccupancyElementUiTest` (2 tests)
+| Test | Description |
+|------|-------------|
+| `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × 4 rotations (36 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (9 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
+| `occupancyAtCurveRotations` | Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent. |
+
+Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. All 52 tests pass.
 
 ---
 
