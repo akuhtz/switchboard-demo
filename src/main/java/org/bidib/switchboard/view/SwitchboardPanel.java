@@ -700,7 +700,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
                     int[] ports = et.getElementType().getActivePorts(el.getCurrentAspect(), tile.getRotation());
 
-                    if ((et.getElementType() == ElementType.CURVE_LEFT || et.getElementType() == ElementType.CURVE_RIGHT) && ports.length == 2) {
+                    if (ports.length == 2
+                        && (et.getElementType() == ElementType.CURVE_LEFT
+                        || et.getElementType() == ElementType.CURVE_RIGHT
+                        || et.getElementType() == ElementType.TURNOUT_3WAY)) {
                         for (int i = 0; i < ports.length; i++) {
                             int port = ports[i];
                             if (i == 0) {
@@ -733,10 +736,15 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                             int divertExit = (divertBase + rotSteps) % 4;
                             if (port == divertExit) {
                                 int throughPort = (ElementType.PORT_RIGHT + rotSteps) % 4;
-                                int dx = throughPort == ElementType.PORT_RIGHT ? d
-                                    : throughPort == ElementType.PORT_LEFT ? -d : 0;
-                                int dy = divertExit == ElementType.PORT_BOTTOM ? d
-                                    : divertExit == ElementType.PORT_TOP ? -d : 0;
+                                boolean divertIsHorizontal = divertExit == ElementType.PORT_LEFT || divertExit == ElementType.PORT_RIGHT;
+                                int dx = divertIsHorizontal
+                                    ? (divertExit == ElementType.PORT_RIGHT ? d : -d)
+                                    : (throughPort == ElementType.PORT_RIGHT ? d
+                                        : throughPort == ElementType.PORT_LEFT ? -d : 0);
+                                int dy = divertIsHorizontal
+                                    ? (throughPort == ElementType.PORT_BOTTOM ? d
+                                        : throughPort == ElementType.PORT_TOP ? -d : 0)
+                                    : (divertExit == ElementType.PORT_BOTTOM ? d : -d);
                                 g2.drawLine(cx, cy, cx + dx, cy + dy);
                                 continue;
                             }

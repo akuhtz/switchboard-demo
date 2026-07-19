@@ -68,19 +68,24 @@ class OccupancyElementUiTest {
             int row = 0;
             int[] rotations = { 0, 90, 180, 270 };
             int[] cols = { 0, 3, 6, 9 };
+            int elementCounter = 1;
             for (var entry : svgByType().entrySet()) {
                 ElementType type = entry.getKey();
                 List<String> svgPaths = entry.getValue();
+                int aspectCount = svgPaths.size();
                 String prefix = type.getPrefix();
-                for (int i = 0; i < 4; i++) {
-                    String elementId = prefix + "-" + String.format("%03d", i + 1);
-                    ElementTile tile = new ElementTile(cols[i], row, elementId, type, svgPaths);
-                    tile.setRotation(rotations[i]);
-                    panel.setTile(tile);
-                    Element element = new Element(elementId, 0, 0);
-                    panel.getModel().addElement(element);
+                for (int aspect = 0; aspect < aspectCount; aspect++) {
+                    for (int i = 0; i < 4; i++) {
+                        String elementId = prefix + "-" + String.format("%03d", elementCounter++);
+                        ElementTile tile = new ElementTile(cols[i], row, elementId, type, svgPaths);
+                        tile.setRotation(rotations[i]);
+                        panel.setTile(tile);
+                        Element element = new Element(elementId, 0, 0);
+                        element.setCurrentAspect(aspect);
+                        panel.getModel().addElement(element);
+                    }
+                    row++;
                 }
-                row++;
             }
         });
 
@@ -122,7 +127,7 @@ class OccupancyElementUiTest {
     @Test
     void occupancyCyclesThroughAllElements() throws Exception {
         List<Element> elements = new ArrayList<>(panel.getModel().getElements().values());
-        assertThat(elements).hasSize(36);
+        assertThat(elements).hasSize(64);
 
         Map<String, int[]> elementPositions = new LinkedHashMap<>();
         for (Tile tile : panel.getTiles().values()) {
@@ -130,10 +135,10 @@ class OccupancyElementUiTest {
                 elementPositions.put(et.getElementId(), new int[] { tile.getCol(), tile.getRow() });
             }
         }
-        assertThat(elementPositions).hasSize(36);
+        assertThat(elementPositions).hasSize(64);
 
         int limit = elements.size();
-        LOGGER.info("Testing {} elements across all types and rotations", limit);
+        LOGGER.info("Testing {} elements across all types, aspects, and rotations", limit);
 
         GuiActionRunner.execute(() -> {
             for (int i = 0; i < elements.size(); i++) {
@@ -211,7 +216,9 @@ class OccupancyElementUiTest {
 
     @Test
     void occupancyAtCurveRotations() throws Exception {
-        List<String> targetIds = List.of("CL-001", "CL-002", "CL-003", "CL-004", "CR-002", "CR-004");
+        List<String> targetIds = List.of("CL-053", "CL-054", "CL-055", "CL-056", "CR-058", "CR-060");
+        // List<String> targetIds = List.of("T3-021", "T3-022", "T3-023", "T3-024", "T3-025", "T3-026", "T3-027",
+        // "T3-028");
         List<Element> elements = new ArrayList<>();
         Map<String, int[]> positions = new LinkedHashMap<>();
         for (String id : targetIds) {

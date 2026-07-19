@@ -430,7 +430,7 @@ to prevent `InaccessibleObjectException` from AssertJ Swing's `ProtectingTimerTa
 ### `OccupancyElementUiTest` (2 tests)
 | Test | Description |
 |------|-------------|
-| `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × 4 rotations (36 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (9 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
+| `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × all aspects × 4 rotations (64 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
 | `occupancyAtCurveRotations` | Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent. |
 
 Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. All 52 tests pass.
