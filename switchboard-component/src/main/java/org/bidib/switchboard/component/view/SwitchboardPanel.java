@@ -453,6 +453,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 JMenuItem useItem = new JMenuItem("Use selected alternative");
                 useItem.addActionListener(e -> {
                     routeModel.swapWithAlternative(routeId);
+                    Route newRoute = routeModel.getRoute(routeId);
+                    if (newRoute != null) {
+                        setRouteAspects(newRoute.getPath());
+                    }
                     repaint();
                 });
                 menu.add(useItem);

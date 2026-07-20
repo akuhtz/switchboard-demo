@@ -678,7 +678,9 @@ class OccupancyUiTest {
         }, routeId -> {
             panel.getRouteModel().setSelectedAlternativeIndex(routeId, 1);
             panel.getRouteModel().swapWithAlternative(routeId);
-            return panel.getRouteModel().getRoute(routeId).getPath();
+            List<int[]> newPath = panel.getRouteModel().getRoute(routeId).getPath();
+            panel.testSetRouteAspects(newPath);
+            return newPath;
         });
     }
 
