@@ -172,9 +172,11 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - BFS skips tiles already reserved by existing routes (conflict detection).
   - Diagonal port checks use OR (not AND) on corner ports, enabling symmetric traversal
     through curves and diagonals in both directions.
-  - **Through-path validation**: BFS tracks entry port per tile via `entryPorts` map.
-    Before adding a neighbor, `canTraverse()` checks `isValidThroughPath(entry, exit, rotation)`
-    on the current tile. Turnouts block frog-end→frog-end (backwards) traversal.
+   - **Through-path validation**: BFS tracks entry port per tile via `entryPorts` map
+     (entry1 for horizontal, entry2 for vertical). Before adding a neighbor,
+     `canTraverse()` checks `isValidThroughPath(entry, exit, rotation)` on the current
+     tile when either entry port is set. Turnouts block frog-end→frog-end (backwards)
+     traversal and invalid diagonal paths through 3-way turnouts.
   - Each connection validates BOTH sender and receiver ports (bidirectional).
   - Diagonal connections require `hasValidDiagonal()` on the sender corner.
   - Found routes are stored in a `RouteModel` supporting multiple simultaneous routes.
@@ -347,7 +349,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-52 tests across seven test classes:
+53 tests across seven test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -360,7 +362,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
 | `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
-### `RouteFindingTest` (21 tests)
+### `RouteFindingTest` (22 tests)
 | Test | Description |
 |------|-------------|
 | `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
@@ -384,6 +386,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoTileCreationOnEmptyCell` | Empty cell and element removed from model after undo |
 | `undoTileReplaceRestoresOriginalTile` | Original tile and element restored after undo |
 | `occupiedTileOnRouteIsDetected` | Tile on a route detected as occupied when its occupancy is set to OCCUPIED |
+| `routeFromP114ToP137MustNotUseInvalidTurnoutPath` | Route from P-114 to P-137 must not go via (25,13)→(24,14) — verifies canTraverse is called for vertical-only entries |
 
 ### `RouterServiceTest` (11 tests)
 | Test | Description |
@@ -438,7 +441,7 @@ execution to `target/surefire-reports/`.
 | `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × all aspects × 4 rotations (64 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
 | ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
-Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. 51 of 52 tests pass (1 disabled).
+Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. 52 of 53 tests pass (1 disabled).
 
 ---
 

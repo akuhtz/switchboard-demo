@@ -403,7 +403,7 @@ class RouteFindingTest {
         assertThat(r).as("Route %s should exist", routeId).isNotNull();
 
         assertThat(routeModel.hasAlternativeRoute(routeId)).as("Route %s should have alternatives", routeId).isTrue();
-        assertThat(routeModel.getAlternativeRoutes(routeId)).as("Route %s should have 10 alternatives", routeId).hasSize(10);
+        assertThat(routeModel.getAlternativeRoutes(routeId)).as("Route %s should have 5 alternatives", routeId).hasSize(5);
     }
 
     @Test
@@ -544,5 +544,28 @@ class RouteFindingTest {
         el.setOccupancy(null);
 
         assertThat(panel.isTileOccupied(targetTile[0], targetTile[1])).isFalse();
+    }
+
+    @Test
+    void routeFromP114ToP137MustNotUseInvalidTurnoutPath() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+        var url = RouteFindingTest.class.getResource("/test-data/switchboard6.json");
+        LayoutPersistence.load(panel, Paths.get(url.toURI()));
+        RouterService rs = routerService(panel);
+
+        panel.getRouteModel().clear();
+
+        List<int[]> path = rs.bfsRoute(25, 14, 17, 12);
+        assertThat(path).isNotNull();
+
+        for (int i = 0; i < path.size() - 1; i++) {
+            int[] a = path.get(i);
+            int[] b = path.get(i + 1);
+            boolean isViaInvalidTurnout = a[0] == 25 && a[1] == 13 && b[0] == 24 && b[1] == 14;
+            assertThat(isViaInvalidTurnout)
+                .as("Route must not go via (25,13)->(24,14) — TR-009 can only route from left to diverted when not rotated")
+                .isFalse();
+        }
     }
 }

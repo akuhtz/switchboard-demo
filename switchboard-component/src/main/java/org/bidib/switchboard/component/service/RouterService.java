@@ -225,7 +225,7 @@ public class RouterService {
                 }
 
                 boolean validThrough = true;
-                if (cEntry[0] != -1) {
+                if (cEntry[0] != -1 || cEntry[1] != -1) {
                     validThrough = canTraverse(tile, cEntry[0], cEntry[1], exit1, exit2);
                 }
 

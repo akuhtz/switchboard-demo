@@ -674,7 +674,7 @@ class OccupancyUiTest {
 
         routeTest("P-114-P-015", new int[] { 25, 14 }, new int[] { 2, 3 }, routeId -> {
             assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
-            assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(10);
+            assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(5);
         }, routeId -> {
             panel.getRouteModel().setSelectedAlternativeIndex(routeId, 1);
             panel.getRouteModel().swapWithAlternative(routeId);
