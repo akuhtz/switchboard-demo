@@ -41,6 +41,7 @@ SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsv
 | `org.slf4j:slf4j-api` | 2.0.18 | Logging facade |
 | `ch.qos.logback:logback-classic` | 1.5.37 | Logging implementation |
 | `tokyo.northside:assertj-swing-junit-jupiter` | 4.0.0-beta-3 | GUI testing (test scope) |
+| `org.bytedeco:javacv-platform` | 1.5.10 | Screen recording for GUI tests (test scope) |
 | `org.junit.jupiter:junit-jupiter-engine` | 6.0.3 | Test runner (test scope) |
 
 ---
@@ -427,6 +428,10 @@ replacing brittle `Thread.sleep()` delays that could miss steps due to timer coa
 `maven-surefire-plugin` is configured with `--add-opens java.base/java.util=ALL-UNNAMED`
 to prevent `InaccessibleObjectException` from AssertJ Swing's `ProtectingTimerTask`.
 
+Screen recording is supported for occupancy UI tests via `ScreenRecorder` (JavaCV + FFmpeg).
+Pass `-Dscreen.recording=true` when running `mvn test` to capture MP4 videos of the test
+execution to `target/surefire-reports/`.
+
 ### `OccupancyElementUiTest` (2 tests, 1 disabled)
 | Test | Description |
 |------|-------------|
@@ -449,4 +454,5 @@ including attribution and co-authorship requirements.
 ```
 mvn compile exec:java -Dexec.mainClass=org.bidib.switchboard.SwitchboardApp
 mvn test
+mvn test -Dscreen.recording=true   # with MP4 screen recording for occupancy UI tests
 ```

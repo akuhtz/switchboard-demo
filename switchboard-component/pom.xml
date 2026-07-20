@@ -12,7 +12,6 @@
 
     <artifactId>switchboard-component</artifactId>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>tools.jackson.core</groupId>
@@ -49,10 +48,16 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>tokyo.northside</groupId>
             <artifactId>assertj-swing-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -61,7 +66,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>

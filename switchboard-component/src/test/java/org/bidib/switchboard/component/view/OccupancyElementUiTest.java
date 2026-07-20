@@ -3,6 +3,8 @@ package org.bidib.switchboard.component.view;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.awt.Dimension;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +26,7 @@ import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Tile;
+import org.bidib.switchboard.component.util.ScreenRecorder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -59,6 +62,9 @@ class OccupancyElementUiTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        ScreenRecorder.setEnabled(Boolean.getBoolean("screen.recording"));
+        Files.createDirectories(Path.of("target", "surefire-reports"));
+
         var model = new RailwayModel();
 
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
@@ -152,67 +158,83 @@ class OccupancyElementUiTest {
             first.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
         });
 
-        int[] idx = { 1 };
-        Semaphore tickComplete = new Semaphore(0);
-        Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
-            if (idx[0] >= limit) {
-                ((Timer) e.getSource()).stop();
-                return;
-            }
-            int prev = idx[0] - 1;
-            int curr = idx[0];
-
-            Element pel = elements.get(prev);
-            if (pel.getOccupancy() != null) {
-                LOGGER.info("Set free on element: {}", pel.getId());
-
-                pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-            }
-
-            Element cel = elements.get(curr);
-            if (cel.getOccupancy() != null) {
-                LOGGER.info("Set occupied on element: {}", cel.getId());
-                cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-            }
-
-            idx[0]++;
-            tickComplete.release();
-        }));
-
-        GuiActionRunner.execute(() -> timer.start());
-
+        ScreenRecorder recorder = null;
+        if (ScreenRecorder.isEnabled()) {
+            java.awt.Rectangle panelBounds = GuiActionRunner.execute(() -> {
+                java.awt.Point loc = panel.getLocationOnScreen();
+                return new java.awt.Rectangle(loc.x, loc.y, panel.getWidth(), panel.getHeight());
+            });
+            Path videoOutput = Path.of("target", "surefire-reports", "occupancy-cycle-" + System.currentTimeMillis() + ".mp4");
+            recorder = ScreenRecorder.startIfEnabled(panelBounds, videoOutput);
+        }
         try {
-            for (int step = 1; step < limit; step++) {
-                tickComplete.acquire();
-                window.robot().waitForIdle();
+            int[] idx = { 1 };
+            Semaphore tickComplete = new Semaphore(0);
+            Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
+                if (idx[0] >= limit) {
+                    ((Timer) e.getSource()).stop();
+                    return;
+                }
+                int prev = idx[0] - 1;
+                int curr = idx[0];
 
-                for (int i = 0; i < limit; i++) {
-                    Element el = elements.get(i);
-                    int[] pos = elementPositions.get(el.getId());
-                    if (i == step) {
-                        assertThat(panel.isTileOccupied(pos[0], pos[1])).as("Element %s should be occupied at step %d", el.getId(), step).isTrue();
-                    }
-                    else {
-                        assertThat(panel.isTileOccupied(pos[0], pos[1])).as("Element %s should be free at step %d", el.getId(), step).isFalse();
+                Element pel = elements.get(prev);
+                if (pel.getOccupancy() != null) {
+                    LOGGER.info("Set free on element: {}", pel.getId());
+
+                    pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                }
+
+                Element cel = elements.get(curr);
+                if (cel.getOccupancy() != null) {
+                    LOGGER.info("Set occupied on element: {}", cel.getId());
+                    cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
+                }
+
+                idx[0]++;
+                tickComplete.release();
+            }));
+
+            GuiActionRunner.execute(() -> timer.start());
+
+            try {
+                for (int step = 1; step < limit; step++) {
+                    tickComplete.acquire();
+                    window.robot().waitForIdle();
+
+                    for (int i = 0; i < limit; i++) {
+                        Element el = elements.get(i);
+                        int[] pos = elementPositions.get(el.getId());
+                        if (i == step) {
+                            assertThat(panel.isTileOccupied(pos[0], pos[1])).as("Element %s should be occupied at step %d", el.getId(), step).isTrue();
+                        }
+                        else {
+                            assertThat(panel.isTileOccupied(pos[0], pos[1])).as("Element %s should be free at step %d", el.getId(), step).isFalse();
+                        }
                     }
                 }
             }
-        }
-        catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(ie);
+            catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(ie);
+            }
+            finally {
+                GuiActionRunner.execute(() -> timer.stop());
+            }
+
+            GuiActionRunner.execute(() -> {
+                for (Element el : elements) {
+                    if (el.getOccupancy() != null) {
+                        el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                    }
+                }
+            });
         }
         finally {
-            GuiActionRunner.execute(() -> timer.stop());
-        }
-
-        GuiActionRunner.execute(() -> {
-            for (Element el : elements) {
-                if (el.getOccupancy() != null) {
-                    el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                }
+            if (recorder != null) {
+                recorder.close();
             }
-        });
+        }
     }
 
     @Test
