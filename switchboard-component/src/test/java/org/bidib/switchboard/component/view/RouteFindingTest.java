@@ -6,8 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
@@ -19,8 +17,13 @@ import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.persistence.LayoutData;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
 import org.bidib.switchboard.component.service.RouterService;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class RouteFindingTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RouteFindingTest.class);
 
     private static Path testLayout() throws Exception {
         var url = RouteFindingTest.class.getResource("/test-data/switchboard3.json");
@@ -31,16 +34,15 @@ class RouteFindingTest {
         return new RouterService(panel.getTiles(), panel.getCols(), panel.getRows(), panel.getRouteModel());
     }
 
-    private static void addRouteToModel(RouteModel routeModel, RouterService routerService,
-            SwitchboardPanel panel, List<int[]> path, RailwayModel model) {
+    private static void addRouteToModel(RouteModel routeModel, RouterService routerService, SwitchboardPanel panel, List<int[]> path, RailwayModel model) {
         String srcId = panel.getTile(path.get(0)[0], path.get(0)[1]).getElementId();
         String dstId = panel.getTile(path.get(path.size() - 1)[0], path.get(path.size() - 1)[1]).getElementId();
         routerService.setRouteAspects(path, model);
         routeModel.addRoute(new Route(srcId, dstId, path));
     }
 
-    private static void findAndAddRoute(RouteModel routeModel, RouterService routerService,
-            SwitchboardPanel panel, int srcCol, int srcRow, int dstCol, int dstRow, RailwayModel model) {
+    private static void findAndAddRoute(
+        RouteModel routeModel, RouterService routerService, SwitchboardPanel panel, int srcCol, int srcRow, int dstCol, int dstRow, RailwayModel model) {
         String srcId = panel.getTile(srcCol, srcRow).getElementId();
         String dstId = panel.getTile(dstCol, dstRow).getElementId();
         String routeId = srcId + "-" + dstId;
@@ -48,7 +50,9 @@ class RouteFindingTest {
             routeModel.removeRoute(routeId);
         }
         List<int[]> path = routerService.bfsRoute(srcCol, srcRow, dstCol, dstRow);
-        if (path == null) return;
+        if (path == null) {
+            return;
+        }
         routerService.setRouteAspects(path, model);
         List<List<int[]>> alts = routerService.bfsAlternativeRoutes(srcCol, srcRow, dstCol, dstRow, path, false);
         Route route = new Route(srcId, dstId, path);
@@ -170,7 +174,7 @@ class RouteFindingTest {
         assertThat(pathB).as("Route B should be blocked by conflict").isNull();
         assertThat(routeModel.size()).as("No new route should be added when blocked by conflict").isEqualTo(routeASize);
         assertThat(routeModel.getRoutes().values().stream().mapToInt(r -> r.getPath().size()).sum())
-                .as("Tile count should be unchanged").isEqualTo(routeATiles);
+            .as("Tile count should be unchanged").isEqualTo(routeATiles);
     }
 
     @Test
@@ -357,10 +361,49 @@ class RouteFindingTest {
         Route r = routeModel.getRoute(routeId);
         assertThat(r).as("Route %s should exist", routeId).isNotNull();
 
-        assertThat(routeModel.hasAlternativeRoute(routeId))
-            .as("Route %s should have alternatives", routeId).isTrue();
-        assertThat(routeModel.getAlternativeRoutes(routeId))
-            .as("Route %s should have 4 alternatives", routeId).hasSize(4);
+        assertThat(routeModel.hasAlternativeRoute(routeId)).as("Route %s should have alternatives", routeId).isTrue();
+        assertThat(routeModel.getAlternativeRoutes(routeId)).as("Route %s should have 4 alternatives", routeId).hasSize(4);
+    }
+
+    @Test
+    void alternativeRouteFoundForP114ToP015() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(model);
+        var url = RouteFindingTest.class.getResource("/test-data/switchboard6.json");
+        LayoutPersistence.load(panel, Paths.get(url.toURI()));
+        RouterService rs = routerService(panel);
+        RouteModel routeModel = panel.getRouteModel();
+        routeModel.clear();
+
+        // Route existing = routeModel.getRoute("P-114-P-015");
+        // assertThat(existing).isNotNull();
+
+        String srcId = panel.getTile(25, 14).getElementId();
+        String dstId = panel.getTile(2, 3).getElementId();
+        String routeId = srcId + "-" + dstId;
+
+        LOGGER.info("Search route: {}", routeId);
+
+        if (routeModel.getRoute(routeId) != null) {
+            routeModel.removeRoute(routeId);
+        }
+        List<int[]> path = rs.bfsRoute(25, 14, 2, 3);
+        assertThat(path).isNotNull();
+        rs.setRouteAspects(path, model);
+        List<List<int[]>> alts = rs.bfsAlternativeRoutes(25, 14, 2, 3, path, true);
+        Route route = new Route(srcId, dstId, path);
+        for (List<int[]> altPath : alts) {
+            routeModel.addAlternativeRoute(route.getId(), new Route(srcId, dstId, altPath));
+        }
+        routeModel.addRoute(route);
+
+        assertThat(routeModel.isEmpty()).isFalse();
+
+        Route r = routeModel.getRoute(routeId);
+        assertThat(r).as("Route %s should exist", routeId).isNotNull();
+
+        assertThat(routeModel.hasAlternativeRoute(routeId)).as("Route %s should have alternatives", routeId).isTrue();
+        assertThat(routeModel.getAlternativeRoutes(routeId)).as("Route %s should have 10 alternatives", routeId).hasSize(10);
     }
 
     @Test
@@ -486,7 +529,7 @@ class RouteFindingTest {
         int[] targetTile = path.get(path.size() / 2);
         Tile tile = panel.getTile(targetTile[0], targetTile[1]);
         assertThat(tile).isInstanceOf(ElementTile.class);
-        String elId = ((ElementTile) tile).getElementId();
+        String elId = tile.getElementId();
         Element el = model.getElement(elId);
         assertThat(el).isNotNull();
 

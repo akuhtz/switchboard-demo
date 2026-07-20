@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -573,6 +575,177 @@ class OccupancyUiTest {
             Semaphore tickComplete = new Semaphore(0);
             Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
                 if (idx[0] > path.size()) {
+                    ((Timer) e.getSource()).stop();
+                    return;
+                }
+                int prev = idx[0] - 1;
+                int curr = idx[0];
+
+                int[] pp = path.get(prev);
+                Tile pt = panel.getTile(pp[0], pp[1]);
+                if (pt instanceof ElementTile pet && pet.getElementId() != null) {
+                    Element pel = panel.getModel().getElement(pet.getElementId());
+                    if (pel != null) {
+                        pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                    }
+                }
+
+                int[] cp = path.get(curr);
+                Tile ct = panel.getTile(cp[0], cp[1]);
+                if (ct instanceof ElementTile cet && cet.getElementId() != null) {
+                    Element cel = panel.getModel().getElement(cet.getElementId());
+                    if (cel != null) {
+                        cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
+                    }
+                }
+
+                idx[0]++;
+                tickComplete.release();
+            }));
+
+            GuiActionRunner.execute(() -> timer.start());
+
+            try {
+                for (int step = 1; step < limit; step++) {
+                    tickComplete.acquire();
+                    window.robot().waitForIdle();
+
+                    for (int i = 0; i < limit; i++) {
+                        if (i == step) {
+                            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
+                                .as("Tile %d (%d,%d) should be occupied at step %d", i, path.get(i)[0], path.get(i)[1], step).isTrue();
+                        }
+                        else {
+                            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
+                                .as("Tile %d (%d,%d) should be free at step %d", i, path.get(i)[0], path.get(i)[1], step).isFalse();
+                        }
+                    }
+                }
+            }
+            catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(ie);
+            }
+            finally {
+                GuiActionRunner.execute(() -> timer.stop());
+            }
+
+            GuiActionRunner.execute(() -> {
+                for (int[] p : path) {
+                    Tile tile = panel.getTile(p[0], p[1]);
+                    if (tile instanceof ElementTile et && et.getElementId() != null) {
+                        Element el = panel.getModel().getElement(et.getElementId());
+                        if (el != null && el.getOccupancy() != null) {
+                            el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                        }
+                    }
+                }
+            });
+
+            if (recorder != null) {
+                waitAfterTest();
+            }
+        }
+        finally {
+            if (recorder != null) {
+                recorder.close();
+            }
+        }
+    }
+
+    @Test
+    void routeCR010ToP130() throws Exception {
+        routeTest("CR-010-P-130", new int[] { 24, 17 }, new int[] { 10, 12 }, routeId -> {
+        }, routeId -> panel.getRouteModel().getRoute(routeId).getPath());
+    }
+
+    @Test
+    void routeP114ToP015() throws Exception {
+        routeTest("P-114-P-015", new int[] { 25, 14 }, new int[] { 2, 3 }, routeId -> {
+            assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
+            assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(2);
+        }, routeId -> panel.getRouteModel().getRoute(routeId).getPath());
+    }
+
+    @Test
+    void routeP114ToP015alternative2() throws Exception {
+
+        panel.setExhaustiveRouting(true);
+
+        routeTest("P-114-P-015", new int[] { 25, 14 }, new int[] { 2, 3 }, routeId -> {
+            assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
+            assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(10);
+        }, routeId -> {
+            panel.getRouteModel().setSelectedAlternativeIndex(routeId, 1);
+            panel.getRouteModel().swapWithAlternative(routeId);
+            return panel.getRouteModel().getRoute(routeId).getPath();
+        });
+    }
+
+    void routeTest(String routeId, int[] source, int[] target, final Consumer<String> validation, final Function<String, List<int[]>> routeSelector)
+        throws Exception {
+        LOGGER.info("Test route: {}", routeId);
+
+        var url = OccupancyUiTest.class.getResource("/test-data/switchboard6.json");
+        Path layoutPath = Paths.get(url.toURI());
+        GuiActionRunner.execute(() -> LayoutPersistence.load(panel, layoutPath));
+
+        GuiActionRunner.execute(() -> {
+            panel.getRouteModel().clear();
+            panel.testSetRouteSource(source[0], source[1]);
+            panel.testFindRoute(target[0], target[1]);
+        });
+
+        validation.accept(routeId);
+
+        List<int[]> path = routeSelector.apply(routeId);
+        assertThat(path).isNotEmpty();
+        GuiActionRunner.execute(() -> panel.getRouteModel().clearAlternatives(routeId));
+        int limit = path.size();
+        LOGGER.info("Route has {} tiles", limit);
+
+        GuiActionRunner.execute(() -> {
+            for (int i = 0; i < path.size(); i++) {
+                int[] p = path.get(i);
+                Tile tile = panel.getTile(p[0], p[1]);
+                if (tile instanceof ElementTile et && et.getElementId() != null) {
+                    Element el = panel.getModel().getElement(et.getElementId());
+                    if (el != null) {
+                        Occupancy occ = Occupancy.create(1, i, Occupancy.OccupancyState.FREE);
+                        panel.getModel().addOccupancy(occ);
+                        el.setOccupancy(occ);
+                    }
+                }
+            }
+            int[] first = path.get(0);
+            Tile ft = panel.getTile(first[0], first[1]);
+            if (ft instanceof ElementTile fet && fet.getElementId() != null) {
+                Element fel = panel.getModel().getElement(fet.getElementId());
+                if (fel != null) {
+                    fel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
+                }
+            }
+        });
+
+        assertThat(panel.isTileOccupied(path.get(0)[0], path.get(0)[1])).isTrue();
+        for (int i = 1; i < limit; i++) {
+            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1])).isFalse();
+        }
+
+        ScreenRecorder recorder = null;
+        if (ScreenRecorder.isEnabled()) {
+            java.awt.Rectangle panelBounds = GuiActionRunner.execute(() -> {
+                java.awt.Point loc = window.target().getLocationOnScreen();
+                return new java.awt.Rectangle(loc.x, loc.y, window.target().getWidth(), window.target().getHeight());
+            });
+            Path videoOutput = Path.of("target", "surefire-reports", "route-CR010-P130-" + System.currentTimeMillis() + ".mp4");
+            recorder = ScreenRecorder.startIfEnabled(panelBounds, videoOutput);
+        }
+        try {
+            int[] idx = { 1 };
+            Semaphore tickComplete = new Semaphore(0);
+            Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
+                if (idx[0] >= path.size()) {
                     ((Timer) e.getSource()).stop();
                     return;
                 }
