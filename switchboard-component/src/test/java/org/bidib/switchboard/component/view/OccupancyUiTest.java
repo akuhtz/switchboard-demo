@@ -680,6 +680,8 @@ class OccupancyUiTest {
             panel.getRouteModel().swapWithAlternative(routeId);
             List<int[]> newPath = panel.getRouteModel().getRoute(routeId).getPath();
             panel.testSetRouteAspects(newPath);
+            Integer tr013aspect = panel.getModel().getElementAspect("TR-013");
+            assertThat(tr013aspect).as("TR-013 should be diverted (aspect=1) after alternative swap").isEqualTo(1);
             return newPath;
         });
     }
@@ -688,6 +690,17 @@ class OccupancyUiTest {
         throws Exception {
         LOGGER.info("Test route: {}", routeId);
 
+        ScreenRecorder recorder = null;
+        if (ScreenRecorder.isEnabled()) {
+            java.awt.Rectangle panelBounds = GuiActionRunner.execute(() -> {
+                java.awt.Point loc = window.target().getLocationOnScreen();
+                return new java.awt.Rectangle(loc.x, loc.y, window.target().getWidth(), window.target().getHeight());
+            });
+            Path videoOutput = Path.of("target", "surefire-reports", "route-" + routeId + "-" + System.currentTimeMillis() + ".mp4");
+            recorder = ScreenRecorder.startIfEnabled(panelBounds, videoOutput);
+        }
+
+        try {
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard6.json");
         Path layoutPath = Paths.get(url.toURI());
         GuiActionRunner.execute(() -> LayoutPersistence.load(panel, layoutPath));
@@ -734,16 +747,6 @@ class OccupancyUiTest {
             assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1])).isFalse();
         }
 
-        ScreenRecorder recorder = null;
-        if (ScreenRecorder.isEnabled()) {
-            java.awt.Rectangle panelBounds = GuiActionRunner.execute(() -> {
-                java.awt.Point loc = window.target().getLocationOnScreen();
-                return new java.awt.Rectangle(loc.x, loc.y, window.target().getWidth(), window.target().getHeight());
-            });
-            Path videoOutput = Path.of("target", "surefire-reports", "route-CR010-P130-" + System.currentTimeMillis() + ".mp4");
-            recorder = ScreenRecorder.startIfEnabled(panelBounds, videoOutput);
-        }
-        try {
             int[] idx = { 1 };
             Semaphore tickComplete = new Semaphore(0);
             Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {

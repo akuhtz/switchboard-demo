@@ -136,6 +136,18 @@ public class RouterService {
                 int[] next = path.get(i + 1);
                 int entryPort = diagonalAwarePort(prev[0], prev[1], curr[0], curr[1], true);
                 int exitPort = diagonalAwarePort(curr[0], curr[1], next[0], next[1], false);
+
+                int dc = next[0] - curr[0];
+                int dr = next[1] - curr[1];
+                if (dc != 0 && dr != 0) {
+                    boolean entryIsHorizontal = entryPort == ElementType.PORT_LEFT || entryPort == ElementType.PORT_RIGHT;
+                    boolean exitIsHorizontal = exitPort == ElementType.PORT_LEFT || exitPort == ElementType.PORT_RIGHT;
+                    if (entryIsHorizontal == exitIsHorizontal) {
+                        exitPort = exitIsHorizontal
+                            ? (dr > 0 ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP)
+                            : (dc > 0 ? ElementType.PORT_RIGHT : ElementType.PORT_LEFT);
+                    }
+                }
                 aspect = type.aspectForRoute(entryPort, exitPort, tile.getRotation());
             }
             model.setElementAspect(id, aspect);
