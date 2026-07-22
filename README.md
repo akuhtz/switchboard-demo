@@ -6,6 +6,9 @@ A Java Swing-based switchboard component for controlling and visualising a model
 The component manages turnouts (points), signals, curves, and straight track via a unified
 element model and responds to user interaction.
 
+See [USAGE.md](USAGE.md) for a step-by-step guide on running the application, building a layout,
+creating routes, and simulating occupancy.
+
 The switchboard is rendered as a 60x30 tile grid (each tile 32x32 px). Every tile displays an
 SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsvg:2.1.0`).
 
