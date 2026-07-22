@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 
 import org.bidib.switchboard.component.command.Command;
@@ -106,6 +107,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     private boolean editMode;
 
     private final RouteModel routeModel = new RouteModel();
+
+    private Timer occupancyTimer;
 
     private int routeSourceCol = -1;
 
@@ -463,10 +466,32 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             }
             JMenuItem clearRouteItem = new JMenuItem("Clear route (" + routeId + ")");
             clearRouteItem.addActionListener(e -> {
+                if (occupancyTimer != null && occupancyTimer.isRunning()) {
+                    occupancyTimer.stop();
+                }
                 routeModel.removeRoute(routeId);
                 repaint();
             });
             menu.add(clearRouteItem);
+
+            Route r = routeModel.getRoute(routeId);
+            if (r != null && !r.getPath().isEmpty()) {
+                int[] first = r.getPath().get(0);
+                if (first[0] == col && first[1] == row) {
+                    menu.addSeparator();
+                    boolean isRunning = occupancyTimer != null && occupancyTimer.isRunning();
+                    JMenuItem simItem = new JMenuItem("Simulate occupancy (" + routeId + ")");
+                    simItem.setEnabled(!isRunning);
+                    simItem.addActionListener(e -> startRouteOccupancySimulation(r));
+                    menu.add(simItem);
+                    if (hasRouteOccupancy(r)) {
+                        JMenuItem clearSimItem = new JMenuItem("Clear simulated occupancy (" + routeId + ")");
+                        clearSimItem.setEnabled(!isRunning);
+                        clearSimItem.addActionListener(e -> clearRouteOccupancy(r));
+                        menu.add(clearSimItem);
+                    }
+                }
+            }
         }
 
         if (editMode && tile != null && selectedCol >= 0 && selectedRow >= 0) {
@@ -779,6 +804,96 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             }
         }
         return false;
+    }
+
+    private boolean hasRouteOccupancy(Route route) {
+        for (int[] p : route.getPath()) {
+            Tile tile = getTile(p[0], p[1]);
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null && el.getOccupancy() != null && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void clearRouteOccupancy(Route route) {
+        for (int[] p : route.getPath()) {
+            Tile tile = getTile(p[0], p[1]);
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null && el.getOccupancy() != null) {
+                    el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                }
+            }
+        }
+    }
+
+    private void startRouteOccupancySimulation(Route route) {
+        List<int[]> path = route.getPath();
+        if (path.isEmpty()) {
+            return;
+        }
+
+        if (occupancyTimer != null && occupancyTimer.isRunning()) {
+            occupancyTimer.stop();
+        }
+
+        for (int i = 0; i < path.size(); i++) {
+            int[] p = path.get(i);
+            Tile tile = getTile(p[0], p[1]);
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null) {
+                    Occupancy occ = Occupancy.create(1, i, Occupancy.OccupancyState.FREE);
+                    model.addOccupancy(occ);
+                    el.setOccupancy(occ);
+                }
+            }
+        }
+
+        int[] first = path.get(0);
+        Tile ft = getTile(first[0], first[1]);
+        if (ft instanceof ElementTile fet && fet.getElementId() != null) {
+            Element fel = model.getElement(fet.getElementId());
+            if (fel != null && fel.getOccupancy() != null) {
+                fel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
+            }
+        }
+
+        int[] idx = { 1 };
+        occupancyTimer = new Timer(200, e -> {
+            if (idx[0] >= path.size()) {
+                ((Timer) e.getSource()).stop();
+                return;
+            }
+            int prev = idx[0] - 1;
+            int curr = idx[0];
+
+            int[] pp = path.get(prev);
+            Tile pt = getTile(pp[0], pp[1]);
+            if (pt instanceof ElementTile pet && pet.getElementId() != null) {
+                Element pel = model.getElement(pet.getElementId());
+                if (pel != null && pel.getOccupancy() != null) {
+                    pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                }
+            }
+
+            int[] cp = path.get(curr);
+            Tile ct = getTile(cp[0], cp[1]);
+            if (ct instanceof ElementTile cet && cet.getElementId() != null) {
+                Element cel = model.getElement(cet.getElementId());
+                if (cel != null && cel.getOccupancy() != null) {
+                    cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
+                }
+            }
+
+            idx[0]++;
+        });
+        occupancyTimer.setRepeats(true);
+        occupancyTimer.start();
     }
 
     private void drawTiles(Graphics2D g2) {

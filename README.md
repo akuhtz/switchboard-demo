@@ -190,7 +190,10 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
      - "Use primary route" discards all alternatives and restores normal red rendering.
      - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
      - Dotted lines are only visible during preview (index >= 0); they disappear after committing to primary or an alternative.
-   - Context menu shows "Clear route ({id})" on tiles belonging to a route.
+     - Context menu shows "Clear route ({id})" on tiles belonging to a route,
+       "Simulate occupancy ({id})" on the green source circle (disabled while
+       a simulation is running), and "Clear simulated occupancy ({id})" when
+       tiles on the route have OCCUPIED state (disabled while running).
 - **Occupancy rendering**: In `paintComponent`, `drawOccupancy()` is called last, after routes. For each tile with an OCCUPIED occupancy, it draws port-based line segments using the element's current aspect: `getActivePorts(el.getCurrentAspect(), tile.getRotation())`. Lines are drawn from tile center to each active port. Straight, diagonal, and crossing elements draw to edge midpoints via `drawPortLine()`. Turnouts draw the main port to its edge midpoint and the diverted port to a corner. Curves (CURVE_LEFT, CURVE_RIGHT) draw port[0] to its edge midpoint and port[1] to a corner: `dx` comes from the port's own x-side if horizontal (or the opposite of port[0]'s x-side if vertical), `dy` comes from the port's own y-side if vertical (or the opposite of port[0]'s y-side if horizontal). Color: `COLOR_OCCUPIED` = `(255, 80, 80)` with stroke-width 4.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
    `getActivePorts(aspect, rotation)` returns only the ports active for a given aspect (1 port for straight/curve/diagonal, 2 for turnouts, 4 for crossings).
@@ -202,8 +205,11 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - For `ElementTile` tiles, resolves the SVG path from the model's current aspect.
 - **Interaction**:
   - Left-click: selects position + cycles aspect (normal) or selects only (edit).
-   - Right-click: context menu with Info (element data dialog), ElementTypes + Signals submenu,
-     Assign Occupancy / Remove Occupancy (edit mode only), Clear route on route tiles.
+     - Right-click: context menu with Info (element data dialog), ElementTypes + Signals submenu,
+       Assign Occupancy / Remove Occupancy (edit mode only), Clear route on route tiles,
+       Simulate occupancy on route start tile (disabled while running, creates sliding
+       occupancy animation), Clear simulated occupancy on any route tile with OCCUPIED
+       state (disabled while running).
   - Ctrl+R: rotates selected tile 90° (edit mode only).
   - Edit-mode tooltip shows element ID on hover.
 - **Thread safety**:
