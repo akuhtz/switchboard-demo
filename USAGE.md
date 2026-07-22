@@ -1,4 +1,4 @@
-# How to start from an empty switchboard
+# Usage Guide
 
 ## 1. Run the application
 
