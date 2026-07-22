@@ -64,7 +64,22 @@ In **normal mode** (Ctrl+E to toggle):
 - **Clear all routes**: click **Clear selection** from the context menu (edit mode only, deselects all) or programmatically via the model.
 - Multiple non-overlapping routes can coexist — the BFS will find a path around existing route tiles.
 
-## 6. Save & load
+## 6. Simulate occupancy
+
+After a route is created, you can animate a train moving along it:
+
+- Right-click the **green source circle** of a route → **Simulate occupancy ({id})**.
+- The simulation creates occupancy markers on every tile along the route and slides the **OCCUPIED** state from the start to the end, one tile at a time (200ms per step).
+- Turnouts along the route are automatically set to the correct position for the simulated path.
+- **Simulate occupancy** is disabled while a simulation is already running.
+
+To reset the simulation:
+
+- Right-click any tile of a route that has OCCUPIED tiles → **Clear simulated occupancy ({id})**.
+- Sets all occupancy states along the route back to FREE.
+- **Clear simulated occupancy** is disabled while a simulation is in progress.
+
+## 7. Save & load
 
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.
