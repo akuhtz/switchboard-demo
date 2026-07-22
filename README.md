@@ -39,12 +39,12 @@ SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsv
 | Library | Version | Purpose |
 |---------|---------|---------|
 | `com.github.weisj:jsvg` | 2.1.0 | SVG rendering |
-| `tools.jackson.core:jackson-databind` | 3.2.0 | JSON serialization (via jackson-bom) |
+| `tools.jackson.core:jackson-databind` | 3.1.4 | JSON serialization (via jackson-bom) |
 | `com.formdev:flatlaf` | 3.7.2 | Look and Feel (Light/Dark) |
 | `org.slf4j:slf4j-api` | 2.0.18 | Logging facade |
-| `ch.qos.logback:logback-classic` | 1.5.37 | Logging implementation |
+| `ch.qos.logback:logback-classic` | 1.5.34 | Logging implementation |
 | `tokyo.northside:assertj-swing-junit-jupiter` | 4.0.0-beta-3 | GUI testing (test scope) |
-| `org.bytedeco:javacv-platform` | 1.5.10 | Screen recording for GUI tests (test scope) |
+| `org.bytedeco:javacv-platform` | 1.5.13 | Screen recording for GUI tests (test scope) |
 | `org.junit.jupiter:junit-jupiter-engine` | 6.0.3 | Test runner (test scope) |
 
 ---
