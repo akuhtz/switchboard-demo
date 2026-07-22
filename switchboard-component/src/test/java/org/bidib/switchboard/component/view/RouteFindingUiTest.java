@@ -15,6 +15,8 @@ import javax.swing.JMenuItem;
 
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
+import org.bidib.switchboard.component.config.OccupancyFactory;
+import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.Occupancy;
@@ -36,6 +38,8 @@ class RouteFindingUiTest {
     private FrameFixture window;
 
     private SwitchboardPanel panel;
+    
+	private final OccupancyFactory occupancyFactory = new TestOccupancyFactory();
 
     @BeforeEach
     void setUp() throws Exception {
@@ -43,11 +47,12 @@ class RouteFindingUiTest {
 
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
 
-        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(model));
+        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, model));
 
         var url = RouteFindingUiTest.class.getResource("/test-data/switchboard3.json");
         Path path = Paths.get(url.toURI());
-        GuiActionRunner.execute(() -> LayoutPersistence.load(panel, path));
+        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        GuiActionRunner.execute(() -> layoutPersistence.load(panel, path));
 
         JFrame frame = GuiActionRunner.execute(() -> {
             JFrame f = new JFrame("Model Railway Switchboard");
@@ -217,7 +222,7 @@ class RouteFindingUiTest {
 
                 if (el.getOccupancy() == null) {
                     LOGGER.info("Create new occupancy.");
-                    Occupancy occ = Occupancy.create(1, 1, Occupancy.OccupancyState.OCCUPIED);
+                    Occupancy occ = occupancyFactory.create(1, 1, Occupancy.OccupancyState.OCCUPIED);
                     panel.getModel().addOccupancy(occ);
                     el.setOccupancy(occ);
                 }

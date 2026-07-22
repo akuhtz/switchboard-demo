@@ -5,13 +5,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
-import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.view.TileGrid;
 
@@ -23,17 +23,20 @@ public class LayoutPersistence {
 
     private static final ObjectMapper MAPPER = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
 
-    private LayoutPersistence() {
+    private final OccupancyFactory occupancyFactory;
+    
+    public LayoutPersistence(final OccupancyFactory occupancyFactory) {
+    	this.occupancyFactory = occupancyFactory;
     }
 
     // --- Save ---
 
-    public static void save(TileGrid grid, Path path) throws IOException {
+    public void save(TileGrid grid, Path path) throws IOException {
         LayoutData data = capture(grid);
         MAPPER.writeValue(path.toFile(), data);
     }
 
-    public static LayoutData capture(TileGrid grid) {
+    public LayoutData capture(TileGrid grid) {
         LayoutData data = new LayoutData();
         data.setCols(grid.getCols());
         data.setRows(grid.getRows());
@@ -120,12 +123,12 @@ public class LayoutPersistence {
 
     // --- Load ---
 
-    public static void load(TileGrid grid, Path path) throws IOException {
+    public void load(TileGrid grid, Path path) throws IOException {
         LayoutData data = MAPPER.readValue(path.toFile(), LayoutData.class);
         apply(grid, data);
     }
 
-    public static void apply(TileGrid grid, LayoutData data) {
+    public void apply(TileGrid grid, LayoutData data) {
         RailwayModel model = grid.getModel();
         grid.clearTiles();
         model.clear();
@@ -134,7 +137,7 @@ public class LayoutPersistence {
         if (data.getModelState() != null) {
             if (data.getModelState().getOccupancies() != null) {
                 for (LayoutData.OccupancyData od : data.getModelState().getOccupancies()) {
-                    Occupancy occ = Occupancy.create(od.getNodeId(), od.getPortId(),
+                    Occupancy occ = occupancyFactory.create(od.getNodeId(), od.getPortId(),
                             Occupancy.OccupancyState.valueOf(od.getState()));
                     model.addOccupancy(occ);
                 }

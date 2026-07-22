@@ -20,12 +20,14 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
+import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
+import org.bidib.switchboard.component.view.SwitchboardPanel;
+import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
 import org.bidib.switchboard.demoapp.persistence.SettingsData.LookAndFeel;
 import org.bidib.switchboard.demoapp.persistence.SettingsManager;
 import org.bidib.switchboard.demoapp.service.LayoutService;
-import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,13 +48,15 @@ public class SwitchboardApp {
 
     private final LayoutService layoutService;
 
+	private final OccupancyFactory occupancyFactory = new DemoOccupancyFactory();
+
     SwitchboardApp() {
         this(true);
     }
 
     SwitchboardApp(boolean autoLoad) {
         model = new RailwayModel();
-        panel = new SwitchboardPanel(model);
+        panel = new SwitchboardPanel(occupancyFactory, model);
         settings = new SettingsManager();
 
         if (LookAndFeel.DARK == settings.getLookAndFeel()) {
@@ -63,7 +67,7 @@ public class SwitchboardApp {
         }
 
         frame = new JFrame("Model Railway Switchboard");
-        layoutService = new LayoutService(panel, settings, frame);
+        layoutService = new LayoutService(occupancyFactory, panel, settings, frame);
         if (autoLoad) {
             layoutService.tryAutoLoad();
             updateTitle();

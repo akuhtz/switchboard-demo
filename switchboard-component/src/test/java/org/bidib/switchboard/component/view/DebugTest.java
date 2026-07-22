@@ -5,13 +5,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.jupiter.api.Test;
-
+import org.bidib.switchboard.component.config.OccupancyFactory;
+import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.junit.jupiter.api.Test;
 
 class DebugTest {
+	
+	private final OccupancyFactory occupancyFactory = new TestOccupancyFactory(); 
 
     private static Path testLayout5() throws Exception {
         var url = DebugTest.class.getResource("/test-data/switchboard5.json");
@@ -21,9 +24,10 @@ class DebugTest {
     @Test
     void debugP015toTL004() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
 
-        LayoutPersistence.load(panel, testLayout5());
+        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        layoutPersistence.load(panel, testLayout5());
 
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(7, 11);

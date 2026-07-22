@@ -16,20 +16,10 @@ public class Occupancy extends Model {
 
     private OccupancyState state;
 
-    private Occupancy(long nodeId, int portId) {
-        this.nodeId = nodeId;
-        this.portId = portId;
-        this.state = OccupancyState.FREE;
-    }
-
     private Occupancy(long nodeId, int portId, OccupancyState state) {
         this.nodeId = nodeId;
         this.portId = portId;
         this.state = state;
-    }
-
-    public static Occupancy create(long nodeId, int portId) {
-        return new Occupancy(nodeId, portId);
     }
 
     public static Occupancy create(long nodeId, int portId, OccupancyState state) {

@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import org.bidib.switchboard.component.config.OccupancyFactory;
+import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
@@ -24,6 +26,8 @@ import org.slf4j.LoggerFactory;
 class RouteFindingTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RouteFindingTest.class);
+    
+    private final OccupancyFactory occupancyFactory = new TestOccupancyFactory(); 
 
     private static Path testLayout() throws Exception {
         var url = RouteFindingTest.class.getResource("/test-data/switchboard3.json");
@@ -65,8 +69,8 @@ class RouteFindingTest {
     @Test
     void routeThroughDivertedTurnouts() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
 
         model.setElementAspect("TR-003", 1);
@@ -84,8 +88,8 @@ class RouteFindingTest {
     @Test
     void routeFromRow3Col2ToRow5Col10() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
 
         List<int[]> path = rs.bfsRoute(2, 3, 10, 5);
@@ -96,8 +100,8 @@ class RouteFindingTest {
     @Test
     void routeFromRow3Col2ToRow4Col10() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
 
         List<int[]> path = rs.bfsRoute(2, 3, 10, 4);
@@ -108,8 +112,8 @@ class RouteFindingTest {
     @Test
     void routeFromRow3Col2ToRow0Col10() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
 
         List<int[]> path = rs.bfsRoute(2, 3, 10, 0);
@@ -119,8 +123,8 @@ class RouteFindingTest {
     @Test
     void routeFromRow1Col10ToRow3Col2() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
 
         List<int[]> path = rs.bfsRoute(10, 1, 2, 3);
@@ -131,8 +135,8 @@ class RouteFindingTest {
     @Test
     void twoNonOverlappingRoutesCoexist() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
         RouteModel routeModel = panel.getRouteModel();
 
@@ -156,8 +160,8 @@ class RouteFindingTest {
     @Test
     void routeConflictBlocksOverlappingRoute() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
         RouteModel routeModel = panel.getRouteModel();
 
@@ -180,8 +184,8 @@ class RouteFindingTest {
     @Test
     void removeRouteById() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
         RouteModel routeModel = panel.getRouteModel();
 
@@ -200,8 +204,8 @@ class RouteFindingTest {
     @Test
     void routeModelClearRemovesAllRoutes() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
         RouteModel routeModel = panel.getRouteModel();
 
@@ -222,8 +226,8 @@ class RouteFindingTest {
     @Test
     void routePersistenceRoundTrip() throws Exception {
         RailwayModel model1 = new RailwayModel();
-        SwitchboardPanel panel1 = new SwitchboardPanel(model1);
-        LayoutPersistence.load(panel1, testLayout());
+        SwitchboardPanel panel1 = new SwitchboardPanel(occupancyFactory, model1);
+        new LayoutPersistence(occupancyFactory).load(panel1, testLayout());
         RouterService rs1 = routerService(panel1);
 
         model1.setElementAspect("TR-003", 1);
@@ -234,13 +238,13 @@ class RouteFindingTest {
 
         assertThat(panel1.getRouteModel().size()).isEqualTo(2);
 
-        LayoutData data = LayoutPersistence.capture(panel1);
+        LayoutData data = new LayoutPersistence(occupancyFactory).capture(panel1);
         assertThat(data.getRoutes()).isNotNull();
         assertThat(data.getRoutes()).hasSize(2);
 
         RailwayModel model2 = new RailwayModel();
-        SwitchboardPanel panel2 = new SwitchboardPanel(model2);
-        LayoutPersistence.apply(panel2, data);
+        SwitchboardPanel panel2 = new SwitchboardPanel(occupancyFactory, model2);
+        new LayoutPersistence(occupancyFactory).apply(panel2, data);
 
         assertThat(panel2.getRouteModel().size()).as("Routes should survive round-trip").isEqualTo(2);
         assertThat(panel2.getRouteModel().isEmpty()).isFalse();
@@ -255,8 +259,8 @@ class RouteFindingTest {
     @Test
     void routeModelIsTileReserved() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
         RouteModel routeModel = panel.getRouteModel();
 
@@ -276,8 +280,8 @@ class RouteFindingTest {
     @Test
     void routeIdFormat() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
 
         List<int[]> path = rs.bfsRoute(0, 0, 10, 1);
@@ -293,8 +297,8 @@ class RouteFindingTest {
     @Test
     void routeContainsTile() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
         RouterService rs = routerService(panel);
 
         List<int[]> path = rs.bfsRoute(0, 0, 10, 1);
@@ -310,9 +314,9 @@ class RouteFindingTest {
     @Test
     void alternativeRouteFoundForP015ToP065() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
         var url = RouteFindingTest.class.getResource("/test-data/switchboard4.json");
-        LayoutPersistence.load(panel, Paths.get(url.toURI()));
+        new LayoutPersistence(occupancyFactory).load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
         RouteModel routeModel = panel.getRouteModel();
 
@@ -331,9 +335,9 @@ class RouteFindingTest {
     @Test
     void alternativeRouteFoundForP015ToTL004() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
         var url = RouteFindingTest.class.getResource("/test-data/switchboard5.json");
-        LayoutPersistence.load(panel, Paths.get(url.toURI()));
+        new LayoutPersistence(occupancyFactory).load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
         RouteModel routeModel = panel.getRouteModel();
 
@@ -368,9 +372,9 @@ class RouteFindingTest {
     @Test
     void alternativeRouteFoundForP114ToP015() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
         var url = RouteFindingTest.class.getResource("/test-data/switchboard6.json");
-        LayoutPersistence.load(panel, Paths.get(url.toURI()));
+        new LayoutPersistence(occupancyFactory).load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
         RouteModel routeModel = panel.getRouteModel();
         routeModel.clear();
@@ -409,8 +413,8 @@ class RouteFindingTest {
     @Test
     void undoRouteCreation() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
 
         panel.testSetRouteSource(0, 0);
         panel.testFindRoute(10, 1);
@@ -426,8 +430,8 @@ class RouteFindingTest {
     @Test
     void undoRouteReplaceRestoresPreviousRoute() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
 
         panel.testSetRouteSource(0, 0);
         panel.testFindRoute(10, 1);
@@ -447,8 +451,8 @@ class RouteFindingTest {
     @Test
     void undoRouteClearRestoresPreviousRoute() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
 
         panel.testSetRouteSource(0, 0);
         panel.testFindRoute(10, 1);
@@ -470,8 +474,8 @@ class RouteFindingTest {
     @Test
     void undoTileCreationOnEmptyCell() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
 
         int col = 15;
         int row = 5;
@@ -494,8 +498,8 @@ class RouteFindingTest {
     @Test
     void undoTileReplaceRestoresOriginalTile() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
 
         int col = 0;
         int row = 0;
@@ -519,8 +523,9 @@ class RouteFindingTest {
     @Test
     void occupiedTileOnRouteIsDetected() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
-        LayoutPersistence.load(panel, testLayout());
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        
+        new LayoutPersistence(occupancyFactory).load(panel, testLayout());
 
         panel.testSetRouteSource(0, 0);
         panel.testFindRoute(10, 1);
@@ -535,7 +540,7 @@ class RouteFindingTest {
 
         assertThat(el.getOccupancy()).as("Should have no occupancy initially").isNull();
 
-        Occupancy occ = Occupancy.create(1, 1, Occupancy.OccupancyState.OCCUPIED);
+        Occupancy occ = occupancyFactory.create(1, 1, Occupancy.OccupancyState.OCCUPIED);
         model.addOccupancy(occ);
         el.setOccupancy(occ);
 
@@ -549,9 +554,9 @@ class RouteFindingTest {
     @Test
     void routeFromP114ToP137MustNotUseInvalidTurnoutPath() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
         var url = RouteFindingTest.class.getResource("/test-data/switchboard6.json");
-        LayoutPersistence.load(panel, Paths.get(url.toURI()));
+        new LayoutPersistence(occupancyFactory).load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
 
         panel.getRouteModel().clear();

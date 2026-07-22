@@ -11,10 +11,12 @@ import javax.swing.JTextField;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
+import org.bidib.switchboard.component.model.Occupancy.OccupancyState;
+
 import com.jgoodies.binding.PresentationModel;
 import com.jgoodies.binding.adapter.Bindings;
 import com.jgoodies.binding.beans.Model;
@@ -28,10 +30,13 @@ public class AssignOccupancyDialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssignOccupancyDialog.class);
 
-    private AssignOccupancyDialog() {
+    private final OccupancyFactory occupancyFactory;
+
+    public AssignOccupancyDialog(final OccupancyFactory occupancyFactory) {
+    	this.occupancyFactory = occupancyFactory;
     }
 
-    public static void show(Component parent, RailwayModel model, Element el) {
+    public void show(Component parent, RailwayModel model, Element el) {
         final OccupancyBean bean = new OccupancyBean();
         final Occupancy existing = el.getOccupancy();
         if (existing != null) {
@@ -104,7 +109,7 @@ public class AssignOccupancyDialog {
             try {
                 long nodeId = bean.getNodeId();
                 int portId = bean.getPortId();
-                Occupancy occ = Occupancy.create(nodeId, portId);
+                Occupancy occ = occupancyFactory.create(nodeId, portId, OccupancyState.FREE);
 
                 LOGGER.info("Prepared new occupancy: {}", occ);
 

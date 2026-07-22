@@ -22,6 +22,8 @@ import javax.swing.Timer;
 
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
+import org.bidib.switchboard.component.config.OccupancyFactory;
+import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.Occupancy;
@@ -47,6 +49,8 @@ class OccupancyUiTest {
 
     private static final int DELAY = 200;
 
+	private final OccupancyFactory occupancyFactory = new TestOccupancyFactory(); 
+
     @BeforeEach
     void setUp() throws Exception {
 
@@ -59,11 +63,12 @@ class OccupancyUiTest {
 
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
 
-        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(model));
+        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, model));
 
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard5.json");
         Path path = Paths.get(url.toURI());
-        GuiActionRunner.execute(() -> LayoutPersistence.load(panel, path));
+        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        GuiActionRunner.execute(() -> layoutPersistence.load(panel, path));
 
         JFrame frame = GuiActionRunner.execute(() -> {
             JFrame f = new JFrame("Model Railway Switchboard");
@@ -123,7 +128,7 @@ class OccupancyUiTest {
                 if (tile instanceof ElementTile et && et.getElementId() != null) {
                     Element el = panel.getModel().getElement(et.getElementId());
                     if (el != null) {
-                        Occupancy occ = Occupancy.create(1, i, Occupancy.OccupancyState.FREE);
+                        Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
                         panel.getModel().addOccupancy(occ);
                         el.setOccupancy(occ);
                     }
@@ -261,7 +266,7 @@ class OccupancyUiTest {
                 if (tile instanceof ElementTile et && et.getElementId() != null) {
                     Element el = panel.getModel().getElement(et.getElementId());
                     if (el != null) {
-                        Occupancy occ = Occupancy.create(1, i, Occupancy.OccupancyState.FREE);
+                        Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
                         panel.getModel().addOccupancy(occ);
                         LOGGER.info("Set free on element: {}", el.getId());
                         el.setOccupancy(occ);
@@ -405,7 +410,7 @@ class OccupancyUiTest {
                 if (tile instanceof ElementTile et && et.getElementId() != null) {
                     Element el = panel.getModel().getElement(et.getElementId());
                     if (el != null) {
-                        Occupancy occ = Occupancy.create(1, i, Occupancy.OccupancyState.FREE);
+                        Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
                         panel.getModel().addOccupancy(occ);
                         el.setOccupancy(occ);
                     }
@@ -540,7 +545,7 @@ class OccupancyUiTest {
                 if (tile instanceof ElementTile et && et.getElementId() != null) {
                     Element el = panel.getModel().getElement(et.getElementId());
                     if (el != null) {
-                        Occupancy occ = Occupancy.create(1, i, Occupancy.OccupancyState.FREE);
+                        Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
                         panel.getModel().addOccupancy(occ);
                         el.setOccupancy(occ);
                     }
@@ -703,7 +708,8 @@ class OccupancyUiTest {
         try {
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard6.json");
         Path layoutPath = Paths.get(url.toURI());
-        GuiActionRunner.execute(() -> LayoutPersistence.load(panel, layoutPath));
+        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
 
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
@@ -726,7 +732,7 @@ class OccupancyUiTest {
                 if (tile instanceof ElementTile et && et.getElementId() != null) {
                     Element el = panel.getModel().getElement(et.getElementId());
                     if (el != null) {
-                        Occupancy occ = Occupancy.create(1, i, Occupancy.OccupancyState.FREE);
+                        Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
                         panel.getModel().addOccupancy(occ);
                         el.setOccupancy(occ);
                     }

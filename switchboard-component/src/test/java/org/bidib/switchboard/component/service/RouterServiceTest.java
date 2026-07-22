@@ -6,15 +6,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
-
+import org.bidib.switchboard.component.config.OccupancyFactory;
+import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
+import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.Tile;
+import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.view.SwitchboardPanel;
+import org.junit.jupiter.api.Test;
 
 class RouterServiceTest {
+
+	private final OccupancyFactory occupancyFactory = new TestOccupancyFactory();
 
     private static Map<String, Tile> tileMap(Tile... tiles) {
         Map<String, Tile> map = new LinkedHashMap<>();
@@ -100,9 +106,10 @@ class RouterServiceTest {
         // Load the layout via path used in RouteFindingTest
         var url = RouterServiceTest.class.getResource("/test-data/switchboard4.json");
         java.nio.file.Path path = java.nio.file.Paths.get(url.toURI());
-        org.bidib.switchboard.component.model.RailwayModel model = new org.bidib.switchboard.component.model.RailwayModel();
-        org.bidib.switchboard.component.view.SwitchboardPanel panel = new org.bidib.switchboard.component.view.SwitchboardPanel(model);
-        org.bidib.switchboard.component.persistence.LayoutPersistence.load(panel, path);
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        layoutPersistence.load(panel, path);
 
         // The panel is set up; use it to load a route, then get the router service
         panel.testSetRouteSource(2, 3);
@@ -172,9 +179,10 @@ class RouterServiceTest {
     void bfsAlternativeRoutesWithExhaustiveFindsMultipleForP015ToTL004() throws Exception {
         var url = RouterServiceTest.class.getResource("/test-data/switchboard5.json");
         java.nio.file.Path layoutPath = java.nio.file.Paths.get(url.toURI());
-        org.bidib.switchboard.component.model.RailwayModel model = new org.bidib.switchboard.component.model.RailwayModel();
-        org.bidib.switchboard.component.view.SwitchboardPanel panel = new org.bidib.switchboard.component.view.SwitchboardPanel(model);
-        org.bidib.switchboard.component.persistence.LayoutPersistence.load(panel, layoutPath);
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        layoutPersistence.load(panel, layoutPath);
 
         panel.setExhaustiveRouting(true);
         panel.testSetRouteSource(2, 3);

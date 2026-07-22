@@ -20,6 +20,8 @@ import javax.swing.Timer;
 
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
+import org.bidib.switchboard.component.config.OccupancyFactory;
+import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
@@ -45,6 +47,8 @@ class OccupancyElementUiTest {
     private SwitchboardPanel panel;
 
     private static final int DELAY = 200;
+    
+	private final OccupancyFactory occupancyFactory = new TestOccupancyFactory();
 
     private static Map<ElementType, List<String>> svgByType() {
         Map<ElementType, List<String>> map = new LinkedHashMap<>();
@@ -69,7 +73,7 @@ class OccupancyElementUiTest {
 
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
 
-        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(model));
+        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, model));
 
         GuiActionRunner.execute(() -> {
             int row = 0;
@@ -150,7 +154,7 @@ class OccupancyElementUiTest {
         GuiActionRunner.execute(() -> {
             for (int i = 0; i < elements.size(); i++) {
                 Element el = elements.get(i);
-                Occupancy occ = Occupancy.create(1, i, Occupancy.OccupancyState.FREE);
+                Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
                 panel.getModel().addOccupancy(occ);
                 el.setOccupancy(occ);
             }
@@ -263,7 +267,7 @@ class OccupancyElementUiTest {
         GuiActionRunner.execute(() -> {
             for (int i = 0; i < elements.size(); i++) {
                 Element el = elements.get(i);
-                Occupancy occ = Occupancy.create(1, i, Occupancy.OccupancyState.FREE);
+                Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
                 panel.getModel().addOccupancy(occ);
                 el.setOccupancy(occ);
             }

@@ -13,20 +13,23 @@ import org.assertj.swing.core.GenericTypeMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JPopupMenuFixture;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
+import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
+import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class SwitchboardAppTest {
 
     private FrameFixture window;
 
     private SwitchboardPanel panel;
+
+	private final OccupancyFactory occupancyFactory = new DemoOccupancyFactory(); 
 
     @BeforeEach
     void setUp() throws Exception {
@@ -38,7 +41,8 @@ class SwitchboardAppTest {
         var url = SwitchboardAppTest.class.getResource("/test-data/switchboard3.json");
         Path path = Paths.get(url.toURI());
         GuiActionRunner.execute(() -> {
-            LayoutPersistence.load(panel, path);
+        	var layoutPersistence = new LayoutPersistence(occupancyFactory);
+            layoutPersistence.load(panel, path);
         });
     }
 
@@ -117,15 +121,16 @@ class SwitchboardAppTest {
         var model = panel.getModel();
         var el = model.getElement("P-001");
 
-        Occupancy occ = Occupancy.create(42, 7);
+        Occupancy occ = occupancyFactory.create(42, 7, Occupancy.OccupancyState.FREE);
         model.addOccupancy(occ);
         el.setOccupancy(occ);
 
-        var data = LayoutPersistence.capture(panel);
+        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        var data = layoutPersistence.capture(panel);
 
         var freshModel = new RailwayModel();
-        var freshPanel = new SwitchboardPanel(freshModel);
-        LayoutPersistence.apply(freshPanel, data);
+        var freshPanel = new SwitchboardPanel(occupancyFactory, freshModel);
+        layoutPersistence.apply(freshPanel, data);
 
         Assertions.assertThat(freshModel.getOccupancies()).hasSize(1);
         var restored = freshModel.getOccupancy(42, 7);

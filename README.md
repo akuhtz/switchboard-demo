@@ -137,7 +137,10 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `Occupancy`
 - Represents a track occupancy sensor with `nodeId` (long), `portId` (int), and `state` (FREE/OCCUPIED).
-- Created via static factories `create(nodeId, portId)` and `create(nodeId, portId, state)`.
+- Created via `OccupancyFactory` interface with method `create(nodeId, portId, state)`.
+  - `TestOccupancyFactory` — used in tests, delegates to `Occupancy.create(long, int, OccupancyState)`.
+  - `DemoOccupancyFactory` — used in the demo app, same delegation.
+- The static `Occupancy.create(long, int)` (without state, defaulting to FREE) was removed; callers must provide an initial state.
 - Stored in `RailwayModel.occupancies` keyed by `nodeId:portId`.
 - Elements can reference an `Occupancy` via `getOccupancy()` / `setOccupancy()`.
 - Persisted in `LayoutData.ModelStateData.occupancies` and restored on load.
@@ -217,10 +220,11 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - Edit-mode tooltip shows element ID on hover.
 - **Thread safety**:
   - All repaints triggered via `SwingUtilities.invokeLater`.
+- Constructor: `SwitchboardPanel(OccupancyFactory, RailwayModel)` and `SwitchboardPanel(OccupancyFactory, RailwayModel, int cols, int rows, int tileSize)`.
 - Public API:
   - `setTile(Tile tile)` / `getTile(int col, int row)` / `removeTile(int col, int row)`
   - `clearTiles()` / `getModel()` / `undoLast()`
-   - `isEditMode()` / `setEditMode(boolean)`
+  - `isEditMode()` / `setEditMode(boolean)`
    - `setTileContextHandler(TileContextHandler)` — callback for context menu actions.
    - `testSetRouteAspects(List<int[]>)` — applies aspect-for-port/route logic to a given path (test helper).
 - **Undo stack**: `Deque<Command> undoStack` — pushed by route finding, tile creation/clearing, aspect cycling. Accessible via `undoLast()`. Menu item Edit > Undo (Ctrl+Z).
@@ -269,8 +273,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `LayoutPersistence`
 - Serializes the full switchboard state (tiles + model + occupancies) to JSON using Jackson 3.
-- `capture(SwitchboardPanel)` / `save(SwitchboardPanel, Path)` — write state.
-- `load(SwitchboardPanel, Path)` / `apply(SwitchboardPanel, LayoutData)` — read state.
+- Now an instance-based class (was static). Constructor takes an `OccupancyFactory` to create occupancy objects during deserialization.
+- `capture(TileGrid)` / `save(TileGrid, Path)` — write state.
+- `load(TileGrid, Path)` / `apply(TileGrid, LayoutData)` — read state.
 - Tile type string format: `{prefix}{count}`, e.g. `"TL2"`, `"T32"`, `"S22"`, `"S32"`, `"P1"`, `"CL1"`, `"CR1"`, `"DG1"`.
 - Type is matched by iterating `ElementType.values()` and testing `typeStr.startsWith(prefix)`.
 - Occupancies are serialised in `ModelStateData.occupancies` and element→occupancy references via `OccupancyData` nodeId/portId on each `ElementData`.

@@ -12,7 +12,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
@@ -33,7 +33,10 @@ public class LayoutService {
 
     private Path currentFilePath;
 
-    public LayoutService(TileGrid tileGrid, SettingsManager settings, Component parentComponent) {
+    private final OccupancyFactory occupancyFactory;
+
+    public LayoutService(final OccupancyFactory occupancyFactory, TileGrid tileGrid, SettingsManager settings, Component parentComponent) {
+    	this.occupancyFactory = occupancyFactory;
         this.tileGrid = tileGrid;
         this.settings = settings;
         this.parentComponent = parentComponent;
@@ -82,7 +85,8 @@ public class LayoutService {
         log.info("Auto-loading layout from: {}", path);
         if (path.toFile().exists()) {
             try {
-                LayoutPersistence.load(tileGrid, path);
+            	var layoutPersistence = new LayoutPersistence(occupancyFactory);
+                layoutPersistence.load(tileGrid, path);
                 currentFilePath = path;
                 log.info("Layout loaded from {}", path);
             }
@@ -107,7 +111,8 @@ public class LayoutService {
         if (chooser.showOpenDialog(parentComponent) == JFileChooser.APPROVE_OPTION) {
             Path path = chooser.getSelectedFile().toPath();
             try {
-                LayoutPersistence.load(tileGrid, path);
+            	var layoutPersistence = new LayoutPersistence(occupancyFactory);
+                layoutPersistence.load(tileGrid, path);
                 currentFilePath = path;
                 settings.setLastLayoutFile(path);
                 log.info("Loaded layout from {}", path);
@@ -125,7 +130,8 @@ public class LayoutService {
             return;
         }
         try {
-            LayoutPersistence.save(tileGrid, currentFilePath);
+        	var layoutPersistence = new LayoutPersistence(occupancyFactory);
+            layoutPersistence.save(tileGrid, currentFilePath);
             log.info("Saved layout to {}", currentFilePath);
         }
         catch (IOException ex) {
@@ -145,7 +151,8 @@ public class LayoutService {
                 path = Paths.get(path + ".json");
             }
             try {
-                LayoutPersistence.save(tileGrid, path);
+            	var layoutPersistence = new LayoutPersistence(occupancyFactory);
+                layoutPersistence.save(tileGrid, path);
                 currentFilePath = path;
                 settings.setLastLayoutFile(path);
                 log.info("Saved layout to {}", path);

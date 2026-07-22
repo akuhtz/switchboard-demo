@@ -36,6 +36,7 @@ import org.bidib.switchboard.component.command.Command;
 import org.bidib.switchboard.component.command.CreateRouteCommand;
 import org.bidib.switchboard.component.command.CycleElementCommand;
 import org.bidib.switchboard.component.command.TileCommand;
+import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
@@ -113,12 +114,15 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     private int routeSourceCol = -1;
 
     private int routeSourceRow = -1;
+    
+    private final OccupancyFactory occupancyFactory;
 
-    public SwitchboardPanel(final RailwayModel model) {
-        this(model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
+    public SwitchboardPanel(final OccupancyFactory occupancyFactory, final RailwayModel model) {
+        this(occupancyFactory, model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
     }
 
-    public SwitchboardPanel(final RailwayModel model, int cols, int rows, int tileSize) {
+    public SwitchboardPanel(final OccupancyFactory occupancyFactory, final RailwayModel model, int cols, int rows, int tileSize) {
+    	this.occupancyFactory = occupancyFactory;
         this.model = model;
         this.cols = cols;
         this.rows = rows;
@@ -539,7 +543,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private void showAssignOccupancyDialog(Element el) {
-        AssignOccupancyDialog.show(this, model, el);
+    	
+        new AssignOccupancyDialog(occupancyFactory).show(this, model, el);
     }
 
     private void onTileContextAction(int col, int row, ElementType type) {
@@ -847,7 +852,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             if (tile instanceof ElementTile et && et.getElementId() != null) {
                 Element el = model.getElement(et.getElementId());
                 if (el != null) {
-                    Occupancy occ = Occupancy.create(1, i, Occupancy.OccupancyState.FREE);
+                    Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
                     model.addOccupancy(occ);
                     el.setOccupancy(occ);
                 }
