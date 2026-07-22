@@ -135,12 +135,14 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `clear()` / `size()` / `isEmpty()`
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
-### `Occupancy`
-- Represents a track occupancy sensor with `nodeId` (long), `portId` (int), and `state` (FREE/OCCUPIED).
-- Created via `OccupancyFactory` interface with method `create(nodeId, portId, state)`.
-  - `TestOccupancyFactory` — used in tests, delegates to `Occupancy.create(long, int, OccupancyState)`.
-  - `DemoOccupancyFactory` — used in the demo app, same delegation.
-- The static `Occupancy.create(long, int)` (without state, defaulting to FREE) was removed; callers must provide an initial state.
+### `Occupancy` (abstract)
+- Abstract base class for track occupancy sensors with `state` (FREE/OCCUPIED) and abstract `getNodeId()`/`getPortId()`.
+- Subclasses own the `nodeId`/`portId` fields:
+  - `TestOccupancy` — in `org.bidib.switchboard.component.config`, used by tests.
+  - `DemoOccupancy` — in `org.bidib.switchboard.demoapp.config`, used by the demo app.
+- Created exclusively via `OccupancyFactory`:
+  - `TestOccupancyFactory` returns `TestOccupancy`.
+  - `DemoOccupancyFactory` returns `DemoOccupancy`.
 - Stored in `RailwayModel.occupancies` keyed by `nodeId:portId`.
 - Elements can reference an `Occupancy` via `getOccupancy()` / `setOccupancy()`.
 - Persisted in `LayoutData.ModelStateData.occupancies` and restored on load.
@@ -363,7 +365,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-53 tests across seven test classes:
+57 tests across seven test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -376,7 +378,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
 | `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
-### `RouteFindingTest` (22 tests)
+### `RouteFindingTest` (23 tests)
 | Test | Description |
 |------|-------------|
 | `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
@@ -455,7 +457,7 @@ execution to `target/surefire-reports/`.
 | `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × all aspects × 4 rotations (64 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
 | ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
-Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. 52 of 53 tests pass (1 disabled).
+Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. 56 of 57 tests pass (1 disabled).
 
 ---
 

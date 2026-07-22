@@ -2,7 +2,7 @@ package org.bidib.switchboard.component.model;
 
 import com.jgoodies.binding.beans.Model;
 
-public class Occupancy extends Model {
+public abstract class Occupancy extends Model {
 
     private static final long serialVersionUID = 1L;
 
@@ -10,29 +10,15 @@ public class Occupancy extends Model {
         FREE, OCCUPIED
     }
 
-    private final long nodeId;
-
-    private final int portId;
-
     private OccupancyState state;
 
-    private Occupancy(long nodeId, int portId, OccupancyState state) {
-        this.nodeId = nodeId;
-        this.portId = portId;
+    protected Occupancy(OccupancyState state) {
         this.state = state;
     }
 
-    public static Occupancy create(long nodeId, int portId, OccupancyState state) {
-        return new Occupancy(nodeId, portId, state);
-    }
+    public abstract long getNodeId();
 
-    public long getNodeId() {
-        return nodeId;
-    }
-
-    public int getPortId() {
-        return portId;
-    }
+    public abstract int getPortId();
 
     public OccupancyState getState() {
         return state;
@@ -47,7 +33,7 @@ public class Occupancy extends Model {
 
     @Override
     public String toString() {
-        return "Occupancy [nodeId=" + nodeId + ", portId=" + portId + ", state=" + state + "]";
+        return "Occupancy [nodeId=" + getNodeId() + ", portId=" + getPortId() + ", state=" + state + "]";
     }
 
 }
