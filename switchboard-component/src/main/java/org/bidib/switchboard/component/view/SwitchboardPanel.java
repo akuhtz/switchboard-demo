@@ -672,7 +672,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             if (routeModel.hasAlternativeRoute(route.getId())) {
                 g2.setColor(Color.WHITE);
                 g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
-                g2.drawString("+", sx + 10, sy + 6);
+                boolean startHorizontal = n > 1 && path.get(0)[1] == path.get(1)[1];
+                g2.drawString("+", startHorizontal ? sx - 6 : sx + 10, startHorizontal ? sy + 18 : sy + 6);
             }
 
             if (n > 1) {
@@ -685,7 +686,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 if (routeModel.hasAlternativeRoute(route.getId())) {
                     g2.setColor(Color.WHITE);
                     g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
-                    g2.drawString("+", tx + 10, ty + 6);
+                    boolean endHorizontal = n > 1 && path.get(n - 2)[1] == path.get(n - 1)[1];
+                    g2.drawString("+", endHorizontal ? tx - 6 : tx + 10, endHorizontal ? ty + 18 : ty + 6);
                 }
             }
         }
