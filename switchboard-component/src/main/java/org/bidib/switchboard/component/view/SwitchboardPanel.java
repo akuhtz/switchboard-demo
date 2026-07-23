@@ -73,7 +73,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private static final Color COLOR_OCCUPIED = new Color(255, 80, 80);
 
-    private static final Color COLOR_ROUTE_ALT = new Color(255, 165, 120);
+    private static final Color COLOR_ROUTE_ALT = new Color(255, 165, 0);
 
     private static final Color COLOR_ROUTE_ALT_OTHER = new Color(80, 255, 255);
 
@@ -99,6 +99,12 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     public void setExhaustiveRouting(boolean exhaustive) {
         this.exhaustiveRouting = exhaustive;
+    }
+
+    private boolean showOtherAlternatives = false;
+
+    public void setShowOtherAlternatives(boolean show) {
+        this.showOtherAlternatives = show;
     }
 
     private int selectedCol = -1;
@@ -640,13 +646,12 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private void drawRoute(Graphics2D g2) {
+        int half = tileSize / 2;
         for (Route route : routeModel.getRoutes().values()) {
-            List<int[]> path = route.getPath();
-            if (path.isEmpty()) {
+            if (routeModel.getSelectedAlternativeIndex(route.getId()) >= 0) {
                 continue;
             }
-
-            int half = tileSize / 2;
+            List<int[]> path = route.getPath();
             int n = path.size();
             int[] xPoints = new int[n];
             int[] yPoints = new int[n];
@@ -774,14 +779,15 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         int half = tileSize / 2;
         for (Route route : routeModel.getRoutes().values()) {
             int selectedIdx = routeModel.getSelectedAlternativeIndex(route.getId());
-            if (selectedIdx >= 0) {
-                List<Route> alts = routeModel.getAlternativeRoutes(route.getId());
+            if (selectedIdx < 0) continue;
+            List<Route> alts = routeModel.getAlternativeRoutes(route.getId());
+            if (showOtherAlternatives) {
                 for (int ai = 0; ai < alts.size(); ai++) {
                     if (ai == selectedIdx) continue;
                     drawAltPath(g2, alts.get(ai), half, COLOR_ROUTE_ALT_OTHER);
                 }
-                drawAltPath(g2, alts.get(selectedIdx), half, COLOR_ROUTE_ALT);
             }
+            drawAltPath(g2, alts.get(selectedIdx), half, COLOR_ROUTE_ALT);
         }
     }
 
