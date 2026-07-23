@@ -803,7 +803,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             ay[i] = p[1] * 32 + half;
         }
         g2.setColor(color);
-        g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1f, new float[] { 4f, 4f }, 0f));
+        g2.setStroke(new BasicStroke(4, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1f, new float[] { 4f, 4f }, 0f));
         g2.drawPolyline(ax, ay, m);
     }
 
