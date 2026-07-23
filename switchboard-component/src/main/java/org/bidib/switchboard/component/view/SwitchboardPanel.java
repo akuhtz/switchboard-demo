@@ -777,24 +777,28 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             if (selectedIdx >= 0) {
                 List<Route> alts = routeModel.getAlternativeRoutes(route.getId());
                 for (int ai = 0; ai < alts.size(); ai++) {
-                    Route alt = alts.get(ai);
-                    List<int[]> altPath = alt.getPath();
-                    if (!altPath.isEmpty()) {
-                        int m = altPath.size();
-                        int[] ax = new int[m];
-                        int[] ay = new int[m];
-                        for (int i = 0; i < m; i++) {
-                            int[] p = altPath.get(i);
-                            ax[i] = p[0] * tileSize + half;
-                            ay[i] = p[1] * tileSize + half;
-                        }
-                        g2.setColor(ai == selectedIdx ? COLOR_ROUTE_ALT : COLOR_ROUTE_ALT_OTHER);
-                        g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1f, new float[] { 4f, 4f }, 0f));
-                        g2.drawPolyline(ax, ay, m);
-                    }
+                    if (ai == selectedIdx) continue;
+                    drawAltPath(g2, alts.get(ai), half, COLOR_ROUTE_ALT_OTHER);
                 }
+                drawAltPath(g2, alts.get(selectedIdx), half, COLOR_ROUTE_ALT);
             }
         }
+    }
+
+    private static void drawAltPath(Graphics2D g2, Route alt, int half, Color color) {
+        List<int[]> altPath = alt.getPath();
+        if (altPath.isEmpty()) return;
+        int m = altPath.size();
+        int[] ax = new int[m];
+        int[] ay = new int[m];
+        for (int i = 0; i < m; i++) {
+            int[] p = altPath.get(i);
+            ax[i] = p[0] * 32 + half;
+            ay[i] = p[1] * 32 + half;
+        }
+        g2.setColor(color);
+        g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1f, new float[] { 4f, 4f }, 0f));
+        g2.drawPolyline(ax, ay, m);
     }
 
     private static void drawPortLine(Graphics2D g2, int cx, int cy, int port, int tileSize) {
