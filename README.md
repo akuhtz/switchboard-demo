@@ -194,7 +194,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
    - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
    - **Alternative routes**: When a route is created, BFS finds alternative paths by blocking each edge of the primary path one at a time and re-running. By default this finds short alternatives. When "Exhaustive Route Search" is enabled (File > Settings), alternatives are also found by blocking edges of previously found alternatives (k-shortest-paths iteration), up to `MAX_ALTERNATIVES` (10). All alternatives are stored in `RouteModel` as a list keyed by route ID.
       - Right-clicking a route tile shows "Use primary route", "Alternative 1/2/..." (preview), and "Use selected alternative" in the context menu.
-     - Previewing an alternative draws it as a dotted green line (`(80,255,80)`); other alternatives as dotted blue lines (`(80,80,255)`).
+     - Previewing an alternative draws it as a dotted orange line (`(255,165,0)`); other alternatives as dotted cyan lines (`(80,255,255)`).
      - "Use primary route" discards all alternatives and restores normal red rendering.
      - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
      - Dotted lines are only visible during preview (index >= 0); they disappear after committing to primary or an alternative.

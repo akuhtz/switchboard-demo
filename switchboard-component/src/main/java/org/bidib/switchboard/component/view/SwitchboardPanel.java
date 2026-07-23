@@ -73,7 +73,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private static final Color COLOR_OCCUPIED = new Color(255, 80, 80);
 
-    private static final Color COLOR_ROUTE_ALT = new Color(80, 255, 80);
+    private static final Color COLOR_ROUTE_ALT = new Color(255, 165, 0);
 
     private static final Color COLOR_ROUTE_ALT_OTHER = new Color(80, 255, 255);
 
