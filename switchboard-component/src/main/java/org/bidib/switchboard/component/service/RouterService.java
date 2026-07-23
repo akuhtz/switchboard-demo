@@ -50,7 +50,11 @@ public class RouterService {
         if (!tiles.containsKey(startKey) || !tiles.containsKey(endKey)) {
             return null;
         }
-        return bfsRouteInternal(startCol, startRow, endCol, endRow, new HashSet<>());
+        List<int[]> result = bfsRouteInternal(startCol, startRow, endCol, endRow, new HashSet<>(), false);
+        if (result == null) {
+            result = bfsRouteInternal(startCol, startRow, endCol, endRow, new HashSet<>(), true);
+        }
+        return result;
     }
 
     public List<List<int[]>> bfsAlternativeRoutes(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath) {
@@ -58,6 +62,10 @@ public class RouterService {
     }
 
     public List<List<int[]>> bfsAlternativeRoutes(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath, boolean exhaustive) {
+        return bfsAlternativeRoutesInternal(startCol, startRow, endCol, endRow, primaryPath, exhaustive);
+    }
+
+    private List<List<int[]>> bfsAlternativeRoutesInternal(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath, boolean exhaustive) {
         String startKey = tileKey(startCol, startRow);
         String endKey = tileKey(endCol, endRow);
         if (!tiles.containsKey(startKey) || !tiles.containsKey(endKey) || primaryPath == null || primaryPath.size() < 2) {
@@ -100,7 +108,7 @@ public class RouterService {
             if (hasAlt) {
                 Set<String> block = new HashSet<>();
                 block.add(edgeKey(from[0], from[1], to[0], to[1]));
-                List<int[]> result = bfsRouteInternal(startCol, startRow, endCol, endRow, block);
+                List<int[]> result = bfsRouteInternal(startCol, startRow, endCol, endRow, block, false);
                 if (result != null) {
                     if (!isDuplicatePath(alts, result)) {
                         alts.add(result);
@@ -174,7 +182,7 @@ public class RouterService {
 
     // --- Internal route finding ---
 
-    private List<int[]> bfsRouteInternal(int startCol, int startRow, int endCol, int endRow, Set<String> blockedEdges) {
+    private List<int[]> bfsRouteInternal(int startCol, int startRow, int endCol, int endRow, Set<String> blockedEdges, boolean allowOverride) {
         String startKey = tileKey(startCol, startRow);
         String endKey = tileKey(endCol, endRow);
 
@@ -182,6 +190,10 @@ public class RouterService {
         Map<String, int[]> cameFrom = new HashMap<>();
         Set<String> visited = new HashSet<>();
         Map<String, int[]> entryPorts = new HashMap<>();
+        Map<String, Integer> overrideCount = null;
+        if (allowOverride) {
+            overrideCount = new HashMap<>();
+        }
 
         queue.add(new int[] { startCol, startRow });
         visited.add(startKey);
@@ -236,6 +248,35 @@ public class RouterService {
                     exit2 = ElementType.PORT_TOP;
                 }
 
+                int ne1 = -1, ne2 = -1;
+                if (ndc == 1) {
+                    ne1 = ElementType.PORT_LEFT;
+                }
+                else if (ndc == -1) {
+                    ne1 = ElementType.PORT_RIGHT;
+                }
+                if (ndr == 1) {
+                    ne2 = ElementType.PORT_TOP;
+                }
+                else if (ndr == -1) {
+                    ne2 = ElementType.PORT_BOTTOM;
+                }
+
+                if (visited.contains(nKey)) {
+                    if (!allowOverride) {
+                        continue;
+                    }
+                    int ov = overrideCount.getOrDefault(nKey, 0);
+                    if (ov >= 8) {
+                        continue;
+                    }
+                    int[] existingEntry = entryPorts.get(nKey);
+                    if (existingEntry != null && existingEntry[0] == ne1 && existingEntry[1] == ne2) {
+                        continue;
+                    }
+                    overrideCount.put(nKey, ov + 1);
+                }
+
                 boolean validThrough = true;
                 if (cEntry[0] != -1 || cEntry[1] != -1) {
                     validThrough = canTraverse(tile, cEntry[0], cEntry[1], exit1, exit2);
@@ -280,7 +321,7 @@ public class RouterService {
 
             Set<String> block = new HashSet<>(baseBlock);
             block.add(ek);
-            List<int[]> result = bfsRouteInternal(startCol, startRow, endCol, endRow, block);
+            List<int[]> result = bfsRouteInternal(startCol, startRow, endCol, endRow, block, false);
             if (result != null && !isDuplicatePath(alts, result)) {
                 alts.add(result);
             }
