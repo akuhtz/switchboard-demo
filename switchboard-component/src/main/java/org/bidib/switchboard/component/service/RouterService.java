@@ -145,6 +145,19 @@ public class RouterService {
                 int entryPort = diagonalAwarePort(prev[0], prev[1], curr[0], curr[1], true);
                 int exitPort = diagonalAwarePort(curr[0], curr[1], next[0], next[1], false);
 
+                int prevDc = curr[0] - prev[0];
+                int prevDr = curr[1] - prev[1];
+                if (prevDc != 0 && prevDr != 0) {
+                    int horizEntry = prevDc > 0 ? ElementType.PORT_LEFT : ElementType.PORT_RIGHT;
+                    int dc = next[0] - curr[0];
+                    int dr = next[1] - curr[1];
+                    boolean exitIsVertical = dr != 0 && dc == 0;
+                    boolean exitIsHorizontal = dc != 0 && dr == 0;
+                    if (exitIsVertical || exitIsHorizontal) {
+                        entryPort = horizEntry;
+                    }
+                }
+
                 int dc = next[0] - curr[0];
                 int dr = next[1] - curr[1];
                 if (dc != 0 && dr != 0) {
