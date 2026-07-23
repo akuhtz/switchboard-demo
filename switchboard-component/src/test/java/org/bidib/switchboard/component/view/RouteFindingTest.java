@@ -552,6 +552,27 @@ class RouteFindingTest {
     }
 
     @Test
+    void routeFromP112ToCL013WithAndWithoutPreExistingRoutes() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+        var url = RouteFindingTest.class.getResource("/test-data/switchboard6.json");
+        new LayoutPersistence(occupancyFactory).load(panel, Paths.get(url.toURI()));
+        RouterService rs = routerService(panel);
+
+        List<int[]> pathWithRoutes = rs.bfsRoute(25, 12, 24, 13);
+        LOGGER.info("With pre-existing routes: path={}",
+            pathWithRoutes != null ? pathWithRoutes.stream().map(p -> "(" + p[0] + "," + p[1] + ")").toList() : "null");
+
+        panel.getRouteModel().clear();
+        List<int[]> pathAfterClear = rs.bfsRoute(25, 12, 24, 13);
+        LOGGER.info("After clearing routes: path={}",
+            pathAfterClear != null ? pathAfterClear.stream().map(p -> "(" + p[0] + "," + p[1] + ")").toList() : "null");
+
+        assertThat(pathWithRoutes).as("Route should be found with pre-existing routes").isNotNull();
+        assertThat(pathAfterClear).as("Route should be found after clearing pre-existing routes").isNotNull();
+    }
+
+    @Test
     void routeFromP114ToP137MustNotUseInvalidTurnoutPath() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);

@@ -28,6 +28,7 @@ import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
+import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
 import org.bidib.switchboard.component.util.ScreenRecorder;
@@ -659,6 +660,90 @@ class OccupancyUiTest {
     }
 
     @Test
+    void routeP112ToCL013WithAndWithoutPreExistingRoutes() throws Exception {
+        LOGGER.info("Test route: P-112-CL-013 with and without pre-existing CR-010-P-130");
+
+        final String routeId = "P-112-CL-013";
+
+        panel.setExhaustiveRouting(true);
+        
+        ScreenRecorder recorder = null;
+        if (ScreenRecorder.isEnabled()) {
+            java.awt.Rectangle panelBounds = GuiActionRunner.execute(() -> {
+                java.awt.Point loc = window.target().getLocationOnScreen();
+                return new java.awt.Rectangle(loc.x, loc.y, window.target().getWidth(), window.target().getHeight());
+            });
+            Path videoOutput = Path.of("target", "surefire-reports", "routeP112ToCL013WithAndWithoutPreExistingRoutes-" + System.currentTimeMillis() + ".mp4");
+            recorder = ScreenRecorder.startIfEnabled(panelBounds, videoOutput);
+        }
+        
+        try {
+	        var url = OccupancyUiTest.class.getResource("/test-data/switchboard6.json");
+	        Path layoutPath = Paths.get(url.toURI());
+	        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+	        GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
+	
+	        GuiActionRunner.execute(() -> {
+	            panel.testSetRouteSource(25, 12);
+	            panel.testFindRoute(24, 13);
+	        });
+	
+	        Route routeWithRoutes = panel.getRouteModel().getRoute(routeId);
+	        LOGGER.info("With pre-existing routes: found={}", routeWithRoutes != null);
+	        assertThat(routeWithRoutes).as("Route %s should be found with pre-existing routes", routeId).isNotNull();
+	        
+	        waitAfterTest(2, TimeUnit.SECONDS);
+	
+	        GuiActionRunner.execute(() -> panel.getRouteModel().clear());
+	
+	        GuiActionRunner.execute(() -> {
+	            panel.testSetRouteSource(25, 12);
+	            panel.testFindRoute(24, 13);
+	        });
+	
+	        GuiActionRunner.execute(() -> {
+		        Route routeAfterClear = panel.getRouteModel().getRoute(routeId);
+		        LOGGER.info("After clearing routes: found={}", routeAfterClear != null);
+		        assertThat(routeAfterClear).as("Route %s should be found after clearing pre-existing routes", routeId).isNotNull();
+	        });
+	        
+	        waitAfterTest(2, TimeUnit.SECONDS);
+
+            assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
+            assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(9);
+            
+            
+            int selectedAlternative = 4;
+
+	        GuiActionRunner.execute(() -> {
+	
+	            panel.getRouteModel().setSelectedAlternativeIndex(routeId, selectedAlternative);
+	            panel.getRouteModel().swapWithAlternative(routeId);
+	            
+	            Route newRoute = panel.getRouteModel().getRoute(routeId);
+                if (newRoute != null) {
+                		panel.testSetRouteAspects(newRoute.getPath());
+                }
+                panel.repaint();
+	        });
+            
+            LOGGER.info("Selected alternative route {}.", selectedAlternative);
+
+	        waitAfterTest(5, TimeUnit.SECONDS);
+	        
+	        if (recorder != null) {
+	            waitAfterTest();
+	        }
+	    }
+	    finally {
+	        if (recorder != null) {
+	            recorder.close();
+	        }
+	    }
+
+    }
+
+    @Test
     void routeCR010ToP130() throws Exception {
         routeTest("CR-010-P-130", new int[] { 24, 17 }, new int[] { 10, 12 }, routeId -> {
         }, routeId -> panel.getRouteModel().getRoute(routeId).getPath());
@@ -836,13 +921,17 @@ class OccupancyUiTest {
     }
 
     private void waitAfterTest() {
+    		waitAfterTest(1, TimeUnit.SECONDS);
+    }
+    
+    private void waitAfterTest(long timeout, TimeUnit timeUnit) {
         Semaphore tickCompleteWait = new Semaphore(0);
         final CountDownLatch countDownLatch = new CountDownLatch(1);
 
         Timer timerWait = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
-            LOGGER.info("Wait 1s after test.");
-            countDownLatch.await(1, TimeUnit.SECONDS);
-            LOGGER.info("Wait 1s after test passed.");
+            LOGGER.info("Wait {} {} after test.", timeout, timeUnit);
+            countDownLatch.await(timeout, timeUnit);
+            LOGGER.info("Wait {} {} after test passed.", timeout, timeUnit);
 
             tickCompleteWait.release();
         }));

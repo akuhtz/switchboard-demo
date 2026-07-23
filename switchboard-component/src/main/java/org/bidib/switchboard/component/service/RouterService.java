@@ -238,7 +238,7 @@ public class RouterService {
                 int nr = neighbor[1];
                 String nKey = tileKey(nc, nr);
 
-                if (visited.contains(nKey) || !tiles.containsKey(nKey) || routeModel.isTileReserved(nc, nr, null) || blockedEdges.contains(edgeKey(c, r, nc, nr))) {
+                if (!tiles.containsKey(nKey) || routeModel.isTileReserved(nc, nr, null) || blockedEdges.contains(edgeKey(c, r, nc, nr))) {
                     continue;
                 }
 
@@ -294,22 +294,6 @@ public class RouterService {
 
                 if (!validThrough) {
                     continue;
-                }
-
-                int dc = nc - c;
-                int dr = nr - r;
-                int ne1 = -1, ne2 = -1;
-                if (dc == 1) {
-                    ne1 = ElementType.PORT_LEFT;
-                }
-                else if (dc == -1) {
-                    ne1 = ElementType.PORT_RIGHT;
-                }
-                if (dr == 1) {
-                    ne2 = ElementType.PORT_TOP;
-                }
-                else if (dr == -1) {
-                    ne2 = ElementType.PORT_BOTTOM;
                 }
 
                 entryPorts.put(nKey, new int[] { ne1, ne2 });

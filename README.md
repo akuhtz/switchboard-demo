@@ -267,9 +267,15 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 ### `RouterService`
 - Stateless service class encapsulating the route-finding logic.
 - Constructed with `Map<String, Tile> tiles`, `int cols`, `int rows`, `RouteModel routeModel`.
-- `bfsRoute(startCol, startRow, endCol, endRow)` — BFS-based shortest path using physical port connectivity. Returns `List<int[]>` path or `null`.
-- `bfsAlternativeRoutes(startCol, startRow, endCol, endRow, primaryPath, exhaustive)` — finds alternative routes by blocking edges of the primary path (and of found alternatives when `exhaustive=true`). Returns `List<List<int[]>>`.
-- `setRouteAspects(path, model)` — sets turnouts on a found route to the correct aspect using `aspectForRoute(entryPort, exitPort, rotation)`.
+- `bfsRoute(startCol, startRow, endCol, endRow)` — BFS-based shortest path using physical port connectivity.
+  Returns `List<int[]>` path or `null`. Tries without tile-revisit override first; falls back with override
+  (max 8 revisits per tile) only if the first attempt returns null.
+- `bfsAlternativeRoutes(startCol, startRow, endCol, endRow, primaryPath, exhaustive)` — finds alternative
+  routes by blocking edges of the primary path (and of found alternatives when `exhaustive=true`).
+  Never uses tile-revisit override. Returns `List<List<int[]>>`.
+- `setRouteAspects(path, model)` — sets turnouts on a found route to the correct aspect. For diagonal entries
+  (both `prevDc` and `prevDr` non-zero), tries both the vertical and horizontal entry port and prefers the
+  higher (diverted) aspect.
 - `diagonalAwarePort(from, to, isEntry)` — computes which port a diagonal movement enters/exits through.
 - Extracted from `SwitchboardPanel` to enable direct testing and reuse.
 
@@ -365,7 +371,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-57 tests across seven test classes:
+59 tests across seven test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -378,7 +384,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
 | `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
-### `RouteFindingTest` (23 tests)
+### `RouteFindingTest` (24 tests)
 | Test | Description |
 |------|-------------|
 | `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
@@ -403,6 +409,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoTileReplaceRestoresOriginalTile` | Original tile and element restored after undo |
 | `occupiedTileOnRouteIsDetected` | Tile on a route detected as occupied when its occupancy is set to OCCUPIED |
 | `routeFromP114ToP137MustNotUseInvalidTurnoutPath` | Route from P-114 to P-137 must not go via (25,13)→(24,14) — verifies canTraverse is called for vertical-only entries |
+| `routeFromP112ToCL013WithAndWithoutPreExistingRoutes` | Route from P-112 to CL-013 found both with and without pre-existing CR-010-P-130 — verifies BFS override fallback |
 
 ### `RouterServiceTest` (11 tests)
 | Test | Description |
@@ -434,13 +441,14 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoTileReplaceViaUI` | Original tile restored after undo of UI tile replacement |
 | `occupiedRouteTilesDetectedViaUI` | Occupied route tiles show occupancy color via `drawOccupancy` |
 
-### `OccupancyUiTest` (4 tests)
+### `OccupancyUiTest` (5 tests)
 | Test | Description |
 |------|-------------|
 | `occupancyAdvancesAlongRoute` | Timer-driven occupancy animation along a route path, verifying sliding-window pattern |
 | `routeFromTL003ToTR002` | Route found from TL-003 to TR-002 with correct source/target element IDs, TL-003 aspect 1 (diverted) |
 | `routeFromTL003ToTR002Straight` | Primary route TL-003→P-001 along row 0, TL-003 aspect 0 (through), alternatives cleared |
 | `alternativeRouteTL003ToP001` | Alternative route TL-003→P-001 via DG-003/CL-005/row-1 corridor, verified 23-tile path, TL-003 aspect 1 (diverted), TR-003 aspect 1 (diverted) |
+| `routeP112ToCL013WithAndWithoutPreExistingRoutes` | Route P-112→CL-013 found with and without pre-existing CR-010-P-130 via UI test hooks |
 
 Timer-driven tests use a `Semaphore` to synchronise the test thread with the Swing `Timer` tick,
 replacing brittle `Thread.sleep()` delays that could miss steps due to timer coalescing.
@@ -457,7 +465,7 @@ execution to `target/surefire-reports/`.
 | `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × all aspects × 4 rotations (64 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
 | ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
-Uses `switchboard3.json`, `switchboard4.json`, and `switchboard5.json` test layouts. 56 of 57 tests pass (1 disabled).
+Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, and `switchboard6.json` test layouts. 58 of 59 tests pass (1 disabled).
 
 ---
 
