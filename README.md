@@ -193,12 +193,14 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
     with a green filled oval at the source and a blue filled oval at the target.
    - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
    - **Alternative routes**: When a route is created, BFS finds alternative paths by blocking each edge of the primary path one at a time and re-running. By default this finds short alternatives. When "Exhaustive Route Search" is enabled (File > Settings), alternatives are also found by blocking edges of previously found alternatives (k-shortest-paths iteration), up to `MAX_ALTERNATIVES` (10). All alternatives are stored in `RouteModel` as a list keyed by route ID.
-      - Right-clicking a route tile shows "Use primary route", "Alternative 1/2/..." (preview), and "Use selected alternative" in the context menu.
-     - Previewing an alternative draws it as a dotted orange line (`(255,165,0)`); other alternatives as dotted cyan lines (`(80,255,255)`).
-     - "Use primary route" discards all alternatives and restores normal red rendering.
-     - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
-     - Dotted lines are only visible during preview (index >= 0); they disappear after committing to primary or an alternative.
-     - Context menu shows "Clear route ({id})" on tiles belonging to a route,
+   - When alternatives exist, a white **"+"** badge appears next to both the source and target markers. The badge is positioned below the marker for horizontal route segments and to the right for vertical segments.
+   - Right-clicking a route tile shows "Use primary route", "Alternative 1/2/..." (preview), and "Use selected alternative" in the context menu.
+   - Previewing an alternative draws it as a dotted orange line (`(255,165,0)`, 4px stroke) on top of the main route. The main route remains fully visible during preview.
+   - By default, only the selected preview alternative is shown. Other (non-selected) alternatives can be enabled via `setShowOtherAlternatives(true)` which draws them as dotted cyan lines (`(80,255,255)`).
+   - "Use primary route" discards all alternatives and restores normal red rendering.
+   - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
+   - Dotted lines are only visible during preview (index >= 0); they disappear after committing to primary or an alternative.
+   - Context menu shows "Clear route ({id})" on tiles belonging to a route,
        "Simulate occupancy ({id})" on the green source circle (disabled while
        a simulation is running), and "Clear simulated occupancy ({id})" when
        tiles on the route have OCCUPIED state (disabled while running).
@@ -227,6 +229,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `setTile(Tile tile)` / `getTile(int col, int row)` / `removeTile(int col, int row)`
   - `clearTiles()` / `getModel()` / `undoLast()`
   - `isEditMode()` / `setEditMode(boolean)`
+   - `setExhaustiveRouting(boolean)` — enables exhaustive alternative route search.
+   - `setShowOtherAlternatives(boolean)` — shows non-selected alternatives as dotted cyan lines during preview when `true` (default `false`).
    - `setTileContextHandler(TileContextHandler)` — callback for context menu actions.
    - `testSetRouteAspects(List<int[]>)` — applies aspect-for-port/route logic to a given path (test helper).
 - **Undo stack**: `Deque<Command> undoStack` — pushed by route finding, tile creation/clearing, aspect cycling. Accessible via `undoLast()`. Menu item Edit > Undo (Ctrl+Z).
