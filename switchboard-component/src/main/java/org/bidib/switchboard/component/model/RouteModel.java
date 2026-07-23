@@ -45,11 +45,7 @@ public class RouteModel {
     }
 
     public void addAlternativeRoute(String id, Route alt) {
-        List<Route> alts = alternativeRoutes.computeIfAbsent(id, k -> new ArrayList<>());
-        if (alts.isEmpty()) {
-            selectedAlternativeIndex.put(id, 0);
-        }
-        alts.add(alt);
+        alternativeRoutes.computeIfAbsent(id, k -> new ArrayList<>()).add(alt);
     }
 
     public Route getAlternativeRoute(String id) {
