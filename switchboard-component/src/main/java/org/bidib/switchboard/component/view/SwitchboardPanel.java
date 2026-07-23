@@ -3,6 +3,7 @@ package org.bidib.switchboard.component.view;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -668,12 +669,24 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             g2.setColor(COLOR_ROUTE_SOURCE);
             g2.fillOval(sx - 6, sy - 6, 12, 12);
 
+            if (routeModel.hasAlternativeRoute(route.getId())) {
+                g2.setColor(Color.WHITE);
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
+                g2.drawString("+", sx + 10, sy + 6);
+            }
+
             if (n > 1) {
                 int[] last = path.get(n - 1);
                 int tx = last[0] * tileSize + half;
                 int ty = last[1] * tileSize + half;
                 g2.setColor(COLOR_ROUTE_TARGET);
                 g2.fillOval(tx - 6, ty - 6, 12, 12);
+
+                if (routeModel.hasAlternativeRoute(route.getId())) {
+                    g2.setColor(Color.WHITE);
+                    g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
+                    g2.drawString("+", tx + 10, ty + 6);
+                }
             }
         }
 
