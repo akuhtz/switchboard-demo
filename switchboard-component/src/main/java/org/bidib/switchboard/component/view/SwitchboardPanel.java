@@ -73,7 +73,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private static final Color COLOR_OCCUPIED = new Color(255, 80, 80);
 
-    private static final Color COLOR_ROUTE_ALT = new Color(255, 165, 0);
+    private static final Color COLOR_ROUTE_ALT = new Color(255, 165, 120);
 
     private static final Color COLOR_ROUTE_ALT_OTHER = new Color(80, 255, 255);
 
@@ -613,6 +613,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         drawSelection(g2);
         drawRoute(g2);
         drawOccupancy(g2);
+        drawAlternatives(g2);
     }
 
     private void drawGrid(Graphics2D g2) {
@@ -673,27 +674,6 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 g2.fillOval(tx - 6, ty - 6, 12, 12);
             }
 
-            int selectedIdx = routeModel.getSelectedAlternativeIndex(route.getId());
-            if (selectedIdx >= 0) {
-                List<Route> alts = routeModel.getAlternativeRoutes(route.getId());
-                for (int ai = 0; ai < alts.size(); ai++) {
-                    Route alt = alts.get(ai);
-                    List<int[]> altPath = alt.getPath();
-                    if (!altPath.isEmpty()) {
-                        int m = altPath.size();
-                        int[] ax = new int[m];
-                        int[] ay = new int[m];
-                        for (int i = 0; i < m; i++) {
-                            int[] p = altPath.get(i);
-                            ax[i] = p[0] * tileSize + half;
-                            ay[i] = p[1] * tileSize + half;
-                        }
-                        g2.setColor(ai == selectedIdx ? COLOR_ROUTE_ALT : COLOR_ROUTE_ALT_OTHER);
-                        g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1f, new float[] { 4f, 4f }, 0f));
-                        g2.drawPolyline(ax, ay, m);
-                    }
-                }
-            }
         }
 
         if (routeSourceCol >= 0 && routeSourceRow >= 0) {
@@ -784,6 +764,33 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                             }
                         }
                         drawPortLine(g2, cx, cy, port, tileSize);
+                    }
+                }
+            }
+        }
+    }
+
+    private void drawAlternatives(Graphics2D g2) {
+        int half = tileSize / 2;
+        for (Route route : routeModel.getRoutes().values()) {
+            int selectedIdx = routeModel.getSelectedAlternativeIndex(route.getId());
+            if (selectedIdx >= 0) {
+                List<Route> alts = routeModel.getAlternativeRoutes(route.getId());
+                for (int ai = 0; ai < alts.size(); ai++) {
+                    Route alt = alts.get(ai);
+                    List<int[]> altPath = alt.getPath();
+                    if (!altPath.isEmpty()) {
+                        int m = altPath.size();
+                        int[] ax = new int[m];
+                        int[] ay = new int[m];
+                        for (int i = 0; i < m; i++) {
+                            int[] p = altPath.get(i);
+                            ax[i] = p[0] * tileSize + half;
+                            ay[i] = p[1] * tileSize + half;
+                        }
+                        g2.setColor(ai == selectedIdx ? COLOR_ROUTE_ALT : COLOR_ROUTE_ALT_OTHER);
+                        g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1f, new float[] { 4f, 4f }, 0f));
+                        g2.drawPolyline(ax, ay, m);
                     }
                 }
             }
