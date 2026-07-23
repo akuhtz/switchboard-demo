@@ -73,7 +73,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private static final Color COLOR_OCCUPIED = new Color(255, 80, 80);
 
-    private static final Color COLOR_ROUTE_ALT = new Color(255, 165, 0);
+    private static final Color COLOR_ROUTE_ALT = new Color(100, 160, 255);
 
     private static final Color COLOR_ROUTE_ALT_OTHER = new Color(80, 255, 255);
 
@@ -648,22 +648,23 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     private void drawRoute(Graphics2D g2) {
         int half = tileSize / 2;
         for (Route route : routeModel.getRoutes().values()) {
-            if (routeModel.getSelectedAlternativeIndex(route.getId()) >= 0) {
-                continue;
-            }
             List<int[]> path = route.getPath();
             int n = path.size();
-            int[] xPoints = new int[n];
-            int[] yPoints = new int[n];
-            for (int i = 0; i < n; i++) {
-                int[] p = path.get(i);
-                xPoints[i] = p[0] * tileSize + half;
-                yPoints[i] = p[1] * tileSize + half;
-            }
+            boolean hideRoute = routeModel.getSelectedAlternativeIndex(route.getId()) >= 0;
 
-            g2.setColor(COLOR_ROUTE);
-            g2.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.drawPolyline(xPoints, yPoints, n);
+            if (!hideRoute) {
+                int[] xPoints = new int[n];
+                int[] yPoints = new int[n];
+                for (int i = 0; i < n; i++) {
+                    int[] p = path.get(i);
+                    xPoints[i] = p[0] * tileSize + half;
+                    yPoints[i] = p[1] * tileSize + half;
+                }
+
+                g2.setColor(COLOR_ROUTE);
+                g2.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.drawPolyline(xPoints, yPoints, n);
+            }
 
             int[] first = path.get(0);
             int sx = first[0] * tileSize + half;
@@ -678,7 +679,6 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 g2.setColor(COLOR_ROUTE_TARGET);
                 g2.fillOval(tx - 6, ty - 6, 12, 12);
             }
-
         }
 
         if (routeSourceCol >= 0 && routeSourceRow >= 0) {
