@@ -2,6 +2,7 @@ package org.bidib.switchboard.component.view;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -74,9 +76,28 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private static final Color COLOR_OCCUPIED = new Color(255, 80, 80);
 
-    private static final Color COLOR_ROUTE_ALT = new Color(100, 160, 255);
+    private static final Color[] COLOR_ALT_PALETTE = {
+        new Color(255, 165, 0),    // orange
+        new Color(220, 50, 50),    // red
+        new Color(180, 50, 180),   // purple
+        new Color(0, 180, 180),    // teal
+        new Color(255, 100, 150),  // pink
+        new Color(255, 200, 50),   // amber
+        new Color(180, 50, 50),    // maroon
+        new Color(50, 80, 150),    // steel blue
+        new Color(150, 210, 0),    // lime
+        new Color(255, 140, 80),   // coral
+        new Color(100, 60, 180),   // indigo
+        new Color(0, 210, 190),    // turquoise
+        new Color(220, 180, 20),   // gold
+        new Color(220, 80, 120),   // rose
+        new Color(160, 100, 220),  // violet
+        new Color(200, 160, 80),   // sand
+    };
 
-    private static final Color COLOR_ROUTE_ALT_OTHER = new Color(80, 255, 255);
+    private static Color altPaletteColor(int index) {
+        return COLOR_ALT_PALETTE[index % COLOR_ALT_PALETTE.length];
+    }
 
     private static final Color COLOR_ROUTE_SOURCE = new Color(100, 200, 100);
 
@@ -456,7 +477,16 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 for (int i = 0; i < alts.size(); i++) {
                     Route alt = alts.get(i);
                     String label = "Alternative " + (i + 1) + " (" + alt.getSourceElementId() + " → " + alt.getTargetElementId() + ")";
-                    JMenuItem item = new JMenuItem(label);
+                    Color altColor = altPaletteColor(i);
+                    Icon icon = new Icon() {
+                        @Override public void paintIcon(Component comp, Graphics g, int x, int y) {
+                            g.setColor(altColor);
+                            g.fillOval(x, y, getIconWidth(), getIconHeight());
+                        }
+                        @Override public int getIconWidth() { return 10; }
+                        @Override public int getIconHeight() { return 10; }
+                    };
+                    JMenuItem item = new JMenuItem(label, icon);
                     int idx = i;
                     item.addActionListener(e -> {
                         routeModel.setSelectedAlternativeIndex(routeId, idx);
@@ -795,10 +825,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             if (showOtherAlternatives) {
                 for (int ai = 0; ai < alts.size(); ai++) {
                     if (ai == selectedIdx) continue;
-                    drawAltPath(g2, alts.get(ai), half, COLOR_ROUTE_ALT_OTHER);
+                    drawAltPath(g2, alts.get(ai), half, altPaletteColor(ai));
                 }
             }
-            drawAltPath(g2, alts.get(selectedIdx), half, COLOR_ROUTE_ALT);
+            drawAltPath(g2, alts.get(selectedIdx), half, altPaletteColor(selectedIdx));
         }
     }
 

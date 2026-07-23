@@ -692,7 +692,7 @@ class OccupancyUiTest {
 	        LOGGER.info("With pre-existing routes: found={}", routeWithRoutes != null);
 	        assertThat(routeWithRoutes).as("Route %s should be found with pre-existing routes", routeId).isNotNull();
 	        
-	        waitAfterTest(2, TimeUnit.SECONDS);
+	        waitAfterTest(1, TimeUnit.SECONDS);
 	
 	        GuiActionRunner.execute(() -> panel.getRouteModel().clear());
 	
@@ -707,7 +707,7 @@ class OccupancyUiTest {
 		        assertThat(routeAfterClear).as("Route %s should be found after clearing pre-existing routes", routeId).isNotNull();
 	        });
 	        
-	        waitAfterTest(2, TimeUnit.SECONDS);
+	        waitAfterTest(1, TimeUnit.SECONDS);
 
             assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
             assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(9);
@@ -729,7 +729,7 @@ class OccupancyUiTest {
             
             LOGGER.info("Selected alternative route {}.", selectedAlternative);
 
-	        waitAfterTest(5, TimeUnit.SECONDS);
+	        waitAfterTest(1, TimeUnit.SECONDS);
 	        
 	        if (recorder != null) {
 	            waitAfterTest();

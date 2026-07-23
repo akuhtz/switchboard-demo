@@ -189,15 +189,17 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - Diagonal connections require `hasValidDiagonal()` on the sender corner.
   - Found routes are stored in a `RouteModel` supporting multiple simultaneous routes.
     Each route has an ID `{sourceElementId}-{targetElementId}`.
-  - Routes render as red polylines (`(255,80,80)`, stroke-width 4) through tile centers,
+     - Routes render as blue polylines (`(80,80,160)`, stroke-width 4) through tile centers,
     with a green filled oval at the source and a blue filled oval at the target.
    - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
    - **Alternative routes**: When a route is created, BFS finds alternative paths by blocking each edge of the primary path one at a time and re-running. By default this finds short alternatives. When "Exhaustive Route Search" is enabled (File > Settings), alternatives are also found by blocking edges of previously found alternatives (k-shortest-paths iteration), up to `MAX_ALTERNATIVES` (10). All alternatives are stored in `RouteModel` as a list keyed by route ID.
    - When alternatives exist, a white **"+"** badge appears next to both the source and target markers. The badge is positioned below the marker for horizontal route segments and to the right for vertical segments.
-   - Right-clicking a route tile shows "Use primary route", "Alternative 1/2/..." (preview), and "Use selected alternative" in the context menu.
-   - Previewing an alternative draws it as a dotted orange line (`(255,165,0)`, 4px stroke) on top of the main route. The main route remains fully visible during preview.
-   - By default, only the selected preview alternative is shown. Other (non-selected) alternatives can be enabled via `setShowOtherAlternatives(true)` which draws them as dotted cyan lines (`(80,255,255)`).
-   - "Use primary route" discards all alternatives and restores normal red rendering.
+   - Right-clicking a route tile shows "Use primary route", "Alternative 1/2/..." (preview), and "Use selected alternative" in the context menu. Each menu item has a colored circle icon matching the alternative's rendering color.
+   - Each alternative is drawn with its own color from a 16-color palette (orange, red, purple, teal, pink, amber, maroon, steel blue, lime, coral, indigo, turquoise, gold, rose, violet, sand) as a dotted 4px stroke on top of the main route. The main route remains fully visible during preview.
+   - By default, only the selected preview alternative is shown. Other (non-selected) alternatives can be enabled via `setShowOtherAlternatives(true)` which draws them in their palette colors as well.
+   - "Use primary route" discards all alternatives and restores normal blue rendering.
+
+
    - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
    - Dotted lines are only visible during preview (index >= 0); they disappear after committing to primary or an alternative.
    - Context menu shows "Clear route ({id})" on tiles belonging to a route,

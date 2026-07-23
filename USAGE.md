@@ -49,12 +49,12 @@ In **normal mode** (Ctrl+E to toggle):
 
 - Make sure you are in **normal mode** (Ctrl+E to toggle off edit mode).
 - **Ctrl+click** a source tile — a green marker appears.
-- **Ctrl+click** a target tile — the shortest path is found and drawn as a red polyline with green (source) and blue (target) markers.
+- **Ctrl+click** a target tile — the shortest path is found and drawn as a blue polyline with green (source) and blue (target) markers.
 - Turnouts along the route are automatically set to the correct aspect.
 - Route finding uses BFS with physical port-connectivity checking. Routes respect turnout direction (no backwards frog-end traversal) and avoid tiles already reserved by other routes.
 - **Alternative routes**: When a route is created, BFS finds alternative paths by blocking each edge of the primary path. A white **"+"** badge appears next to the source and target markers when alternatives are available. Right-click any route tile to see them in the context menu:
-  - **Alternative 1 / Alternative 2 / ...** — preview the alternative as a dotted orange line (4px stroke) on top of the main route. The main route remains visible.
-  - **Use primary route** — discard alternatives and show the original red route.
+  - **Alternative 1 / Alternative 2 / ...** — preview the alternative as a dotted line in its own color from a 16-color palette, on top of the main route. Each menu item shows a colored circle icon matching the route color. The main route remains visible.
+  - **Use primary route** — discard alternatives and show the original blue route.
   - **Use selected alternative** — promote the previewed alternative to the primary route.
 - **Exhaustive Route Search**: Enable in **File → Settings → Exhaustive Route Search**. When active, the BFS also blocks edges from found alternatives (k-shortest-paths iteration), finding more distinct routes. The setting is persisted in `switchboard-demo-app/settings.json`.
 
