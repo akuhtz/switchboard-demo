@@ -25,6 +25,8 @@ public class RouterService {
 
     public static final int MAX_ALTERNATIVES = 10;
 
+    private static final int REVISIT_CAP = 8;
+
     private final Map<String, Tile> tiles;
 
     private final int cols;
@@ -212,11 +214,11 @@ public class RouterService {
 
         while (!queue.isEmpty()) {
             int[] current = queue.poll();
-            int c = current[0];
-            int r = current[1];
-            String cKey = tileKey(c, r);
+            int col = current[0];
+            int row = current[1];
+            String cKey = tileKey(col, row);
 
-            if (c == endCol && r == endRow) {
+            if (col == endCol && row == endRow) {
                 List<int[]> path = new ArrayList<>();
                 String cur = endKey;
                 while (cur != null) {
@@ -227,23 +229,23 @@ public class RouterService {
                 return path;
             }
 
-            Tile tile = getTile(c, r);
+            Tile tile = getTile(col, row);
             int[] cEntry = entryPorts.get(cKey);
 
-            List<int[]> connected = getConnectedNeighbors(c, r);
-            LOG.info("BFS at ({},{}) entryPorts={} neighbors={}", c, r, cEntry != null ? Arrays.toString(cEntry) : "null",
+            List<int[]> connected = getConnectedNeighbors(col, row);
+            LOG.info("BFS at ({},{}) entryPorts={} neighbors={}", col, row, cEntry != null ? Arrays.toString(cEntry) : "null",
                 connected.stream().map(n -> "(" + n[0] + "," + n[1] + ")").toList());
             for (int[] neighbor : connected) {
-                int nc = neighbor[0];
-                int nr = neighbor[1];
-                String nKey = tileKey(nc, nr);
+                int neighborCol = neighbor[0];
+                int neighborRow = neighbor[1];
+                String neighborKey = tileKey(neighborCol, neighborRow);
 
-                if (!tiles.containsKey(nKey) || routeModel.isTileReserved(nc, nr, null) || blockedEdges.contains(edgeKey(c, r, nc, nr))) {
+                if (!tiles.containsKey(neighborKey) || routeModel.isTileReserved(neighborCol, neighborRow, null) || blockedEdges.contains(edgeKey(col, row, neighborCol, neighborRow))) {
                     continue;
                 }
 
-                int ndc = nc - c;
-                int ndr = nr - r;
+                int ndc = neighborCol - col;
+                int ndr = neighborRow - row;
                 int exit1 = -1, exit2 = -1;
                 if (ndc == 1) {
                     exit1 = ElementType.PORT_RIGHT;
@@ -272,19 +274,19 @@ public class RouterService {
                     ne2 = ElementType.PORT_BOTTOM;
                 }
 
-                if (visited.contains(nKey)) {
+                if (visited.contains(neighborKey)) {
                     if (!allowOverride) {
                         continue;
                     }
-                    int ov = overrideCount.getOrDefault(nKey, 0);
-                    if (ov >= 8) {
+                    int ov = overrideCount.getOrDefault(neighborKey, 0);
+                    if (ov >= REVISIT_CAP) {
                         continue;
                     }
-                    int[] existingEntry = entryPorts.get(nKey);
+                    int[] existingEntry = entryPorts.get(neighborKey);
                     if (existingEntry != null && existingEntry[0] == ne1 && existingEntry[1] == ne2) {
                         continue;
                     }
-                    overrideCount.put(nKey, ov + 1);
+                    overrideCount.put(neighborKey, ov + 1);
                 }
 
                 boolean validThrough = true;
@@ -296,16 +298,16 @@ public class RouterService {
                     continue;
                 }
 
-                entryPorts.put(nKey, new int[] { ne1, ne2 });
-                visited.add(nKey);
-                cameFrom.put(nKey, new int[] { c, r });
-                queue.add(new int[] { nc, nr });
+                entryPorts.put(neighborKey, new int[] { ne1, ne2 });
+                visited.add(neighborKey);
+                cameFrom.put(neighborKey, new int[] { col, row });
+                queue.add(new int[] { neighborCol, neighborRow });
             }
         }
 
         return null;
     }
-
+    
     private void findAdditionalAlternatives(int startCol, int startRow, int endCol, int endRow, Set<String> baseBlock, List<int[]> altPath, List<List<int[]>> alts) {
         for (int j = 1; j < altPath.size() - 1 && alts.size() < MAX_ALTERNATIVES; j++) {
             int[] f = altPath.get(j);
