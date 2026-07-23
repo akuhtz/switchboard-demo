@@ -650,21 +650,17 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         for (Route route : routeModel.getRoutes().values()) {
             List<int[]> path = route.getPath();
             int n = path.size();
-            boolean hideRoute = routeModel.getSelectedAlternativeIndex(route.getId()) >= 0;
-
-            if (!hideRoute) {
-                int[] xPoints = new int[n];
-                int[] yPoints = new int[n];
-                for (int i = 0; i < n; i++) {
-                    int[] p = path.get(i);
-                    xPoints[i] = p[0] * tileSize + half;
-                    yPoints[i] = p[1] * tileSize + half;
-                }
-
-                g2.setColor(COLOR_ROUTE);
-                g2.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                g2.drawPolyline(xPoints, yPoints, n);
+            int[] xPoints = new int[n];
+            int[] yPoints = new int[n];
+            for (int i = 0; i < n; i++) {
+                int[] p = path.get(i);
+                xPoints[i] = p[0] * tileSize + half;
+                yPoints[i] = p[1] * tileSize + half;
             }
+
+            g2.setColor(COLOR_ROUTE);
+            g2.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.drawPolyline(xPoints, yPoints, n);
 
             int[] first = path.get(0);
             int sx = first[0] * tileSize + half;
