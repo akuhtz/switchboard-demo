@@ -15,6 +15,7 @@ import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.view.AssignOccupancyDialog;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.junit.jupiter.api.Test;
 
@@ -107,8 +108,8 @@ class RouterServiceTest {
         var url = RouterServiceTest.class.getResource("/test-data/switchboard4.json");
         java.nio.file.Path path = java.nio.file.Paths.get(url.toURI());
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
-        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        var layoutPersistence = new LayoutPersistence();
         layoutPersistence.load(panel, path);
 
         // The panel is set up; use it to load a route, then get the router service
@@ -180,8 +181,8 @@ class RouterServiceTest {
         var url = RouterServiceTest.class.getResource("/test-data/switchboard5.json");
         java.nio.file.Path layoutPath = java.nio.file.Paths.get(url.toURI());
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
-        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        var layoutPersistence = new LayoutPersistence();
         layoutPersistence.load(panel, layoutPath);
 
         panel.setExhaustiveRouting(true);

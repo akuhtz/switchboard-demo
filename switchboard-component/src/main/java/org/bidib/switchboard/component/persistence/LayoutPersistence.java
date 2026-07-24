@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
@@ -15,18 +14,26 @@ import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.view.TileGrid;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 public class LayoutPersistence {
 
-    private static final ObjectMapper MAPPER = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
+    private static final ObjectMapper MAPPER = JsonMapper.builder()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
-    private final OccupancyFactory occupancyFactory;
-    
-    public LayoutPersistence(final OccupancyFactory occupancyFactory) {
-    	this.occupancyFactory = occupancyFactory;
+    private final OccupancySerializer occupancySerializer;
+
+    public LayoutPersistence() {
+        this(new DefaultOccupancySerializer());
+    }
+
+    public LayoutPersistence(final OccupancySerializer occupancySerializer) {
+        this.occupancySerializer = occupancySerializer;
     }
 
     // --- Save ---
@@ -65,8 +72,7 @@ public class LayoutPersistence {
             ed.setAspect(el.getCurrentAspect());
             Occupancy occ = el.getOccupancy();
             if (occ != null) {
-                ed.setOccupancyNodeId(occ.getNodeId());
-                ed.setOccupancyPortId(occ.getPortId());
+                ed.setOccupancyId(occ.getId());
             }
             elementList.add(ed);
         }
@@ -75,9 +81,9 @@ public class LayoutPersistence {
         List<LayoutData.OccupancyData> occList = new ArrayList<>();
         for (Occupancy occ : model.getOccupancies().values()) {
             LayoutData.OccupancyData od = new LayoutData.OccupancyData();
-            od.setNodeId(occ.getNodeId());
-            od.setPortId(occ.getPortId());
+            od.setId(occ.getId());
             od.setState(occ.getState().name());
+            occupancySerializer.writeOccupancy(occ, od);
             occList.add(od);
         }
         ms.setOccupancies(occList);
@@ -137,8 +143,11 @@ public class LayoutPersistence {
         if (data.getModelState() != null) {
             if (data.getModelState().getOccupancies() != null) {
                 for (LayoutData.OccupancyData od : data.getModelState().getOccupancies()) {
-                    Occupancy occ = occupancyFactory.create(od.getNodeId(), od.getPortId(),
+                    Occupancy occ = occupancySerializer.createOccupancy(od,
                             Occupancy.OccupancyState.valueOf(od.getState()));
+                    if (od.getId() != null) {
+                        occ.setId(od.getId());
+                    }
                     model.addOccupancy(occ);
                 }
             }
@@ -147,8 +156,8 @@ public class LayoutPersistence {
                 for (LayoutData.ElementData ed : data.getModelState().getElements()) {
                     Element element = new Element(ed.getId(), ed.getNodeId(), ed.getAccessoryId());
                     element.setCurrentAspect(ed.getAspect());
-                    if (ed.getOccupancyPortId() >= 0) {
-                        Occupancy occ = model.getOccupancy(ed.getOccupancyNodeId(), ed.getOccupancyPortId());
+                    if (ed.getOccupancyId() != null) {
+                        Occupancy occ = model.getOccupancy(ed.getOccupancyId());
                         if (occ != null) {
                             element.setOccupancy(occ);
                         }

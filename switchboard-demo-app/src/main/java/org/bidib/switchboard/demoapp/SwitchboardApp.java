@@ -20,14 +20,16 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
-import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
+import org.bidib.switchboard.demoapp.config.DemoOccupancy;
 import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
+import org.bidib.switchboard.demoapp.persistence.DemoOccupancySerializer;
 import org.bidib.switchboard.demoapp.persistence.SettingsData.LookAndFeel;
 import org.bidib.switchboard.demoapp.persistence.SettingsManager;
 import org.bidib.switchboard.demoapp.service.LayoutService;
+import org.bidib.switchboard.demoapp.view.DemoAssignOccupancyDialogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +50,7 @@ public class SwitchboardApp {
 
     private final LayoutService layoutService;
 
-	private final OccupancyFactory occupancyFactory = new DemoOccupancyFactory();
+	private final DemoOccupancyFactory occupancyFactory = new DemoOccupancyFactory();
 
     SwitchboardApp() {
         this(true);
@@ -56,7 +58,7 @@ public class SwitchboardApp {
 
     SwitchboardApp(boolean autoLoad) {
         model = new RailwayModel();
-        panel = new SwitchboardPanel(occupancyFactory, model);
+        panel = new SwitchboardPanel(occupancyFactory, new DemoAssignOccupancyDialogFactory(), model);
         settings = new SettingsManager();
 
         if (LookAndFeel.DARK == settings.getLookAndFeel()) {
@@ -67,7 +69,7 @@ public class SwitchboardApp {
         }
 
         frame = new JFrame("Model Railway Switchboard");
-        layoutService = new LayoutService(occupancyFactory, panel, settings, frame);
+        layoutService = new LayoutService(new DemoOccupancySerializer(), panel, settings, frame);
         if (autoLoad) {
             layoutService.tryAutoLoad();
             updateTitle();
@@ -244,7 +246,11 @@ public class SwitchboardApp {
 
     private void showOccupanciesDialog() {
         Map<String, Occupancy> occs = model.getOccupancies();
-        List<Occupancy> sorted = occs.values().stream().sorted(Comparator.comparingLong(Occupancy::getNodeId).thenComparingInt(Occupancy::getPortId)).toList();
+        List<Occupancy> sorted = occs.values().stream()
+                .sorted(Comparator.<Occupancy, Long>comparing(
+                        o -> o instanceof DemoOccupancy d ? d.getNodeId() : 0L)
+                        .thenComparingInt(o -> o instanceof DemoOccupancy d ? d.getPortId() : 0))
+                .toList();
 
         JTable table = new JTable(new AbstractTableModel() {
             private final String[] columns = { "Node ID", "Port ID", "State" };
@@ -263,8 +269,8 @@ public class SwitchboardApp {
             public Object getValueAt(int row, int col) {
                 Occupancy o = sorted.get(row);
                 return switch (col) {
-                    case 0 -> o.getNodeId();
-                    case 1 -> o.getPortId();
+                    case 0 -> o instanceof DemoOccupancy d ? d.getNodeId() : "-";
+                    case 1 -> o instanceof DemoOccupancy d ? d.getPortId() : "-";
                     case 2 -> o.getState();
                     default -> null;
                 };
@@ -282,5 +288,4 @@ public class SwitchboardApp {
         dialog.setLocationRelativeTo(frame);
         dialog.setVisible(true);
     }
-
 }

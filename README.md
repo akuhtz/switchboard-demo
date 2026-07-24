@@ -24,6 +24,7 @@ SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsv
 | **Observer**  | Propagates model state changes to the UI via `PropertyChangeSupport`              |
 | **Command**   | Encapsulates actions (cycle element) with undo/redo support                |
 | **State**     | Models per-element aspects as integer ordinals (0..N-1)                    |
+| **Strategy**  | Pluggable occupancy serialization (`OccupancySerializer`) and dialog creation (`AssignOccupancyDialogFactory`) |
 | **Composite** | Composes all tile types into a unified grid panel                          |
 
 ---
@@ -94,7 +95,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Single unified model holding all elements and occupancies.
 - Uses `PropertyChangeSupport` (idiomatic Java Observer).
 - **State**: `Map<String, Element> elements` — elementId → Element object.
-  `Map<String, Occupancy> occupancies` — `nodeId:portId` → Occupancy object.
+  `Map<String, Occupancy> occupancies` — occupancy id → Occupancy object.
 - Aspect counts live on the tile (`ElementTile.getAspectCount()`) rather than in the model.
 - Fires `PropertyChangeEvent` on every state mutation.
 - `addElement()` bridges the Element's property changes to the model's `PropertyChangeSupport`.
@@ -104,8 +105,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `setElementAspect(String id, int aspect)`
   - `getElementAspect(String id)` / `getElement(String id)`
   - `getElements()` — unmodifiable snapshot `Map<String, Element>`
-  - `addOccupancy(Occupancy occupancy)` / `removeOccupancy(long nodeId, int portId)`
-  - `getOccupancy(long nodeId, int portId)` / `getOccupancies()` — unmodifiable `Map<String, Occupancy>`
+  - `addOccupancy(Occupancy occupancy)` / `removeOccupancy(String id)`
+  - `getOccupancy(String id)` / `getOccupancies()` — unmodifiable `Map<String, Occupancy>`
   - `clear()` / `removeElement(String id)` / `containsElement(String id)`
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
@@ -135,19 +136,17 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `clear()` / `size()` / `isEmpty()`
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
-### `Occupancy` (abstract)
-- Abstract base class for track occupancy sensors with `state` (FREE/OCCUPIED) and abstract `getNodeId()`/`getPortId()`.
-- Subclasses own the `nodeId`/`portId` fields:
-  - `TestOccupancy` — in `org.bidib.switchboard.component.config`, used by tests.
-  - `DemoOccupancy` — in `org.bidib.switchboard.demoapp.config`, used by the demo app.
-- Created exclusively via `OccupancyFactory`:
-  - `TestOccupancyFactory` returns `TestOccupancy`.
-  - `DemoOccupancyFactory` returns `DemoOccupancy`.
-- Stored in `RailwayModel.occupancies` keyed by `nodeId:portId`.
-- Elements can reference an `Occupancy` via `getOccupancy()` / `setOccupancy()`.
-- Persisted in `LayoutData.ModelStateData.occupancies` and restored on load.
-- Visualised in the "Occupancies..." dialog (Edit menu).
+### `Occupancy`
+- Concrete class in `org.bidib.switchboard.component.model` representing track occupancy.
+- Fields: `id` (String, auto-generated as `"occ-N"`), `state` (OccupancyState: FREE/OCCUPIED).
 - Extends `com.jgoodies.binding.beans.Model` — fires `"state"` property changes via `firePropertyChange` in `setState()`.
+- Subclasses can add hardware-specific fields:
+  - `DemoOccupancy` in `org.bidib.switchboard.demoapp.config` adds `nodeId`/`portId`.
+  - `TestOccupancy` in `org.bidib.switchboard.component.config` adds `extReference`.
+- Created via `OccupancyFactory.create(OccupancyState state)`.
+- Stored in `RailwayModel.occupancies` keyed by `occ.getId()`.
+- Elements reference an `Occupancy` via `getOccupancy()` / `setOccupancy()` (nullable, clears on null).
+- Persisted in `LayoutData.ModelStateData.occupancies` and restored on load.
 
 ---
 - Represents a single grid cell at `(col, row)`.
@@ -226,7 +225,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - Edit-mode tooltip shows element ID on hover.
 - **Thread safety**:
   - All repaints triggered via `SwingUtilities.invokeLater`.
-- Constructor: `SwitchboardPanel(OccupancyFactory, RailwayModel)` and `SwitchboardPanel(OccupancyFactory, RailwayModel, int cols, int rows, int tileSize)`.
+- Constructor: `SwitchboardPanel(RailwayModel, AssignOccupancyDialogFactory)` and `SwitchboardPanel(RailwayModel, AssignOccupancyDialogFactory, int cols, int rows, int tileSize)`.
 - Public API:
   - `setTile(Tile tile)` / `getTile(int col, int row)` / `removeTile(int col, int row)`
   - `clearTiles()` / `getModel()` / `undoLast()`
@@ -287,12 +286,12 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `LayoutPersistence`
 - Serializes the full switchboard state (tiles + model + occupancies) to JSON using Jackson 3.
-- Now an instance-based class (was static). Constructor takes an `OccupancyFactory` to create occupancy objects during deserialization.
+- Instance-based class. Constructor takes an `OccupancySerializer` to handle occupancy serialization during deserialization.
 - `capture(TileGrid)` / `save(TileGrid, Path)` — write state.
 - `load(TileGrid, Path)` / `apply(TileGrid, LayoutData)` — read state.
 - Tile type string format: `{prefix}{count}`, e.g. `"TL2"`, `"T32"`, `"S22"`, `"S32"`, `"P1"`, `"CL1"`, `"CR1"`, `"DG1"`.
 - Type is matched by iterating `ElementType.values()` and testing `typeStr.startsWith(prefix)`.
-- Occupancies are serialised in `ModelStateData.occupancies` and element→occupancy references via `OccupancyData` nodeId/portId on each `ElementData`.
+- Occupancies are serialised in `ModelStateData.occupancies` and element→occupancy references via `occupancyId` on each `ElementData`.
 
 ### `SettingsManager`
 - Manages `settings.json` at the project root, separate from the layout file.
@@ -302,7 +301,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
 - `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation), and `ModelStateData`.
-- `ModelStateData` holds a `List<ElementData>` (each containing `id`, `nodeId`, `accessoryId`, `aspect`, `occupancyNodeId`, `occupancyPortId`) and a `List<OccupancyData>` (each containing `nodeId`, `portId`, `state`).
+- `ModelStateData` holds a `List<ElementData>` (each containing `id`, `nodeId`, `accessoryId`, `aspect`, `occupancyId`) and a `List<OccupancyData>` (each containing `id`, `nodeId`, `portId`, `state`).
 - `SettingsData` holds `lastLayoutFile` and `LookAndFeel` (LIGHT/DARK enum).
 
 ---
@@ -323,7 +322,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | Edit | Undo | `Ctrl+Z` | Undo last tile or route operation |
 | Edit | Edit Mode | `Ctrl+E` | Toggle normal/edit mode |
 | Edit | Load Default Layout | — | Load the built-in default layout |
-| Edit | Occupancies... | — | Show dialog with all occupancies sorted by nodeId/portId |
+| Edit | Occupancies... | — | Show dialog with all occupancies sorted by id |
 
 ### Toolbar
 - `[Edit Mode]` toggle button synced with the Edit menu item.
@@ -489,3 +488,9 @@ mvn compile exec:java -Dexec.mainClass=org.bidib.switchboard.SwitchboardApp
 mvn test
 mvn test -Dscreen.recording=true   # with MP4 screen recording for occupancy UI tests
 ```
+
+---
+
+## Related Projects
+
+- [jbidibc](https://github.com/akuhtz/jbidibc) — Java BiDiB library for controlling model railways

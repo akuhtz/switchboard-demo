@@ -63,16 +63,16 @@ public class RailwayModel {
     }
 
     public void addOccupancy(Occupancy occupancy) {
-        occupancies.put(occupancy.getNodeId() + ":" + occupancy.getPortId(), occupancy);
+        occupancies.put(occupancy.getId(), occupancy);
         occupancy.addPropertyChangeListener(e -> pcs.firePropertyChange(e));
     }
 
-    public Occupancy removeOccupancy(long nodeId, int portId) {
-        return occupancies.remove(nodeId + ":" + portId);
+    public Occupancy removeOccupancy(String id) {
+        return occupancies.remove(id);
     }
 
-    public Occupancy getOccupancy(long nodeId, int portId) {
-        return occupancies.get(nodeId + ":" + portId);
+    public Occupancy getOccupancy(String id) {
+        return occupancies.get(id);
     }
 
     public Map<String, Occupancy> getOccupancies() {

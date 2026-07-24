@@ -73,7 +73,7 @@ class OccupancyElementUiTest {
 
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
 
-        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, model));
+        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model));
 
         GuiActionRunner.execute(() -> {
             int row = 0;
@@ -154,7 +154,7 @@ class OccupancyElementUiTest {
         GuiActionRunner.execute(() -> {
             for (int i = 0; i < elements.size(); i++) {
                 Element el = elements.get(i);
-                Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
+                Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
                 panel.getModel().addOccupancy(occ);
                 el.setOccupancy(occ);
             }
@@ -267,7 +267,7 @@ class OccupancyElementUiTest {
         GuiActionRunner.execute(() -> {
             for (int i = 0; i < elements.size(); i++) {
                 Element el = elements.get(i);
-                Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
+                Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
                 panel.getModel().addOccupancy(occ);
                 el.setOccupancy(occ);
             }

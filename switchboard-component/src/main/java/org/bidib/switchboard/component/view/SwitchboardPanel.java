@@ -103,6 +103,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private static final Color COLOR_ROUTE_TARGET = new Color(100, 160, 255);
 
+    private final OccupancyFactory occupancyFactory;
+
+    private final AssignOccupancyDialogFactory assignOccupancyDialogFactory;
+
     private final RouterService routerService;
 
     private final int tileSize;
@@ -129,6 +133,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         this.showOtherAlternatives = show;
     }
 
+//    public void setAssignOccupancyDialogFactory(AssignOccupancyDialogFactory factory) {
+//        this.assignOccupancyDialogFactory = factory;
+//    }
+
     private int selectedCol = -1;
 
     private int selectedRow = -1;
@@ -143,14 +151,14 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private int routeSourceRow = -1;
     
-    private final OccupancyFactory occupancyFactory;
-
-    public SwitchboardPanel(final OccupancyFactory occupancyFactory, final RailwayModel model) {
-        this(occupancyFactory, model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
+    public SwitchboardPanel(final OccupancyFactory occupancyFactory, final AssignOccupancyDialogFactory assignOccupancyDialogFactory, final RailwayModel model) {
+        this(occupancyFactory, assignOccupancyDialogFactory, model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
     }
 
-    public SwitchboardPanel(final OccupancyFactory occupancyFactory, final RailwayModel model, int cols, int rows, int tileSize) {
-    	this.occupancyFactory = occupancyFactory;
+    public SwitchboardPanel(final OccupancyFactory occupancyFactory, final AssignOccupancyDialogFactory assignOccupancyDialogFactory, final RailwayModel model, int cols, int rows, int tileSize) {
+    		this.occupancyFactory = occupancyFactory;
+        this.assignOccupancyDialogFactory = assignOccupancyDialogFactory;
+//            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el);
         this.model = model;
         this.cols = cols;
         this.rows = rows;
@@ -568,7 +576,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 sb.append("Node ID: ").append(el.getNodeId()).append("\n");
                 sb.append("Accessory ID: ").append(el.getAccessoryId()).append("\n");
                 if (el.getOccupancy() != null) {
-                    sb.append("Occupancy: ").append(el.getOccupancy().getNodeId()).append(":").append(el.getOccupancy().getPortId()).append("\n");
+                    sb.append("Occupancy: ").append(el.getOccupancy().getId()).append(" (").append(el.getOccupancy().getState()).append(")\n");
                 }
             }
             sb.append("Aspects: ").append(et.getAspectCount()).append("\n");
@@ -580,8 +588,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private void showAssignOccupancyDialog(Element el) {
-    	
-        new AssignOccupancyDialog(occupancyFactory).show(this, model, el);
+        assignOccupancyDialogFactory.showAssignOccupancyDialog(this, model, el);
     }
 
     private void onTileContextAction(int col, int row, ElementType type) {
@@ -910,7 +917,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             if (tile instanceof ElementTile et && et.getElementId() != null) {
                 Element el = model.getElement(et.getElementId());
                 if (el != null) {
-                    Occupancy occ = occupancyFactory.create(1, i, Occupancy.OccupancyState.FREE);
+                    Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
                     model.addOccupancy(occ);
                     el.setOccupancy(occ);
                 }

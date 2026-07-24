@@ -47,11 +47,11 @@ class RouteFindingUiTest {
 
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
 
-        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, model));
+        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model));
 
         var url = RouteFindingUiTest.class.getResource("/test-data/switchboard3.json");
         Path path = Paths.get(url.toURI());
-        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        var layoutPersistence = new LayoutPersistence();
         GuiActionRunner.execute(() -> layoutPersistence.load(panel, path));
 
         JFrame frame = GuiActionRunner.execute(() -> {
@@ -222,7 +222,7 @@ class RouteFindingUiTest {
 
                 if (el.getOccupancy() == null) {
                     LOGGER.info("Create new occupancy.");
-                    Occupancy occ = occupancyFactory.create(1, 1, Occupancy.OccupancyState.OCCUPIED);
+                    Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.OCCUPIED);
                     panel.getModel().addOccupancy(occ);
                     el.setOccupancy(occ);
                 }

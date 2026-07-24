@@ -16,14 +16,11 @@ public class DemoOccupancy extends Occupancy {
         this.portId = portId;
     }
 
-    @Override
     public long getNodeId() {
         return nodeId;
     }
 
-    @Override
     public int getPortId() {
         return portId;
     }
-
 }

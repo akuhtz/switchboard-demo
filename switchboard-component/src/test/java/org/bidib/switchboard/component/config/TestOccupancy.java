@@ -6,24 +6,14 @@ public class TestOccupancy extends Occupancy {
 
     private static final long serialVersionUID = 1L;
 
-    private final long nodeId;
+    private final String extReference;
 
-    private final int portId;
-
-    public TestOccupancy(long nodeId, int portId, OccupancyState state) {
+    public TestOccupancy(String extReference, OccupancyState state) {
         super(state);
-        this.nodeId = nodeId;
-        this.portId = portId;
+        this.extReference = extReference;
     }
 
-    @Override
-    public long getNodeId() {
-        return nodeId;
+    public String getExtReference() {
+        return extReference;
     }
-
-    @Override
-    public int getPortId() {
-        return portId;
-    }
-
 }

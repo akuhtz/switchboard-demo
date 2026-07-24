@@ -17,6 +17,7 @@ import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.view.AssignOccupancyDialog;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -41,7 +42,7 @@ class SwitchboardAppTest {
         var url = SwitchboardAppTest.class.getResource("/test-data/switchboard3.json");
         Path path = Paths.get(url.toURI());
         GuiActionRunner.execute(() -> {
-        	var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        	var layoutPersistence = new LayoutPersistence();
             layoutPersistence.load(panel, path);
         });
     }
@@ -119,24 +120,23 @@ class SwitchboardAppTest {
     @Test
     void occupancyPersistenceRoundtrip() {
         var model = panel.getModel();
-        var el = model.getElement("P-001");
+        var element = model.getElement("P-001");
 
-        Occupancy occ = occupancyFactory.create(42, 7, Occupancy.OccupancyState.FREE);
+        Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
         model.addOccupancy(occ);
-        el.setOccupancy(occ);
+        element.setOccupancy(occ);
 
-        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        var layoutPersistence = new LayoutPersistence();
         var data = layoutPersistence.capture(panel);
 
         var freshModel = new RailwayModel();
-        var freshPanel = new SwitchboardPanel(occupancyFactory, freshModel);
+        var freshPanel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), freshModel);
         layoutPersistence.apply(freshPanel, data);
 
         Assertions.assertThat(freshModel.getOccupancies()).hasSize(1);
-        var restored = freshModel.getOccupancy(42, 7);
+        var restored = freshModel.getOccupancies().values().iterator().next();
         Assertions.assertThat(restored).isNotNull();
-        Assertions.assertThat(restored.getNodeId()).isEqualTo(42);
-        Assertions.assertThat(restored.getPortId()).isEqualTo(7);
+        Assertions.assertThat(restored.getId()).isEqualTo(occ.getId());
         Assertions.assertThat(restored.getState()).isEqualTo(Occupancy.OccupancyState.FREE);
 
         var restoredEl = freshModel.getElement("P-001");

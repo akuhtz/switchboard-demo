@@ -73,9 +73,13 @@ public class LayoutData {
     }
 
     public static class OccupancyData {
+        private String id;
         private long nodeId;
         private int portId;
         private String state;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
 
         public long getNodeId() { return nodeId; }
         public void setNodeId(long nodeId) { this.nodeId = nodeId; }
@@ -92,8 +96,7 @@ public class LayoutData {
         private long nodeId;
         private long accessoryId;
         private int aspect;
-        private int occupancyPortId = -1;
-        private long occupancyNodeId;
+        private String occupancyId;
 
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
@@ -107,11 +110,8 @@ public class LayoutData {
         public int getAspect() { return aspect; }
         public void setAspect(int aspect) { this.aspect = aspect; }
 
-        public int getOccupancyPortId() { return occupancyPortId; }
-        public void setOccupancyPortId(int occupancyPortId) { this.occupancyPortId = occupancyPortId; }
-
-        public long getOccupancyNodeId() { return occupancyNodeId; }
-        public void setOccupancyNodeId(long occupancyNodeId) { this.occupancyNodeId = occupancyNodeId; }
+        public String getOccupancyId() { return occupancyId; }
+        public void setOccupancyId(String occupancyId) { this.occupancyId = occupancyId; }
     }
 
     // --- Route data ---

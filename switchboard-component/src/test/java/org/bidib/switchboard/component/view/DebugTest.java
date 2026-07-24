@@ -24,9 +24,16 @@ class DebugTest {
     @Test
     void debugP015toTL004() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, model);
+//        final AssignOccupancyDialogFactory assignOccupancyDialogFactory = new AssignOccupancyDialogFactory() {
+//			@Override
+//			public void showAssignOccupancyDialog(Component parent, RailwayModel model, Element el) {
+//				new AssignOccupancyDialog().show(parent, model, el);
+//			}
+//        };
+//        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, assignOccupancyDialogFactory, model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
 
-        var layoutPersistence = new LayoutPersistence(occupancyFactory);
+        var layoutPersistence = new LayoutPersistence();
         layoutPersistence.load(panel, testLayout5());
 
         panel.testSetRouteSource(2, 3);
