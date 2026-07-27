@@ -878,25 +878,26 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         }
     }
 
-    boolean isTileOccupied(int col, int row) {
+    /** Returns the Element for a tile at (col, row), or null if not an element tile. */
+    private Element elementAt(int col, int row) {
         Tile tile = getTile(col, row);
         if (tile instanceof ElementTile et && et.getElementId() != null) {
-            Element el = model.getElement(et.getElementId());
-            if (el != null && el.getOccupancy() != null) {
-                return el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED;
-            }
+            return model.getElement(et.getElementId());
         }
-        return false;
+        return null;
+    }
+
+    boolean isTileOccupied(int col, int row) {
+        Element el = elementAt(col, row);
+        return el != null && el.getOccupancy() != null
+            && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED;
     }
 
     private boolean hasRouteOccupancy(Route route) {
         for (int[] p : route.getPath()) {
-            Tile tile = getTile(p[0], p[1]);
-            if (tile instanceof ElementTile et && et.getElementId() != null) {
-                Element el = model.getElement(et.getElementId());
-                if (el != null && el.getOccupancy() != null && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
-                    return true;
-                }
+            Element el = elementAt(p[0], p[1]);
+            if (el != null && el.getOccupancy() != null && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
+                return true;
             }
         }
         return false;
@@ -904,12 +905,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private void clearRouteOccupancy(Route route) {
         for (int[] p : route.getPath()) {
-            Tile tile = getTile(p[0], p[1]);
-            if (tile instanceof ElementTile et && et.getElementId() != null) {
-                Element el = model.getElement(et.getElementId());
-                if (el != null && el.getOccupancy() != null) {
-                    el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                }
+            Element el = elementAt(p[0], p[1]);
+            if (el != null && el.getOccupancy() != null) {
+                el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
             }
         }
     }
