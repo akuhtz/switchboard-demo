@@ -411,128 +411,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         }
 
         if (editMode) {
-            if (menu.getComponentCount() > 0) {
-                menu.addSeparator();
-            }
-
-            JMenu signalMenu = null;
-
-            for (ElementType type : ElementType.values()) {
-                if (!type.isVisible()) {
-                    continue;
-                }
-
-                if (type.getPrefix().startsWith("S")) {
-                    if (signalMenu == null) {
-                        signalMenu = new JMenu("Signals");
-                        menu.add(signalMenu);
-                    }
-                    JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
-                    item.addActionListener(e -> onTileContextAction(col, row, type));
-                    signalMenu.add(item);
-                }
-                else {
-                    JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
-                    item.addActionListener(e -> onTileContextAction(col, row, type));
-                    menu.add(item);
-                }
-            }
-
-            if (tile != null) {
-                if (tile instanceof ElementTile et && et.getElementId() != null) {
-                    Element el = model.getElement(et.getElementId());
-                    if (el != null) {
-                        if (el.getOccupancy() != null) {
-                            JMenuItem removeOccItem = new JMenuItem("Remove Occupancy");
-                            removeOccItem.addActionListener(e -> el.setOccupancy(null));
-                            menu.add(removeOccItem);
-                        }
-                        JMenuItem assignOccItem = new JMenuItem("Assign Occupancy...");
-                        assignOccItem.addActionListener(e -> showAssignOccupancyDialog(el));
-                        menu.add(assignOccItem);
-                        menu.addSeparator();
-                    }
-                }
-                JMenuItem clearItem = new JMenuItem("Clear");
-                clearItem.addActionListener(e -> onTileContextAction(col, row, null));
-                menu.add(clearItem);
-            }
+            buildEditMenuItems(menu, col, row, tile);
         }
 
-        String routeId = tile != null ? routeModel.routeIdForTile(col, row) : null;
-        if (routeId != null) {
-            if (menu.getComponentCount() > 0) {
-                menu.addSeparator();
-            }
-            if (routeModel.hasAlternativeRoute(routeId)) {
-                List<Route> alts = routeModel.getAlternativeRoutes(routeId);
-                int selectedIdx = routeModel.getSelectedAlternativeIndex(routeId);
-                JMenuItem primaryItem = new JMenuItem("Use primary route");
-                primaryItem.addActionListener(e -> {
-                    routeModel.clearAlternatives(routeId);
-                    repaint();
-                });
-                menu.add(primaryItem);
-                for (int i = 0; i < alts.size(); i++) {
-                    Route alt = alts.get(i);
-                    String label = "Alternative " + (i + 1) + " (" + alt.getSourceElementId() + " → " + alt.getTargetElementId() + ")";
-                    Color altColor = altPaletteColor(i);
-                    Icon icon = new Icon() {
-                        @Override public void paintIcon(Component comp, Graphics g, int x, int y) {
-                            g.setColor(altColor);
-                            g.fillOval(x, y, getIconWidth(), getIconHeight());
-                        }
-                        @Override public int getIconWidth() { return 10; }
-                        @Override public int getIconHeight() { return 10; }
-                    };
-                    JMenuItem item = new JMenuItem(label, icon);
-                    int idx = i;
-                    item.addActionListener(e -> {
-                        routeModel.setSelectedAlternativeIndex(routeId, idx);
-                        repaint();
-                    });
-                    menu.add(item);
-                }
-                JMenuItem useItem = new JMenuItem("Use selected alternative");
-                useItem.addActionListener(e -> {
-                    routeModel.swapWithAlternative(routeId);
-                    Route newRoute = routeModel.getRoute(routeId);
-                    if (newRoute != null) {
-                        setRouteAspects(newRoute.getPath());
-                    }
-                    repaint();
-                });
-                menu.add(useItem);
-            }
-            JMenuItem clearRouteItem = new JMenuItem("Clear route (" + routeId + ")");
-            clearRouteItem.addActionListener(e -> {
-                if (occupancyTimer != null && occupancyTimer.isRunning()) {
-                    occupancyTimer.stop();
-                }
-                routeModel.removeRoute(routeId);
-                repaint();
-            });
-            menu.add(clearRouteItem);
-
-            Route r = routeModel.getRoute(routeId);
-            if (r != null && !r.getPath().isEmpty()) {
-                int[] first = r.getPath().get(0);
-                if (first[0] == col && first[1] == row) {
-                    menu.addSeparator();
-                    boolean isRunning = occupancyTimer != null && occupancyTimer.isRunning();
-                    JMenuItem simItem = new JMenuItem("Simulate occupancy (" + routeId + ")");
-                    simItem.setEnabled(!isRunning);
-                    simItem.addActionListener(e -> startRouteOccupancySimulation(r));
-                    menu.add(simItem);
-                    if (hasRouteOccupancy(r)) {
-                        JMenuItem clearSimItem = new JMenuItem("Clear simulated occupancy (" + routeId + ")");
-                        clearSimItem.setEnabled(!isRunning);
-                        clearSimItem.addActionListener(e -> clearRouteOccupancy(r));
-                        menu.add(clearSimItem);
-                    }
-                }
-            }
-        }
+        buildRouteMenuItems(menu, col, row, tile);
 
         if (editMode && tile != null && selectedCol >= 0 && selectedRow >= 0) {
             if (menu.getComponentCount() > 0) {
@@ -549,6 +431,133 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
         if (menu.getComponentCount() > 0) {
             menu.show(this, x, y);
+        }
+    }
+
+    private void buildEditMenuItems(JPopupMenu menu, int col, int row, Tile tile) {
+        if (menu.getComponentCount() > 0) {
+            menu.addSeparator();
+        }
+
+        JMenu signalMenu = null;
+
+        for (ElementType type : ElementType.values()) {
+            if (!type.isVisible()) {
+                continue;
+            }
+
+            if (type.getPrefix().startsWith("S")) {
+                if (signalMenu == null) {
+                    signalMenu = new JMenu("Signals");
+                    menu.add(signalMenu);
+                }
+                JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
+                item.addActionListener(e -> onTileContextAction(col, row, type));
+                signalMenu.add(item);
+            }
+            else {
+                JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
+                item.addActionListener(e -> onTileContextAction(col, row, type));
+                menu.add(item);
+            }
+        }
+
+        if (tile != null) {
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null) {
+                    if (el.getOccupancy() != null) {
+                        JMenuItem removeOccItem = new JMenuItem("Remove Occupancy");
+                        removeOccItem.addActionListener(e -> el.setOccupancy(null));
+                        menu.add(removeOccItem);
+                    }
+                    JMenuItem assignOccItem = new JMenuItem("Assign Occupancy...");
+                    assignOccItem.addActionListener(e -> showAssignOccupancyDialog(el));
+                    menu.add(assignOccItem);
+                    menu.addSeparator();
+                }
+            }
+            JMenuItem clearItem = new JMenuItem("Clear");
+            clearItem.addActionListener(e -> onTileContextAction(col, row, null));
+            menu.add(clearItem);
+        }
+    }
+
+    private void buildRouteMenuItems(JPopupMenu menu, int col, int row, Tile tile) {
+        String routeId = tile != null ? routeModel.routeIdForTile(col, row) : null;
+        if (routeId == null) {
+            return;
+        }
+        if (menu.getComponentCount() > 0) {
+            menu.addSeparator();
+        }
+        if (routeModel.hasAlternativeRoute(routeId)) {
+            List<Route> alts = routeModel.getAlternativeRoutes(routeId);
+            int selectedIdx = routeModel.getSelectedAlternativeIndex(routeId);
+            JMenuItem primaryItem = new JMenuItem("Use primary route");
+            primaryItem.addActionListener(e -> {
+                routeModel.clearAlternatives(routeId);
+                repaint();
+            });
+            menu.add(primaryItem);
+            for (int i = 0; i < alts.size(); i++) {
+                Route alt = alts.get(i);
+                String label = "Alternative " + (i + 1) + " (" + alt.getSourceElementId() + " → " + alt.getTargetElementId() + ")";
+                Color altColor = altPaletteColor(i);
+                Icon icon = new Icon() {
+                    @Override public void paintIcon(Component comp, Graphics g, int x, int y) {
+                        g.setColor(altColor);
+                        g.fillOval(x, y, getIconWidth(), getIconHeight());
+                    }
+                    @Override public int getIconWidth() { return 10; }
+                    @Override public int getIconHeight() { return 10; }
+                };
+                JMenuItem item = new JMenuItem(label, icon);
+                int idx = i;
+                item.addActionListener(e -> {
+                    routeModel.setSelectedAlternativeIndex(routeId, idx);
+                    repaint();
+                });
+                menu.add(item);
+            }
+            JMenuItem useItem = new JMenuItem("Use selected alternative");
+            useItem.addActionListener(e -> {
+                routeModel.swapWithAlternative(routeId);
+                Route newRoute = routeModel.getRoute(routeId);
+                if (newRoute != null) {
+                    setRouteAspects(newRoute.getPath());
+                }
+                repaint();
+            });
+            menu.add(useItem);
+        }
+        JMenuItem clearRouteItem = new JMenuItem("Clear route (" + routeId + ")");
+        clearRouteItem.addActionListener(e -> {
+            if (occupancyTimer != null && occupancyTimer.isRunning()) {
+                occupancyTimer.stop();
+            }
+            routeModel.removeRoute(routeId);
+            repaint();
+        });
+        menu.add(clearRouteItem);
+
+        Route r = routeModel.getRoute(routeId);
+        if (r != null && !r.getPath().isEmpty()) {
+            int[] first = r.getPath().get(0);
+            if (first[0] == col && first[1] == row) {
+                menu.addSeparator();
+                boolean isRunning = occupancyTimer != null && occupancyTimer.isRunning();
+                JMenuItem simItem = new JMenuItem("Simulate occupancy (" + routeId + ")");
+                simItem.setEnabled(!isRunning);
+                simItem.addActionListener(e -> startRouteOccupancySimulation(r));
+                menu.add(simItem);
+                if (hasRouteOccupancy(r)) {
+                    JMenuItem clearSimItem = new JMenuItem("Clear simulated occupancy (" + routeId + ")");
+                    clearSimItem.setEnabled(!isRunning);
+                    clearSimItem.addActionListener(e -> clearRouteOccupancy(r));
+                    menu.add(clearSimItem);
+                }
+            }
         }
     }
 
@@ -742,17 +751,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                     int rotSteps = (tile.getRotation() / 90) % 4;
 
                     if (et.getElementType() == ElementType.DIAGONAL) {
-                        int[][] pairs = { { ElementType.PORT_LEFT, ElementType.PORT_BOTTOM },
-                            { ElementType.PORT_TOP, ElementType.PORT_RIGHT } };
-                        for (int[] pair : pairs) {
-                            int p1 = (pair[0] + rotSteps) % 4;
-                            int p2 = (pair[1] + rotSteps) % 4;
-                            int dx = (p1 == ElementType.PORT_RIGHT || p2 == ElementType.PORT_RIGHT) ? d
-                                : (p1 == ElementType.PORT_LEFT || p2 == ElementType.PORT_LEFT) ? -d : 0;
-                            int dy = (p1 == ElementType.PORT_BOTTOM || p2 == ElementType.PORT_BOTTOM) ? d
-                                : (p1 == ElementType.PORT_TOP || p2 == ElementType.PORT_TOP) ? -d : 0;
-                            g2.drawLine(cx, cy, cx + dx, cy + dy);
-                        }
+                        drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
                         continue;
                     }
 
@@ -762,55 +761,78 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                         && (et.getElementType() == ElementType.CURVE_LEFT
                         || et.getElementType() == ElementType.CURVE_RIGHT
                         || et.getElementType() == ElementType.TURNOUT_3WAY)) {
-                        for (int i = 0; i < ports.length; i++) {
-                            int port = ports[i];
-                            if (i == 0) {
-                                drawPortLine(g2, cx, cy, port, tileSize);
-                            } else {
-                                int firstPort = ports[0];
-                                boolean secondIsVertical = port == ElementType.PORT_TOP || port == ElementType.PORT_BOTTOM;
-                                int dx, dy;
-                                if (secondIsVertical) {
-                                    dx = firstPort == ElementType.PORT_LEFT ? d
-                                        : firstPort == ElementType.PORT_RIGHT ? -d : 0;
-                                    dy = port == ElementType.PORT_TOP ? -d : d;
-                                } else {
-                                    dx = port == ElementType.PORT_LEFT ? -d
-                                        : port == ElementType.PORT_RIGHT ? d : 0;
-                                    dy = firstPort == ElementType.PORT_TOP ? d
-                                        : firstPort == ElementType.PORT_BOTTOM ? -d : 0;
-                                }
-                                g2.drawLine(cx, cy, cx + dx, cy + dy);
-                            }
-                        }
+                        drawCurveOccupancy(g2, cx, cy, d, ports);
                         continue;
                     }
 
-                    for (int port : ports) {
-                        if (el.getCurrentAspect() == 1
-                            && (et.getElementType() == ElementType.TURNOUT_RIGHT || et.getElementType() == ElementType.TURNOUT_LEFT)) {
-                            int divertBase = et.getElementType() == ElementType.TURNOUT_RIGHT
-                                ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP;
-                            int divertExit = (divertBase + rotSteps) % 4;
-                            if (port == divertExit) {
-                                int throughPort = (ElementType.PORT_RIGHT + rotSteps) % 4;
-                                boolean divertIsHorizontal = divertExit == ElementType.PORT_LEFT || divertExit == ElementType.PORT_RIGHT;
-                                int dx = divertIsHorizontal
-                                    ? (divertExit == ElementType.PORT_RIGHT ? d : -d)
-                                    : (throughPort == ElementType.PORT_RIGHT ? d
-                                        : throughPort == ElementType.PORT_LEFT ? -d : 0);
-                                int dy = divertIsHorizontal
-                                    ? (throughPort == ElementType.PORT_BOTTOM ? d
-                                        : throughPort == ElementType.PORT_TOP ? -d : 0)
-                                    : (divertExit == ElementType.PORT_BOTTOM ? d : -d);
-                                g2.drawLine(cx, cy, cx + dx, cy + dy);
-                                continue;
-                            }
-                        }
-                        drawPortLine(g2, cx, cy, port, tileSize);
-                    }
+                    drawPortsOccupancy(g2, cx, cy, d, rotSteps, et, el, ports);
                 }
             }
+        }
+    }
+
+    private static void drawDiagonalOccupancy(Graphics2D g2, int cx, int cy, int d, int rotSteps) {
+        int[][] pairs = { { ElementType.PORT_LEFT, ElementType.PORT_BOTTOM },
+            { ElementType.PORT_TOP, ElementType.PORT_RIGHT } };
+        for (int[] pair : pairs) {
+            int p1 = (pair[0] + rotSteps) % 4;
+            int p2 = (pair[1] + rotSteps) % 4;
+            int dx = (p1 == ElementType.PORT_RIGHT || p2 == ElementType.PORT_RIGHT) ? d
+                : (p1 == ElementType.PORT_LEFT || p2 == ElementType.PORT_LEFT) ? -d : 0;
+            int dy = (p1 == ElementType.PORT_BOTTOM || p2 == ElementType.PORT_BOTTOM) ? d
+                : (p1 == ElementType.PORT_TOP || p2 == ElementType.PORT_TOP) ? -d : 0;
+            g2.drawLine(cx, cy, cx + dx, cy + dy);
+        }
+    }
+
+    private void drawCurveOccupancy(Graphics2D g2, int cx, int cy, int d, int[] ports) {
+        for (int i = 0; i < ports.length; i++) {
+            int port = ports[i];
+            if (i == 0) {
+                drawPortLine(g2, cx, cy, port, tileSize);
+            } else {
+                int firstPort = ports[0];
+                boolean secondIsVertical = port == ElementType.PORT_TOP || port == ElementType.PORT_BOTTOM;
+                int dx, dy;
+                if (secondIsVertical) {
+                    dx = firstPort == ElementType.PORT_LEFT ? d
+                        : firstPort == ElementType.PORT_RIGHT ? -d : 0;
+                    dy = port == ElementType.PORT_TOP ? -d : d;
+                } else {
+                    dx = port == ElementType.PORT_LEFT ? -d
+                        : port == ElementType.PORT_RIGHT ? d : 0;
+                    dy = firstPort == ElementType.PORT_TOP ? d
+                        : firstPort == ElementType.PORT_BOTTOM ? -d : 0;
+                }
+                g2.drawLine(cx, cy, cx + dx, cy + dy);
+            }
+        }
+    }
+
+    private void drawPortsOccupancy(Graphics2D g2, int cx, int cy, int d, int rotSteps,
+                                     ElementTile et, Element el, int[] ports) {
+        for (int port : ports) {
+            if (el.getCurrentAspect() == 1
+                && (et.getElementType() == ElementType.TURNOUT_RIGHT || et.getElementType() == ElementType.TURNOUT_LEFT)) {
+                int divertBase = et.getElementType() == ElementType.TURNOUT_RIGHT
+                    ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP;
+                int divertExit = (divertBase + rotSteps) % 4;
+                if (port == divertExit) {
+                    int throughPort = (ElementType.PORT_RIGHT + rotSteps) % 4;
+                    boolean divertIsHorizontal = divertExit == ElementType.PORT_LEFT || divertExit == ElementType.PORT_RIGHT;
+                    int dx = divertIsHorizontal
+                        ? (divertExit == ElementType.PORT_RIGHT ? d : -d)
+                        : (throughPort == ElementType.PORT_RIGHT ? d
+                            : throughPort == ElementType.PORT_LEFT ? -d : 0);
+                    int dy = divertIsHorizontal
+                        ? (throughPort == ElementType.PORT_BOTTOM ? d
+                            : throughPort == ElementType.PORT_TOP ? -d : 0)
+                        : (divertExit == ElementType.PORT_BOTTOM ? d : -d);
+                    g2.drawLine(cx, cy, cx + dx, cy + dy);
+                    continue;
+                }
+            }
+            drawPortLine(g2, cx, cy, port, tileSize);
         }
     }
 

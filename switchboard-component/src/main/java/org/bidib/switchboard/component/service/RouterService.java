@@ -219,14 +219,7 @@ public class RouterService {
             String cKey = tileKey(col, row);
 
             if (col == endCol && row == endRow) {
-                List<int[]> path = new ArrayList<>();
-                String cur = endKey;
-                while (cur != null) {
-                    String[] parts = cur.split(",");
-                    path.add(0, new int[] { Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) });
-                    cur = cameFrom.get(cur) != null ? tileKey(cameFrom.get(cur)[0], cameFrom.get(cur)[1]) : null;
-                }
-                return path;
+                return reconstructPath(endKey, cameFrom);
             }
 
             Tile tile = getTile(col, row);
@@ -306,6 +299,17 @@ public class RouterService {
         }
 
         return null;
+    }
+
+    private static List<int[]> reconstructPath(String endKey, Map<String, int[]> cameFrom) {
+        List<int[]> path = new ArrayList<>();
+        String cur = endKey;
+        while (cur != null) {
+            String[] parts = cur.split(",");
+            path.add(0, new int[] { Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) });
+            cur = cameFrom.get(cur) != null ? tileKey(cameFrom.get(cur)[0], cameFrom.get(cur)[1]) : null;
+        }
+        return path;
     }
     
     private void findAdditionalAlternatives(int startCol, int startRow, int endCol, int endRow, Set<String> baseBlock, List<int[]> altPath, List<List<int[]>> alts) {
