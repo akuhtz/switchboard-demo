@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -612,19 +613,13 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private String generateId(ElementType type) {
         String prefix = type.getPrefix();
-        int max = 0;
-        for (String existingId : model.getElements().keySet()) {
-            if (existingId.startsWith(prefix + "-")) {
-                try {
-                    int num = Integer.parseInt(existingId.substring(prefix.length() + 1));
-                    if (num > max) {
-                        max = num;
-                    }
-                }
-                catch (NumberFormatException ignored) {
-                }
-            }
-        }
+        int max = model.getElements().keySet().stream()
+            .filter(id -> id.startsWith(prefix + "-"))
+            .mapToInt(id -> {
+                try { return Integer.parseInt(id.substring(prefix.length() + 1)); }
+                catch (NumberFormatException e) { return 0; }
+            })
+            .max().orElse(0);
         return prefix + "-" + String.format("%03d", max + 1);
     }
 
@@ -1134,14 +1129,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private static String pathToString(List<int[]> path) {
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < path.size(); i++) {
-            if (i > 0) {
-                sb.append(" -> ");
-            }
-            sb.append("(").append(path.get(i)[0]).append(",").append(path.get(i)[1]).append(")");
-        }
-        sb.append("]");
-        return sb.toString();
+        return path.stream()
+            .map(p -> "(" + p[0] + "," + p[1] + ")")
+            .collect(Collectors.joining(" -> ", "[", "]"));
     }
 }

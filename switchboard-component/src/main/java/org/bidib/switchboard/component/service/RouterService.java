@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
@@ -329,19 +330,11 @@ public class RouterService {
     }
 
     private boolean isDuplicatePath(List<List<int[]>> alts, List<int[]> candidate) {
-        for (List<int[]> existing : alts) {
-            if (existing.size() == candidate.size()) {
-                boolean same = true;
-                for (int j = 0; j < existing.size(); j++) {
-                    if (existing.get(j)[0] != candidate.get(j)[0] || existing.get(j)[1] != candidate.get(j)[1]) {
-                        same = false;
-                        break;
-                    }
-                }
-                if (same) return true;
-            }
-        }
-        return false;
+        return alts.stream().anyMatch(existing ->
+            existing.size() == candidate.size()
+            && IntStream.range(0, existing.size()).allMatch(i ->
+                existing.get(i)[0] == candidate.get(i)[0]
+                && existing.get(i)[1] == candidate.get(i)[1]));
     }
 
     private boolean canTraverse(Tile tile, int entry1, int entry2, int exit1, int exit2) {
@@ -436,19 +429,10 @@ public class RouterService {
 
     private boolean hasPhysicalPort(int col, int row, int port) {
         Tile t = getTile(col, row);
-        if (t == null) {
-            return false;
-        }
+        if (t == null) return false;
         int[] ports = getPhysicalPorts(t);
-        if (ports == null) {
-            return false;
-        }
-        for (int p : ports) {
-            if (p == port) {
-                return true;
-            }
-        }
-        return false;
+        if (ports == null) return false;
+        return Arrays.stream(ports).anyMatch(p -> p == port);
     }
 
     private int[] getPhysicalPorts(Tile tile) {
