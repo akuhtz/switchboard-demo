@@ -133,10 +133,6 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         this.showOtherAlternatives = show;
     }
 
-//    public void setAssignOccupancyDialogFactory(AssignOccupancyDialogFactory factory) {
-//        this.assignOccupancyDialogFactory = factory;
-//    }
-
     private int selectedCol = -1;
 
     private int selectedRow = -1;
@@ -391,11 +387,6 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private void setRouteAspects(List<int[]> path) {
         routerService.setRouteAspects(path, model);
-    }
-
-    private int tileRotation(Tile tile) {
-        int r = tile.getRotation();
-        return ((r % 360) + 360) % 360;
     }
 
     // --- Context menu ---
@@ -824,7 +815,6 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private void drawAlternatives(Graphics2D g2) {
-        int half = tileSize / 2;
         for (Route route : routeModel.getRoutes().values()) {
             int selectedIdx = routeModel.getSelectedAlternativeIndex(route.getId());
             if (selectedIdx < 0) continue;
@@ -832,23 +822,24 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             if (showOtherAlternatives) {
                 for (int ai = 0; ai < alts.size(); ai++) {
                     if (ai == selectedIdx) continue;
-                    drawAltPath(g2, alts.get(ai), half, altPaletteColor(ai));
+                    drawAltPath(g2, alts.get(ai), tileSize, altPaletteColor(ai));
                 }
             }
-            drawAltPath(g2, alts.get(selectedIdx), half, altPaletteColor(selectedIdx));
+            drawAltPath(g2, alts.get(selectedIdx), tileSize, altPaletteColor(selectedIdx));
         }
     }
 
-    private static void drawAltPath(Graphics2D g2, Route alt, int half, Color color) {
+    private static void drawAltPath(Graphics2D g2, Route alt, int tileSize, Color color) {
         List<int[]> altPath = alt.getPath();
         if (altPath.isEmpty()) return;
         int m = altPath.size();
+        int half = tileSize / 2;
         int[] ax = new int[m];
         int[] ay = new int[m];
         for (int i = 0; i < m; i++) {
             int[] p = altPath.get(i);
-            ax[i] = p[0] * 32 + half;
-            ay[i] = p[1] * 32 + half;
+            ax[i] = p[0] * tileSize + half;
+            ay[i] = p[1] * tileSize + half;
         }
         g2.setColor(color);
         g2.setStroke(new BasicStroke(4, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1f, new float[] { 4f, 4f }, 0f));
@@ -1120,10 +1111,6 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private static String tileKey(int col, int row) {
         return col + "," + row;
-    }
-
-    private static String edgeKey(int fromCol, int fromRow, int toCol, int toRow) {
-        return fromCol + "," + fromRow + "->" + toCol + "," + toRow;
     }
 
     private static String pathToString(List<int[]> path) {
