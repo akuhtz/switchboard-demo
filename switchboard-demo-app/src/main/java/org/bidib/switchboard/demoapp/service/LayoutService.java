@@ -70,8 +70,7 @@ public class LayoutService {
             tileGrid.setTile(new ElementTile(col, 0, id, ElementType.STRAIGHT, List.of("/icons/straight.svg")));
         }
 
-        int defaultCols = 60;
-        for (int col = 5; col < defaultCols; col++) {
+        for (int col = 5; col < tileGrid.getCols(); col++) {
             tileGrid.setTile(new Tile(col, 0, null, "/icons/empty.svg"));
         }
     }

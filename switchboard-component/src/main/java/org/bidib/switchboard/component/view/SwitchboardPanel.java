@@ -372,7 +372,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             }
 
             routeModel.addRoute(route);
-            setRouteAspects(path);
+            routerService.setRouteAspects(path, model);
 
             undoStack.push(new CreateRouteCommand(routeModel, model, route, previousRoute, altRoutes, oldAspects));
         }
@@ -384,10 +384,6 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         }
         clearPendingRoute();
         repaint();
-    }
-
-    private void setRouteAspects(List<int[]> path) {
-        routerService.setRouteAspects(path, model);
     }
 
     // --- Context menu ---
@@ -526,7 +522,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 routeModel.swapWithAlternative(routeId);
                 Route newRoute = routeModel.getRoute(routeId);
                 if (newRoute != null) {
-                    setRouteAspects(newRoute.getPath());
+                    routerService.setRouteAspects(newRoute.getPath(), model);
                 }
                 repaint();
             });
@@ -889,13 +885,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private boolean hasRouteOccupancy(Route route) {
-        for (int[] p : route.getPath()) {
-            Element el = elementAt(p[0], p[1]);
-            if (el != null && el.getOccupancy() != null && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
-                return true;
-            }
-        }
-        return false;
+        return route.getPath().stream().anyMatch(p -> isTileOccupied(p[0], p[1]));
     }
 
     private void clearRouteOccupancy(Route route) {
@@ -1087,11 +1077,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     int routeTileCount() {
-        int count = 0;
-        for (Route r : routeModel.getRoutes().values()) {
-            count += r.getPath().size();
-        }
-        return count;
+        return routeModel.getRoutes().values().stream().mapToInt(r -> r.getPath().size()).sum();
     }
 
     public void testSetRouteSource(int col, int row) {
@@ -1112,7 +1098,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     public void testSetRouteAspects(List<int[]> path) {
-        setRouteAspects(path);
+        routerService.setRouteAspects(path, model);
     }
 
     // --- Observer ---
