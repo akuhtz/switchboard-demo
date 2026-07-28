@@ -588,6 +588,17 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 simItem.setEnabled(!isRunning);
                 simItem.addActionListener(e -> startRouteOccupancySimulation(r));
                 menu.add(simItem);
+                if (isRunning) {
+                    JMenuItem stopSimItem = new JMenuItem("Stop simulation (" + routeId + ")");
+                    stopSimItem.addActionListener(e -> {
+                        SimulationEntry entry = simulations.remove(routeId);
+                        if (entry != null) {
+                            entry.stop();
+                        }
+                        repaint();
+                    });
+                    menu.add(stopSimItem);
+                }
                 if (hasRouteOccupancy(r)) {
                     JMenuItem clearSimItem = new JMenuItem("Clear simulated occupancy (" + routeId + ")");
                     clearSimItem.setEnabled(!isRunning);
