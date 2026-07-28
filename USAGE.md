@@ -51,7 +51,7 @@ In **normal mode** (Ctrl+E to toggle):
 - **Ctrl+click** a source tile — a green marker appears.
 - **Ctrl+click** a target tile — the shortest path is found and drawn as a blue polyline with green (source) and blue (target) markers.
 - Turnouts along the route are automatically set to the correct aspect.
-- Route finding uses BFS with physical port-connectivity checking. Routes respect turnout direction (no backwards frog-end traversal) and avoid tiles already reserved by other routes.
+- Route finding uses BFS with physical port-connectivity checking. Routes respect turnout direction (no backwards frog-end traversal), tile direction markers, and avoid tiles already reserved by other routes.
 - **Alternative routes**: When a route is created, BFS finds alternative paths by blocking each edge of the primary path. A white **"+"** badge appears next to the source and target markers when alternatives are available. Right-click any route tile to see them in the context menu:
   - **Alternative 1 / Alternative 2 / ...** — preview the alternative as a dotted line in its own color from a 16-color palette, on top of the main route. Each menu item shows a colored circle icon matching the route color. The main route remains visible.
   - **Use primary route** — discard alternatives and show the original blue route.
@@ -64,13 +64,24 @@ In **normal mode** (Ctrl+E to toggle):
 - **Clear all routes**: click **Clear selection** from the context menu (edit mode only, deselects all) or programmatically via the model.
 - Multiple non-overlapping routes can coexist — the BFS will find a path around existing route tiles.
 
-## 6. Simulate occupancy
+## 6. Tile direction
+
+Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWARD, or BOTH).
+
+- In **edit mode**, right-click a straight or diagonal tile → **Direction** submenu → choose Forward / Backward / Both.
+- A small light-gray triangle marker appears at the tile center, pointing in the allowed direction.
+- Route finding respects the direction: BFS will not traverse a tile against its direction.
+- Default is **Both** (no constraint) — backward-compatible with existing layouts.
+
+## 7. Simulate occupancy
 
 After a route is created, you can animate a train moving along it:
 
 - Right-click the **green source circle** of a route → **Simulate occupancy ({id})**.
 - The simulation creates occupancy markers on every tile along the route and slides the **OCCUPIED** state from the start to the end, one tile at a time (200ms per step).
 - Turnouts along the route are automatically set to the correct position for the simulated path.
+- **Signal stops**: When a train reaches a signal tile at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it.
+- **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a red signal that blocks a train auto-switches to green after 2 seconds, allowing the train to resume.
 - **Simulate occupancy** is disabled while a simulation is already running.
 
 To reset the simulation:
@@ -79,7 +90,7 @@ To reset the simulation:
 - Sets all occupancy states along the route back to FREE.
 - **Clear simulated occupancy** is disabled while a simulation is in progress.
 
-## 7. Save & load
+## 8. Save & load
 
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.

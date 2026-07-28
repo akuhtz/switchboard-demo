@@ -152,6 +152,11 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Represents a single grid cell at `(col, row)`.
 - Carries an optional `elementId` and a single `svgResource` path.
 - Has a `rotation` field (0/90/180/270) applied as a transform during rendering.
+- Has a `direction` field (`TileDirection`: FORWARD/BACKWARD/BOTH, default BOTH).
+  - Only enforced on STRAIGHT and DIAGONAL tiles during route search.
+  - Rendered as a light-gray filled triangle pointing in the allowed direction.
+  - Persisted in JSON as `"direction": "FORWARD"` (omitted if BOTH).
+- `Tile.key(col, row)` — static utility returning the tile map key.
 - Used for decorative tiles with no elementId.
 - Subclass: `ElementTile`.
 
@@ -206,6 +211,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
        a simulation is running), and "Clear simulated occupancy ({id})" when
        tiles on the route have OCCUPIED state (disabled while running).
 - **Occupancy rendering**: In `paintComponent`, `drawOccupancy()` is called last, after routes. For each tile with an OCCUPIED occupancy, it draws port-based line segments using the element's current aspect: `getActivePorts(el.getCurrentAspect(), tile.getRotation())`. Lines are drawn from tile center to each active port. Straight, diagonal, and crossing elements draw to edge midpoints via `drawPortLine()`. Turnouts draw the main port to its edge midpoint and the diverted port to a corner. Curves (CURVE_LEFT, CURVE_RIGHT) draw port[0] to its edge midpoint and port[1] to a corner: `dx` comes from the port's own x-side if horizontal (or the opposite of port[0]'s x-side if vertical), `dy` comes from the port's own y-side if vertical (or the opposite of port[0]'s y-side if horizontal). Color: `COLOR_OCCUPIED` = `(255, 80, 80)` with stroke-width 4.
+- **Signal stops**: During occupancy simulation, a train arriving at a signal tile with aspect 0 (red) stops and waits. Signals have an implicit facing direction based on rotation (rot 0 → faces LEFT). Only trains entering from the signal's facing port are blocked; trains approaching from behind ignore the signal. `isSignalBlocking(Tile, int entryPort)` implements this check. When `autoChangeSignal` is enabled, a blocked signal auto-switches to green after 2 seconds.
+- **Direction markers**: STRAIGHT and DIAGONAL tiles can have a direction constraint (`TileDirection`: FORWARD/BACKWARD/BOTH). Route finding (`RouterService.isAllowedDirection`) refuses traversal against the tile's direction. Rendered as a light-gray filled triangle via `drawDirectionMarkers()`.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
    `getActivePorts(aspect, rotation)` returns only the ports active for a given aspect (1 port for straight/curve/diagonal, 2 for turnouts, 4 for crossings).
 - **Rendering** (`paintComponent`):
@@ -323,6 +330,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | Edit | Edit Mode | `Ctrl+E` | Toggle normal/edit mode |
 | Edit | Load Default Layout | — | Load the built-in default layout |
 | Edit | Occupancies... | — | Show dialog with all occupancies sorted by id |
+| Edit | Auto-change signal | — | Toggle: auto-switch red signals to green after 2s during simulation |
 
 ### Toolbar
 - `[Edit Mode]` toggle button synced with the Edit menu item.
@@ -376,7 +384,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-59 tests across seven test classes:
+67 tests across seven test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -389,7 +397,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
 | `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
-### `RouteFindingTest` (24 tests)
+### `RouteFindingTest` (30 tests)
 | Test | Description |
 |------|-------------|
 | `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
@@ -436,7 +444,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 |------|-------------|
 | `debugP015toTL004` | Convenience test with `System.out` output for manual debugging of route finding |
 
-### `RouteFindingUiTest` (6 tests)
+### `RouteFindingUiTest` (7 tests)
 | Test | Description |
 |------|-------------|
 | `undoRouteCreationViaUI` | Route removed after undo via Edit > Undo menu |
@@ -446,7 +454,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoTileReplaceViaUI` | Original tile restored after undo of UI tile replacement |
 | `occupiedRouteTilesDetectedViaUI` | Occupied route tiles show occupancy color via `drawOccupancy` |
 
-### `OccupancyUiTest` (5 tests)
+### `OccupancyUiTest` (9 tests)
 | Test | Description |
 |------|-------------|
 | `occupancyAdvancesAlongRoute` | Timer-driven occupancy animation along a route path, verifying sliding-window pattern |
@@ -470,7 +478,7 @@ execution to `target/surefire-reports/`.
 | `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × all aspects × 4 rotations (64 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
 | ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
-Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, and `switchboard6.json` test layouts. 58 of 59 tests pass (1 disabled).
+Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, and `switchboard7.json` test layouts. 66 of 67 tests pass (1 disabled).
 
 ---
 

@@ -1285,6 +1285,14 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         routerService.setRouteAspects(path, model);
     }
 
+    public void testStartOccupancySimulation(Route route) {
+        startRouteOccupancySimulation(route);
+    }
+
+    public Timer getOccupancyTimer() {
+        return occupancyTimer;
+    }
+
     // --- Observer ---
 
     @Override

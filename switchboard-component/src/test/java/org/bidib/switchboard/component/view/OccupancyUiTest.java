@@ -26,6 +26,7 @@ import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
+import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
@@ -414,6 +415,127 @@ class OccupancyUiTest {
             assertThat(tr013aspect).as("TR-013 should be diverted (aspect=1) after alternative swap").isEqualTo(1);
             return newPath;
         });
+    }
+
+    @Test
+    void routeP087ToP015StopsAtFacingSignals() throws Exception {
+        // Load switchboard7.json
+        var url = OccupancyUiTest.class.getResource("/test-data/switchboard7.json");
+        Path layoutPath = Paths.get(url.toURI());
+        var layoutPersistence = new LayoutPersistence();
+        GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
+
+        // Enable auto-change signal so the train resumes after 2s at each stop
+        panel.setAutoChangeSignal(true);
+
+        // Create route P-087 (10,10) → P-015 (2,3)
+        GuiActionRunner.execute(() -> {
+            panel.getRouteModel().clear();
+            panel.testSetRouteSource(10, 10);
+            panel.testFindRoute(2, 3);
+        });
+
+        String routeId = "P-087-P-015";
+        assertThat(panel.getRouteModel().getRoute(routeId)).as("Route should be found").isNotNull();
+        assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).as("Alternatives should exist").isTrue();
+
+        // Select Alternative 1 that goes via S2-013, S2-010, S2-006, S3-002
+        GuiActionRunner.execute(() -> {
+            panel.getRouteModel().setSelectedAlternativeIndex(routeId, 0);
+            panel.getRouteModel().swapWithAlternative(routeId);
+            List<int[]> newPath = panel.getRouteModel().getRoute(routeId).getPath();
+            panel.testSetRouteAspects(newPath);
+        });
+
+        List<int[]> path = panel.getRouteModel().getRoute(routeId).getPath();
+        assertThat(path).isNotEmpty();
+        LOGGER.info("Route {} has {} tiles", routeId, path.size());
+
+        // Verify route goes through all expected signals
+        assertThat(path.stream().anyMatch(p -> p[0] == 19 && p[1] == 4)).as("Route should go via S2-013 (19,4)").isTrue();
+        assertThat(path.stream().anyMatch(p -> p[0] == 15 && p[1] == 4)).as("Route should go via S2-010 (15,4)").isTrue();
+        assertThat(path.stream().anyMatch(p -> p[0] == 8 && p[1] == 4)).as("Route should go via S2-006 (8,4)").isTrue();
+        assertThat(path.stream().anyMatch(p -> p[0] == 3 && p[1] == 3)).as("Route should go via S3-002 (3,3)").isTrue();
+
+        // Verify signal facing directions:
+        // S2-013 (19,4) rot 180 → faces RIGHT → blocks R→L (our direction) → SHOULD STOP
+        // S2-010 (15,4) rot 0   → faces LEFT  → blocks L→R (opposite) → SHOULD NOT STOP
+        // S2-006 (8,4)  rot 180 → faces RIGHT → blocks R→L (our direction) → SHOULD STOP
+        // S3-002 (3,3)  rot 0   → faces LEFT  → blocks L→R (opposite) → SHOULD NOT STOP
+        Tile s2013 = panel.getTile(19, 4);
+        Tile s2010 = panel.getTile(15, 4);
+        Tile s2006 = panel.getTile(8, 4);
+        Tile s3002 = panel.getTile(3, 3);
+
+        // All signals start at aspect 0 (red)
+        assertThat(panel.isSignalAtRed(s2013)).isTrue();
+        assertThat(panel.isSignalAtRed(s2010)).isTrue();
+        assertThat(panel.isSignalAtRed(s2006)).isTrue();
+        assertThat(panel.isSignalAtRed(s3002)).isTrue();
+
+        // Train moves R→L, so entry port is RIGHT for horizontal movement
+        // S2-013 rot 180: facing port = (LEFT + 2) % 4 = RIGHT → blocks entry from RIGHT → STOP
+        assertThat(panel.isSignalBlocking(s2013, ElementType.PORT_RIGHT))
+            .as("S2-013 (rot 180) should block train entering from RIGHT").isTrue();
+        // S2-010 rot 0: facing port = LEFT → does NOT block entry from RIGHT → PASS
+        assertThat(panel.isSignalBlocking(s2010, ElementType.PORT_RIGHT))
+            .as("S2-010 (rot 0) should NOT block train entering from RIGHT").isFalse();
+        // S2-006 rot 180: facing port = RIGHT → blocks entry from RIGHT → STOP
+        assertThat(panel.isSignalBlocking(s2006, ElementType.PORT_RIGHT))
+            .as("S2-006 (rot 180) should block train entering from RIGHT").isTrue();
+        // S3-002 rot 0: facing port = LEFT → does NOT block entry from RIGHT → PASS
+        assertThat(panel.isSignalBlocking(s3002, ElementType.PORT_RIGHT))
+            .as("S3-002 (rot 0) should NOT block train entering from RIGHT").isFalse();
+
+        // Now run the actual occupancy simulation and verify stopping behavior
+        assignOccupanciesToPath(path);
+
+        // Find indices of the signal tiles in the path
+        int idxS2013 = -1, idxS2010 = -1, idxS2006 = -1, idxS3002 = -1;
+        for (int i = 0; i < path.size(); i++) {
+            int[] p = path.get(i);
+            if (p[0] == 19 && p[1] == 4) idxS2013 = i;
+            if (p[0] == 15 && p[1] == 4) idxS2010 = i;
+            if (p[0] == 8 && p[1] == 4) idxS2006 = i;
+            if (p[0] == 3 && p[1] == 3) idxS3002 = i;
+        }
+        LOGGER.info("Signal indices in path: S2-013={}, S2-010={}, S2-006={}, S3-002={}", idxS2013, idxS2010, idxS2006, idxS3002);
+
+        // Use the simulation timer (200ms per step, signals auto-change after 2s)
+        // We wait long enough for the simulation to complete, including 2 signal stops of ~2s each
+        // Total: path.size() * 200ms + 2 * 2000ms ≈ path.size()*0.2 + 4 seconds
+        int totalWaitMs = path.size() * 200 + 2 * 2500 + 2000; // generous margin
+
+        // Start the built-in simulation
+        GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(panel.getRouteModel().getRoute(routeId)));
+
+        // Wait for completion — poll for the timer to stop
+        Semaphore done = new Semaphore(0);
+        Timer watchdog = new Timer(200, e -> {
+            if (panel.getOccupancyTimer() == null || !panel.getOccupancyTimer().isRunning()) {
+                ((Timer) e.getSource()).stop();
+                done.release();
+            }
+        });
+        GuiActionRunner.execute(() -> watchdog.start());
+        boolean finished = done.tryAcquire(totalWaitMs, TimeUnit.MILLISECONDS);
+        GuiActionRunner.execute(() -> watchdog.stop());
+        assertThat(finished).as("Simulation should complete within timeout").isTrue();
+
+        LOGGER.info("Simulation completed. Verifying signal auto-changes.");
+
+        // After simulation, S2-013 and S2-006 should have been auto-changed to aspect 1
+        assertThat(panel.getModel().getElementAspect("S2-013"))
+            .as("S2-013 should have been auto-changed to green").isEqualTo(1);
+        assertThat(panel.getModel().getElementAspect("S2-006"))
+            .as("S2-006 should have been auto-changed to green").isEqualTo(1);
+        // S2-010 and S3-002 should still be at aspect 0 (never auto-changed because train didn't stop)
+        assertThat(panel.getModel().getElementAspect("S2-010"))
+            .as("S2-010 should still be red (train passed without stopping)").isEqualTo(0);
+        assertThat(panel.getModel().getElementAspect("S3-002"))
+            .as("S3-002 should still be red (train passed without stopping)").isEqualTo(0);
+
+        clearOccupancies(path);
     }
 
     void routeTest(String routeId, int[] source, int[] target, final Consumer<String> validation, final Function<String, List<int[]>> routeSelector)
