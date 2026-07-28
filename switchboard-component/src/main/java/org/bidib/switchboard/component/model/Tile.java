@@ -7,6 +7,7 @@ public class Tile {
     private final String elementId;
     private String svgResource;
     private int rotation;
+    private TileDirection direction = TileDirection.BOTH;
 
     public Tile(int col, int row, String elementId, String svgResource) {
         this.col = col;
@@ -41,6 +42,14 @@ public class Tile {
 
     public void setRotation(int rotation) {
         this.rotation = ((rotation % 360) + 360) % 360;
+    }
+
+    public TileDirection getDirection() {
+        return direction;
+    }
+
+    public void setDirection(TileDirection direction) {
+        this.direction = direction != null ? direction : TileDirection.BOTH;
     }
 
     /** Returns the map key for a tile at the given grid position. */

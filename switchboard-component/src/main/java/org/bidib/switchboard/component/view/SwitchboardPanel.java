@@ -26,6 +26,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -39,6 +40,7 @@ import javax.swing.ToolTipManager;
 import org.bidib.switchboard.component.command.Command;
 import org.bidib.switchboard.component.command.CreateRouteCommand;
 import org.bidib.switchboard.component.command.CycleElementCommand;
+import org.bidib.switchboard.component.command.DirectionCommand;
 import org.bidib.switchboard.component.command.TileCommand;
 import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
@@ -49,6 +51,7 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.Tile;
+import org.bidib.switchboard.component.model.TileDirection;
 import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.util.SvgIconLoader;
 import org.slf4j.Logger;
@@ -471,13 +474,32 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                     JMenuItem assignOccItem = new JMenuItem("Assign Occupancy...");
                     assignOccItem.addActionListener(e -> showAssignOccupancyDialog(el));
                     menu.add(assignOccItem);
-                    menu.addSeparator();
                 }
+                if (et.getElementType() == ElementType.STRAIGHT || et.getElementType() == ElementType.DIAGONAL) {
+                    buildDirectionSubmenu(menu, tile);
+                }
+                menu.addSeparator();
             }
             JMenuItem clearItem = new JMenuItem("Clear");
             clearItem.addActionListener(e -> onTileContextAction(col, row, null));
             menu.add(clearItem);
         }
+    }
+
+    private void buildDirectionSubmenu(JPopupMenu menu, Tile tile) {
+        JMenu dirMenu = new JMenu("Direction");
+        TileDirection current = tile.getDirection();
+        for (TileDirection dir : TileDirection.values()) {
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(dir.name(), dir == current);
+            item.addActionListener(e -> {
+                DirectionCommand cmd = new DirectionCommand(tile, dir);
+                cmd.execute();
+                undoStack.push(cmd);
+                repaint();
+            });
+            dirMenu.add(item);
+        }
+        menu.add(dirMenu);
     }
 
     private void buildRouteMenuItems(JPopupMenu menu, int col, int row, Tile tile) {
@@ -645,6 +667,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
         drawTiles(g2);
         drawGrid(g2);
+        drawDirectionMarkers(g2);
         drawSelection(g2);
         drawRoute(g2);
         drawOccupancy(g2);
@@ -661,6 +684,69 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         for (int y = 0; y <= rows; y++) {
             g2.drawLine(0, y * tileSize, width, y * tileSize);
         }
+    }
+
+    private static final Color COLOR_DIRECTION = new Color(200, 200, 200, 180);
+
+    private void drawDirectionMarkers(Graphics2D g2) {
+        int half = tileSize / 2;
+        int arrowSize = Math.max(4, tileSize / 5);
+        g2.setColor(COLOR_DIRECTION);
+        for (Tile tile : tiles.values()) {
+            if (tile.getDirection() == TileDirection.BOTH) {
+                continue;
+            }
+            if (!(tile instanceof ElementTile et)) {
+                continue;
+            }
+            ElementType type = et.getElementType();
+            if (type != ElementType.STRAIGHT && type != ElementType.DIAGONAL) {
+                continue;
+            }
+            int cx = tile.getCol() * tileSize + half;
+            int cy = tile.getRow() * tileSize + half;
+            int rotSteps = (tile.getRotation() / 90) % 4;
+
+            // Determine the angle for the triangle (pointing toward exit port)
+            double angle = computeDirectionAngle(type, rotSteps, tile.getDirection());
+            drawTriangle(g2, cx, cy, arrowSize, angle);
+        }
+    }
+
+    /**
+     * Computes the angle (in radians) the direction triangle should point.
+     * 0 = right, PI/2 = down, PI = left, 3PI/2 = up.
+     */
+    private static double computeDirectionAngle(ElementType type, int rotSteps, TileDirection dir) {
+        if (type == ElementType.STRAIGHT) {
+            // Forward at rot 0 = LEFT→RIGHT, so triangle points RIGHT (angle 0)
+            double baseAngle = 0;
+            double rotAngle = rotSteps * Math.PI / 2;
+            double angle = baseAngle + rotAngle;
+            return dir == TileDirection.FORWARD ? angle : angle + Math.PI;
+        }
+        // DIAGONAL: forward at rot 0 = lower-left → upper-right, triangle points upper-right (-PI/4)
+        double baseAngle = -Math.PI / 4;
+        double rotAngle = rotSteps * Math.PI / 2;
+        double angle = baseAngle + rotAngle;
+        return dir == TileDirection.FORWARD ? angle : angle + Math.PI;
+    }
+
+    private static void drawTriangle(Graphics2D g2, int cx, int cy, int size, double angle) {
+        int[] xp = new int[3];
+        int[] yp = new int[3];
+        // Tip of triangle
+        xp[0] = cx + (int) (size * Math.cos(angle));
+        yp[0] = cy + (int) (size * Math.sin(angle));
+        // Two base corners (120° apart from tip direction)
+        double baseAngle1 = angle + 2.4; // ~137°
+        double baseAngle2 = angle - 2.4;
+        int baseSize = size * 2;
+        xp[1] = cx + (int) (baseSize * Math.cos(baseAngle1));
+        yp[1] = cy + (int) (baseSize * Math.sin(baseAngle1));
+        xp[2] = cx + (int) (baseSize * Math.cos(baseAngle2));
+        yp[2] = cy + (int) (baseSize * Math.sin(baseAngle2));
+        g2.fillPolygon(xp, yp, 3);
     }
 
     private void drawSelection(Graphics2D g2) {

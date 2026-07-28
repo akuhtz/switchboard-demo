@@ -17,6 +17,7 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.Tile;
+import org.bidib.switchboard.component.model.TileDirection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -292,6 +293,10 @@ public class RouterService {
                     continue;
                 }
 
+                if (!isAllowedDirection(tile, cEntry[0], cEntry[1], exit1, exit2)) {
+                    continue;
+                }
+
                 entryPorts.put(neighborKey, new int[] { ne1, ne2 });
                 visited.add(neighborKey);
                 cameFrom.put(neighborKey, new int[] { col, row });
@@ -360,6 +365,50 @@ public class RouterService {
             }
         }
         return false;
+    }
+
+    /**
+     * Checks whether traversal through a tile is allowed given its direction constraint.
+     * Only applies to STRAIGHT and DIAGONAL tiles with direction != BOTH.
+     * Returns true if traversal is permitted.
+     */
+    private boolean isAllowedDirection(Tile tile, int entry1, int entry2, int exit1, int exit2) {
+        if (!(tile instanceof ElementTile et)) {
+            return true;
+        }
+        TileDirection dir = tile.getDirection();
+        if (dir == TileDirection.BOTH) {
+            return true;
+        }
+        ElementType type = et.getElementType();
+        if (type != ElementType.STRAIGHT && type != ElementType.DIAGONAL) {
+            return true;
+        }
+        // No entry port known yet (start tile) — allow
+        if (entry1 == -1 && entry2 == -1) {
+            return true;
+        }
+
+        int rotSteps = (tile.getRotation() / 90) % 4;
+
+        if (type == ElementType.STRAIGHT) {
+            // Forward: LEFT→RIGHT (rotated). Entry port for forward = (LEFT + rotSteps) % 4
+            int forwardEntry = (ElementType.PORT_LEFT + rotSteps) % 4;
+            int actualEntry = entry1 != -1 ? entry1 : entry2;
+            boolean isForward = (actualEntry == forwardEntry);
+            return dir == TileDirection.FORWARD ? isForward : !isForward;
+        }
+
+        if (type == ElementType.DIAGONAL) {
+            // Forward: from {LEFT, BOTTOM} corner to {TOP, RIGHT} corner (rotated)
+            int fwdEntry1 = (ElementType.PORT_LEFT + rotSteps) % 4;
+            int fwdEntry2 = (ElementType.PORT_BOTTOM + rotSteps) % 4;
+            int actualEntry = entry1 != -1 ? entry1 : entry2;
+            boolean isForward = (actualEntry == fwdEntry1 || actualEntry == fwdEntry2);
+            return dir == TileDirection.FORWARD ? isForward : !isForward;
+        }
+
+        return true;
     }
 
     private List<int[]> getConnectedNeighbors(int col, int row) {

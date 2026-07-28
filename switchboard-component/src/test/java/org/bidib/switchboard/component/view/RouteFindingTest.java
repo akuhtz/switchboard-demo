@@ -16,6 +16,7 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.Tile;
+import org.bidib.switchboard.component.model.TileDirection;
 import org.bidib.switchboard.component.persistence.LayoutData;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
 import org.bidib.switchboard.component.service.RouterService;
@@ -544,5 +545,49 @@ class RouteFindingTest {
                 .as("Route must not go via (25,13)->(24,14) — TR-009 can only route from left to diverted when not rotated")
                 .isFalse();
         }
+    }
+
+    @Test
+    void directedStraightTileBlocksReverseRoute() throws Exception {
+        var f = setup();
+        // Tile at (1,0) is P-002 (STRAIGHT, rotation 0). Set it to FORWARD (LEFT→RIGHT).
+        Tile tile = f.panel().getTile(1, 0);
+        tile.setDirection(TileDirection.FORWARD);
+
+        // Route from (2,0) to (0,0) would need to go RIGHT→LEFT through (1,0) — blocked
+        RouterService rs = routerService(f.panel());
+        List<int[]> path = rs.bfsRoute(2, 0, 0, 0);
+        assertThat(path).as("Route should be blocked by FORWARD direction on (1,0)").isNull();
+    }
+
+    @Test
+    void directedStraightTileAllowsForwardRoute() throws Exception {
+        var f = setup();
+        // Tile at (1,0) is P-002 (STRAIGHT, rotation 0). Set it to FORWARD (LEFT→RIGHT).
+        Tile tile = f.panel().getTile(1, 0);
+        tile.setDirection(TileDirection.FORWARD);
+
+        // Route from (0,0) to (2,0) goes LEFT→RIGHT through (1,0) — allowed
+        RouterService rs = routerService(f.panel());
+        List<int[]> path = rs.bfsRoute(0, 0, 2, 0);
+        assertThat(path).as("Route should be found in FORWARD direction through (1,0)").isNotNull();
+        assertThat(path).hasSizeGreaterThanOrEqualTo(3);
+    }
+
+    @Test
+    void directionPersistenceRoundTrip() throws Exception {
+        var f = setup();
+        Tile tile = f.panel().getTile(1, 0);
+        tile.setDirection(TileDirection.FORWARD);
+
+        LayoutData data = new LayoutPersistence().capture(f.panel());
+
+        RailwayModel model2 = new RailwayModel();
+        SwitchboardPanel panel2 = new SwitchboardPanel(occupancyFactory,
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model2);
+        new LayoutPersistence().apply(panel2, data);
+
+        Tile loaded = panel2.getTile(1, 0);
+        assertThat(loaded.getDirection()).as("Direction should survive round-trip").isEqualTo(TileDirection.FORWARD);
     }
 }

@@ -57,6 +57,10 @@ public class LayoutData {
 
         public int getRotation() { return rotation; }
         public void setRotation(int rotation) { this.rotation = rotation; }
+
+        private String direction;
+        public String getDirection() { return direction; }
+        public void setDirection(String direction) { this.direction = direction; }
     }
 
     // --- Model state ---

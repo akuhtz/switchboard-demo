@@ -113,6 +113,9 @@ public class LayoutPersistence {
         td.setRow(tile.getRow());
         td.setElementId(tile.getElementId());
         td.setRotation(tile.getRotation());
+        if (tile.getDirection() != org.bidib.switchboard.component.model.TileDirection.BOTH) {
+            td.setDirection(tile.getDirection().name());
+        }
 
         if (tile instanceof ElementTile et) {
             td.setType(et.getElementType().getPrefix() + et.getAspectCount());
@@ -215,6 +218,13 @@ public class LayoutPersistence {
                     elementType, td.getSvgPaths());
         }
         tile.setRotation(td.getRotation());
+        if (td.getDirection() != null) {
+            try {
+                tile.setDirection(org.bidib.switchboard.component.model.TileDirection.valueOf(td.getDirection()));
+            } catch (IllegalArgumentException ignored) {
+                // unknown direction value — keep default BOTH
+            }
+        }
         return tile;
     }
 }
