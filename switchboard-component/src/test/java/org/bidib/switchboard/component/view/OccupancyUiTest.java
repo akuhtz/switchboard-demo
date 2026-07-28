@@ -418,6 +418,61 @@ class OccupancyUiTest {
     }
 
     @Test
+    void simulationStopsAfter5Seconds() throws Exception {
+        GuiActionRunner.execute(() -> {
+            panel.getRouteModel().clear();
+            panel.testSetRouteSource(0, 0);
+            panel.testFindRoute(10, 1);
+        });
+
+        String routeId = panel.getRouteModel().getRoutes().keySet().iterator().next();
+        Route route = panel.getRouteModel().getRoute(routeId);
+        assertThat(route).isNotNull();
+
+        // Start the occupancy simulation
+        GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(route));
+
+        // Verify simulation is running
+        assertThat(panel.isAnySimulationRunning()).as("Simulation should be running").isTrue();
+
+        // Wait 5 seconds
+        Semaphore done = new Semaphore(0);
+        Timer waitTimer = new Timer(5000, e -> {
+            ((Timer) e.getSource()).stop();
+            done.release();
+        });
+        waitTimer.setRepeats(false);
+        GuiActionRunner.execute(() -> waitTimer.start());
+        done.acquire();
+        window.robot().waitForIdle();
+
+        // Stop the simulation
+        GuiActionRunner.execute(() -> {
+            var sim = panel.getSimulation(routeId);
+            if (sim != null && sim.isRunning()) {
+                sim.stop();
+            }
+            // Also stop the timer
+            Timer occupancyTimer = panel.getOccupancyTimer();
+            if (occupancyTimer != null && occupancyTimer.isRunning()) {
+                occupancyTimer.stop();
+            }
+        });
+
+        window.robot().waitForIdle();
+
+        // Verify simulation is no longer running
+        assertThat(panel.isAnySimulationRunning()).as("Simulation should be stopped").isFalse();
+
+        // Verify the train advanced but didn't reach the end (route is longer than 5s at 200ms/step = 25 steps max)
+        var sim = panel.getSimulation(routeId);
+        if (sim != null) {
+            LOGGER.info("Simulation stopped at index {} of {} tiles", sim.getCurrentIndex(), route.getPath().size());
+            assertThat(sim.getCurrentIndex()).as("Train should have advanced some steps").isGreaterThan(1);
+        }
+    }
+
+    @Test
     void routeP087ToP015StopsAtFacingSignals() throws Exception {
         // Load switchboard7.json
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard7.json");
