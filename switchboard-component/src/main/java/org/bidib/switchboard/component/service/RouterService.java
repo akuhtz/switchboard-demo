@@ -48,8 +48,8 @@ public class RouterService {
     }
 
     public List<int[]> bfsRoute(int startCol, int startRow, int endCol, int endRow) {
-        String startKey = tileKey(startCol, startRow);
-        String endKey = tileKey(endCol, endRow);
+        String startKey = Tile.key(startCol, startRow);
+        String endKey = Tile.key(endCol, endRow);
         if (!tiles.containsKey(startKey) || !tiles.containsKey(endKey)) {
             return null;
         }
@@ -69,8 +69,8 @@ public class RouterService {
     }
 
     private List<List<int[]>> bfsAlternativeRoutesInternal(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath, boolean exhaustive) {
-        String startKey = tileKey(startCol, startRow);
-        String endKey = tileKey(endCol, endRow);
+        String startKey = Tile.key(startCol, startRow);
+        String endKey = Tile.key(endCol, endRow);
         if (!tiles.containsKey(startKey) || !tiles.containsKey(endKey) || primaryPath == null || primaryPath.size() < 2) {
             return List.of();
         }
@@ -196,8 +196,8 @@ public class RouterService {
     // --- Internal route finding ---
 
     private List<int[]> bfsRouteInternal(int startCol, int startRow, int endCol, int endRow, Set<String> blockedEdges, boolean allowOverride) {
-        String startKey = tileKey(startCol, startRow);
-        String endKey = tileKey(endCol, endRow);
+        String startKey = Tile.key(startCol, startRow);
+        String endKey = Tile.key(endCol, endRow);
 
         Deque<int[]> queue = new ArrayDeque<>();
         Map<String, int[]> cameFrom = new HashMap<>();
@@ -217,7 +217,7 @@ public class RouterService {
             int[] current = queue.poll();
             int col = current[0];
             int row = current[1];
-            String cKey = tileKey(col, row);
+            String cKey = Tile.key(col, row);
 
             if (col == endCol && row == endRow) {
                 return reconstructPath(endKey, cameFrom);
@@ -232,7 +232,7 @@ public class RouterService {
             for (int[] neighbor : connected) {
                 int neighborCol = neighbor[0];
                 int neighborRow = neighbor[1];
-                String neighborKey = tileKey(neighborCol, neighborRow);
+                String neighborKey = Tile.key(neighborCol, neighborRow);
 
                 if (!tiles.containsKey(neighborKey) || routeModel.isTileReserved(neighborCol, neighborRow, null) || blockedEdges.contains(edgeKey(col, row, neighborCol, neighborRow))) {
                     continue;
@@ -308,7 +308,7 @@ public class RouterService {
         while (cur != null) {
             String[] parts = cur.split(",");
             path.add(0, new int[] { Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) });
-            cur = cameFrom.get(cur) != null ? tileKey(cameFrom.get(cur)[0], cameFrom.get(cur)[1]) : null;
+            cur = cameFrom.get(cur) != null ? Tile.key(cameFrom.get(cur)[0], cameFrom.get(cur)[1]) : null;
         }
         return path;
     }
@@ -443,11 +443,7 @@ public class RouterService {
     }
 
     private Tile getTile(int col, int row) {
-        return tiles.get(tileKey(col, row));
-    }
-
-    static String tileKey(int col, int row) {
-        return col + "," + row;
+        return tiles.get(Tile.key(col, row));
     }
 
     static String edgeKey(int fromCol, int fromRow, int toCol, int toRow) {

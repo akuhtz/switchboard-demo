@@ -42,4 +42,9 @@ public class Tile {
     public void setRotation(int rotation) {
         this.rotation = ((rotation % 360) + 360) % 360;
     }
+
+    /** Returns the map key for a tile at the given grid position. */
+    public static String key(int col, int row) {
+        return col + "," + row;
+    }
 }

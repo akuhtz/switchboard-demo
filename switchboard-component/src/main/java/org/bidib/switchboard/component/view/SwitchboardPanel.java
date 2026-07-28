@@ -204,13 +204,13 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     @Override
     public void setTile(Tile tile) {
-        tiles.put(tileKey(tile.getCol(), tile.getRow()), tile);
+        tiles.put(Tile.key(tile.getCol(), tile.getRow()), tile);
         repaint();
     }
 
     @Override
     public Tile getTile(int col, int row) {
-        return tiles.get(tileKey(col, row));
+        return tiles.get(Tile.key(col, row));
     }
 
     public Map<String, Tile> getTiles() {
@@ -259,7 +259,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     @Override
     public void removeTile(int col, int row) {
-        tiles.remove(tileKey(col, row));
+        tiles.remove(Tile.key(col, row));
         if (selectedCol == col && selectedRow == row) {
             selectedCol = -1;
             selectedRow = -1;
@@ -1123,10 +1123,6 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     // --- Internal ---
-
-    private static String tileKey(int col, int row) {
-        return col + "," + row;
-    }
 
     private static String pathToString(List<int[]> path) {
         return path.stream()

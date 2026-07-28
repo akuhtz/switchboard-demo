@@ -33,10 +33,10 @@ public class LayoutService {
 
     private Path currentFilePath;
 
-    private final OccupancySerializer occupancySerializer;
+    private final LayoutPersistence layoutPersistence;
 
     public LayoutService(final OccupancySerializer occupancySerializer, TileGrid tileGrid, SettingsManager settings, Component parentComponent) {
-    	this.occupancySerializer = occupancySerializer;
+    	this.layoutPersistence = new LayoutPersistence(occupancySerializer);
         this.tileGrid = tileGrid;
         this.settings = settings;
         this.parentComponent = parentComponent;
@@ -85,7 +85,6 @@ public class LayoutService {
         log.info("Auto-loading layout from: {}", path);
         if (path.toFile().exists()) {
             try {
-            	var layoutPersistence = new LayoutPersistence(occupancySerializer);
                 layoutPersistence.load(tileGrid, path);
                 currentFilePath = path;
                 log.info("Layout loaded from {}", path);
@@ -111,7 +110,6 @@ public class LayoutService {
         if (chooser.showOpenDialog(parentComponent) == JFileChooser.APPROVE_OPTION) {
             Path path = chooser.getSelectedFile().toPath();
             try {
-            	var layoutPersistence = new LayoutPersistence(occupancySerializer);
                 layoutPersistence.load(tileGrid, path);
                 currentFilePath = path;
                 settings.setLastLayoutFile(path);
@@ -130,7 +128,6 @@ public class LayoutService {
             return;
         }
         try {
-        	var layoutPersistence = new LayoutPersistence(occupancySerializer);
             layoutPersistence.save(tileGrid, currentFilePath);
             log.info("Saved layout to {}", currentFilePath);
         }
@@ -151,7 +148,6 @@ public class LayoutService {
                 path = Paths.get(path + ".json");
             }
             try {
-            	var layoutPersistence = new LayoutPersistence(occupancySerializer);
                 layoutPersistence.save(tileGrid, path);
                 currentFilePath = path;
                 settings.setLastLayoutFile(path);
