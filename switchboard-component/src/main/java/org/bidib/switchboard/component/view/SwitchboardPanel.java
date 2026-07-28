@@ -584,6 +584,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         StringBuilder sb = new StringBuilder();
         sb.append("Position: (").append(tile.getCol()).append(", ").append(tile.getRow()).append(")\n");
         sb.append("Rotation: ").append(tile.getRotation()).append("\n");
+        if (tile.getDirection() != TileDirection.BOTH) {
+            sb.append("Direction: ").append(tile.getDirection()).append("\n");
+        }
         if (tile.getElementId() != null) {
             sb.append("Element ID: ").append(tile.getElementId()).append("\n");
         }

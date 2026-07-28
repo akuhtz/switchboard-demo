@@ -6,12 +6,14 @@ import java.awt.Dimension;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.Timer;
 
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
@@ -21,6 +23,7 @@ import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
+import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
 import org.junit.jupiter.api.AfterEach;
@@ -236,5 +239,77 @@ class RouteFindingUiTest {
         });
 
         LOGGER.info("After the test.");
+    }
+
+    @Test
+    void routeP086ToS2013WithDirectionAndAlternatives() throws Exception {
+        // Load switchboard7.json which has a direction marker at P-099 (24,8)
+        var url = RouteFindingUiTest.class.getResource("/test-data/switchboard7.json");
+        Path layoutPath = Paths.get(url.toURI());
+        var layoutPersistence = new LayoutPersistence();
+        GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
+
+        // Create route from P-086 (9,10) to S2-013 (19,4)
+        GuiActionRunner.execute(() -> {
+            panel.getRouteModel().clear();
+            panel.testSetRouteSource(9, 10);
+            panel.testFindRoute(19, 4);
+        });
+
+        String routeId = "P-086-S2-013";
+        Route route = panel.getRouteModel().getRoute(routeId);
+        assertThat(route).as("Route %s should be found", routeId).isNotNull();
+
+        // Verify route goes through P-099 at (24,8)
+        boolean goesViaP099 = route.getPath().stream()
+            .anyMatch(p -> p[0] == 24 && p[1] == 8);
+        assertThat(goesViaP099).as("Route should go via P-099 at (24,8)").isTrue();
+
+        LOGGER.info("Route {} has {} tiles, alternatives: {}", routeId, route.getPath().size(),
+            panel.getRouteModel().hasAlternativeRoute(routeId)
+                ? panel.getRouteModel().getAlternativeRoutes(routeId).size() : 0);
+
+        // Wait 2 seconds
+        waitSeconds(2);
+
+        // Select "Alternative 1" from context menu
+        assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).as("Alternatives should exist").isTrue();
+        GuiActionRunner.execute(() -> {
+            panel.getRouteModel().setSelectedAlternativeIndex(routeId, 0);
+            panel.repaint();
+        });
+        LOGGER.info("Selected Alternative 1");
+
+        // Wait 2 seconds
+        waitSeconds(2);
+
+        // Use primary route
+        GuiActionRunner.execute(() -> {
+            panel.getRouteModel().clearAlternatives(routeId);
+            panel.repaint();
+        });
+        LOGGER.info("Used primary route");
+
+        // Verify route is still the primary one going via P-099
+        Route finalRoute = panel.getRouteModel().getRoute(routeId);
+        assertThat(finalRoute).isNotNull();
+        boolean stillViaP099 = finalRoute.getPath().stream()
+            .anyMatch(p -> p[0] == 24 && p[1] == 8);
+        assertThat(stillViaP099).as("Primary route should still go via P-099").isTrue();
+    }
+
+    private void waitSeconds(int seconds) {
+        Semaphore done = new Semaphore(0);
+        Timer timer = new Timer(seconds * 1000, e -> {
+            ((Timer) e.getSource()).stop();
+            done.release();
+        });
+        GuiActionRunner.execute(() -> timer.start());
+        try {
+            done.acquire();
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(ie);
+        }
     }
 }
