@@ -590,4 +590,27 @@ class RouteFindingTest {
         Tile loaded = panel2.getTile(1, 0);
         assertThat(loaded.getDirection()).as("Direction should survive round-trip").isEqualTo(TileDirection.FORWARD);
     }
+
+    @Test
+    void signalAtRedBlocksSimulation() throws Exception {
+        var f = setup();
+        // S2-002 is at (6, 0) — it's a SIGNAL_2
+        Tile signalTile = f.panel().getTile(6, 0);
+        assertThat(signalTile).isNotNull();
+
+        // Default aspect is 0 (red)
+        assertThat(f.panel().isSignalAtRed(signalTile)).as("Signal at aspect 0 should be red").isTrue();
+
+        // Change to aspect 1 (green)
+        f.model().setElementAspect("S2-002", 1);
+        assertThat(f.panel().isSignalAtRed(signalTile)).as("Signal at aspect 1 should not be red").isFalse();
+    }
+
+    @Test
+    void nonSignalTileIsNotRedSignal() throws Exception {
+        var f = setup();
+        // P-001 is at (0, 0) — STRAIGHT tile
+        Tile straightTile = f.panel().getTile(0, 0);
+        assertThat(f.panel().isSignalAtRed(straightTile)).as("Straight tile should not be a red signal").isFalse();
+    }
 }

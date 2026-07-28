@@ -127,8 +127,18 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private boolean exhaustiveRouting = false;
 
+    private boolean autoChangeSignal = false;
+
     public void setExhaustiveRouting(boolean exhaustive) {
         this.exhaustiveRouting = exhaustive;
+    }
+
+    public void setAutoChangeSignal(boolean autoChange) {
+        this.autoChangeSignal = autoChange;
+    }
+
+    public boolean isAutoChangeSignal() {
+        return autoChangeSignal;
     }
 
     private boolean showOtherAlternatives = false;
@@ -967,6 +977,19 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         return null;
     }
 
+    /** Returns true if the tile is a signal element with aspect 0 (red). */
+    boolean isSignalAtRed(Tile tile) {
+        if (!(tile instanceof ElementTile et)) {
+            return false;
+        }
+        ElementType type = et.getElementType();
+        if (type != ElementType.SIGNAL_2 && type != ElementType.SIGNAL_3) {
+            return false;
+        }
+        Element el = model.getElement(et.getElementId());
+        return el != null && el.getCurrentAspect() == 0;
+    }
+
     boolean isTileOccupied(int col, int row) {
         Element el = elementAt(col, row);
         return el != null && el.getOccupancy() != null
@@ -1019,17 +1042,48 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         }
 
         int[] idx = { 1 };
+        Timer[] signalTimer = { null };
         occupancyTimer = new Timer(200, e -> {
             if (idx[0] >= path.size()) {
                 ((Timer) e.getSource()).stop();
+                if (signalTimer[0] != null) {
+                    signalTimer[0].stop();
+                }
                 return;
             }
-            int prev = idx[0] - 1;
-            int curr = idx[0];
 
+            // Check if current tile (where the train is) is a signal at aspect 0 — train must wait
+            int prev = idx[0] - 1;
             int[] pp = path.get(prev);
             Tile pt = getTile(pp[0], pp[1]);
-            if (pt instanceof ElementTile pet && pet.getElementId() != null) {
+            if (isSignalAtRed(pt)) {
+                // Train is stopped at red signal
+                if (autoChangeSignal && signalTimer[0] == null) {
+                    // Start auto-change timer: switch signal to aspect 1 after 2 seconds
+                    Element signalEl = model.getElement(pt.getElementId());
+                    signalTimer[0] = new Timer(2000, ev -> {
+                        ((Timer) ev.getSource()).stop();
+                        signalTimer[0] = null;
+                        if (signalEl != null) {
+                            model.setElementAspect(signalEl.getId(), 1);
+                        }
+                    });
+                    signalTimer[0].setRepeats(false);
+                    signalTimer[0].start();
+                }
+                return; // Don't advance — wait for signal
+            }
+
+            // Cancel any pending signal timer if train moved past
+            if (signalTimer[0] != null) {
+                signalTimer[0].stop();
+                signalTimer[0] = null;
+            }
+
+            int curr = idx[0];
+
+            Tile prevTile = getTile(pp[0], pp[1]);
+            if (prevTile instanceof ElementTile pet && pet.getElementId() != null) {
                 Element pel = model.getElement(pet.getElementId());
                 if (pel != null && pel.getOccupancy() != null) {
                     pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);

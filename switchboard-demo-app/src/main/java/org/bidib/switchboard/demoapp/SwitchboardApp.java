@@ -182,6 +182,10 @@ public class SwitchboardApp {
         occupanciesItem.addActionListener(e -> showOccupanciesDialog());
         editMenu.add(occupanciesItem);
 
+        JCheckBoxMenuItem autoChangeSignalItem = new JCheckBoxMenuItem("Auto-change signal");
+        autoChangeSignalItem.addActionListener(e -> panel.setAutoChangeSignal(autoChangeSignalItem.isSelected()));
+        editMenu.add(autoChangeSignalItem);
+
         menuBar.add(editMenu);
 
         frame.setJMenuBar(menuBar);
