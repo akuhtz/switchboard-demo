@@ -156,9 +156,12 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private final RouteModel routeModel = new RouteModel();
 
-    private Timer occupancyTimer;
+    private final Map<String, SimulationEntry> simulations = new HashMap<>();
 
-    private OccupancySimulation simulation;
+    private record SimulationEntry(OccupancySimulation simulation, Timer timer) {
+        boolean isRunning() { return timer.isRunning(); }
+        void stop() { timer.stop(); simulation.stop(); }
+    }
 
     private int routeSourceCol = -1;
 
@@ -565,8 +568,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         }
         JMenuItem clearRouteItem = new JMenuItem("Clear route (" + routeId + ")");
         clearRouteItem.addActionListener(e -> {
-            if (occupancyTimer != null && occupancyTimer.isRunning()) {
-                occupancyTimer.stop();
+            SimulationEntry entry = simulations.remove(routeId);
+            if (entry != null && entry.isRunning()) {
+                entry.stop();
             }
             routeModel.removeRoute(routeId);
             repaint();
@@ -578,7 +582,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             int[] first = r.getPath().get(0);
             if (first[0] == col && first[1] == row) {
                 menu.addSeparator();
-                boolean isRunning = occupancyTimer != null && occupancyTimer.isRunning();
+                SimulationEntry simEntry = simulations.get(routeId);
+                boolean isRunning = simEntry != null && simEntry.isRunning();
                 JMenuItem simItem = new JMenuItem("Simulate occupancy (" + routeId + ")");
                 simItem.setEnabled(!isRunning);
                 simItem.addActionListener(e -> startRouteOccupancySimulation(r));
@@ -1023,25 +1028,29 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             return;
         }
 
-        if (occupancyTimer != null && occupancyTimer.isRunning()) {
-            occupancyTimer.stop();
+        String routeId = route.getId();
+
+        // Stop existing simulation for this route if any
+        SimulationEntry existing = simulations.get(routeId);
+        if (existing != null && existing.isRunning()) {
+            existing.stop();
         }
 
-        if (simulation == null) {
-            simulation = new OccupancySimulation(model, this, occupancyFactory);
-        }
-        simulation.setAutoChangeSignal(autoChangeSignal);
-        simulation.setOnTick(this::repaint);
-        simulation.start(route);
+        OccupancySimulation sim = new OccupancySimulation(model, this, occupancyFactory);
+        sim.setAutoChangeSignal(autoChangeSignal);
+        sim.setOnTick(this::repaint);
+        sim.start(route);
 
-        occupancyTimer = new Timer(200, e -> {
-            simulation.tick();
-            if (!simulation.isRunning()) {
+        Timer timer = new Timer(200, e -> {
+            sim.tick();
+            if (!sim.isRunning()) {
                 ((Timer) e.getSource()).stop();
             }
         });
-        occupancyTimer.setRepeats(true);
-        occupancyTimer.start();
+        timer.setRepeats(true);
+        timer.start();
+
+        simulations.put(routeId, new SimulationEntry(sim, timer));
     }
 
     private void drawTiles(Graphics2D g2) {
@@ -1188,11 +1197,28 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     public Timer getOccupancyTimer() {
-        return occupancyTimer;
+        // Return the first running timer, or any timer, for backward compatibility
+        return simulations.values().stream()
+            .filter(SimulationEntry::isRunning)
+            .map(SimulationEntry::timer)
+            .findFirst()
+            .orElse(simulations.values().stream().map(SimulationEntry::timer).findFirst().orElse(null));
     }
 
     public OccupancySimulation getSimulation() {
-        return simulation;
+        return simulations.values().stream()
+            .map(SimulationEntry::simulation)
+            .findFirst()
+            .orElse(null);
+    }
+
+    public OccupancySimulation getSimulation(String routeId) {
+        SimulationEntry entry = simulations.get(routeId);
+        return entry != null ? entry.simulation() : null;
+    }
+
+    public boolean isAnySimulationRunning() {
+        return simulations.values().stream().anyMatch(SimulationEntry::isRunning);
     }
 
     // --- Observer ---
