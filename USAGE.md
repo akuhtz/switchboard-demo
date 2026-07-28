@@ -81,8 +81,10 @@ After a route is created, you can animate a train moving along it:
 - The simulation creates occupancy markers on every tile along the route and slides the **OCCUPIED** state from the start to the end, one tile at a time (200ms per step).
 - Turnouts along the route are automatically set to the correct position for the simulated path.
 - **Signal stops**: When a train reaches a signal tile at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it.
-- **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a red signal that blocks a train auto-switches to green after 2 seconds, allowing the train to resume.
-- **Simulate occupancy** is disabled while a simulation is already running.
+- **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a red signal that blocks a train auto-switches to green after 2 seconds, allowing the train to resume. Toggling this option immediately affects all running simulations.
+- **Multiple simulations**: Each route can have its own independent simulation running concurrently.
+- **Stop simulation**: Right-click the source tile of a running simulation → **Stop simulation ({id})** to stop it mid-route.
+- **Simulate occupancy** is disabled while that route's simulation is already running.
 
 To reset the simulation:
 

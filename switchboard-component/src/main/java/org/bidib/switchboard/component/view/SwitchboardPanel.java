@@ -136,6 +136,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     public void setAutoChangeSignal(boolean autoChange) {
         this.autoChangeSignal = autoChange;
+        for (SimulationEntry entry : simulations.values()) {
+            entry.simulation().setAutoChangeSignal(autoChange);
+        }
     }
 
     public boolean isAutoChangeSignal() {
