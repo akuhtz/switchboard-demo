@@ -52,6 +52,7 @@ import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.model.TileDirection;
+import org.bidib.switchboard.component.simulation.OccupancySimulation;
 import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.util.SvgIconLoader;
 import org.slf4j.Logger;
@@ -156,6 +157,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     private final RouteModel routeModel = new RouteModel();
 
     private Timer occupancyTimer;
+
+    private OccupancySimulation simulation;
 
     private int routeSourceCol = -1;
 
@@ -979,45 +982,21 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     /** Returns true if the tile is a signal element with aspect 0 (red). */
     boolean isSignalAtRed(Tile tile) {
-        if (!(tile instanceof ElementTile et)) {
-            return false;
-        }
-        ElementType type = et.getElementType();
-        if (type != ElementType.SIGNAL_2 && type != ElementType.SIGNAL_3) {
-            return false;
-        }
-        Element el = model.getElement(et.getElementId());
-        return el != null && el.getCurrentAspect() == 0;
+        return OccupancySimulation.isSignalAtRed(tile, model);
     }
 
     /**
      * Returns true if the tile is a signal at red AND the train entered from the signal's facing direction.
-     * Signals only block trains approaching from the front (the direction the signal faces).
-     * <p>
-     * Signal facing convention: at rotation 0 the signal faces LEFT, meaning it stops trains
-     * entering from port LEFT (i.e., trains moving LEFT→RIGHT).
      */
     boolean isSignalBlocking(Tile tile, int entryPort) {
-        if (!isSignalAtRed(tile)) {
-            return false;
-        }
-        int rotSteps = (tile.getRotation() / 90) % 4;
-        int facingPort = (ElementType.PORT_LEFT + rotSteps) % 4;
-        return entryPort == facingPort;
+        return OccupancySimulation.isSignalBlocking(tile, entryPort, model);
     }
 
     /**
-     * Computes the port through which a train enters a tile, given the movement delta from
-     * the previous tile to the current tile.
-     * <p>
-     * If the train moved right (dc=1), it entered the current tile from the LEFT port.
+     * Computes the port through which a train enters a tile, given the movement delta.
      */
     static int portFromDelta(int dc, int dr) {
-        if (dc == 1) return ElementType.PORT_LEFT;
-        if (dc == -1) return ElementType.PORT_RIGHT;
-        if (dr == 1) return ElementType.PORT_TOP;
-        if (dr == -1) return ElementType.PORT_BOTTOM;
-        return -1;
+        return OccupancySimulation.portFromDelta(dc, dr);
     }
 
     boolean isTileOccupied(int col, int row) {
@@ -1040,8 +1019,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private void startRouteOccupancySimulation(Route route) {
-        List<int[]> path = route.getPath();
-        if (path.isEmpty()) {
+        if (route.getPath().isEmpty()) {
             return;
         }
 
@@ -1049,98 +1027,18 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             occupancyTimer.stop();
         }
 
-        for (int i = 0; i < path.size(); i++) {
-            int[] p = path.get(i);
-            Tile tile = getTile(p[0], p[1]);
-            if (tile instanceof ElementTile et && et.getElementId() != null) {
-                Element el = model.getElement(et.getElementId());
-                if (el != null) {
-                    Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
-                    model.addOccupancy(occ);
-                    el.setOccupancy(occ);
-                }
-            }
+        if (simulation == null) {
+            simulation = new OccupancySimulation(model, this, occupancyFactory);
         }
+        simulation.setAutoChangeSignal(autoChangeSignal);
+        simulation.setOnTick(this::repaint);
+        simulation.start(route);
 
-        int[] first = path.get(0);
-        Tile ft = getTile(first[0], first[1]);
-        if (ft instanceof ElementTile fet && fet.getElementId() != null) {
-            Element fel = model.getElement(fet.getElementId());
-            if (fel != null && fel.getOccupancy() != null) {
-                fel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-            }
-        }
-
-        int[] idx = { 1 };
-        Timer[] signalTimer = { null };
         occupancyTimer = new Timer(200, e -> {
-            if (idx[0] >= path.size()) {
+            simulation.tick();
+            if (!simulation.isRunning()) {
                 ((Timer) e.getSource()).stop();
-                if (signalTimer[0] != null) {
-                    signalTimer[0].stop();
-                }
-                return;
             }
-
-            // Check if current tile (where the train is) is a signal blocking this direction
-            int prev = idx[0] - 1;
-            int[] pp = path.get(prev);
-            Tile pt = getTile(pp[0], pp[1]);
-
-            boolean blocked = false;
-            if (prev > 0) {
-                int[] before = path.get(prev - 1);
-                int entryPort = portFromDelta(pp[0] - before[0], pp[1] - before[1]);
-                blocked = isSignalBlocking(pt, entryPort);
-            } else {
-                // First tile: no entry direction known — use simple red check
-                blocked = isSignalAtRed(pt);
-            }
-
-            if (blocked) {
-                // Train is stopped at red signal
-                if (autoChangeSignal && signalTimer[0] == null) {
-                    // Start auto-change timer: switch signal to aspect 1 after 2 seconds
-                    Element signalEl = model.getElement(pt.getElementId());
-                    signalTimer[0] = new Timer(2000, ev -> {
-                        ((Timer) ev.getSource()).stop();
-                        signalTimer[0] = null;
-                        if (signalEl != null) {
-                            model.setElementAspect(signalEl.getId(), 1);
-                        }
-                    });
-                    signalTimer[0].setRepeats(false);
-                    signalTimer[0].start();
-                }
-                return; // Don't advance — wait for signal
-            }
-
-            // Cancel any pending signal timer if train moved past
-            if (signalTimer[0] != null) {
-                signalTimer[0].stop();
-                signalTimer[0] = null;
-            }
-
-            int curr = idx[0];
-
-            Tile prevTile = getTile(pp[0], pp[1]);
-            if (prevTile instanceof ElementTile pet && pet.getElementId() != null) {
-                Element pel = model.getElement(pet.getElementId());
-                if (pel != null && pel.getOccupancy() != null) {
-                    pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                }
-            }
-
-            int[] cp = path.get(curr);
-            Tile ct = getTile(cp[0], cp[1]);
-            if (ct instanceof ElementTile cet && cet.getElementId() != null) {
-                Element cel = model.getElement(cet.getElementId());
-                if (cel != null && cel.getOccupancy() != null) {
-                    cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-                }
-            }
-
-            idx[0]++;
         });
         occupancyTimer.setRepeats(true);
         occupancyTimer.start();
@@ -1291,6 +1189,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     public Timer getOccupancyTimer() {
         return occupancyTimer;
+    }
+
+    public OccupancySimulation getSimulation() {
+        return simulation;
     }
 
     // --- Observer ---
