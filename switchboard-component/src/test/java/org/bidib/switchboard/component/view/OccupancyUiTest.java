@@ -122,28 +122,7 @@ class OccupancyUiTest {
         int limit = path.size();
         LOGGER.info("Route has {} tiles, testing {} steps", path.size(), limit);
 
-        GuiActionRunner.execute(() -> {
-            for (int i = 0; i < path.size(); i++) {
-                int[] p = path.get(i);
-                Tile tile = panel.getTile(p[0], p[1]);
-                if (tile instanceof ElementTile et && et.getElementId() != null) {
-                    Element el = panel.getModel().getElement(et.getElementId());
-                    if (el != null) {
-                        Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
-                        panel.getModel().addOccupancy(occ);
-                        el.setOccupancy(occ);
-                    }
-                }
-            }
-            int[] first = path.get(0);
-            Tile ft = panel.getTile(first[0], first[1]);
-            if (ft instanceof ElementTile fet && fet.getElementId() != null) {
-                Element fel = panel.getModel().getElement(fet.getElementId());
-                if (fel != null) {
-                    fel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-                }
-            }
-        });
+        assignOccupanciesToPath(path);
 
         assertThat(panel.isTileOccupied(path.get(0)[0], path.get(0)[1])).isTrue();
         for (int i = 1; i < limit; i++) {
@@ -160,76 +139,8 @@ class OccupancyUiTest {
             recorder = ScreenRecorder.startIfEnabled(panelBounds, videoOutput);
         }
         try {
-            int[] idx = { 1 };
-            Semaphore tickComplete = new Semaphore(0);
-            Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
-                if (idx[0] > path.size()) {
-                    ((Timer) e.getSource()).stop();
-                    return;
-                }
-                int prev = idx[0] - 1;
-                int curr = idx[0];
-
-                int[] pp = path.get(prev);
-                Tile pt = panel.getTile(pp[0], pp[1]);
-                if (pt instanceof ElementTile pet && pet.getElementId() != null) {
-                    Element pel = panel.getModel().getElement(pet.getElementId());
-                    if (pel != null) {
-                        pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                    }
-                }
-
-                int[] cp = path.get(curr);
-                Tile ct = panel.getTile(cp[0], cp[1]);
-                if (ct instanceof ElementTile cet && cet.getElementId() != null) {
-                    Element cel = panel.getModel().getElement(cet.getElementId());
-                    if (cel != null) {
-                        cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-                    }
-                }
-
-                idx[0]++;
-                tickComplete.release();
-            }));
-
-            GuiActionRunner.execute(() -> timer.start());
-
-            try {
-                for (int step = 1; step < limit; step++) {
-                    tickComplete.acquire();
-                    window.robot().waitForIdle();
-
-                    for (int i = 0; i < limit; i++) {
-                        if (i == step) {
-                            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
-                                .as("Tile %d (%d,%d) should be occupied at step %d", i, path.get(i)[0], path.get(i)[1], step).isTrue();
-                        }
-                        else {
-                            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
-                                .as("Tile %d (%d,%d) should be free at step %d", i, path.get(i)[0], path.get(i)[1], step).isFalse();
-                        }
-                    }
-                }
-            }
-            catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(ie);
-            }
-            finally {
-                GuiActionRunner.execute(() -> timer.stop());
-            }
-
-            GuiActionRunner.execute(() -> {
-                for (int[] p : path) {
-                    Tile tile = panel.getTile(p[0], p[1]);
-                    if (tile instanceof ElementTile et && et.getElementId() != null) {
-                        Element el = panel.getModel().getElement(et.getElementId());
-                        if (el != null && el.getOccupancy() != null) {
-                            el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                        }
-                    }
-                }
-            });
+            simulateAndVerifyOccupancy(path);
+            clearOccupancies(path);
 
             if (recorder != null) {
                 waitAfterTest();
@@ -260,30 +171,7 @@ class OccupancyUiTest {
         int limit = path.size();
         LOGGER.info("Route has {} tiles, testing {} steps", path.size(), limit);
 
-        GuiActionRunner.execute(() -> {
-            for (int i = 0; i < path.size(); i++) {
-                int[] p = path.get(i);
-                Tile tile = panel.getTile(p[0], p[1]);
-                if (tile instanceof ElementTile et && et.getElementId() != null) {
-                    Element el = panel.getModel().getElement(et.getElementId());
-                    if (el != null) {
-                        Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
-                        panel.getModel().addOccupancy(occ);
-                        LOGGER.info("Set free on element: {}", el.getId());
-                        el.setOccupancy(occ);
-                    }
-                }
-            }
-            int[] first = path.get(0);
-            Tile ft = panel.getTile(first[0], first[1]);
-            if (ft instanceof ElementTile fet && fet.getElementId() != null) {
-                Element fel = panel.getModel().getElement(fet.getElementId());
-                if (fel != null) {
-                    LOGGER.info("Set occupied on element: {}", fel.getId());
-                    fel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-                }
-            }
-        });
+        assignOccupanciesToPath(path);
 
         assertThat(panel.isTileOccupied(path.get(0)[0], path.get(0)[1])).isTrue();
         for (int i = 1; i < limit; i++) {
@@ -300,78 +188,8 @@ class OccupancyUiTest {
             recorder = ScreenRecorder.startIfEnabled(panelBounds, videoOutput);
         }
         try {
-            int[] idx = { 1 };
-            Semaphore tickComplete = new Semaphore(0);
-            Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
-                if (idx[0] > path.size()) {
-                    ((Timer) e.getSource()).stop();
-                    return;
-                }
-                int prev = idx[0] - 1;
-                int curr = idx[0];
-
-                int[] pp = path.get(prev);
-                Tile pt = panel.getTile(pp[0], pp[1]);
-                if (pt instanceof ElementTile pet && pet.getElementId() != null) {
-                    Element pel = panel.getModel().getElement(pet.getElementId());
-                    if (pel != null) {
-                        LOGGER.info("Set free on element: {}", pel.getId());
-                        pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                    }
-                }
-
-                int[] cp = path.get(curr);
-                Tile ct = panel.getTile(cp[0], cp[1]);
-                if (ct instanceof ElementTile cet && cet.getElementId() != null) {
-                    Element cel = panel.getModel().getElement(cet.getElementId());
-                    if (cel != null) {
-                        LOGGER.info("Set occupied on element: {}", cel.getId());
-                        cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-                    }
-                }
-
-                idx[0]++;
-                tickComplete.release();
-            }));
-
-            GuiActionRunner.execute(() -> timer.start());
-
-            try {
-                for (int step = 1; step < limit; step++) {
-                    tickComplete.acquire();
-                    window.robot().waitForIdle();
-
-                    for (int i = 0; i < limit; i++) {
-                        if (i == step) {
-                            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
-                                .as("Tile %d (%d,%d) should be occupied at step %d", i, path.get(i)[0], path.get(i)[1], step).isTrue();
-                        }
-                        else {
-                            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
-                                .as("Tile %d (%d,%d) should be free at step %d", i, path.get(i)[0], path.get(i)[1], step).isFalse();
-                        }
-                    }
-                }
-            }
-            catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(ie);
-            }
-            finally {
-                GuiActionRunner.execute(() -> timer.stop());
-            }
-
-            GuiActionRunner.execute(() -> {
-                for (int[] p : path) {
-                    Tile tile = panel.getTile(p[0], p[1]);
-                    if (tile instanceof ElementTile et && et.getElementId() != null) {
-                        Element el = panel.getModel().getElement(et.getElementId());
-                        if (el != null && el.getOccupancy() != null) {
-                            el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                        }
-                    }
-                }
-            });
+            simulateAndVerifyOccupancy(path);
+            clearOccupancies(path);
 
             if (recorder != null) {
                 waitAfterTest();
@@ -404,104 +222,15 @@ class OccupancyUiTest {
         int limit = path.size();
         LOGGER.info("Route has {} tiles, testing {} steps", path.size(), limit);
 
-        GuiActionRunner.execute(() -> {
-            for (int i = 0; i < path.size(); i++) {
-                int[] p = path.get(i);
-                Tile tile = panel.getTile(p[0], p[1]);
-                if (tile instanceof ElementTile et && et.getElementId() != null) {
-                    Element el = panel.getModel().getElement(et.getElementId());
-                    if (el != null) {
-                        Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
-                        panel.getModel().addOccupancy(occ);
-                        el.setOccupancy(occ);
-                    }
-                }
-            }
-            int[] first = path.get(0);
-            Tile ft = panel.getTile(first[0], first[1]);
-            if (ft instanceof ElementTile fet && fet.getElementId() != null) {
-                Element fel = panel.getModel().getElement(fet.getElementId());
-                if (fel != null) {
-                    fel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-                }
-            }
-        });
+        assignOccupanciesToPath(path);
 
         assertThat(panel.isTileOccupied(path.get(0)[0], path.get(0)[1])).isTrue();
         for (int i = 1; i < limit; i++) {
             assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1])).isFalse();
         }
 
-        int[] idx = { 1 };
-        Semaphore tickComplete = new Semaphore(0);
-        Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
-            if (idx[0] > path.size()) {
-                ((Timer) e.getSource()).stop();
-                return;
-            }
-            int prev = idx[0] - 1;
-            int curr = idx[0];
-
-            int[] pp = path.get(prev);
-            Tile pt = panel.getTile(pp[0], pp[1]);
-            if (pt instanceof ElementTile pet && pet.getElementId() != null) {
-                Element pel = panel.getModel().getElement(pet.getElementId());
-                if (pel != null) {
-                    pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                }
-            }
-
-            int[] cp = path.get(curr);
-            Tile ct = panel.getTile(cp[0], cp[1]);
-            if (ct instanceof ElementTile cet && cet.getElementId() != null) {
-                Element cel = panel.getModel().getElement(cet.getElementId());
-                if (cel != null) {
-                    cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-                }
-            }
-
-            idx[0]++;
-            tickComplete.release();
-        }));
-
-        GuiActionRunner.execute(() -> timer.start());
-
-        try {
-            for (int step = 1; step < limit; step++) {
-                tickComplete.acquire();
-                window.robot().waitForIdle();
-
-                for (int i = 0; i < limit; i++) {
-                    if (i == step) {
-                        assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
-                            .as("Tile %d (%d,%d) should be occupied at step %d", i, path.get(i)[0], path.get(i)[1], step).isTrue();
-                    }
-                    else {
-                        assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
-                            .as("Tile %d (%d,%d) should be free at step %d", i, path.get(i)[0], path.get(i)[1], step).isFalse();
-                    }
-                }
-            }
-        }
-        catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(ie);
-        }
-        finally {
-            GuiActionRunner.execute(() -> timer.stop());
-        }
-
-        GuiActionRunner.execute(() -> {
-            for (int[] p : path) {
-                Tile tile = panel.getTile(p[0], p[1]);
-                if (tile instanceof ElementTile et && et.getElementId() != null) {
-                    Element el = panel.getModel().getElement(et.getElementId());
-                    if (el != null && el.getOccupancy() != null) {
-                        el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                    }
-                }
-            }
-        });
+        simulateAndVerifyOccupancy(path);
+        clearOccupancies(path);
     }
 
     @Test
@@ -539,28 +268,7 @@ class OccupancyUiTest {
 
         int limit = path.size();
 
-        GuiActionRunner.execute(() -> {
-            for (int i = 0; i < path.size(); i++) {
-                int[] p = path.get(i);
-                Tile tile = panel.getTile(p[0], p[1]);
-                if (tile instanceof ElementTile et && et.getElementId() != null) {
-                    Element el = panel.getModel().getElement(et.getElementId());
-                    if (el != null) {
-                        Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
-                        panel.getModel().addOccupancy(occ);
-                        el.setOccupancy(occ);
-                    }
-                }
-            }
-            int[] first = path.get(0);
-            Tile ft = panel.getTile(first[0], first[1]);
-            if (ft instanceof ElementTile fet && fet.getElementId() != null) {
-                Element fel = panel.getModel().getElement(fet.getElementId());
-                if (fel != null) {
-                    fel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-                }
-            }
-        });
+        assignOccupanciesToPath(path);
 
         assertThat(panel.isTileOccupied(path.get(0)[0], path.get(0)[1])).isTrue();
         for (int i = 1; i < limit; i++) {
@@ -577,76 +285,8 @@ class OccupancyUiTest {
             recorder = ScreenRecorder.startIfEnabled(panelBounds, videoOutput);
         }
         try {
-            int[] idx = { 1 };
-            Semaphore tickComplete = new Semaphore(0);
-            Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
-                if (idx[0] > path.size()) {
-                    ((Timer) e.getSource()).stop();
-                    return;
-                }
-                int prev = idx[0] - 1;
-                int curr = idx[0];
-
-                int[] pp = path.get(prev);
-                Tile pt = panel.getTile(pp[0], pp[1]);
-                if (pt instanceof ElementTile pet && pet.getElementId() != null) {
-                    Element pel = panel.getModel().getElement(pet.getElementId());
-                    if (pel != null) {
-                        pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                    }
-                }
-
-                int[] cp = path.get(curr);
-                Tile ct = panel.getTile(cp[0], cp[1]);
-                if (ct instanceof ElementTile cet && cet.getElementId() != null) {
-                    Element cel = panel.getModel().getElement(cet.getElementId());
-                    if (cel != null) {
-                        cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-                    }
-                }
-
-                idx[0]++;
-                tickComplete.release();
-            }));
-
-            GuiActionRunner.execute(() -> timer.start());
-
-            try {
-                for (int step = 1; step < limit; step++) {
-                    tickComplete.acquire();
-                    window.robot().waitForIdle();
-
-                    for (int i = 0; i < limit; i++) {
-                        if (i == step) {
-                            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
-                                .as("Tile %d (%d,%d) should be occupied at step %d", i, path.get(i)[0], path.get(i)[1], step).isTrue();
-                        }
-                        else {
-                            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
-                                .as("Tile %d (%d,%d) should be free at step %d", i, path.get(i)[0], path.get(i)[1], step).isFalse();
-                        }
-                    }
-                }
-            }
-            catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(ie);
-            }
-            finally {
-                GuiActionRunner.execute(() -> timer.stop());
-            }
-
-            GuiActionRunner.execute(() -> {
-                for (int[] p : path) {
-                    Tile tile = panel.getTile(p[0], p[1]);
-                    if (tile instanceof ElementTile et && et.getElementId() != null) {
-                        Element el = panel.getModel().getElement(et.getElementId());
-                        if (el != null && el.getOccupancy() != null) {
-                            el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                        }
-                    }
-                }
-            });
+            simulateAndVerifyOccupancy(path);
+            clearOccupancies(path);
 
             if (recorder != null) {
                 waitAfterTest();
@@ -810,6 +450,28 @@ class OccupancyUiTest {
         int limit = path.size();
         LOGGER.info("Route has {} tiles", limit);
 
+        assignOccupanciesToPath(path);
+
+        assertThat(panel.isTileOccupied(path.get(0)[0], path.get(0)[1])).isTrue();
+        for (int i = 1; i < limit; i++) {
+            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1])).isFalse();
+        }
+
+            simulateAndVerifyOccupancy(path);
+            clearOccupancies(path);
+
+            if (recorder != null) {
+                waitAfterTest();
+            }
+        }
+        finally {
+            if (recorder != null) {
+                recorder.close();
+            }
+        }
+    }
+
+    private void assignOccupanciesToPath(List<int[]> path) {
         GuiActionRunner.execute(() -> {
             for (int i = 0; i < path.size(); i++) {
                 int[] p = path.get(i);
@@ -832,92 +494,82 @@ class OccupancyUiTest {
                 }
             }
         });
+    }
 
-        assertThat(panel.isTileOccupied(path.get(0)[0], path.get(0)[1])).isTrue();
-        for (int i = 1; i < limit; i++) {
-            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1])).isFalse();
+    private void simulateAndVerifyOccupancy(List<int[]> path) {
+        int limit = path.size();
+        int[] idx = { 1 };
+        Semaphore tickComplete = new Semaphore(0);
+        Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
+            if (idx[0] >= path.size()) {
+                ((Timer) e.getSource()).stop();
+                return;
+            }
+            int prev = idx[0] - 1;
+            int curr = idx[0];
+
+            int[] pp = path.get(prev);
+            Tile pt = panel.getTile(pp[0], pp[1]);
+            if (pt instanceof ElementTile pet && pet.getElementId() != null) {
+                Element pel = panel.getModel().getElement(pet.getElementId());
+                if (pel != null) {
+                    pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                }
+            }
+
+            int[] cp = path.get(curr);
+            Tile ct = panel.getTile(cp[0], cp[1]);
+            if (ct instanceof ElementTile cet && cet.getElementId() != null) {
+                Element cel = panel.getModel().getElement(cet.getElementId());
+                if (cel != null) {
+                    cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
+                }
+            }
+
+            idx[0]++;
+            tickComplete.release();
+        }));
+
+        GuiActionRunner.execute(() -> timer.start());
+
+        try {
+            for (int step = 1; step < limit; step++) {
+                tickComplete.acquire();
+                window.robot().waitForIdle();
+
+                for (int i = 0; i < limit; i++) {
+                    if (i == step) {
+                        assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
+                            .as("Tile %d (%d,%d) should be occupied at step %d", i, path.get(i)[0], path.get(i)[1], step).isTrue();
+                    }
+                    else {
+                        assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
+                            .as("Tile %d (%d,%d) should be free at step %d", i, path.get(i)[0], path.get(i)[1], step).isFalse();
+                    }
+                }
+            }
         }
-
-            int[] idx = { 1 };
-            Semaphore tickComplete = new Semaphore(0);
-            Timer timer = new Timer(DELAY, e -> GuiActionRunner.execute(() -> {
-                if (idx[0] >= path.size()) {
-                    ((Timer) e.getSource()).stop();
-                    return;
-                }
-                int prev = idx[0] - 1;
-                int curr = idx[0];
-
-                int[] pp = path.get(prev);
-                Tile pt = panel.getTile(pp[0], pp[1]);
-                if (pt instanceof ElementTile pet && pet.getElementId() != null) {
-                    Element pel = panel.getModel().getElement(pet.getElementId());
-                    if (pel != null) {
-                        pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                    }
-                }
-
-                int[] cp = path.get(curr);
-                Tile ct = panel.getTile(cp[0], cp[1]);
-                if (ct instanceof ElementTile cet && cet.getElementId() != null) {
-                    Element cel = panel.getModel().getElement(cet.getElementId());
-                    if (cel != null) {
-                        cel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
-                    }
-                }
-
-                idx[0]++;
-                tickComplete.release();
-            }));
-
-            GuiActionRunner.execute(() -> timer.start());
-
-            try {
-                for (int step = 1; step < limit; step++) {
-                    tickComplete.acquire();
-                    window.robot().waitForIdle();
-
-                    for (int i = 0; i < limit; i++) {
-                        if (i == step) {
-                            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
-                                .as("Tile %d (%d,%d) should be occupied at step %d", i, path.get(i)[0], path.get(i)[1], step).isTrue();
-                        }
-                        else {
-                            assertThat(panel.isTileOccupied(path.get(i)[0], path.get(i)[1]))
-                                .as("Tile %d (%d,%d) should be free at step %d", i, path.get(i)[0], path.get(i)[1], step).isFalse();
-                        }
-                    }
-                }
-            }
-            catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(ie);
-            }
-            finally {
-                GuiActionRunner.execute(() -> timer.stop());
-            }
-
-            GuiActionRunner.execute(() -> {
-                for (int[] p : path) {
-                    Tile tile = panel.getTile(p[0], p[1]);
-                    if (tile instanceof ElementTile et && et.getElementId() != null) {
-                        Element el = panel.getModel().getElement(et.getElementId());
-                        if (el != null && el.getOccupancy() != null) {
-                            el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                        }
-                    }
-                }
-            });
-
-            if (recorder != null) {
-                waitAfterTest();
-            }
+        catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(ie);
         }
         finally {
-            if (recorder != null) {
-                recorder.close();
-            }
+            GuiActionRunner.execute(() -> timer.stop());
         }
+    }
+
+    private void clearOccupancies(List<int[]> path) {
+        GuiActionRunner.execute(() -> {
+            for (int[] p : path) {
+                Tile tile = panel.getTile(p[0], p[1]);
+                if (tile instanceof ElementTile et && et.getElementId() != null) {
+                    Element el = panel.getModel().getElement(et.getElementId());
+                    if (el != null && el.getOccupancy() != null) {
+                        el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                    }
+                }
+            }
+        });
     }
 
     private void waitAfterTest() {
