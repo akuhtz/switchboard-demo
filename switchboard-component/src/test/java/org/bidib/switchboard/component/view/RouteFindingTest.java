@@ -594,16 +594,38 @@ class RouteFindingTest {
     @Test
     void signalAtRedBlocksSimulation() throws Exception {
         var f = setup();
-        // S2-002 is at (6, 0) — it's a SIGNAL_2
+        // S2-002 is at (6, 0), rotation 0 — faces LEFT, stops trains entering from LEFT
         Tile signalTile = f.panel().getTile(6, 0);
         assertThat(signalTile).isNotNull();
 
         // Default aspect is 0 (red)
         assertThat(f.panel().isSignalAtRed(signalTile)).as("Signal at aspect 0 should be red").isTrue();
+        // Entering from LEFT (train moving LEFT→RIGHT) — signal blocks
+        assertThat(f.panel().isSignalBlocking(signalTile, ElementType.PORT_LEFT))
+            .as("Signal should block train entering from facing direction").isTrue();
 
-        // Change to aspect 1 (green)
+        // Change to aspect 1 (green) — no longer blocking
         f.model().setElementAspect("S2-002", 1);
         assertThat(f.panel().isSignalAtRed(signalTile)).as("Signal at aspect 1 should not be red").isFalse();
+        assertThat(f.panel().isSignalBlocking(signalTile, ElementType.PORT_LEFT))
+            .as("Green signal should not block").isFalse();
+    }
+
+    @Test
+    void signalIgnoredFromBehind() throws Exception {
+        var f = setup();
+        // S2-002 is at (6, 0), rotation 0 — faces LEFT
+        Tile signalTile = f.panel().getTile(6, 0);
+        assertThat(signalTile).isNotNull();
+
+        // Aspect 0 (red), but train enters from RIGHT (behind the signal)
+        assertThat(f.panel().isSignalBlocking(signalTile, ElementType.PORT_RIGHT))
+            .as("Signal should be ignored when train approaches from behind").isFalse();
+        // Also from TOP and BOTTOM
+        assertThat(f.panel().isSignalBlocking(signalTile, ElementType.PORT_TOP))
+            .as("Signal should be ignored from non-facing direction").isFalse();
+        assertThat(f.panel().isSignalBlocking(signalTile, ElementType.PORT_BOTTOM))
+            .as("Signal should be ignored from non-facing direction").isFalse();
     }
 
     @Test
@@ -612,5 +634,7 @@ class RouteFindingTest {
         // P-001 is at (0, 0) — STRAIGHT tile
         Tile straightTile = f.panel().getTile(0, 0);
         assertThat(f.panel().isSignalAtRed(straightTile)).as("Straight tile should not be a red signal").isFalse();
+        assertThat(f.panel().isSignalBlocking(straightTile, ElementType.PORT_LEFT))
+            .as("Straight tile should not block as signal").isFalse();
     }
 }

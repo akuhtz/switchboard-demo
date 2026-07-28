@@ -990,6 +990,36 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         return el != null && el.getCurrentAspect() == 0;
     }
 
+    /**
+     * Returns true if the tile is a signal at red AND the train entered from the signal's facing direction.
+     * Signals only block trains approaching from the front (the direction the signal faces).
+     * <p>
+     * Signal facing convention: at rotation 0 the signal faces LEFT, meaning it stops trains
+     * entering from port LEFT (i.e., trains moving LEFT→RIGHT).
+     */
+    boolean isSignalBlocking(Tile tile, int entryPort) {
+        if (!isSignalAtRed(tile)) {
+            return false;
+        }
+        int rotSteps = (tile.getRotation() / 90) % 4;
+        int facingPort = (ElementType.PORT_LEFT + rotSteps) % 4;
+        return entryPort == facingPort;
+    }
+
+    /**
+     * Computes the port through which a train enters a tile, given the movement delta from
+     * the previous tile to the current tile.
+     * <p>
+     * If the train moved right (dc=1), it entered the current tile from the LEFT port.
+     */
+    static int portFromDelta(int dc, int dr) {
+        if (dc == 1) return ElementType.PORT_LEFT;
+        if (dc == -1) return ElementType.PORT_RIGHT;
+        if (dr == 1) return ElementType.PORT_TOP;
+        if (dr == -1) return ElementType.PORT_BOTTOM;
+        return -1;
+    }
+
     boolean isTileOccupied(int col, int row) {
         Element el = elementAt(col, row);
         return el != null && el.getOccupancy() != null
@@ -1052,11 +1082,22 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 return;
             }
 
-            // Check if current tile (where the train is) is a signal at aspect 0 — train must wait
+            // Check if current tile (where the train is) is a signal blocking this direction
             int prev = idx[0] - 1;
             int[] pp = path.get(prev);
             Tile pt = getTile(pp[0], pp[1]);
-            if (isSignalAtRed(pt)) {
+
+            boolean blocked = false;
+            if (prev > 0) {
+                int[] before = path.get(prev - 1);
+                int entryPort = portFromDelta(pp[0] - before[0], pp[1] - before[1]);
+                blocked = isSignalBlocking(pt, entryPort);
+            } else {
+                // First tile: no entry direction known — use simple red check
+                blocked = isSignalAtRed(pt);
+            }
+
+            if (blocked) {
                 // Train is stopped at red signal
                 if (autoChangeSignal && signalTimer[0] == null) {
                     // Start auto-change timer: switch signal to aspect 1 after 2 seconds
