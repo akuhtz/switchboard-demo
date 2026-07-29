@@ -36,9 +36,10 @@
          ═══════════════════════════════════════════════ -->
     <StandardDirectory Id="ProgramFiles6432Folder">
         <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)" >
-
+<!--
             <Directory Id="APPLFOLDER" Name="lib">
             </Directory>
+-->
             <Directory Id="JREFOLDER" Name="jre">
             </Directory>
         </Directory>
@@ -83,11 +84,13 @@
                   Advertise="yes" />
       </Component>
     </ComponentGroup>
-    
+
+<!--
     <ComponentGroup Id="ApplComponents" Directory="APPLFOLDER">
         <Files Include="..\..\..\target\staging\lib\**">
         </Files>
     </ComponentGroup>
+-->
 
     <ComponentGroup Id="JreComponents" Directory="JREFOLDER">
         <Files Include="..\..\..\target\staging\jre\**">
@@ -144,7 +147,9 @@
              Title="!(bind.Property.ProductName) App"
              Level="1">
       <ComponentGroupRef Id="ProductComponents" />
+<!--
       <ComponentGroupRef Id="ApplComponents" />
+-->
       <ComponentGroupRef Id="JreComponents" />
       <ComponentRef Id="StartMenuShortcuts" />
     </Feature>
