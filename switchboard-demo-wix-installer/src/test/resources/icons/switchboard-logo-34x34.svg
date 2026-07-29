@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">
+  <!-- Dark background -->
+  <rect width="34" height="34" fill="#2d2d32"/>
+  <!-- Main horizontal track line (light gray) -->
+  <line x1="3" y1="17" x2="31" y2="17" stroke="#aaaaaa" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Diverging track (orange frog-end) -->
+  <line x1="17" y1="17" x2="28" y2="8" stroke="#ffa500" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Switch point circle -->
+  <circle cx="17" cy="17" r="2.5" fill="#aaaaaa"/>
+  <!-- Direction triangle -->
+  <polygon points="7,27 3,24 3,30" fill="#cccccc" opacity="0.78"/>
+  <!-- Signal dot (red) -->
+  <circle cx="28" cy="25" r="2.5" fill="#ff5050"/>
+</svg>
