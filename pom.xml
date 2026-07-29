@@ -15,6 +15,9 @@
     <modules>
         <module>switchboard-component</module>
         <module>switchboard-demo-app</module>
+        <!--
+        <module>switchboard-demo-wix-installer</module>
+        -->
     </modules>
 
     <properties>
@@ -32,6 +35,9 @@
         <jgoodies-validation.version>2.5.1</jgoodies-validation.version>
         <jgoodies-binding.version>2.13.0</jgoodies-binding.version>
         <junit6.version>6.0.3</junit6.version>
+        
+        <project.organization.name>bidib.org</project.organization.name>
+        <project.inceptionYear>2026</project.inceptionYear>
     </properties>
 
     <dependencyManagement>
@@ -47,6 +53,18 @@
                 <classifier>tests</classifier>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.bidib.jbidib.demo</groupId>
+                <artifactId>switchboard-demo-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--
+            <dependency>
+                <groupId>org.bidib.jbidib.demo</groupId>
+                <artifactId>switchboard-demo-wix-installer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            -->
             <dependency>
                 <groupId>tools.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
@@ -157,5 +175,59 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>io.github.git-commit-id</groupId>
+				<artifactId>git-commit-id-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+						<phase>process-sources</phase>
+					</execution>
+				</executions>
+				<configuration>
+					<verbose>false</verbose>
+					<dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+					<offline>true</offline>
+				</configuration>
+			</plugin>
+		</plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <!--
+            <id>win</id>
+            <activation>
+                <os> 
+                    <family>windows</family>
+                </os>
+            </activation>
+            -->
+            <id>native-installer</id>
+            <activation>
+                <property> 
+                    <name>native-installer</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <modules>
+                <module>switchboard-demo-wix-installer</module>
+            </modules>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.bidib.jbidib.demo</groupId>
+                        <artifactId>switchboard-demo-wix-installer</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+	</profiles>    
+    
 </project>

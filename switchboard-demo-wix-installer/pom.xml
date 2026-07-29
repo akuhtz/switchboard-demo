@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.bidib.jbidib.demo</groupId>
+        <artifactId>switchboard-demo</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>switchboard-demo-wix-installer</artifactId>
+    <packaging>msi</packaging>
+
+    <properties>
+        <mainClass>org.bidib.switchboard.demoapp.SwitchboardApp</mainClass>
+
+		<jvmVersion>${java.version}+</jvmVersion>
+
+		<projectname>Switchboard-Demo</projectname>
+        <projectversion>${project.version}</projectversion>
+        <projectartifact>switchboard-demo-app</projectartifact>
+
+		<izpack-groupId>org.codehaus.izpack</izpack-groupId>
+		<izpack-version>5.2.6</izpack-version>
+		<izpack-staging>${project.build.directory}/staging</izpack-staging>
+		
+		<launch4j-plugin-groupId>com.akathist.maven.plugins.launch4j</launch4j-plugin-groupId>
+		<launch4j-plugin-version>2.7.0</launch4j-plugin-version>
+
+        <!-- replaced during release in separate profile -->
+        <buildnumber-and-branch-info>${git.total.commit.count}, ${git.branch}</buildnumber-and-branch-info>
+
+   		<standalone-main-class>org.bidib.switchboard.demoapp.SwitchboardApp</standalone-main-class>
+        
+        <addJvmArgs>-Djdk.net.usePlainDatagramSocketImpl=true -Xms604M --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-exports java.base/sun.security.action=ALL-UNNAMED --add-exports java.desktop/com.sun.java.swing.plaf.windows=ALL-UNNAMED --add-exports java.desktop/sun.swing=ALL-UNNAMED --add-exports java.desktop/sun.awt.windows=ALL-UNNAMED --add-exports java.desktop/sun.awt.image=ALL-UNNAMED --add-exports java.desktop/sun.awt.shell=ALL-UNNAMED --add-opens java.desktop/javax.swing=ALL-UNNAMED --add-opens java.desktop/com.sun.java.swing.plaf.windows=ALL-UNNAMED --add-opens java.desktop/sun.awt.shell=ALL-UNNAMED</addJvmArgs>
+
+        <active.packages>java.base,java.compiler,java.datatransfer,java.xml,java.prefs,java.desktop,java.instrument,java.logging,java.management,java.security.sasl,java.naming,java.rmi,java.management.rmi,java.net.http,java.scripting,java.security.jgss,java.smartcardio,java.transaction.xa,java.sql,java.sql.rowset,java.xml.crypto,java.se,jdk.accessibility,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.mscapi,jdk.dynalink,jdk.internal.vm.ci,jdk.graal.compiler,jdk.graal.compiler.management,jdk.httpserver,jdk.jdwp.agent,jdk.jfr,jdk.localedata,jdk.management,jdk.management.agent,jdk.management.jfr,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.nio.mapmode,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom,jdk.zipfs</active.packages>
+<!--
+        <wix.locales>1033:en-US,1031:de-DE;en-US</wix.locales>
+        <wix.locales>1033:en-US,1031:de-DE</wix.locales>
+-->
+        <wix.locales>1031:de-DE</wix.locales>
+
+        <wixtools.groupId>org.wixtoolset.maven</wixtools.groupId>
+        <wixtools.version>6.0.2</wixtools.version>
+
+        <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
+
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.bidib.jbidib.demo</groupId>
+            <artifactId>switchboard-demo-app</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+		<finalName>${projectname}-${project.version}</finalName>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <targetPath>${izpack-staging}</targetPath>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+				<artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>${git-commit-id-maven-plugin.version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.3</version>
+                <executions>
+                    <execution>
+                        <id>prepare-runtime</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jlink</executable>
+                            <arguments>
+                                <argument>--verbose</argument>
+                                <argument>--no-header-files</argument>
+                                <argument>--no-man-pages</argument>
+                                <argument>--compress=2</argument>
+                                <argument>--strip-debug</argument>
+                                <argument>--add-modules</argument>
+                                <!--
+                                <argument>java.base,java.compiler,java.datatransfer,java.xml,java.prefs,java.desktop,java.instrument,java.logging,java.management,java.security.sasl,java.naming,java.rmi,java.management.rmi,java.net.http,java.scripting,java.security.jgss,java.smartcardio,java.transaction.xa,java.sql,java.sql.rowset,java.xml.crypto,jdk.accessibility,jdk.internal.jvmstat,jdk.attach,jdk.internal.opt,jdk.zipfs,jdk.compiler,jdk.dynalink,jdk.httpserver,jdk.management,jdk.management.agent,jdk.jconsole,jdk.jdwp.agent,jdk.jdi,jdk.jfr,jdk.jsobject,jdk.management.jfr,jdk.net,jdk.nio.mapmode,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.unsupported.desktop,jdk.xml.dom</argument>
+                                -->
+                                <argument>${active.packages}</argument>
+                                <argument>--output</argument>
+                                <argument>${izpack-staging}/jre</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.11.0</version>
+                <executions>
+                    <!-- copy *application dependencies* jars to izpack staging lib -->
+                    <!--
+                    <execution>
+                        <id>copy-product-dependencies</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${izpack-staging}/lib</outputDirectory>
+                            <excludeTransitive>false</excludeTransitive>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+							<includeScope>runtime</includeScope>
+                            <excludeArtifactIds>switchboard-demo-app</excludeArtifactIds>
+                            <excludeGroupIds>org.codehaus.izpack</excludeGroupIds>
+                        </configuration>
+                    </execution>
+                    -->
+                    <execution>
+                        <!-- copy *application* jars to izpack staging lib -->
+                        <id>copy-product</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${izpack-staging}</outputDirectory>
+                            <excludeTransitive>true</excludeTransitive>
+                            <!--stripVersion>true</stripVersion-->
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <!--excludeScope>system,test</excludeScope-->
+							<includeScope>runtime</includeScope>
+                            <!-- this excludes tools.jar, e.g. -->
+                            <includeArtifactIds>switchboard-demo-app</includeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.bidib.jbidib.de.akquinet.jbosscc.maven</groupId>
+                <artifactId>image-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <id>runtime-splash</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-text</goal>
+                        </goals>
+                        <configuration>
+                            <targetFormat>bmp</targetFormat>
+                            <sourceImage>src/main/resources/images/SwitchboardSplash.png</sourceImage>
+                            <targetImage>${izpack-staging}/icons/SwitchboardSplash.bmp</targetImage>
+                            <defaults>
+                                <fontName>Sans Serif</fontName>
+                                <fontStyle>1</fontStyle>
+                                <fontSize>10</fontSize>
+                                <fontColor>BLACK</fontColor>
+                            </defaults>
+                            <texts>
+                                <text>
+                                    <text>${project.version} (${buildnumber-and-branch-info})</text>
+                                    <offsetX>-10</offsetX>
+                                    <offsetY>10</offsetY>
+                                </text>
+                            </texts>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>installer-splash</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-text</goal>
+                        </goals>
+                        <configuration>
+                            <targetFormat>png</targetFormat>
+                            <sourceImage>src/main/resources/images/SwitchboardSplash.png</sourceImage>
+                            <targetImage>target/classes/images/SwitchboardSplash.png</targetImage>
+                            <defaults>
+                                <fontName>Sans Serif</fontName>
+                                <fontStyle>1</fontStyle>
+                                <fontSize>10</fontSize>
+                                <fontColor>BLACK</fontColor>
+                            </defaults>
+                            <texts>
+                                <text>
+                                    <text>${project.version} (${buildnumber-and-branch-info})</text>
+                                    <offsetX>-10</offsetX>
+                                    <offsetY>10</offsetY>
+                                </text>
+                            </texts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>${launch4j-plugin-groupId}</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <version>${launch4j-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <id>l4j-gui</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+                        <configuration>
+                            <headerType>gui</headerType>
+                            <stayAlive>true</stayAlive>
+                            <outfile>${izpack-staging}/Switchboard-Demo.exe</outfile>
+                            <dontWrapJar>true</dontWrapJar>
+                            <jar>${projectartifact}-client-${project.version}.jar</jar>
+                            <errTitle>Start Switchboard-Demo failed.</errTitle>
+                            <supportUrl>https://bell-sw.com/pages/downloads/#/java-21-lts</supportUrl>
+                            <classPath>
+                                <mainClass>${standalone-main-class}</mainClass>
+								<!--
+								<mainClass>org.springframework.boot.loader.launch.JarLauncher</mainClass>
+								<addDependencies>false</addDependencies>								
+								-->
+                                <preCp>.</preCp>
+                            </classPath>
+                            <singleInstance>
+                                <mutexName>switchboard-demo</mutexName>
+                                <windowTitle>Switchboard-Demo Application</windowTitle>
+                            </singleInstance>
+                            <icon>${izpack-staging}/icons/switchboard-logo-34x34.ico</icon>
+                            <jre>
+                                <path>jre</path>
+                                <!--
+                                <minVersion>17</minVersion>
+                                -->
+                            </jre>
+                            <splash>
+                                <file>${izpack-staging}/icons/SwitchboardSplash.bmp</file>
+                                <waitForWindow>true</waitForWindow>
+                                <timeout>60</timeout>
+                            </splash>
+                            <versionInfo>
+                                <fileVersion>2.1.0.${git.total.commit.count}</fileVersion>
+                                <txtFileVersion>Switchboard-Demo Application</txtFileVersion>
+                                <fileDescription>Switchboard-Demo Application</fileDescription>
+                                <copyright>BiDiB.org</copyright>
+                                <productVersion>2.1.0.${git.total.commit.count}</productVersion>
+                                <txtProductVersion>Switchboard-Demo Application</txtProductVersion>
+                                <productName>Switchboard-Demo</productName>
+                                <internalName>switchboard-demo</internalName>
+                                <originalFilename>Switchboard-Demo.exe</originalFilename>
+                            </versionInfo>
+                            <messages>
+                                <startupErr>Start Switchboard-Demo failed.</startupErr>
+                                <jreNotFoundErr>Start Switchboard-Demo with bundled JRE failed.</jreNotFoundErr>
+                                <jreVersionErr>Start Switchboard-Demo failed because of no matching JRE was found.</jreVersionErr>
+                                <launcherErr>Start Switchboard-Demo failed because of launcher error.</launcherErr>
+                                <!-- Used by console header only. -->
+                                <instanceAlreadyExistsMsg>Start Switchboard-Demo failed because an instance already exists.</instanceAlreadyExistsMsg>
+                            </messages>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>            
+        </plugins>
+    </build>
+    
+    <profiles>
+        <profile>
+            <id>prepare-runtime</id>
+            <activation>
+               <file>
+                  <missing>${izpack-staging}/jre/release</missing>
+               </file>
+            </activation>
+            <properties>
+                <!-- exec.skip>true</exec.skip -->
+            </properties>
+        </profile>
+        <profile>
+            <activation>
+              <jdk>[26,)</jdk>
+            </activation>
+            <properties>
+                <active.packages>java.base,java.compiler,java.datatransfer,java.xml,java.prefs,java.desktop,java.instrument,java.logging,java.management,java.security.sasl,java.naming,java.rmi,java.management.rmi,java.net.http,java.scripting,java.security.jgss,java.smartcardio,java.transaction.xa,java.sql,java.sql.rowset,java.xml.crypto,java.se,jdk.accessibility,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.mscapi,jdk.dynalink,jdk.internal.vm.ci,jdk.graal.compiler,jdk.graal.compiler.management,jdk.httpserver,jdk.jdwp.agent,jdk.jfr,jdk.localedata,jdk.management,jdk.management.agent,jdk.management.jfr,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.nio.mapmode,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom,jdk.zipfs</active.packages>
+            </properties>
+        </profile>
+        <profile>
+            <id>win</id>
+            <activation>
+                <os> 
+                    <family>windows</family>
+                </os>
+            </activation>
+            <build>
+                <finalName>${projectname}-${project.version}-${git.total.commit.count}-x64</finalName>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.wix-maven</groupId>
+                        <artifactId>wix-maven-plugin</artifactId>
+                        <version>0.4.0-SNAPSHOT</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <toolsPluginArtifactId>wix-toolset6</toolsPluginArtifactId>
+                            <bootstrapPluginArtifactId>wix-toolset6</bootstrapPluginArtifactId>
+                            
+                            <verbose>true</verbose>
+                            <platforms>
+                                <!--
+                                <arch>x86</arch>
+                                -->
+                                <arch>x64</arch>
+                            </platforms>
+                            <wixExtensions>
+                                <ext>WixToolset.UI.wixext</ext>
+                                <ext>WixToolset.Util.wixext</ext>
+                            </wixExtensions>
+<!--
+                            <localeList>
+                                <_1033>en-US</_1033>
+                            </localeList>
+-->
+                            <definitions>
+                                <def>projectVersion=${project.version}</def>
+                                <def>buildNumber=${git.total.commit.count}</def>
+                            </definitions>
+
+                        </configuration>
+                        
+                        <dependencies>
+                            <dependency>
+                                <groupId>${wixtools.groupId}</groupId>
+                                <artifactId>wix-toolset6</artifactId>
+                                <version>${wixtools.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+	</profiles>    
+</project>

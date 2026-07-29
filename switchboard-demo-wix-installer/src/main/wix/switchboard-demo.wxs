@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+    xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+    
+  <Package
+    Name="Switchboard-Demo $(var.projectVersion)"
+    Manufacturer="BiDIB &amp; Tools e.V."
+    Version="1.0.0.$(var.buildNumber)"    
+    UpgradeCode="829eb22d-e796-4604-911e-27128cb17399"
+    Scope="perMachine"
+    Compressed="yes"
+    InstallerVersion="500">
+
+<!--    
+    <SummaryInformation Description="!(loc.WelcomeMessage)" />
+-->
+    <Icon Id="icon.ico" SourceFile="..\..\..\target\staging\icons\switchboard-logo-34x34.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="..\..\..\target\staging\gpl-3.0.rtf" />
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="!(loc.WizDowngradeError)" />
+
+    <MediaTemplate EmbedCab="yes" />
+    
+    <!-- Tell WixUI which directory property to bind to -->
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <!-- Custom banner / dialog bitmaps (optional – swap in your own PNGs) -->
+    <!-- <WixVariable Id="WixUIBannerBmp"   Value="Bitmaps\banner.bmp" /> -->
+    <WixVariable Id="WixUIDialogBmp"   Value="..\..\..\target\staging\images\WixUIDialogBmp.png" />
+    <WixVariable Id="WixUIBannerBmp" Value="..\..\..\target\staging\images\banner.bmp"></WixVariable>
+
+    <!-- ═══════════════════════════════════════════════
+         DIRECTORY STRUCTURE
+         ═══════════════════════════════════════════════ -->
+    <StandardDirectory Id="ProgramFiles6432Folder">
+        <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)" >
+
+            <Directory Id="APPLFOLDER" Name="lib">
+            </Directory>
+            <Directory Id="JREFOLDER" Name="jre">
+            </Directory>
+        </Directory>
+    </StandardDirectory>
+    
+
+    <!-- Start Menu shortcut folder -->
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="AppMenuFolder" Name="!(bind.Property.ProductName)" />
+    </StandardDirectory>
+
+    <!-- ═══════════════════════════════════════════════
+         COMPONENTS
+         ═══════════════════════════════════════════════ -->
+    
+
+    <!-- Main application executable -->
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+
+      <Component Id="MainExecutable" Guid="B1C2D3E4-F5A6-7890-BCDE-F12345678903">
+        <File Id="AppExe"
+            Source="..\..\..\target\staging\Switchboard-Demo.exe" 
+              KeyPath="yes" />
+
+        <File Id="L4jIni"
+            Source="..\..\..\target\staging\Switchboard-Demo.l4j.ini" 
+              KeyPath="no" />
+
+        <!-- TODO use placeholder for client jar -->
+        <File Id="AppJar"
+            Source="..\..\..\target\staging\switchboard-demo-app-$(var.projectVersion).jar" 
+              KeyPath="no" />
+
+
+        <!-- Desktop shortcut -->
+        <Shortcut Id="DesktopShortcut"
+                  Directory="DesktopFolder"
+                  Name="!(bind.Property.ProductName)"
+                  Description="!(bind.Property.ProductName) Application"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="DesktopIcon.exe"
+                  Advertise="yes" />
+      </Component>
+    </ComponentGroup>
+    
+    <ComponentGroup Id="ApplComponents" Directory="APPLFOLDER">
+        <Files Include="..\..\..\target\staging\lib\**">
+        </Files>
+    </ComponentGroup>
+
+    <ComponentGroup Id="JreComponents" Directory="JREFOLDER">
+        <Files Include="..\..\..\target\staging\jre\**">
+        </Files>
+    </ComponentGroup>
+
+    <!-- ══════════════════════════════════════════════════════
+         START MENU SHORTCUTS
+         ══════════════════════════════════════════════════════ -->
+    <Component Id="StartMenuShortcuts"
+               Directory="AppMenuFolder"
+               Guid="E4F5A6B7-C8D9-0123-EF01-345678901238">
+
+      <!-- Launch the app -->
+      <Shortcut Id="StartMenuLaunch"
+                Name="!(bind.Property.ProductName) App"
+                Description="Launch !(bind.Property.ProductName) App"
+                Target="[INSTALLFOLDER]Switchboard-Demo.exe"
+                WorkingDirectory="INSTALLFOLDER" />
+
+      <!-- Uninstall shortcut -->
+      <Shortcut Id="StartMenuUninstall"
+                Name="Uninstall !(bind.Property.ProductName) App"
+                Description="Remove !(bind.Property.ProductName) App from this computer"
+                Target="[SystemFolder]msiexec.exe"
+                Arguments="/x [ProductCode]" />
+
+      <!--
+        Remove the Start Menu folder on uninstall.
+        Must reference the same Directory Id used on this Component.
+      -->
+      <RemoveFolder Id="RemoveAppMenuFolder"
+                    Directory="AppMenuFolder"
+                    On="uninstall" />
+
+      <!--
+        KeyPath: shortcuts alone can't be KeyPaths.
+        Use a registry value instead — this is the WiX-recommended pattern.
+      -->
+      <RegistryValue
+        Root="HKCU"
+        Key="Software\BiDiB\!(bind.Property.ProductName) Application"
+        Name="StartMenuInstalled"
+        Type="integer"
+        Value="1"
+        KeyPath="yes" />
+
+    </Component>
+
+    <!-- ═══════════════════════════════════════════════
+         FEATURE
+         ═══════════════════════════════════════════════ -->
+    <Feature Id="ProductFeature"
+             Title="!(bind.Property.ProductName) App"
+             Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="ApplComponents" />
+      <ComponentGroupRef Id="JreComponents" />
+      <ComponentRef Id="StartMenuShortcuts" />
+    </Feature>
+
+    <!-- ═══════════════════════════════════════════════
+         UI  –  WixUI_InstallDir gives the "Browse" dialog
+         ═══════════════════════════════════════════════ -->
+<!--         
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+-->
+    <ui:WixUI Id="WixUI_InstallDir" />
+
+  </Package>
+</Wix>
