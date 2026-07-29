@@ -1,21 +1,28 @@
 package org.bidib.switchboard.demoapp.persistence;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.bidib.switchboard.demoapp.persistence.SettingsData.LookAndFeel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Manages application settings stored in settings.json at the project root. Settings are separate from the layout file
- * and reference it by path.
+ * Manages application settings stored in {@code ~/switchboard-demo-1/settings.json}.
+ * Settings are separate from the layout file and reference it by path.
  */
 public class SettingsManager {
 
-    private static final Path SETTINGS_PATH = Paths.get("settings.json").toAbsolutePath().normalize();
+    private static final Logger LOG = LoggerFactory.getLogger(SettingsManager.class);
+
+    private static final Path SETTINGS_DIR = Paths.get(System.getProperty("user.home"), "switchboard-demo-1");
+    private static final Path SETTINGS_PATH = SETTINGS_DIR.resolve("settings.json");
 
     private static final ObjectMapper MAPPER = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
 
@@ -70,10 +77,11 @@ public class SettingsManager {
     private static SettingsData load() {
         if (SETTINGS_PATH.toFile().exists()) {
             try {
+                LOG.info("Loading settings from {}", SETTINGS_PATH);
                 return MAPPER.readValue(SETTINGS_PATH.toFile(), SettingsData.class);
             }
             catch (Exception e) {
-                // Fall through to default
+                LOG.warn("Failed to load settings from {}", SETTINGS_PATH, e);
             }
         }
         return new SettingsData();
@@ -81,10 +89,11 @@ public class SettingsManager {
 
     private void save() {
         try {
+            Files.createDirectories(SETTINGS_DIR);
             MAPPER.writeValue(SETTINGS_PATH.toFile(), data);
         }
-        catch (Exception e) {
-            // Ignore — settings save is best-effort
+        catch (IOException e) {
+            LOG.warn("Failed to save settings to {}", SETTINGS_PATH, e);
         }
     }
 }
