@@ -1,32 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">
-  <!-- 2x2 tile grid from switchboard7.json: (19,2),(20,2),(19,3),(20,3) -->
+  <!-- Dark background -->
   <rect width="34" height="34" fill="#2d2d32"/>
-
-  <!-- Tile (19,2): TR-007, turnout_straight_right, rotation 0 -->
-  <g transform="translate(0,0)">
-    <line x1="8.5" y1="8.5" x2="17" y2="17" stroke="#808080" stroke-width="2" stroke-linecap="round"/>
-    <line x1="0" y1="8.5" x2="8.5" y2="8.5" stroke="#aaaaaa" stroke-width="2" stroke-linecap="round"/>
-    <line x1="8.5" y1="8.5" x2="17" y2="8.5" stroke="#ffa500" stroke-width="2" stroke-linecap="round"/>
-  </g>
-
-  <!-- Tile (20,2): CL-005, curve_left, rotation 0 -->
-  <g transform="translate(17,0)">
-    <line x1="0" y1="8.5" x2="8.5" y2="8.5" stroke="#aaaaaa" stroke-width="2" stroke-linecap="round"/>
-    <line x1="8.5" y1="8.5" x2="17" y2="0" stroke="#aaaaaa" stroke-width="2" stroke-linecap="round"/>
-  </g>
-
-  <!-- Tile (19,3): S2-012, signal_2_red, rotation 180 -->
-  <g transform="translate(8.5,25.5) rotate(180)">
-    <line x1="-8.5" y1="0" x2="8.5" y2="0" stroke="#aaaaaa" stroke-width="2" stroke-linecap="round"/>
-    <rect x="2" y="1" width="4" height="6" rx="1" fill="black" stroke="white" stroke-width="0.5"/>
-    <circle cx="4" cy="5.5" r="1.2" fill="#FF0020"/>
-    <circle cx="4" cy="3" r="1.2" fill="#00FF40" opacity="0.5"/>
-  </g>
-
-  <!-- Tile (20,3): TR-006, turnout_straight_right, rotation 180 -->
-  <g transform="translate(25.5,25.5) rotate(180)">
-    <line x1="0" y1="0" x2="8.5" y2="8.5" stroke="#808080" stroke-width="2" stroke-linecap="round"/>
-    <line x1="-8.5" y1="0" x2="0" y2="0" stroke="#aaaaaa" stroke-width="2" stroke-linecap="round"/>
-    <line x1="0" y1="0" x2="8.5" y2="0" stroke="#ffa500" stroke-width="2" stroke-linecap="round"/>
-  </g>
+  <!-- Main horizontal track line (light gray) -->
+  <line x1="3" y1="17" x2="31" y2="17" stroke="#aaaaaa" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Diverging track (orange frog-end) -->
+  <line x1="17" y1="17" x2="28" y2="8" stroke="#ffa500" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Switch point circle -->
+  <circle cx="17" cy="17" r="2.5" fill="#aaaaaa"/>
+  <!-- Direction triangle -->
+  <polygon points="7,27 3,24 3,30" fill="#cccccc" opacity="0.78"/>
+  <!-- Signal dot (red) -->
+  <circle cx="28" cy="25" r="2.5" fill="#ff5050"/>
 </svg>
