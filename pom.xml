@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.bidib.jbidib.demo</groupId>
-    <artifactId>switchboard-demo</artifactId>
+    <groupId>org.bidib.jbidib.switchboard</groupId>
+    <artifactId>switchboard</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -43,24 +43,24 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.bidib.jbidib.demo</groupId>
+                <groupId>org.bidib.jbidib.switchboard</groupId>
                 <artifactId>switchboard-component</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.bidib.jbidib.demo</groupId>
+                <groupId>org.bidib.jbidib.switchboard</groupId>
                 <artifactId>switchboard-component</artifactId>
                 <classifier>tests</classifier>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.bidib.jbidib.demo</groupId>
+                <groupId>org.bidib.jbidib.switchboard</groupId>
                 <artifactId>switchboard-demo-app</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!--
             <dependency>
-                <groupId>org.bidib.jbidib.demo</groupId>
+                <groupId>org.bidib.jbidib.switchboard</groupId>
                 <artifactId>switchboard-demo-wix-installer</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -221,7 +221,7 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                        <groupId>org.bidib.jbidib.demo</groupId>
+                        <groupId>org.bidib.jbidib.switchboard</groupId>
                         <artifactId>switchboard-demo-wix-installer</artifactId>
                         <version>${project.version}</version>
                     </dependency>
