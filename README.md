@@ -493,10 +493,19 @@ including attribution and co-authorship requirements.
 ## Build & Run
 
 ```
-mvn compile exec:java -Dexec.mainClass=org.bidib.switchboard.SwitchboardApp
+mvn compile exec:java -Dexec.mainClass=org.bidib.switchboard.demoapp.SwitchboardApp -pl switchboard-demo-app
 mvn test
 mvn test -Dscreen.recording=true   # with MP4 screen recording for occupancy UI tests
+mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build Windows MSI installer
 ```
+
+### Modules
+
+| Module | Packaging | Description |
+|--------|-----------|-------------|
+| `switchboard-component` | jar | Core library: model, view, persistence, simulation |
+| `switchboard-demo-app` | jar | Demo application with hardware-specific extensions |
+| `switchboard-demo-wix-installer` | msi | Native Windows installer (WiX 6, Launch4j, bundled JRE) |
 
 ---
 
