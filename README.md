@@ -12,6 +12,11 @@ creating routes, and simulating occupancy.
 The switchboard is rendered as a 60x30 tile grid (each tile 32x32 px). Every tile displays an
 SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsvg:2.1.0`).
 
+
+### Installer 
+
+[![Installer for Windows](https://www.fichtelbahn.de/files/wizard-fw/switchboard-demo/getLatestLink.php?type=msi&version=1.0)](https://www.fichtelbahn.de/files/wizard-fw/switchboard-demo/getLatestLink.php?type=msi&version=1.0)
+
 ---
 
 ## Architecture
