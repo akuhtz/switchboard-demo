@@ -22,6 +22,7 @@ import javax.swing.table.AbstractTableModel;
 
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
+import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.demoapp.config.DemoOccupancy;
 import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
@@ -144,6 +145,26 @@ public class SwitchboardApp {
         });
         settingsMenu.add(exhaustiveItem);
         panel.setExhaustiveRouting(settings.isExhaustiveRouting());
+
+        settingsMenu.addSeparator();
+        JCheckBoxMenuItem signalLeftItem = new JCheckBoxMenuItem("Signal Side Left", settings.getSignalSide() == SignalSide.LEFT);
+        JCheckBoxMenuItem signalRightItem = new JCheckBoxMenuItem("Signal Side Right", settings.getSignalSide() == SignalSide.RIGHT);
+        signalLeftItem.addActionListener(e -> {
+            settings.setSignalSide(SignalSide.LEFT);
+            panel.setGlobalSignalSide(SignalSide.LEFT);
+            signalLeftItem.setSelected(true);
+            signalRightItem.setSelected(false);
+        });
+        signalRightItem.addActionListener(e -> {
+            settings.setSignalSide(SignalSide.RIGHT);
+            panel.setGlobalSignalSide(SignalSide.RIGHT);
+            signalRightItem.setSelected(true);
+            signalLeftItem.setSelected(false);
+        });
+        settingsMenu.add(signalLeftItem);
+        settingsMenu.add(signalRightItem);
+
+        panel.setGlobalSignalSide(settings.getSignalSide());
 
         fileMenu.add(settingsMenu);
 

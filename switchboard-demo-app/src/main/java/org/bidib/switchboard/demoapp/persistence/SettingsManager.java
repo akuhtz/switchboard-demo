@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.demoapp.persistence.SettingsData.LookAndFeel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,18 @@ public class SettingsManager {
 
     public void setExhaustiveRouting(boolean exhaustive) {
         data.setExhaustiveRouting(exhaustive);
+        save();
+    }
+
+    public SignalSide getSignalSide() {
+        String val = data.getSignalSide();
+        if (val == null) return SignalSide.LEFT;
+        try { return SignalSide.valueOf(val); }
+        catch (IllegalArgumentException e) { return SignalSide.LEFT; }
+    }
+
+    public void setSignalSide(SignalSide side) {
+        data.setSignalSide(side.name());
         save();
     }
 

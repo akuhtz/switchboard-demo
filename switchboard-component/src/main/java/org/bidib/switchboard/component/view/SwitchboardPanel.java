@@ -50,6 +50,7 @@ import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
+import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.model.TileDirection;
 import org.bidib.switchboard.component.simulation.OccupancySimulation;
@@ -129,6 +130,17 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     private boolean exhaustiveRouting = false;
 
     private boolean autoChangeSignal = false;
+
+    private SignalSide globalSignalSide = SignalSide.LEFT;
+
+    public void setGlobalSignalSide(SignalSide side) {
+        this.globalSignalSide = side;
+        repaint();
+    }
+
+    public SignalSide getGlobalSignalSide() {
+        return globalSignalSide;
+    }
 
     public void setExhaustiveRouting(boolean exhaustive) {
         this.exhaustiveRouting = exhaustive;
@@ -497,6 +509,19 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 if (et.getElementType() == ElementType.STRAIGHT || et.getElementType() == ElementType.DIAGONAL) {
                     buildDirectionSubmenu(menu, tile);
                 }
+                if (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3) {
+                    JMenu sideMenu = new JMenu("Signal Side");
+                    SignalSide currentSide = tile.getSignalSide();
+                    for (SignalSide side : SignalSide.values()) {
+                        JCheckBoxMenuItem item = new JCheckBoxMenuItem(side.name(), side == currentSide);
+                        item.addActionListener(e -> {
+                            tile.setSignalSide(side);
+                            repaint();
+                        });
+                        sideMenu.add(item);
+                    }
+                    menu.add(sideMenu);
+                }
                 menu.addSeparator();
             }
             JMenuItem clearItem = new JMenuItem("Clear");
@@ -682,8 +707,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             case TURNOUT_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg"));
             case TURNOUT_3WAY -> new ElementTile(col, row, id, type,
                 List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg"));
-            case SIGNAL_2 -> new ElementTile(col, row, id, type, List.of("/icons/signal_2_red.svg", "/icons/signal_2_green.svg"));
-            case SIGNAL_3 -> new ElementTile(col, row, id, type, List.of("/icons/signal_3_red.svg", "/icons/signal_3_yellow.svg", "/icons/signal_3_green.svg"));
+            case SIGNAL_2 -> new ElementTile(col, row, id, type, List.of("/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg"));
+            case SIGNAL_3 -> new ElementTile(col, row, id, type, List.of("/icons/signal_3_red_left.svg", "/icons/signal_3_yellow_left.svg", "/icons/signal_3_green_left.svg"));
             case STRAIGHT -> new ElementTile(col, row, id, type, List.of("/icons/straight.svg"));
             case CURVE_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/curve_left.svg"));
             case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/curve_right.svg"));

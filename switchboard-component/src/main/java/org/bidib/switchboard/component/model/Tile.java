@@ -8,6 +8,7 @@ public class Tile {
     private String svgResource;
     private int rotation;
     private TileDirection direction = TileDirection.BOTH;
+    private SignalSide signalSide = SignalSide.DEFAULT;
 
     public Tile(int col, int row, String elementId, String svgResource) {
         this.col = col;
@@ -50,6 +51,14 @@ public class Tile {
 
     public void setDirection(TileDirection direction) {
         this.direction = direction != null ? direction : TileDirection.BOTH;
+    }
+
+    public SignalSide getSignalSide() {
+        return signalSide;
+    }
+
+    public void setSignalSide(SignalSide signalSide) {
+        this.signalSide = signalSide != null ? signalSide : SignalSide.DEFAULT;
     }
 
     /** Returns the map key for a tile at the given grid position. */

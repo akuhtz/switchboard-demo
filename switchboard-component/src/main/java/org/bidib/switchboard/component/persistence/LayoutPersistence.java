@@ -11,6 +11,7 @@ import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
+import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.view.TileGrid;
 
@@ -115,6 +116,9 @@ public class LayoutPersistence {
         td.setRotation(tile.getRotation());
         if (tile.getDirection() != org.bidib.switchboard.component.model.TileDirection.BOTH) {
             td.setDirection(tile.getDirection().name());
+        }
+        if (tile.getSignalSide() != SignalSide.DEFAULT) {
+            td.setSignalSide(tile.getSignalSide().name());
         }
 
         if (tile instanceof ElementTile et) {
@@ -223,6 +227,12 @@ public class LayoutPersistence {
                 tile.setDirection(org.bidib.switchboard.component.model.TileDirection.valueOf(td.getDirection()));
             } catch (IllegalArgumentException ignored) {
                 // unknown direction value — keep default BOTH
+            }
+        }
+        if (td.getSignalSide() != null) {
+            try {
+                tile.setSignalSide(SignalSide.valueOf(td.getSignalSide()));
+            } catch (IllegalArgumentException ignored) {
             }
         }
         return tile;

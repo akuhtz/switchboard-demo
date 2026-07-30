@@ -15,6 +15,11 @@ public class SettingsData {
 
     private boolean exhaustiveRouting;
 
+    private String signalSide = "LEFT"; // Swiss default
+
+    public String getSignalSide() { return signalSide; }
+    public void setSignalSide(String signalSide) { this.signalSide = signalSide; }
+
     public boolean isExhaustiveRouting() {
         return exhaustiveRouting;
     }

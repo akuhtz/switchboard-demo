@@ -55,13 +55,20 @@ class OccupancyElementUiTest {
         map.put(ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg"));
         map.put(ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg"));
         map.put(ElementType.TURNOUT_3WAY, List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg"));
-        map.put(ElementType.SIGNAL_2, List.of("/icons/signal_2_red.svg", "/icons/signal_2_green.svg"));
-        map.put(ElementType.SIGNAL_3, List.of("/icons/signal_3_red.svg", "/icons/signal_3_yellow.svg", "/icons/signal_3_green.svg"));
+        map.put(ElementType.SIGNAL_2, List.of("/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg"));
+        map.put(ElementType.SIGNAL_3, List.of("/icons/signal_3_red_left.svg", "/icons/signal_3_yellow_left.svg", "/icons/signal_3_green_left.svg"));
         map.put(ElementType.STRAIGHT, List.of("/icons/straight.svg"));
         map.put(ElementType.CURVE_LEFT, List.of("/icons/curve_left.svg"));
         map.put(ElementType.CURVE_RIGHT, List.of("/icons/curve_right.svg"));
         map.put(ElementType.DIAGONAL, List.of("/icons/diagonal.svg"));
         map.put(ElementType.BUMPER, List.of("/icons/bumper_stop.svg"));
+        return map;
+    }
+
+    private static Map<ElementType, List<String>> svgByTypeRight() {
+        Map<ElementType, List<String>> map = new LinkedHashMap<>();
+        map.put(ElementType.SIGNAL_2, List.of("/icons/signal_2_red_right.svg", "/icons/signal_2_green_right.svg"));
+        map.put(ElementType.SIGNAL_3, List.of("/icons/signal_3_red_right.svg", "/icons/signal_3_yellow_right.svg", "/icons/signal_3_green_right.svg"));
         return map;
     }
 
@@ -82,6 +89,25 @@ class OccupancyElementUiTest {
             int[] cols = { 0, 3, 6, 9 };
             int elementCounter = 1;
             for (var entry : svgByType().entrySet()) {
+                ElementType type = entry.getKey();
+                List<String> svgPaths = entry.getValue();
+                int aspectCount = svgPaths.size();
+                String prefix = type.getPrefix();
+                for (int aspect = 0; aspect < aspectCount; aspect++) {
+                    for (int i = 0; i < 4; i++) {
+                        String elementId = prefix + "-" + String.format("%03d", elementCounter++);
+                        ElementTile tile = new ElementTile(cols[i], row, elementId, type, svgPaths);
+                        tile.setRotation(rotations[i]);
+                        panel.setTile(tile);
+                        Element element = new Element(elementId, 0, 0);
+                        element.setCurrentAspect(aspect);
+                        panel.getModel().addElement(element);
+                    }
+                    row++;
+                }
+            }
+            // Also test right-side signal SVGs
+            for (var entry : svgByTypeRight().entrySet()) {
                 ElementType type = entry.getKey();
                 List<String> svgPaths = entry.getValue();
                 int aspectCount = svgPaths.size();
@@ -139,7 +165,7 @@ class OccupancyElementUiTest {
     @Test
     void occupancyCyclesThroughAllElements() throws Exception {
         List<Element> elements = new ArrayList<>(panel.getModel().getElements().values());
-        assertThat(elements).hasSize(68);
+        assertThat(elements).hasSize(88);
 
         Map<String, int[]> elementPositions = new LinkedHashMap<>();
         for (Tile tile : panel.getTiles().values()) {
@@ -147,7 +173,7 @@ class OccupancyElementUiTest {
                 elementPositions.put(et.getElementId(), new int[] { tile.getCol(), tile.getRow() });
             }
         }
-        assertThat(elementPositions).hasSize(68);
+        assertThat(elementPositions).hasSize(88);
 
         int limit = elements.size();
         LOGGER.info("Testing {} elements across all types, aspects, and rotations", limit);
