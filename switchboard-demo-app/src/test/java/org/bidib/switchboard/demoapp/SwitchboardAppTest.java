@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
@@ -21,6 +22,7 @@ import org.bidib.switchboard.component.view.AssignOccupancyDialog;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +33,11 @@ class SwitchboardAppTest {
     private SwitchboardPanel panel;
 
 	private final OccupancyFactory occupancyFactory = new DemoOccupancyFactory(); 
+
+    @BeforeAll
+    static void forceEnglishLocale() {
+        Locale.setDefault(Locale.ENGLISH);
+    }
 
     @BeforeEach
     void setUp() throws Exception {
@@ -80,7 +87,7 @@ class SwitchboardAppTest {
         window.toggleButton(new GenericTypeMatcher<>(JToggleButton.class) {
             @Override
             protected boolean isMatching(JToggleButton button) {
-                return "Edit Mode".equals(button.getText());
+                return "Toggle Edit Mode".equals(button.getToolTipText());
             }
         }).requireVisible();
     }

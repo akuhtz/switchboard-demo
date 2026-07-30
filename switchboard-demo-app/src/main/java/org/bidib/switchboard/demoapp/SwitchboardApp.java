@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -17,6 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
@@ -40,6 +42,8 @@ import com.formdev.flatlaf.FlatLightLaf;
 public class SwitchboardApp {
 
     private static final Logger log = LoggerFactory.getLogger(SwitchboardApp.class);
+
+    private final ResourceBundle messages = ResourceBundle.getBundle("i18n.messages");
 
     private final RailwayModel model;
 
@@ -69,7 +73,7 @@ public class SwitchboardApp {
             FlatLightLaf.setup();
         }
 
-        frame = new JFrame("Model Railway Switchboard");
+        frame = new JFrame(messages.getString("frame.title"));
         layoutService = new LayoutService(new DemoOccupancySerializer(), panel, settings, frame);
         if (autoLoad) {
             layoutService.tryAutoLoad();
@@ -92,27 +96,27 @@ public class SwitchboardApp {
     private void buildMenu() {
         JMenuBar menuBar = new JMenuBar();
 
-        JMenu fileMenu = new JMenu("File");
+        JMenu fileMenu = new JMenu(messages.getString("menu.file"));
         fileMenu.setMnemonic('F');
 
-        JMenuItem loadItem = new JMenuItem("Load...");
+        JMenuItem loadItem = new JMenuItem(messages.getString("menu.file.load"));
         loadItem.setMnemonic('L');
-        loadItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control L"));
+        loadItem.setAccelerator(KeyStroke.getKeyStroke("control L"));
         loadItem.addActionListener(e -> {
             layoutService.onLoad();
             updateTitle();
         });
         fileMenu.add(loadItem);
 
-        JMenuItem saveItem = new JMenuItem("Save");
+        JMenuItem saveItem = new JMenuItem(messages.getString("menu.file.save"));
         saveItem.setMnemonic('S');
-        saveItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control S"));
+        saveItem.setAccelerator(KeyStroke.getKeyStroke("control S"));
         saveItem.addActionListener(e -> layoutService.onSave());
         fileMenu.add(saveItem);
 
-        JMenuItem saveAsItem = new JMenuItem("Save As...");
+        JMenuItem saveAsItem = new JMenuItem(messages.getString("menu.file.saveAs"));
         saveAsItem.setMnemonic('A');
-        saveAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control shift S"));
+        saveAsItem.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
         saveAsItem.addActionListener(e -> {
             layoutService.onSaveAs();
             updateTitle();
@@ -121,22 +125,22 @@ public class SwitchboardApp {
 
         fileMenu.addSeparator();
 
-        JMenu settingsMenu = new JMenu("Settings");
+        JMenu settingsMenu = new JMenu(messages.getString("menu.file.settings"));
         settingsMenu.setMnemonic('S');
         ButtonGroup lafGroup = new ButtonGroup();
-        JRadioButtonMenuItem lightItem = new JRadioButtonMenuItem("Light Look and Feel");
+        JRadioButtonMenuItem lightItem = new JRadioButtonMenuItem(messages.getString("menu.file.settings.lightLookAndFeel"));
         lightItem.setSelected(settings.getLookAndFeel() == LookAndFeel.LIGHT);
         lightItem.addActionListener(e -> applyLookAndFeel(LookAndFeel.LIGHT));
         lafGroup.add(lightItem);
         settingsMenu.add(lightItem);
-        JRadioButtonMenuItem darkItem = new JRadioButtonMenuItem("Dark Look and Feel");
+        JRadioButtonMenuItem darkItem = new JRadioButtonMenuItem(messages.getString("menu.file.settings.darkLookAndFeel"));
         darkItem.setSelected(settings.getLookAndFeel() == LookAndFeel.DARK);
         darkItem.addActionListener(e -> applyLookAndFeel(LookAndFeel.DARK));
         lafGroup.add(darkItem);
         settingsMenu.add(darkItem);
 
         settingsMenu.addSeparator();
-        JCheckBoxMenuItem exhaustiveItem = new JCheckBoxMenuItem("Exhaustive Route Search");
+        JCheckBoxMenuItem exhaustiveItem = new JCheckBoxMenuItem(messages.getString("menu.file.settings.exhaustiveRouteSearch"));
         exhaustiveItem.setSelected(settings.isExhaustiveRouting());
         exhaustiveItem.addActionListener(e -> {
             boolean selected = exhaustiveItem.isSelected();
@@ -147,8 +151,8 @@ public class SwitchboardApp {
         panel.setExhaustiveRouting(settings.isExhaustiveRouting());
 
         settingsMenu.addSeparator();
-        JCheckBoxMenuItem signalLeftItem = new JCheckBoxMenuItem("Signal Side Left", settings.getSignalSide() == SignalSide.LEFT);
-        JCheckBoxMenuItem signalRightItem = new JCheckBoxMenuItem("Signal Side Right", settings.getSignalSide() == SignalSide.RIGHT);
+        JCheckBoxMenuItem signalLeftItem = new JCheckBoxMenuItem(messages.getString("menu.file.settings.signalSideLeft"), settings.getSignalSide() == SignalSide.LEFT);
+        JCheckBoxMenuItem signalRightItem = new JCheckBoxMenuItem(messages.getString("menu.file.settings.signalSideRight"), settings.getSignalSide() == SignalSide.RIGHT);
         signalLeftItem.addActionListener(e -> {
             settings.setSignalSide(SignalSide.LEFT);
             panel.setGlobalSignalSide(SignalSide.LEFT);
@@ -170,28 +174,28 @@ public class SwitchboardApp {
 
         fileMenu.addSeparator();
 
-        JMenuItem exitItem = new JMenuItem("Exit");
+        JMenuItem exitItem = new JMenuItem(messages.getString("menu.file.exit"));
         exitItem.setMnemonic('X');
         exitItem.addActionListener(e -> System.exit(0));
         fileMenu.add(exitItem);
 
         menuBar.add(fileMenu);
 
-        JMenu editMenu = new JMenu("Edit");
+        JMenu editMenu = new JMenu(messages.getString("menu.edit"));
         editMenu.setMnemonic('E');
-        JMenuItem undoItem = new JMenuItem("Undo");
-        undoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control Z"));
+        JMenuItem undoItem = new JMenuItem(messages.getString("menu.edit.undo"));
+        undoItem.setAccelerator(KeyStroke.getKeyStroke("control Z"));
         undoItem.addActionListener(e -> panel.undoLast());
         editMenu.add(undoItem);
         editMenu.addSeparator();
-        editModeItem = new JCheckBoxMenuItem("Edit Mode");
+        editModeItem = new JCheckBoxMenuItem(messages.getString("menu.edit.editMode"));
         editModeItem.setMnemonic('M');
-        editModeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke("control E"));
+        editModeItem.setAccelerator(KeyStroke.getKeyStroke("control E"));
         editModeItem.addActionListener(e -> setEditMode(editModeItem.isSelected()));
         editMenu.add(editModeItem);
 
         editMenu.addSeparator();
-        JMenuItem loadDefaultItem = new JMenuItem("Load Default Layout");
+        JMenuItem loadDefaultItem = new JMenuItem(messages.getString("menu.edit.loadDefaultLayout"));
         loadDefaultItem.addActionListener(e -> {
             layoutService.loadDefaultLayout();
             updateTitle();
@@ -199,11 +203,11 @@ public class SwitchboardApp {
         editMenu.add(loadDefaultItem);
 
         editMenu.addSeparator();
-        JMenuItem occupanciesItem = new JMenuItem("Occupancies...");
+        JMenuItem occupanciesItem = new JMenuItem(messages.getString("menu.edit.occupancies"));
         occupanciesItem.addActionListener(e -> showOccupanciesDialog());
         editMenu.add(occupanciesItem);
 
-        JCheckBoxMenuItem autoChangeSignalItem = new JCheckBoxMenuItem("Auto-change signal");
+        JCheckBoxMenuItem autoChangeSignalItem = new JCheckBoxMenuItem(messages.getString("menu.edit.autoChangeSignal"));
         autoChangeSignalItem.addActionListener(e -> panel.setAutoChangeSignal(autoChangeSignalItem.isSelected()));
         editMenu.add(autoChangeSignalItem);
 
@@ -236,7 +240,7 @@ public class SwitchboardApp {
         var wrenchSelectedIcon = new javax.swing.ImageIcon(getClass().getResource("/toolbar/wrench_selected.png"));
         editToggle = new JToggleButton(wrenchIcon);
         editToggle.setSelectedIcon(wrenchSelectedIcon);
-        editToggle.setToolTipText("Toggle Edit Mode");
+        editToggle.setToolTipText(messages.getString("toolbar.editMode.tooltip"));
         editToggle.addActionListener(e -> setEditMode(editToggle.isSelected()));
 
         JToolBar toolbar = new JToolBar();
@@ -267,8 +271,10 @@ public class SwitchboardApp {
     }
 
     private void updateTitle() {
-        String name = layoutService.getCurrentFilePath() != null ? layoutService.getCurrentFilePath().getFileName().toString() : "untitled";
-        frame.setTitle("Model Railway Switchboard - " + name);
+        String name = layoutService.getCurrentFilePath() != null
+            ? layoutService.getCurrentFilePath().getFileName().toString()
+            : messages.getString("frame.title.untitled");
+        frame.setTitle(messages.getString("frame.title") + " - " + name);
     }
 
     // --- Helpers ---
@@ -311,7 +317,7 @@ public class SwitchboardApp {
             }
         });
 
-        JDialog dialog = new JDialog(frame, "Occupancies", false);
+        JDialog dialog = new JDialog(frame, messages.getString("menu.edit.occupancies"), false);
         dialog.add(new JScrollPane(table));
         dialog.setSize(400, 300);
         dialog.setLocationRelativeTo(frame);
