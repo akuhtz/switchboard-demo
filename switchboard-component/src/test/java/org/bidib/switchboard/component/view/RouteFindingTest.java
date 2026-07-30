@@ -637,4 +637,21 @@ class RouteFindingTest {
         assertThat(f.panel().isSignalBlocking(straightTile, ElementType.PORT_LEFT))
             .as("Straight tile should not block as signal").isFalse();
     }
+
+    @Test
+    void routeToBumperStop() throws Exception {
+        // Load switchboard8.json which has BS-001 at (20,5)
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory,
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        var url = RouteFindingTest.class.getResource("/test-data/switchboard8.json");
+        new LayoutPersistence().load(panel, Paths.get(url.toURI()));
+        RouterService rs = routerService(panel);
+
+        // Route from P-038 (14,5) to BS-001 (20,5) should exist
+        List<int[]> path = rs.bfsRoute(14, 5, 20, 5);
+        assertThat(path).as("Route from (14,5) to (20,5) should be found").isNotNull();
+        assertThat(path.get(0)).containsExactly(14, 5);
+        assertThat(path.get(path.size() - 1)).containsExactly(20, 5);
+    }
 }

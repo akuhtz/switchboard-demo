@@ -418,6 +418,61 @@ class OccupancyUiTest {
     }
 
     @Test
+    void simulationTerminatesAtBumperStop() throws Exception {
+        // Load switchboard8.json which has BS-001 at (20,5)
+        var url = OccupancyUiTest.class.getResource("/test-data/switchboard8.json");
+        Path layoutPath = Paths.get(url.toURI());
+        var layoutPersistence = new LayoutPersistence();
+        GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
+
+        // Create route from P-038 (14,5) to BS-001 (20,5)
+        GuiActionRunner.execute(() -> {
+            panel.getRouteModel().clear();
+            panel.testSetRouteSource(14, 5);
+            panel.testFindRoute(20, 5);
+        });
+
+        String routeId = "P-038-BS-001";
+        Route route = panel.getRouteModel().getRoute(routeId);
+        assertThat(route).as("Route %s should be found", routeId).isNotNull();
+        assertThat(route.getPath().get(route.getPath().size() - 1))
+            .as("Route should end at bumper stop (20,5)").containsExactly(20, 5);
+
+        List<int[]> path = route.getPath();
+        LOGGER.info("Route {} has {} tiles", routeId, path.size());
+
+        // Set signal S2-011 at (15,5) to green so the train can pass
+        GuiActionRunner.execute(() -> panel.getModel().setElementAspect("S2-011", 1));
+
+        // Start the occupancy simulation
+        GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(route));
+        window.robot().waitForIdle();
+
+        // Verify simulation started
+        assertThat(panel.isAnySimulationRunning()).as("Simulation should be running after start").isTrue();
+
+        // Wait for the simulation to complete (should terminate at bumper stop)
+        int totalWaitMs = path.size() * 300 + 3000; // generous margin
+        Semaphore done = new Semaphore(0);
+        Timer watchdog = new Timer(100, e -> {
+            if (!panel.isAnySimulationRunning()) {
+                ((Timer) e.getSource()).stop();
+                done.release();
+            }
+        });
+        GuiActionRunner.execute(() -> watchdog.start());
+        boolean finished = done.tryAcquire(totalWaitMs, TimeUnit.MILLISECONDS);
+        GuiActionRunner.execute(() -> watchdog.stop());
+        assertThat(finished).as("Simulation should complete within timeout").isTrue();
+
+        // Verify the train reached the bumper stop at (20,5)
+        assertThat(panel.isTileOccupied(20, 5))
+            .as("Bumper stop tile (20,5) should be occupied at end of simulation").isTrue();
+
+        LOGGER.info("Simulation terminated at bumper stop (20,5)");
+    }
+
+    @Test
     void simulationStopsAfter5Seconds() throws Exception {
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
