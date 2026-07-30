@@ -76,6 +76,7 @@ type-specific enums — just element types distinguished by prefix.
 | `CURVE_LEFT` | `CL` | yes | 1 | no |
 | `CURVE_RIGHT` | `CR` | yes | 1 | no |
 | `DIAGONAL` | `DG` | yes | 1 | no |
+| `BUMPER` | `BS` | yes | 1 | no |
 
 Route finding uses `isValidThroughPath(port1, port2, rotation)` which validates that
 a train can traverse the tile from an entry port to an exit port. Turnouts only allow
@@ -163,6 +164,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - Only enforced on STRAIGHT and DIAGONAL tiles during route search.
   - Rendered as a light-gray filled triangle pointing in the allowed direction.
   - Persisted in JSON as `"direction": "FORWARD"` (omitted if BOTH).
+- Has a `signalSide` field (`SignalSide`: LEFT/RIGHT/DEFAULT, default DEFAULT).
+  - Resolved via `globalSignalSide` on the panel when DEFAULT.
+  - Stored per‑tile in JSON as `"signalSide": "RIGHT"` (omitted if DEFAULT).
 - `Tile.key(col, row)` — static utility returning the tile map key.
 - Used for decorative tiles with no elementId.
 - Subclass: `ElementTile`.
@@ -173,6 +177,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Contains an `ElementType` for serialization/creation.
 - `getSvgForAspect(int ordinal)` — returns the matching SVG path (falls back to index 0).
 - `getAspectCount()` — returns `svgPaths.size()`.
+- `applySignalSide(SignalSide resolvedSide)` — swaps SVG paths between `_left` and `_right` variants in place.
 
 ---
 
@@ -221,6 +226,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Occupancy rendering**: In `paintComponent`, `drawOccupancy()` is called last, after routes. For each tile with an OCCUPIED occupancy, it draws port-based line segments using the element's current aspect: `getActivePorts(el.getCurrentAspect(), tile.getRotation())`. Lines are drawn from tile center to each active port. Straight, diagonal, and crossing elements draw to edge midpoints via `drawPortLine()`. Turnouts draw the main port to its edge midpoint and the diverted port to a corner. Curves (CURVE_LEFT, CURVE_RIGHT) draw port[0] to its edge midpoint and port[1] to a corner: `dx` comes from the port's own x-side if horizontal (or the opposite of port[0]'s x-side if vertical), `dy` comes from the port's own y-side if vertical (or the opposite of port[0]'s y-side if horizontal). Color: `COLOR_OCCUPIED` = `(255, 80, 80)` with stroke-width 4.
 - **Signal stops**: During occupancy simulation, a train arriving at a signal tile with aspect 0 (red) stops and waits. Signals have an implicit facing direction based on rotation (rot 0 → faces LEFT). Only trains entering from the signal's facing port are blocked; trains approaching from behind ignore the signal. `isSignalBlocking(Tile, int entryPort)` implements this check. When `autoChangeSignal` is enabled, a blocked signal auto-switches to green after 2 seconds. Toggling this option immediately affects all running simulations.
 - **Direction markers**: STRAIGHT and DIAGONAL tiles can have a direction constraint (`TileDirection`: FORWARD/BACKWARD/BOTH). Route finding (`RouterService.isAllowedDirection`) refuses traversal against the tile's direction. Rendered as a light-gray filled triangle via `drawDirectionMarkers()`.
+- **Signal side**: SIGNAL_2 and SIGNAL_3 tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode. Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
    `getActivePorts(aspect, rotation)` returns only the ports active for a given aspect (1 port for straight/curve/diagonal, 2 for turnouts, 4 for crossings).
 - **Rendering** (`paintComponent`):
@@ -309,15 +315,15 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Occupancies are serialised in `ModelStateData.occupancies` and element→occupancy references via `occupancyId` on each `ElementData`.
 
 ### `SettingsManager`
-- Manages `settings.json` at the project root, separate from the layout file.
-- Stores the `lastLayoutFile` path and `lookAndFeel` setting.
+- Manages `settings.json` at `~/switchboard-demo-1/settings.json`, separate from the layout file.
+- Stores the `lastLayoutFile` path, `lookAndFeel` setting, and `signalSide` default.
 - Loaded on startup; auto-saves on every change.
 
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
-- `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation), and `ModelStateData`.
+- `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation, direction, signalSide), and `ModelStateData`.
 - `ModelStateData` holds a `List<ElementData>` (each containing `id`, `nodeId`, `accessoryId`, `aspect`, `occupancyId`) and a `List<OccupancyData>` (each containing `id`, `nodeId`, `portId`, `state`).
-- `SettingsData` holds `lastLayoutFile` and `LookAndFeel` (LIGHT/DARK enum).
+- `SettingsData` holds `lastLayoutFile`, `lookAndFeel` (LIGHT/DARK enum), and `signalSide` (LEFT/RIGHT).
 
 ---
 
@@ -332,6 +338,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | File | Save As... | `Ctrl+Shift+S` | JFileChooser to save to a new location |
  | File | Settings > Light Look and Feel | — | Switch to FlatLaf light theme |
 | File | Settings > Dark Look and Feel | — | Switch to FlatLaf dark theme |
+| File | Settings > Signal Side | — | Submenu: Swiss (default LEFT) / German (default RIGHT) |
 | File | Settings > Exhaustive Route Search | — | Toggle k-shortest-paths search for more alternative routes |
 | File | Exit | — | Exit application |
 | Edit | Undo | `Ctrl+Z` | Undo last tile or route operation |
@@ -341,7 +348,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | Edit | Auto-change signal | — | Toggle: auto-switch red signals to green after 2s during simulation |
 
 ### Toolbar
-- `[Edit Mode]` toggle button synced with the Edit menu item.
+- `wrench.png` / `wrench_selected.png` toggle button with tooltip "Toggle Edit Mode", synced with the Edit menu item.
 
 ### On startup
 1. Load `settings.json` from project root
@@ -375,11 +382,12 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | `curve_left.svg` | <img src="switchboard-component/src/main/resources/icons/curve_left.svg" width="32" height="32"> | Horizontal to center then diagonal to top-right |
 | `curve_right.svg` | <img src="switchboard-component/src/main/resources/icons/curve_right.svg" width="32" height="32"> | Horizontal to center then diagonal to bottom-right |
 | `diagonal.svg` | <img src="switchboard-component/src/main/resources/icons/diagonal.svg" width="32" height="32"> | Diagonal from lower-left to upper-right corner |
-| `signal_2_red.svg` | <img src="switchboard-component/src/main/resources/icons/signal_2_red.svg" width="32" height="32"> | SBB signal shape — red active, green dim |
-| `signal_2_green.svg` | <img src="switchboard-component/src/main/resources/icons/signal_2_green.svg" width="32" height="32"> | SBB signal shape — green active, red dim |
-| `signal_3_red.svg` | <img src="switchboard-component/src/main/resources/icons/signal_3_red.svg" width="32" height="32"> | SBB signal shape — red active, yellow+green dim |
-| `signal_3_yellow.svg` | <img src="switchboard-component/src/main/resources/icons/signal_3_yellow.svg" width="32" height="32"> | SBB signal shape — yellow active, red+green dim |
-| `signal_3_green.svg` | <img src="switchboard-component/src/main/resources/icons/signal_3_green.svg" width="32" height="32"> | SBB signal shape — green active, red+yellow dim |
+| `bumper_stop.svg` | <img src="switchboard-component/src/main/resources/icons/bumper_stop.svg" width="32" height="32"> | Bumper stop (red/white) at a dead end |
+| `signal_2_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_2_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, green dim |
+| `signal_2_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_2_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red dim |
+| `signal_3_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_3_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, yellow+green dim |
+| `signal_3_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_3_yellow_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — yellow active, red+green dim |
+| `signal_3_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_3_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red+yellow dim |
 
 All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use light gray `#aaaaaa` for active paths, `#808080` for inactive paths, and `#ffa500` (orange) for the frog-end on turnouts.
 
