@@ -10,7 +10,8 @@ public enum ElementType {
     STRAIGHT("P", true),
     CURVE_LEFT("CL", true),
     CURVE_RIGHT("CR", true),
-    DIAGONAL("DG", true);
+    DIAGONAL("DG", true),
+    BUMPER("BS", true);
 
     public static final int PORT_LEFT = 0;
     public static final int PORT_TOP = 1;
@@ -62,6 +63,7 @@ public enum ElementType {
             case TURNOUT_RIGHT -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_BOTTOM };
             case TURNOUT_3WAY -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_TOP, PORT_BOTTOM };
             case SIGNAL_2, SIGNAL_3 -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case BUMPER -> new int[] { PORT_LEFT };
         };
         return rotatePorts(base, rotation);
     }
@@ -150,12 +152,13 @@ public enum ElementType {
             case TURNOUT_LEFT -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_LEFT, PORT_TOP };
             case TURNOUT_RIGHT -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_LEFT, PORT_BOTTOM };
             case TURNOUT_3WAY -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_LEFT, PORT_TOP, PORT_LEFT, PORT_BOTTOM };
+            case BUMPER -> new int[] { }; // no through paths — dead end
         };
     }
 
     public int getAspectCount() {
         return switch (this) {
-            case STRAIGHT, DIAGONAL, CURVE_LEFT, CURVE_RIGHT -> 1;
+            case STRAIGHT, DIAGONAL, CURVE_LEFT, CURVE_RIGHT, BUMPER -> 1;
             case TURNOUT_LEFT, TURNOUT_RIGHT, SIGNAL_2 -> 2;
             case TURNOUT_3WAY, SIGNAL_3 -> 3;
         };
@@ -179,6 +182,7 @@ public enum ElementType {
                 default -> new int[] { PORT_LEFT, PORT_BOTTOM };
             };
             case SIGNAL_2, SIGNAL_3 -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case BUMPER -> new int[] { PORT_LEFT };
         };
     }
 }

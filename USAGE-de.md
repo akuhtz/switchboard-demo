@@ -33,6 +33,7 @@ Folgende Kacheltypen sind verfügbar:
 | TURNOUT_3WAY   | T3 | Dreiwegeweiche (3 Stellungen)| 0 / 90 / 180 / 270 |
 | SIGNAL_2       | S2 | 2-begriffiges Signal (rot/grün)  | 0 / 90 / 180 / 270 |
 | SIGNAL_3       | S3 | 3-begriffiges Signal (rot/gelb/grün) | 0 / 90 / 180 / 270 |
+| BUMPER         | BS | Prellbock (Gleisende)                | 0 / 90 / 180 / 270 |
 
 ## 4. Elemente klicken, um Stellungen zu wechseln
 

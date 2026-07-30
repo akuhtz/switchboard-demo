@@ -33,6 +33,7 @@ The following tile types are available:
 | TURNOUT_3WAY   | T3 | Three-way turnout (3 aspects)| 0 / 90 / 180 / 270 |
 | SIGNAL_2       | S2 | 2-aspect signal (red/green)  | 0 / 90 / 180 / 270 |
 | SIGNAL_3       | S3 | 3-aspect signal (red/yellow/green) | 0 / 90 / 180 / 270 |
+| BUMPER         | BS | Bumper stop (dead end)             | 0 / 90 / 180 / 270 |
 
 ## 4. Click elements to cycle aspects
 

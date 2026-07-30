@@ -688,6 +688,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             case CURVE_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/curve_left.svg"));
             case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/curve_right.svg"));
             case DIAGONAL -> new ElementTile(col, row, id, type, List.of("/icons/diagonal.svg"));
+            case BUMPER -> new ElementTile(col, row, id, type, List.of("/icons/bumper_stop.svg"));
         };
     }
 
