@@ -516,6 +516,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                         JCheckBoxMenuItem item = new JCheckBoxMenuItem(side.name(), side == currentSide);
                         item.addActionListener(e -> {
                             tile.setSignalSide(side);
+                            SignalSide effective = side == SignalSide.DEFAULT ? globalSignalSide : side;
+                            et.applySignalSide(effective);
                             repaint();
                         });
                         sideMenu.add(item);
@@ -659,6 +661,14 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 }
             }
             sb.append("Aspects: ").append(et.getAspectCount()).append("\n");
+            if (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3) {
+                SignalSide side = tile.getSignalSide();
+                sb.append("Signal Side: ").append(side);
+                if (side == SignalSide.DEFAULT) {
+                    sb.append(" (resolves to ").append(globalSignalSide).append(")");
+                }
+                sb.append("\n");
+            }
         }
         else {
             sb.append("Type: plain\n");

@@ -232,7 +232,11 @@ public class SwitchboardApp {
     // --- Frame ---
 
     private void buildFrame() {
-        editToggle = new JToggleButton("Edit Mode");
+        var wrenchIcon = new javax.swing.ImageIcon(getClass().getResource("/toolbar/wrench.png"));
+        var wrenchSelectedIcon = new javax.swing.ImageIcon(getClass().getResource("/toolbar/wrench_selected.png"));
+        editToggle = new JToggleButton(wrenchIcon);
+        editToggle.setSelectedIcon(wrenchSelectedIcon);
+        editToggle.setToolTipText("Toggle Edit Mode");
         editToggle.addActionListener(e -> setEditMode(editToggle.isSelected()));
 
         JToolBar toolbar = new JToolBar();
