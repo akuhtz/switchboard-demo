@@ -200,6 +200,12 @@ public class LayoutPersistence {
             return null;
         }
 
+        // Migrate old signal SVG paths (without _left/_right suffix) to _left
+        List<String> svgPaths = td.getSvgPaths().stream()
+            .map(LayoutPersistence::migrateSignalSvgPath)
+            .toList();
+        td.setSvgPaths(svgPaths);
+
         Tile tile;
         if ("plain".equals(td.getType())) {
             tile = new Tile(td.getCol(), td.getRow(), td.getElementId(), td.getSvgPaths().get(0));
@@ -236,5 +242,20 @@ public class LayoutPersistence {
             }
         }
         return tile;
+    }
+
+    /**
+     * Migrates old signal SVG paths (without _left/_right suffix) to use the _left variant.
+     * E.g. "/icons/signal_2_red.svg" → "/icons/signal_2_red_left.svg"
+     */
+    private static String migrateSignalSvgPath(String path) {
+        if (path == null) return null;
+        if (path.contains("_left.svg") || path.contains("_right.svg")) {
+            return path; // already migrated
+        }
+        if (path.startsWith("/icons/signal_") && path.endsWith(".svg")) {
+            return path.replace(".svg", "_left.svg");
+        }
+        return path;
     }
 }
