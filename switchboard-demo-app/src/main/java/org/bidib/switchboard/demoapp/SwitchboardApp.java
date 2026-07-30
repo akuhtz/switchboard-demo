@@ -3,6 +3,7 @@ package org.bidib.switchboard.demoapp;
 import java.awt.BorderLayout;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -43,7 +44,7 @@ public class SwitchboardApp {
 
     private static final Logger log = LoggerFactory.getLogger(SwitchboardApp.class);
 
-    private final ResourceBundle messages = ResourceBundle.getBundle("i18n.messages");
+    private final ResourceBundle messages = ResourceBundle.getBundle("i18n.app-messages");
 
     private final RailwayModel model;
 

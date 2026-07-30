@@ -97,7 +97,18 @@ To reset the simulation:
 - Sets all occupancy states along the route back to FREE.
 - **Clear simulated occupancy** is disabled while a simulation is in progress.
 
-## 9. Save & load
+## 9. Language / Internationalization
+
+The application supports **English** and **German** locales. UI language is determined by the system locale at startup.
+
+- **Context menu** items (Info, Signal Side, Clear, Direction, route actions) use localized strings.
+- **Tile Info dialog** labels are localized.
+- **Main menu** and **toolbar** use localized strings (File, Edit, Settings, etc.).
+- If your system locale is German (`de`), the UI automatically switches to German labels. You can also force the locale by passing `-Duser.language=de` or `-Duser.language=en` on the Java command line.
+
+Translations are maintained in `i18n/messages.properties` (component) and `i18n/app-messages.properties` (demo app), each with a `_de` variant.
+
+## 10. Save & load
 
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.

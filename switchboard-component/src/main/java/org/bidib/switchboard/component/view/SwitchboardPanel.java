@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -169,6 +171,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private boolean editMode;
 
+    private final ResourceBundle messages = ResourceBundle.getBundle("i18n.messages");
+
     private final RouteModel routeModel = new RouteModel();
 
     private final Map<String, SimulationEntry> simulations = new HashMap<>();
@@ -189,7 +193,6 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     public SwitchboardPanel(final OccupancyFactory occupancyFactory, final AssignOccupancyDialogFactory assignOccupancyDialogFactory, final RailwayModel model, int cols, int rows, int tileSize) {
     		this.occupancyFactory = occupancyFactory;
         this.assignOccupancyDialogFactory = assignOccupancyDialogFactory;
-//            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el);
         this.model = model;
         this.cols = cols;
         this.rows = rows;
@@ -436,7 +439,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
         Tile tile = getTile(col, row);
         if (tile != null) {
-            JMenuItem infoItem = new JMenuItem("Info");
+            JMenuItem infoItem = new JMenuItem(messages.getString("context.info"));
             infoItem.addActionListener(e -> showTileInfo(tile));
             menu.add(infoItem);
         }
@@ -451,7 +454,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             if (menu.getComponentCount() > 0) {
                 menu.addSeparator();
             }
-            JMenuItem clearSelectionItem = new JMenuItem("Clear selection");
+            JMenuItem clearSelectionItem = new JMenuItem(messages.getString("context.clearSelection"));
             clearSelectionItem.addActionListener(e -> {
                 selectedCol = -1;
                 selectedRow = -1;
@@ -479,7 +482,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
             if (type.getPrefix().startsWith("S")) {
                 if (signalMenu == null) {
-                    signalMenu = new JMenu("Signals");
+                    signalMenu = new JMenu(messages.getString("context.signals"));
                     menu.add(signalMenu);
                 }
                 JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
@@ -498,11 +501,11 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 Element el = model.getElement(et.getElementId());
                 if (el != null) {
                     if (el.getOccupancy() != null) {
-                        JMenuItem removeOccItem = new JMenuItem("Remove Occupancy");
+                        JMenuItem removeOccItem = new JMenuItem(messages.getString("context.removeOccupancy"));
                         removeOccItem.addActionListener(e -> el.setOccupancy(null));
                         menu.add(removeOccItem);
                     }
-                    JMenuItem assignOccItem = new JMenuItem("Assign Occupancy...");
+                    JMenuItem assignOccItem = new JMenuItem(messages.getString("context.assignOccupancy"));
                     assignOccItem.addActionListener(e -> showAssignOccupancyDialog(el));
                     menu.add(assignOccItem);
                 }
@@ -510,7 +513,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                     buildDirectionSubmenu(menu, tile);
                 }
                 if (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3) {
-                    JMenu sideMenu = new JMenu("Signal Side");
+                    JMenu sideMenu = new JMenu(messages.getString("context.signalSide"));
                     SignalSide currentSide = tile.getSignalSide();
                     for (SignalSide side : SignalSide.values()) {
                         JCheckBoxMenuItem item = new JCheckBoxMenuItem(side.name(), side == currentSide);
@@ -526,14 +529,14 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 }
                 menu.addSeparator();
             }
-            JMenuItem clearItem = new JMenuItem("Clear");
+            JMenuItem clearItem = new JMenuItem(messages.getString("context.clear"));
             clearItem.addActionListener(e -> onTileContextAction(col, row, null));
             menu.add(clearItem);
         }
     }
 
     private void buildDirectionSubmenu(JPopupMenu menu, Tile tile) {
-        JMenu dirMenu = new JMenu("Direction");
+        JMenu dirMenu = new JMenu(messages.getString("context.direction"));
         TileDirection current = tile.getDirection();
         for (TileDirection dir : TileDirection.values()) {
             JCheckBoxMenuItem item = new JCheckBoxMenuItem(dir.name(), dir == current);
@@ -559,7 +562,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         if (routeModel.hasAlternativeRoute(routeId)) {
             List<Route> alts = routeModel.getAlternativeRoutes(routeId);
             int selectedIdx = routeModel.getSelectedAlternativeIndex(routeId);
-            JMenuItem primaryItem = new JMenuItem("Use primary route");
+            JMenuItem primaryItem = new JMenuItem(messages.getString("context.usePrimaryRoute"));
             primaryItem.addActionListener(e -> {
                 routeModel.clearAlternatives(routeId);
                 repaint();
@@ -567,7 +570,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             menu.add(primaryItem);
             for (int i = 0; i < alts.size(); i++) {
                 Route alt = alts.get(i);
-                String label = "Alternative " + (i + 1) + " (" + alt.getSourceElementId() + " → " + alt.getTargetElementId() + ")";
+                String label = MessageFormat.format(messages.getString("context.format.alternative"), i + 1, alt.getSourceElementId(), alt.getTargetElementId());
                 Color altColor = altPaletteColor(i);
                 Icon icon = new Icon() {
                     @Override public void paintIcon(Component comp, Graphics g, int x, int y) {
@@ -585,7 +588,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 });
                 menu.add(item);
             }
-            JMenuItem useItem = new JMenuItem("Use selected alternative");
+            JMenuItem useItem = new JMenuItem(messages.getString("context.useSelectedAlternative"));
             useItem.addActionListener(e -> {
                 routeModel.swapWithAlternative(routeId);
                 Route newRoute = routeModel.getRoute(routeId);
@@ -596,7 +599,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             });
             menu.add(useItem);
         }
-        JMenuItem clearRouteItem = new JMenuItem("Clear route (" + routeId + ")");
+        JMenuItem clearRouteItem = new JMenuItem(MessageFormat.format(messages.getString("context.format.clearRoute"), routeId));
         clearRouteItem.addActionListener(e -> {
             SimulationEntry entry = simulations.remove(routeId);
             if (entry != null && entry.isRunning()) {
@@ -614,12 +617,12 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 menu.addSeparator();
                 SimulationEntry simEntry = simulations.get(routeId);
                 boolean isRunning = simEntry != null && simEntry.isRunning();
-                JMenuItem simItem = new JMenuItem("Simulate occupancy (" + routeId + ")");
+                JMenuItem simItem = new JMenuItem(MessageFormat.format(messages.getString("context.format.simulateOccupancy"), routeId));
                 simItem.setEnabled(!isRunning);
                 simItem.addActionListener(e -> startRouteOccupancySimulation(r));
                 menu.add(simItem);
                 if (isRunning) {
-                    JMenuItem stopSimItem = new JMenuItem("Stop simulation (" + routeId + ")");
+                    JMenuItem stopSimItem = new JMenuItem(MessageFormat.format(messages.getString("context.format.stopSimulation"), routeId));
                     stopSimItem.addActionListener(e -> {
                         SimulationEntry entry = simulations.remove(routeId);
                         if (entry != null) {
@@ -630,7 +633,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                     menu.add(stopSimItem);
                 }
                 if (hasRouteOccupancy(r)) {
-                    JMenuItem clearSimItem = new JMenuItem("Clear simulated occupancy (" + routeId + ")");
+                    JMenuItem clearSimItem = new JMenuItem(MessageFormat.format(messages.getString("context.format.clearSimulatedOccupancy"), routeId));
                     clearSimItem.setEnabled(!isRunning);
                     clearSimItem.addActionListener(e -> clearRouteOccupancy(r));
                     menu.add(clearSimItem);
@@ -641,39 +644,39 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private void showTileInfo(Tile tile) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Position: (").append(tile.getCol()).append(", ").append(tile.getRow()).append(")\n");
-        sb.append("Rotation: ").append(tile.getRotation()).append("\n");
+        sb.append(MessageFormat.format(messages.getString("info.position"), tile.getCol(), tile.getRow())).append("\n");
+        sb.append(MessageFormat.format(messages.getString("info.rotation"), tile.getRotation())).append("\n");
         if (tile.getDirection() != TileDirection.BOTH) {
-            sb.append("Direction: ").append(tile.getDirection()).append("\n");
+            sb.append(MessageFormat.format(messages.getString("info.direction"), tile.getDirection())).append("\n");
         }
         if (tile.getElementId() != null) {
-            sb.append("Element ID: ").append(tile.getElementId()).append("\n");
+            sb.append(MessageFormat.format(messages.getString("info.elementId"), tile.getElementId())).append("\n");
         }
         if (tile instanceof ElementTile et) {
-            sb.append("Type: ").append(et.getElementType().getPrefix()).append("\n");
+            sb.append(MessageFormat.format(messages.getString("info.type"), et.getElementType().getPrefix())).append("\n");
             Element el = model.getElement(tile.getElementId());
             if (el != null) {
-                sb.append("Current aspect: ").append(el.getCurrentAspect()).append("\n");
-                sb.append("Node ID: ").append(el.getNodeId()).append("\n");
-                sb.append("Accessory ID: ").append(el.getAccessoryId()).append("\n");
+                sb.append(MessageFormat.format(messages.getString("info.currentAspect"), el.getCurrentAspect())).append("\n");
+                sb.append(MessageFormat.format(messages.getString("info.nodeId"), el.getNodeId())).append("\n");
+                sb.append(MessageFormat.format(messages.getString("info.accessoryId"), el.getAccessoryId())).append("\n");
                 if (el.getOccupancy() != null) {
-                    sb.append("Occupancy: ").append(el.getOccupancy().getId()).append(" (").append(el.getOccupancy().getState()).append(")\n");
+                    sb.append(MessageFormat.format(messages.getString("info.occupancy"), el.getOccupancy().getId(), el.getOccupancy().getState())).append("\n");
                 }
             }
-            sb.append("Aspects: ").append(et.getAspectCount()).append("\n");
+            sb.append(MessageFormat.format(messages.getString("info.aspects"), et.getAspectCount())).append("\n");
             if (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3) {
                 SignalSide side = tile.getSignalSide();
-                sb.append("Signal Side: ").append(side);
+                sb.append(MessageFormat.format(messages.getString("info.signalSide"), side));
                 if (side == SignalSide.DEFAULT) {
-                    sb.append(" (resolves to ").append(globalSignalSide).append(")");
+                    sb.append(MessageFormat.format(messages.getString("info.signalSideResolves"), globalSignalSide));
                 }
                 sb.append("\n");
             }
         }
         else {
-            sb.append("Type: plain\n");
+            sb.append(messages.getString("info.typePlain")).append("\n");
         }
-        JOptionPane.showMessageDialog(this, sb.toString(), "Tile Info", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, sb.toString(), messages.getString("info.title"), JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void showAssignOccupancyDialog(Element el) {

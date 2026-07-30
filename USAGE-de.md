@@ -11,7 +11,7 @@ Der Installer enthält eine JRE — eine separate Java-Installation ist nicht er
 ## 2. Auf ein leeres Raster zurücksetzen
 
 - Den **Schraubenschlüssel** in der Symbolleiste anklicken oder **Strg+E** drücken, um den Bearbeitungsmodus zu aktivieren.
-- Im Menü: **File → Load...** und ein leeres JSON-Layout auswählen (oder alle Kacheln einzeln über **Clear** im Kontextmenü entfernen).
+- Im Menü: **Datei → Laden...** und ein leeres JSON-Layout auswählen (oder alle Kacheln einzeln über **Löschen** im Kontextmenü entfernen).
 - Alternativ `switchboard-demo-app/settings.json` löschen, dann die zuletzt geladene Layout-Datei entfernen — die Anwendung startet mit dem eingebauten Standard-Layout. Kacheln können dann einzeln gelöscht werden.
 
 ## 3. Kacheln hinzufügen
@@ -50,13 +50,13 @@ Im **Normalmodus** (Strg+E zum Umschalten):
 - Die Fahrstraßensuche verwendet BFS mit physischer Port-Konnektivitätsprüfung. Fahrstraßen berücksichtigen die Weichenrichtung (kein Rückwärts-Durchfahren am Herzstück), Richtungsmarkierungen und vermeiden bereits durch andere Fahrstraßen reservierte Kacheln.
 - **Alternative Fahrstraßen**: Bei der Erstellung einer Fahrstraße findet BFS alternative Wege, indem jede Kante des Primärpfads blockiert wird. Ein weißes **"+"**-Symbol erscheint neben den Start- und Zielmarkierungen, wenn Alternativen verfügbar sind. Rechtsklick auf eine Fahrstraßenkachel zeigt sie im Kontextmenü:
   - **Alternative 1 / Alternative 2 / ...** — Vorschau der Alternative als gestrichelte Linie in eigener Farbe aus einer 16-Farben-Palette, über der Hauptfahrstraße. Jeder Menüeintrag zeigt ein farbiges Kreissymbol passend zur Fahrstraßenfarbe. Die Hauptfahrstraße bleibt sichtbar.
-  - **Use primary route** — Alternativen verwerfen und die originale blaue Fahrstraße anzeigen.
-  - **Use selected alternative** — die vorgeschaute Alternative zur Primärfahrstraße machen.
-- **Exhaustive Route Search**: Aktivieren unter **File → Settings → Exhaustive Route Search**. Wenn aktiv, blockiert BFS auch Kanten gefundener Alternativen (k-kürzeste-Wege-Iteration) und findet so mehr verschiedene Fahrstraßen. Die Einstellung wird in `switchboard-demo-app/settings.json` gespeichert.
+  - **Primärfahrstraße verwenden** — Alternativen verwerfen und die originale blaue Fahrstraße anzeigen.
+  - **Ausgewählte Alternative verwenden** — die vorgeschaute Alternative zur Primärfahrstraße machen.
+- **Erschöpfende Fahrstraßensuche**: Aktivieren unter **Datei → Einstellungen → Erschöpfende Fahrstraßensuche**. Wenn aktiv, blockiert BFS auch Kanten gefundener Alternativen (k-kürzeste-Wege-Iteration) und findet so mehr verschiedene Fahrstraßen. Die Einstellung wird in `switchboard-demo-app/settings.json` gespeichert.
 
 ### Fahrstraßen verwalten
 
-- **Einzelne Fahrstraße löschen**: Rechtsklick auf eine Kachel der Fahrstraße → **Clear route ({id})**.
+- **Einzelne Fahrstraße löschen**: Rechtsklick auf eine Kachel der Fahrstraße → **Fahrstraße löschen ({id})**.
 - **Alle Fahrstraßen löschen**: **Clear selection** im Kontextmenü (nur im Bearbeitungsmodus) oder programmatisch über das Modell.
 - Mehrere nicht-überlappende Fahrstraßen können gleichzeitig existieren — BFS findet einen Weg um bestehende Fahrstraßenkacheln.
 
@@ -64,7 +64,7 @@ Im **Normalmodus** (Strg+E zum Umschalten):
 
 Gerade und diagonale Kacheln können eine **Richtungsbeschränkung** haben (FORWARD, BACKWARD oder BOTH).
 
-- Im **Bearbeitungsmodus** Rechtsklick auf eine gerade oder diagonale Kachel → **Direction**-Untermenü → Forward / Backward / Both auswählen.
+- Im **Bearbeitungsmodus** Rechtsklick auf eine gerade oder diagonale Kachel → **Richtung**-Untermenü → Forward / Backward / Both auswählen.
 - Eine kleine hellgraue Dreiecksmarkierung erscheint in der Kachelmitte und zeigt in die erlaubte Richtung.
 - Die Fahrstraßensuche berücksichtigt die Richtung: BFS wird eine Kachel nicht gegen ihre Richtung durchfahren.
 - Standard ist **Both** (keine Beschränkung) — abwärtskompatibel mit bestehenden Layouts.
@@ -73,31 +73,42 @@ Gerade und diagonale Kacheln können eine **Richtungsbeschränkung** haben (FORW
 
 Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unterhalb (deutsche Norm, `_right`) des Gleises anzeigen.
 
-- Der globale Standard wird unter **File → Settings → Signal Side** festgelegt (Swiss/German).
-- Kachelspezifische Einstellung: im **Bearbeitungsmodus** Rechtsklick auf eine Signalkachel → **Signal Side**-Untermenü → Left / Right / Default auswählen.
+- Der globale Standard wird unter **Datei → Einstellungen → Signalseite Links / Signalseite Rechts** festgelegt.
+- Kachelspezifische Einstellung: im **Bearbeitungsmodus** Rechtsklick auf eine Signalkachel → **Signalseite**-Untermenü → Links / Rechts / Standard auswählen.
 - Bei Änderung der Signalseite wird das Kachelbild sofort aktualisiert.
-- Der **Tile Info**-Dialog (Linksklick auf ein Signal im Normalmodus) zeigt die aufgelöste Signalseite an.
+- Der **Kachel-Info**-Dialog (Linksklick auf ein Signal im Normalmodus) zeigt die aufgelöste Signalseite an.
 
 ## 8. Belegung simulieren
 
 Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert werden:
 
-- Rechtsklick auf den **grünen Startkreis** einer Fahrstraße → **Simulate occupancy ({id})**.
+- Rechtsklick auf den **grünen Startkreis** einer Fahrstraße → **Belegung simulieren ({id})**.
 - Die Simulation erzeugt Belegungsmarkierungen auf jeder Kachel der Fahrstraße und schiebt den **OCCUPIED**-Zustand vom Start zum Ende, eine Kachel pro Schritt (200ms pro Schritt).
 - Weichen entlang der Fahrstraße werden automatisch auf die korrekte Position für den simulierten Weg gesetzt.
 - **Signalhalt**: Wenn ein Zug eine Signalkachel mit Stellung 0 (rot) erreicht, hält er an und wartet. Signale blockieren nur Züge, die sich von vorne nähern (die Richtung, in die das Signal basierend auf seiner Rotation zeigt). Züge, die sich einem Signal von hinten nähern, ignorieren es.
-- **Automatischer Signalwechsel**: Aktivieren über **Edit → Auto-change signal**. Wenn aktiv, schaltet ein rotes Signal, das einen Zug blockiert, nach 2 Sekunden automatisch auf grün um, sodass der Zug weiterfahren kann. Das Umschalten dieser Option wirkt sich sofort auf alle laufenden Simulationen aus.
+- **Automatischer Signalwechsel**: Aktivieren über **Bearbeiten → Automatischer Signalwechsel**. Wenn aktiv, schaltet ein rotes Signal, das einen Zug blockiert, nach 2 Sekunden automatisch auf grün um, sodass der Zug weiterfahren kann. Das Umschalten dieser Option wirkt sich sofort auf alle laufenden Simulationen aus.
 - **Mehrere Simulationen**: Jede Fahrstraße kann ihre eigene unabhängige Simulation gleichzeitig ausführen.
-- **Simulation stoppen**: Rechtsklick auf die Startkachel einer laufenden Simulation → **Stop simulation ({id})**, um sie mitten in der Strecke zu stoppen.
-- **Simulate occupancy** ist deaktiviert, solange die Simulation dieser Fahrstraße bereits läuft.
+- **Simulation stoppen**: Rechtsklick auf die Startkachel einer laufenden Simulation → **Simulation stoppen ({id})**, um sie mitten in der Strecke zu stoppen.
+- **Belegung simulieren** ist deaktiviert, solange die Simulation dieser Fahrstraße bereits läuft.
 
 Simulation zurücksetzen:
 
-- Rechtsklick auf eine Kachel einer Fahrstraße mit OCCUPIED-Kacheln → **Clear simulated occupancy ({id})**.
+- Rechtsklick auf eine Kachel einer Fahrstraße mit OCCUPIED-Kacheln → **Simulierte Belegung löschen ({id})**.
 - Setzt alle Belegungszustände entlang der Fahrstraße auf FREE zurück.
-- **Clear simulated occupancy** ist deaktiviert, solange eine Simulation läuft.
+- **Simulierte Belegung löschen** ist deaktiviert, solange eine Simulation läuft.
 
-## 9. Speichern & Laden
+## 9. Sprache / Internationalisierung
+
+Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Sprache wird anhand der Systemsprache beim Start ermittelt.
+
+- **Kontextmenü**-Einträge (Info, Signalseite, Löschen, Richtung, Fahrstraßenaktionen) werden lokalisiert angezeigt.
+- Der **Kachel-Info**-Dialog verwendet übersetzte Bezeichnungen.
+- **Hauptmenü** und **Symbolleiste** werden lokalisiert angezeigt (Datei, Bearbeiten, Einstellungen usw.).
+- Falls Ihre Systemsprache Deutsch ist, wechselt die UI automatisch zu deutschen Bezeichnungen. Sie können die Sprache auch über `-Duser.language=en` oder `-Duser.language=de` in der Java-Befehlszeile erzwingen.
+
+Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und `i18n/app-messages.properties` (Demo-Anwendung), jeweils mit einer `_de`-Variante.
+
+## 10. Speichern & Laden
 
 - **Strg+S** — in die aktuelle Datei speichern (oder Speichern-Dialog öffnen, falls keine vorhanden).
 - **Strg+L** — ein zuvor gespeichertes `.json`-Layout laden.

@@ -226,7 +226,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Occupancy rendering**: In `paintComponent`, `drawOccupancy()` is called last, after routes. For each tile with an OCCUPIED occupancy, it draws port-based line segments using the element's current aspect: `getActivePorts(el.getCurrentAspect(), tile.getRotation())`. Lines are drawn from tile center to each active port. Straight, diagonal, and crossing elements draw to edge midpoints via `drawPortLine()`. Turnouts draw the main port to its edge midpoint and the diverted port to a corner. Curves (CURVE_LEFT, CURVE_RIGHT) draw port[0] to its edge midpoint and port[1] to a corner: `dx` comes from the port's own x-side if horizontal (or the opposite of port[0]'s x-side if vertical), `dy` comes from the port's own y-side if vertical (or the opposite of port[0]'s y-side if horizontal). Color: `COLOR_OCCUPIED` = `(255, 80, 80)` with stroke-width 4.
 - **Signal stops**: During occupancy simulation, a train arriving at a signal tile with aspect 0 (red) stops and waits. Signals have an implicit facing direction based on rotation (rot 0 → faces LEFT). Only trains entering from the signal's facing port are blocked; trains approaching from behind ignore the signal. `isSignalBlocking(Tile, int entryPort)` implements this check. When `autoChangeSignal` is enabled, a blocked signal auto-switches to green after 2 seconds. Toggling this option immediately affects all running simulations.
 - **Direction markers**: STRAIGHT and DIAGONAL tiles can have a direction constraint (`TileDirection`: FORWARD/BACKWARD/BOTH). Route finding (`RouterService.isAllowedDirection`) refuses traversal against the tile's direction. Rendered as a light-gray filled triangle via `drawDirectionMarkers()`.
-- **Signal side**: SIGNAL_2 and SIGNAL_3 tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode. Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
+- **Signal side**: SIGNAL_2 and SIGNAL_3 tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode (labels internationalized via `ResourceBundle`). Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
    `getActivePorts(aspect, rotation)` returns only the ports active for a given aspect (1 port for straight/curve/diagonal, 2 for turnouts, 4 for crossings).
 - **Rendering** (`paintComponent`):
@@ -349,6 +349,19 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### Toolbar
 - `wrench.png` / `wrench_selected.png` toggle button with tooltip "Toggle Edit Mode", synced with the Edit menu item.
+
+### Internationalization
+
+All UI strings (menu bar, toolbar, context menu, tile info dialog) are loaded from
+`ResourceBundle` files supporting **English** and **German** locales:
+
+| Bundle | File (English) | File (German) | Scope |
+|--------|---------------|---------------|-------|
+| Component | `i18n/messages.properties` | `i18n/messages_de.properties` | Context menu, info dialog |
+| Demo App | `i18n/app-messages.properties` | `i18n/app-messages_de.properties` | Main menu, toolbar, frame title |
+
+The locale is determined by the system locale at startup (`Locale.getDefault()`). Parameterized
+strings use `java.text.MessageFormat` (e.g., `"Clear route ({0})"`, `"Position: ({0}, {1})"`).
 
 ### On startup
 1. Load `settings.json` from project root
