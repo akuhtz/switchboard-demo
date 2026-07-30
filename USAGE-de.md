@@ -10,7 +10,7 @@ Der Installer enthält eine JRE — eine separate Java-Installation ist nicht er
 
 ## 2. Auf ein leeres Raster zurücksetzen
 
-- **Strg+E** drücken, um den Bearbeitungsmodus zu aktivieren.
+- Den **Schraubenschlüssel** in der Symbolleiste anklicken oder **Strg+E** drücken, um den Bearbeitungsmodus zu aktivieren.
 - Im Menü: **File → Load...** und ein leeres JSON-Layout auswählen (oder alle Kacheln einzeln über **Clear** im Kontextmenü entfernen).
 - Alternativ `switchboard-demo-app/settings.json` löschen, dann die zuletzt geladene Layout-Datei entfernen — die Anwendung startet mit dem eingebauten Standard-Layout. Kacheln können dann einzeln gelöscht werden.
 
@@ -69,7 +69,16 @@ Gerade und diagonale Kacheln können eine **Richtungsbeschränkung** haben (FORW
 - Die Fahrstraßensuche berücksichtigt die Richtung: BFS wird eine Kachel nicht gegen ihre Richtung durchfahren.
 - Standard ist **Both** (keine Beschränkung) — abwärtskompatibel mit bestehenden Layouts.
 
-## 7. Belegung simulieren
+## 7. Signalseite
+
+Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unterhalb (deutsche Norm, `_right`) des Gleises anzeigen.
+
+- Der globale Standard wird unter **File → Settings → Signal Side** festgelegt (Swiss/German).
+- Kachelspezifische Einstellung: im **Bearbeitungsmodus** Rechtsklick auf eine Signalkachel → **Signal Side**-Untermenü → Left / Right / Default auswählen.
+- Bei Änderung der Signalseite wird das Kachelbild sofort aktualisiert.
+- Der **Tile Info**-Dialog (Linksklick auf ein Signal im Normalmodus) zeigt die aufgelöste Signalseite an.
+
+## 8. Belegung simulieren
 
 Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert werden:
 
@@ -88,7 +97,7 @@ Simulation zurücksetzen:
 - Setzt alle Belegungszustände entlang der Fahrstraße auf FREE zurück.
 - **Clear simulated occupancy** ist deaktiviert, solange eine Simulation läuft.
 
-## 8. Speichern & Laden
+## 9. Speichern & Laden
 
 - **Strg+S** — in die aktuelle Datei speichern (oder Speichern-Dialog öffnen, falls keine vorhanden).
 - **Strg+L** — ein zuvor gespeichertes `.json`-Layout laden.

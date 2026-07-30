@@ -10,7 +10,7 @@ The installer bundles a JRE — no separate Java installation required. After in
 
 ## 2. Reset to a blank grid
 
-- Press **Ctrl+E** to enter edit mode.
+- Click the **wrench** toolbar button or press **Ctrl+E** to enter edit mode.
 - From the menu: **File → Load...** and select an empty JSON layout (or start fresh by removing all tiles manually via **Clear** in the context menu).
 - Alternatively, delete `switchboard-demo-app/settings.json` if present, then delete the last loaded layout file — the app will start with the hardcoded default. You can then clear tiles one by one.
 
@@ -69,7 +69,16 @@ Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWA
 - Route finding respects the direction: BFS will not traverse a tile against its direction.
 - Default is **Both** (no constraint) — backward-compatible with existing layouts.
 
-## 7. Simulate occupancy
+## 7. Signal side
+
+Signal tiles can display their body above (Swiss, `_left`) or below (German, `_right`) the track.
+
+- The global default is set via **File → Settings → Signal Side** (Swiss/German).
+- Per‑tile override: in **edit mode**, right‑click a signal tile → **Signal Side** submenu → choose Left / Right / Default.
+- When you change the signal side, the tile image updates immediately.
+- The **Tile Info** dialog (left‑click a signal in normal mode) shows the resolved signal side.
+
+## 8. Simulate occupancy
 
 After a route is created, you can animate a train moving along it:
 
@@ -88,7 +97,7 @@ To reset the simulation:
 - Sets all occupancy states along the route back to FREE.
 - **Clear simulated occupancy** is disabled while a simulation is in progress.
 
-## 8. Save & load
+## 9. Save & load
 
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.
