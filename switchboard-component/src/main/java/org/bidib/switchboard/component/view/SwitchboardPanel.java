@@ -610,13 +610,27 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             renameItem.addActionListener(e -> renameBlock(existingBlockId));
             blockMenu.add(renameItem);
             JMenuItem removeItem = new JMenuItem(messages.getString("context.blockRemove"));
-            removeItem.addActionListener(e -> {
-                blockModel.removeBlock(existingBlockId);
-                repaint();
-            });
+            removeItem.addActionListener(e -> removeBlock(existingBlockId));
             blockMenu.add(removeItem);
         }
         menu.add(blockMenu);
+    }
+
+    private void removeBlock(String blockId) {
+        Block block = blockModel.getBlock(blockId);
+        if (block == null) {
+            return;
+        }
+        int choice = JOptionPane.showConfirmDialog(this,
+            MessageFormat.format(messages.getString("block.confirmRemove"), block.getName(), blockId),
+            messages.getString("block.title"),
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+        if (choice == JOptionPane.YES_OPTION) {
+            blockModel.removeBlock(blockId);
+            LOGGER.info("Block {} ({}) removed", blockId, block.getName());
+            repaint();
+        }
     }
 
     private void createBlock(int endCol, int endRow) {
