@@ -1,0 +1,188 @@
+package org.bidib.switchboard.component.view;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.bidib.switchboard.component.config.OccupancyFactory;
+import org.bidib.switchboard.component.config.TestOccupancyFactory;
+import org.bidib.switchboard.component.model.Block;
+import org.bidib.switchboard.component.model.RailwayModel;
+import org.bidib.switchboard.component.persistence.LayoutData;
+import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
+import org.junit.jupiter.api.Test;
+
+class BlockTest {
+
+    private final OccupancyFactory occupancyFactory = new TestOccupancyFactory();
+
+    private SwitchboardPanel newPanel() {
+        return new SwitchboardPanel(occupancyFactory,
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), new RailwayModel());
+    }
+
+    private static RouterService routerService(SwitchboardPanel panel) {
+        return new RouterService(panel.getTiles(), panel.getCols(), panel.getRows(), panel.getRouteModel());
+    }
+
+    /** Loads the switchboard3 test layout; row 0 (cols 0-6) is a turnout-free straight line. */
+    private SwitchboardPanel setup() throws Exception {
+        SwitchboardPanel panel = newPanel();
+        var url = BlockTest.class.getResource("/test-data/switchboard3.json");
+        new LayoutPersistence().load(panel, java.nio.file.Paths.get(url.toURI()));
+        return panel;
+    }
+
+    @Test
+    void blockCreatedFromStartAndEnd() throws Exception {
+        SwitchboardPanel panel = setup();
+        panel.testSetBlockStart(0, 0);
+
+        Block block = panel.testCreateBlock(6, 0);
+
+        assertThat(block).isNotNull();
+        assertThat(block.getId()).isEqualTo("blk001");
+        assertThat(block.getName()).isEqualTo("blk001");
+        assertThat(block.size()).isEqualTo(7);
+        assertThat(panel.getBlockModel().size()).isEqualTo(1);
+        assertThat(panel.getBlockModel().blockIdForTile(3, 0)).isEqualTo("blk001");
+        assertThat(panel.getBlockModel().blockIdForTile(0, 0)).isEqualTo("blk001");
+    }
+
+    @Test
+    void blockIdIncrementsZeroPadded() throws Exception {
+        SwitchboardPanel panel = setup();
+
+        panel.testSetBlockStart(0, 0);
+        Block first = panel.testCreateBlock(3, 0);
+        assertThat(first.getId()).isEqualTo("blk001");
+
+        panel.testSetBlockStart(4, 0);
+        Block second = panel.testCreateBlock(6, 0);
+        assertThat(second.getId()).isEqualTo("blk002");
+        assertThat(second.getName()).isEqualTo("blk002");
+        assertThat(panel.getBlockModel().size()).isEqualTo(2);
+    }
+
+    @Test
+    void blockCannotPassThroughTurnout() throws Exception {
+        SwitchboardPanel panel = setup();
+        // (7,0) is TR-003 (turnout) — path must not include it
+        panel.testSetBlockStart(0, 0);
+
+        Block block = panel.testCreateBlock(7, 0);
+
+        assertThat(block).as("block ending at a turnout must not be created").isNull();
+        assertThat(panel.getBlockModel().isEmpty()).isTrue();
+    }
+
+    @Test
+    void blockPathBfsExcludesTurnoutTiles() throws Exception {
+        SwitchboardPanel panel = setup();
+        RouterService rs = routerService(panel);
+
+        // Row 0 straight line from (0,0) to (6,0) contains no turnout
+        List<int[]> path = rs.bfsBlockPath(0, 0, 6, 0, Set.of());
+        assertThat(path).isNotNull();
+        assertThat(path.size()).isEqualTo(7);
+        assertThat(path).extracting(p -> p[0]).containsExactly(0, 1, 2, 3, 4, 5, 6);
+    }
+
+    @Test
+    void blockPathAvoidsExcludedTiles() throws Exception {
+        SwitchboardPanel panel = setup();
+        RouterService rs = routerService(panel);
+
+        // Exclude (3,0) and (4,0) to force the search to give up
+        Set<String> excluded = new HashSet<>();
+        excluded.add("3,0");
+        excluded.add("4,0");
+        List<int[]> path = rs.bfsBlockPath(0, 0, 6, 0, excluded);
+        assertThat(path).isNull();
+    }
+
+    @Test
+    void tileBelongsToOnlyOneBlock() throws Exception {
+        SwitchboardPanel panel = setup();
+
+        panel.testSetBlockStart(0, 0);
+        Block first = panel.testCreateBlock(3, 0);
+        assertThat(first).isNotNull();
+
+        // Overlapping block must be rejected
+        panel.testSetBlockStart(2, 0);
+        Block overlap = panel.testCreateBlock(4, 0);
+        assertThat(overlap).as("overlapping block must not be created").isNull();
+
+        // Non-overlapping block is allowed
+        panel.testSetBlockStart(5, 0);
+        Block disjoint = panel.testCreateBlock(6, 0);
+        assertThat(disjoint).isNotNull();
+        assertThat(panel.getBlockModel().size()).isEqualTo(2);
+    }
+
+    @Test
+    void renameBlockUpdatesName() throws Exception {
+        SwitchboardPanel panel = setup();
+
+        panel.testSetBlockStart(0, 0);
+        Block block = panel.testCreateBlock(3, 0);
+        assertThat(block).isNotNull();
+
+        panel.getBlockModel().renameBlock("blk001", "Main line");
+        assertThat(panel.getBlockModel().getBlock("blk001").getName()).isEqualTo("Main line");
+        assertThat(panel.getBlockModel().getBlock("blk001").getId()).isEqualTo("blk001");
+    }
+
+    @Test
+    void removeBlockReleasesTiles() throws Exception {
+        SwitchboardPanel panel = setup();
+
+        panel.testSetBlockStart(0, 0);
+        Block block = panel.testCreateBlock(3, 0);
+        assertThat(block).isNotNull();
+        assertThat(panel.getBlockModel().blockIdForTile(1, 0)).isEqualTo("blk001");
+
+        panel.getBlockModel().removeBlock("blk001");
+        assertThat(panel.getBlockModel().isEmpty()).isTrue();
+        assertThat(panel.getBlockModel().blockIdForTile(1, 0)).isNull();
+    }
+
+    @Test
+    void blockPersistenceRoundTrip() throws Exception {
+        SwitchboardPanel panel = setup();
+        panel.testSetBlockStart(0, 0);
+        Block block = panel.testCreateBlock(6, 0);
+        assertThat(block).isNotNull();
+        panel.getBlockModel().renameBlock("blk001", "Station track");
+
+        LayoutData data = new LayoutPersistence().capture(panel);
+        assertThat(data.getBlocks()).hasSize(1);
+        assertThat(data.getBlocks().get(0).getId()).isEqualTo("blk001");
+        assertThat(data.getBlocks().get(0).getName()).isEqualTo("Station track");
+        assertThat(data.getBlocks().get(0).getTiles()).hasSize(7);
+
+        SwitchboardPanel restored = newPanel();
+        new LayoutPersistence().apply(restored, data);
+
+        assertThat(restored.getBlockModel().size()).isEqualTo(1);
+        Block restoredBlock = restored.getBlockModel().getBlock("blk001");
+        assertThat(restoredBlock).isNotNull();
+        assertThat(restoredBlock.getName()).isEqualTo("Station track");
+        assertThat(restoredBlock.size()).isEqualTo(7);
+        assertThat(restored.getBlockModel().blockIdForTile(2, 0)).isEqualTo("blk001");
+    }
+
+    @Test
+    void blockPathWithoutStartReturnsNull() throws Exception {
+        SwitchboardPanel panel = setup();
+
+        Block block = panel.testCreateBlock(3, 0);
+
+        assertThat(block).isNull();
+        assertThat(panel.getBlockModel().isEmpty()).isTrue();
+    }
+}

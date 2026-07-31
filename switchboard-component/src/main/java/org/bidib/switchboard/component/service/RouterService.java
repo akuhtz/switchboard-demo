@@ -61,6 +61,70 @@ public class RouterService {
         return result;
     }
 
+    /**
+     * Finds a connected path from start to end for a block. Unlike route
+     * finding, blocks never pass through turnout tiles. Tiles belonging to
+     * other blocks (passed via {@code excludedTiles}) are also avoided.
+     * Returns null if no such path exists.
+     */
+    public List<int[]> bfsBlockPath(int startCol, int startRow, int endCol, int endRow, Set<String> excludedTiles) {
+        String startKey = Tile.key(startCol, startRow);
+        String endKey = Tile.key(endCol, endRow);
+        if (!tiles.containsKey(startKey) || !tiles.containsKey(endKey)) {
+            return null;
+        }
+
+        Deque<int[]> queue = new ArrayDeque<>();
+        Map<String, int[]> cameFrom = new HashMap<>();
+        Set<String> visited = new HashSet<>();
+
+        queue.add(new int[] { startCol, startRow });
+        visited.add(startKey);
+        cameFrom.put(startKey, null);
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            int col = current[0];
+            int row = current[1];
+            String cKey = Tile.key(col, row);
+
+            if (col == endCol && row == endRow) {
+                return reconstructPath(endKey, cameFrom);
+            }
+
+            List<int[]> connected = getConnectedNeighbors(col, row);
+            for (int[] neighbor : connected) {
+                int neighborCol = neighbor[0];
+                int neighborRow = neighbor[1];
+                String neighborKey = Tile.key(neighborCol, neighborRow);
+
+                if (visited.contains(neighborKey)) {
+                    continue;
+                }
+                if (!tiles.containsKey(neighborKey)) {
+                    continue;
+                }
+                if (excludedTiles != null && excludedTiles.contains(neighborKey)) {
+                    continue;
+                }
+                Tile neighborTile = getTile(neighborCol, neighborRow);
+                if (neighborTile instanceof ElementTile et && isTurnout(et.getElementType())) {
+                    continue;
+                }
+
+                visited.add(neighborKey);
+                cameFrom.put(neighborKey, new int[] { col, row });
+                queue.add(new int[] { neighborCol, neighborRow });
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean isTurnout(ElementType type) {
+        return type == ElementType.TURNOUT_LEFT || type == ElementType.TURNOUT_RIGHT || type == ElementType.TURNOUT_3WAY;
+    }
+
     public List<List<int[]>> bfsAlternativeRoutes(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath) {
         return bfsAlternativeRoutes(startCol, startRow, endCol, endRow, primaryPath, false);
     }

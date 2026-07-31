@@ -144,6 +144,27 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `clear()` / `size()` / `isEmpty()`
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
+### `Block`
+- A connected path of tiles forming a railway block section.
+- Fields: `id` (String, unique), `name` (String, user-editable), `path` (ordered `List<int[]>` of `[col, row]`).
+- Default name equals the id (`blk001`, `blk002`, ... zero-padded).
+- A block never contains turnout tiles (TURNOUT_LEFT/RIGHT/3WAY are excluded during path finding).
+- `containsTile(col, row)` — checks if a grid tile is part of the block.
+
+### `BlockModel`
+- Manages all blocks on the switchboard.
+- Enforces **one block per tile**: `addBlock(Block)` returns `false` if any tile already belongs
+  to a different block.
+- Uses `PropertyChangeSupport` for change notifications.
+- Methods:
+  - `addBlock(Block)` — adds a block; returns false on tile conflict.
+  - `removeBlock(String id)` — removes a block and releases its tiles.
+  - `renameBlock(String id, String newName)` — updates a block's name.
+  - `getBlock(String id)` / `getBlocks()` — access blocks.
+  - `blockIdForTile(col, row)` / `getBlockForTile(col, row)` — tile → block lookup.
+  - `clear()` / `size()` / `isEmpty()`
+  - `addPropertyChangeListener` / `removePropertyChangeListener`
+
 ### `Occupancy`
 - Concrete class in `org.bidib.switchboard.component.model` representing track occupancy.
 - Fields: `id` (String, auto-generated as `"occ-N"`), `state` (OccupancyState: FREE/OCCUPIED).
@@ -227,6 +248,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Signal stops**: During occupancy simulation, a train arriving at a signal tile with aspect 0 (red) stops and waits. Signals have an implicit facing direction based on rotation (rot 0 → faces LEFT). Only trains entering from the signal's facing port are blocked; trains approaching from behind ignore the signal. `isSignalBlocking(Tile, int entryPort)` implements this check. When `autoChangeSignal` is enabled, a blocked signal auto-switches to green after 2 seconds. Toggling this option immediately affects all running simulations.
 - **Direction markers**: STRAIGHT and DIAGONAL tiles can have a direction constraint (`TileDirection`: FORWARD/BACKWARD/BOTH). Route finding (`RouterService.isAllowedDirection`) refuses traversal against the tile's direction. Rendered as a light-gray filled triangle via `drawDirectionMarkers()`.
 - **Signal side**: SIGNAL_2 and SIGNAL_3 tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode (labels internationalized via `ResourceBundle`). Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
+- **Blocks**: A connected, turnout-free path of tiles defining a track section. In edit mode the context menu shows a **Block** submenu to set a block start tile (orange square marker), then a block end tile. The connected path (via `RouterService.bfsBlockPath`) is found automatically, excluding turnouts and tiles of other blocks. Each block gets a unique id and a default name `blkNNN`; names are editable via **Rename Block...** dialog. Blocks render as a yellow polyline (`(255,220,80)`) and are persisted in the layout file.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
    `getActivePorts(aspect, rotation)` returns only the ports active for a given aspect (1 port for straight/curve/diagonal, 2 for turnouts, 4 for crossings).
 - **Rendering** (`paintComponent`):
@@ -296,6 +318,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - `bfsRoute(startCol, startRow, endCol, endRow)` — BFS-based shortest path using physical port connectivity.
   Returns `List<int[]>` path or `null`. Tries without tile-revisit override first; falls back with override
   (max 8 revisits per tile) only if the first attempt returns null.
+- `bfsBlockPath(startCol, startRow, endCol, endRow, excludedTiles)` — BFS-based connected path for blocks.
+  Never passes through turnout tiles and avoids tiles belonging to other blocks (via `excludedTiles`).
+  Returns `List<int[]>` or `null`.
 - `bfsAlternativeRoutes(startCol, startRow, endCol, endRow, primaryPath, exhaustive)` — finds alternative
   routes by blocking edges of the primary path (and of found alternatives when `exhaustive=true`).
   Never uses tile-revisit override. Returns `List<List<int[]>>`.
@@ -321,8 +346,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
-- `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation, direction, signalSide), and `ModelStateData`.
+- `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation, direction, signalSide), `ModelStateData`, routes, and blocks.
 - `ModelStateData` holds a `List<ElementData>` (each containing `id`, `nodeId`, `accessoryId`, `aspect`, `occupancyId`) and a `List<OccupancyData>` (each containing `id`, `nodeId`, `portId`, `state`).
+- `BlockData` (list under `blocks`) holds `id`, `name`, and an ordered `tiles` list of `[col, row]` coordinates.
 - `SettingsData` holds `lastLayoutFile`, `lookAndFeel` (LIGHT/DARK enum), and `signalSide` (LEFT/RIGHT).
 
 ---
@@ -413,7 +439,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-68 tests across seven test classes:
+80 tests across eight test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -468,6 +494,20 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `bfsRouteReturnsNullWhenBlocked` | BFS returns null when no path exists between valid tiles |
 | `diagonalConnectsThroughDiagonalTiles` | Diagonal tiles connect via corner ports in both directions |
 
+### `BlockTest` (10 tests)
+| Test | Description |
+|------|-------------|
+| `blockCreatedFromStartAndEnd` | Block created from start (0,0) to end (6,0) with id `blk001`, 7 tiles |
+| `blockIdIncrementsZeroPadded` | Second block gets id `blk002` |
+| `blockCannotPassThroughTurnout` | No block created when the path would include a turnout |
+| `blockPathBfsExcludesTurnoutTiles` | `bfsBlockPath` returns turnout-free connected path |
+| `blockPathAvoidsExcludedTiles` | `bfsBlockPath` respects tiles excluded by other blocks |
+| `tileBelongsToOnlyOneBlock` | Overlapping block rejected; disjoint block allowed |
+| `renameBlockUpdatesName` | Block name changed via `BlockModel.renameBlock` |
+| `removeBlockReleasesTiles` | Removing a block frees its tiles |
+| `blockPersistenceRoundTrip` | Blocks survive `capture()`/`apply()` round-trip with id/name/tiles |
+| `blockPathWithoutStartReturnsNull` | Creating a block without a start returns null |
+
 ### `DebugTest` (1 test)
 | Test | Description |
 |------|-------------|
@@ -507,7 +547,7 @@ execution to `target/surefire-reports/`.
 | `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × all aspects × 4 rotations (64 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
 | ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
-Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, and `switchboard7.json` test layouts. 67 of 68 tests pass (1 disabled).
+Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, and `switchboard7.json` test layouts. 79 of 80 tests pass (1 disabled).
 
 ---
 

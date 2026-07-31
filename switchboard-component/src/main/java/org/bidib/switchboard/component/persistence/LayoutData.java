@@ -11,6 +11,7 @@ public class LayoutData {
     private List<TileData> tiles = new ArrayList<>();
     private ModelStateData modelState;
     private List<RouteData> routes = new ArrayList<>();
+    private List<BlockData> blocks = new ArrayList<>();
 
     public int getCols() { return cols; }
     public void setCols(int cols) { this.cols = cols; }
@@ -29,6 +30,9 @@ public class LayoutData {
 
     public List<RouteData> getRoutes() { return routes; }
     public void setRoutes(List<RouteData> routes) { this.routes = routes; }
+
+    public List<BlockData> getBlocks() { return blocks; }
+    public void setBlocks(List<BlockData> blocks) { this.blocks = blocks; }
 
     // --- Tile data ---
 
@@ -138,6 +142,23 @@ public class LayoutData {
 
         public String getTargetElementId() { return targetElementId; }
         public void setTargetElementId(String targetElementId) { this.targetElementId = targetElementId; }
+
+        public List<List<Integer>> getTiles() { return tiles; }
+        public void setTiles(List<List<Integer>> tiles) { this.tiles = tiles; }
+    }
+
+    // --- Block data ---
+
+    public static class BlockData {
+        private String id;
+        private String name;
+        private List<List<Integer>> tiles = new ArrayList<>();
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
 
         public List<List<Integer>> getTiles() { return tiles; }
         public void setTiles(List<List<Integer>> tiles) { this.tiles = tiles; }

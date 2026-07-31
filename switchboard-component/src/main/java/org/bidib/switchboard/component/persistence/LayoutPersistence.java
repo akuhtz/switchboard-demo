@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bidib.switchboard.component.model.Block;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
@@ -105,6 +106,20 @@ public class LayoutPersistence {
         }
         data.setRoutes(routeList);
 
+        List<LayoutData.BlockData> blockList = new ArrayList<>();
+        for (Block b : grid.getBlockModel().getBlocks().values()) {
+            LayoutData.BlockData bd = new LayoutData.BlockData();
+            bd.setId(b.getId());
+            bd.setName(b.getName());
+            List<List<Integer>> tileKeys = new ArrayList<>();
+            for (int[] p : b.getPath()) {
+                tileKeys.add(List.of(p[0], p[1]));
+            }
+            bd.setTiles(tileKeys);
+            blockList.add(bd);
+        }
+        data.setBlocks(blockList);
+
         return data;
     }
 
@@ -191,6 +206,17 @@ public class LayoutPersistence {
                 }
                 Route route = new Route(rd.getId(), rd.getSourceElementId(), rd.getTargetElementId(), path);
                 grid.getRouteModel().addRoute(route);
+            }
+        }
+
+        if (data.getBlocks() != null) {
+            for (LayoutData.BlockData bd : data.getBlocks()) {
+                List<int[]> path = new ArrayList<>();
+                for (List<Integer> tileCoord : bd.getTiles()) {
+                    path.add(new int[] { tileCoord.get(0), tileCoord.get(1) });
+                }
+                Block block = new Block(bd.getId(), bd.getName() != null ? bd.getName() : bd.getId(), path);
+                grid.getBlockModel().addBlock(block);
             }
         }
     }

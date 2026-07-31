@@ -78,7 +78,27 @@ Signal tiles can display their body above (Swiss, `_left`) or below (German, `_r
 - When you change the signal side, the tile image updates immediately.
 - The **Tile Info** dialog (left‑click a signal in normal mode) shows the resolved signal side.
 
-## 8. Simulate occupancy
+## 8. Define blocks
+
+A **block** is a connected path of tiles that forms a section of track. Blocks are useful for
+modelling track occupancy sections.
+
+- In **edit mode** (Ctrl+E), right-click the first tile → **Block → Set Block Start**.
+- Right-click the last tile → **Block → Set Block End**. The connected path between the two
+  tiles is found automatically and a block is created.
+- **No turnouts**: blocks never pass through turnout tiles (TL/TR/T3). If no turnout-free
+  connected path exists, no block is created.
+- **No overlaps**: every tile belongs to at most one block. Tiles already assigned to another
+  block are avoided when finding the path.
+- Every block gets a **unique ID** and a default name `blk001`, `blk002`, ... (zero-padded).
+- To change the name, right-click any tile of the block → **Block → Rename Block...** and enter
+  a new name in the dialog.
+- To remove a block, right-click any tile of the block → **Block → Remove Block**.
+- Blocks are drawn as a yellow polyline along the path; the pending block start is shown as an
+  orange square marker.
+- Blocks are saved with the layout and restored when it is loaded.
+
+## 9. Simulate occupancy
 
 After a route is created, you can animate a train moving along it:
 
@@ -97,7 +117,7 @@ To reset the simulation:
 - Sets all occupancy states along the route back to FREE.
 - **Clear simulated occupancy** is disabled while a simulation is in progress.
 
-## 9. Language / Internationalization
+## 10. Language / Internationalization
 
 The application supports **English** and **German** locales. UI language is determined by the system locale at startup.
 
@@ -108,7 +128,7 @@ The application supports **English** and **German** locales. UI language is dete
 
 Translations are maintained in `i18n/messages.properties` (component) and `i18n/app-messages.properties` (demo app), each with a `_de` variant.
 
-## 10. Save & load
+## 11. Save & load
 
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.

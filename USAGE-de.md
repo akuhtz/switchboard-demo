@@ -78,7 +78,28 @@ Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unter
 - Bei Änderung der Signalseite wird das Kachelbild sofort aktualisiert.
 - Der **Kachel-Info**-Dialog (Linksklick auf ein Signal im Normalmodus) zeigt die aufgelöste Signalseite an.
 
-## 8. Belegung simulieren
+## 8. Blöcke definieren
+
+Ein **Block** ist ein verbundener Pfad aus Kacheln, der einen Gleisabschnitt bildet. Blöcke sind
+nützlich, um Belegungsabschnitte zu modellieren.
+
+- Im **Bearbeitungsmodus** (Strg+E) Rechtsklick auf die erste Kachel → **Block → Blockanfang festlegen**.
+- Rechtsklick auf die letzte Kachel → **Block → Blockende festlegen**. Der verbundene Pfad zwischen
+  den beiden Kacheln wird automatisch gefunden und ein Block erstellt.
+- **Keine Weichen**: Blöcke führen nie durch Weichen-Kacheln (TL/TR/T3). Wenn kein weichenfreier
+  verbundener Pfad existiert, wird kein Block erstellt.
+- **Keine Überlappungen**: Jede Kachel gehört zu höchstens einem Block. Kacheln, die bereits einem
+  anderen Block zugeordnet sind, werden bei der Pfadsuche vermieden.
+- Jeder Block erhält eine **eindeutige ID** und einen Standardnamen `blk001`, `blk002`, ...
+  (mit führenden Nullen).
+- Zum Umbenennen Rechtsklick auf eine Kachel des Blocks → **Block → Block umbenennen...** und im
+  Dialog einen neuen Namen eingeben.
+- Zum Entfernen eines Blocks Rechtsklick auf eine Kachel des Blocks → **Block → Block entfernen**.
+- Blöcke werden als gelbe Polylinie entlang des Pfads gezeichnet; der ausstehende Blockanfang wird
+  als orangefarbene quadratische Markierung angezeigt.
+- Blöcke werden mit dem Layout gespeichert und beim Laden wiederhergestellt.
+
+## 9. Belegung simulieren
 
 Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert werden:
 
@@ -97,7 +118,7 @@ Simulation zurücksetzen:
 - Setzt alle Belegungszustände entlang der Fahrstraße auf FREE zurück.
 - **Simulierte Belegung löschen** ist deaktiviert, solange eine Simulation läuft.
 
-## 9. Sprache / Internationalisierung
+## 10. Sprache / Internationalisierung
 
 Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Sprache wird anhand der Systemsprache beim Start ermittelt.
 
@@ -108,7 +129,7 @@ Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Spr
 
 Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und `i18n/app-messages.properties` (Demo-Anwendung), jeweils mit einer `_de`-Variante.
 
-## 10. Speichern & Laden
+## 11. Speichern & Laden
 
 - **Strg+S** — in die aktuelle Datei speichern (oder Speichern-Dialog öffnen, falls keine vorhanden).
 - **Strg+L** — ein zuvor gespeichertes `.json`-Layout laden.

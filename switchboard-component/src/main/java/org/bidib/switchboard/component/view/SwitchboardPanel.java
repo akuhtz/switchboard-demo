@@ -18,10 +18,12 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -45,6 +47,8 @@ import org.bidib.switchboard.component.command.CycleElementCommand;
 import org.bidib.switchboard.component.command.DirectionCommand;
 import org.bidib.switchboard.component.command.TileCommand;
 import org.bidib.switchboard.component.config.OccupancyFactory;
+import org.bidib.switchboard.component.model.Block;
+import org.bidib.switchboard.component.model.BlockModel;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
@@ -73,6 +77,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     public static final int DEFAULT_COLS = 60;
 
     public static final int DEFAULT_ROWS = 30;
+
+    public static final String BLOCK_ID_PREFIX = "blk";
 
     private static final Color COLOR_BACKGROUND = new Color(45, 45, 50);
 
@@ -174,6 +180,16 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     private final ResourceBundle messages = ResourceBundle.getBundle("i18n.messages");
 
     private final RouteModel routeModel = new RouteModel();
+
+    private final BlockModel blockModel = new BlockModel();
+
+    private int blockStartCol = -1;
+
+    private int blockStartRow = -1;
+
+    private static final Color COLOR_BLOCK = new Color(255, 220, 80);
+
+    private static final Color COLOR_BLOCK_START = new Color(255, 180, 0);
 
     private final Map<String, SimulationEntry> simulations = new HashMap<>();
 
@@ -279,6 +295,11 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         return routeModel;
     }
 
+    @Override
+    public BlockModel getBlockModel() {
+        return blockModel;
+    }
+
     public void setSelectedTile(int col, int row) {
         selectedCol = col;
         selectedRow = row;
@@ -289,6 +310,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     public void clearTiles() {
         tiles.clear();
         routeModel.clear();
+        blockModel.clear();
+        blockStartCol = -1;
+        blockStartRow = -1;
         routeSourceCol = -1;
         routeSourceRow = -1;
         repaint();
@@ -304,6 +328,14 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         if (routeSourceCol == col && routeSourceRow == row) {
             routeSourceCol = -1;
             routeSourceRow = -1;
+        }
+        if (blockStartCol == col && blockStartRow == row) {
+            blockStartCol = -1;
+            blockStartRow = -1;
+        }
+        Block block = blockModel.getBlockForTile(col, row);
+        if (block != null) {
+            blockModel.removeBlock(block.getId());
         }
         repaint();
     }
@@ -527,6 +559,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                     }
                     menu.add(sideMenu);
                 }
+                buildBlockMenuItems(menu, col, row, tile);
                 menu.addSeparator();
             }
             JMenuItem clearItem = new JMenuItem(messages.getString("context.clear"));
@@ -549,6 +582,111 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             dirMenu.add(item);
         }
         menu.add(dirMenu);
+    }
+
+    private void buildBlockMenuItems(JPopupMenu menu, int col, int row, Tile tile) {
+        if (menu.getComponentCount() > 0) {
+            menu.addSeparator();
+        }
+        JMenu blockMenu = new JMenu(messages.getString("context.block"));
+        JMenuItem startItem = new JMenuItem(messages.getString("context.blockStart"));
+        startItem.addActionListener(e -> {
+            blockStartCol = col;
+            blockStartRow = row;
+            repaint();
+        });
+        blockMenu.add(startItem);
+
+        JMenuItem endItem = new JMenuItem(messages.getString("context.blockEnd"));
+        endItem.setEnabled(blockStartCol >= 0 && blockStartRow >= 0);
+        endItem.addActionListener(e -> createBlock(col, row));
+        blockMenu.add(endItem);
+
+        String existingBlockId = blockModel.blockIdForTile(col, row);
+        if (existingBlockId != null) {
+            Block block = blockModel.getBlock(existingBlockId);
+            blockMenu.addSeparator();
+            JMenuItem renameItem = new JMenuItem(messages.getString("context.blockRename"));
+            renameItem.addActionListener(e -> renameBlock(existingBlockId));
+            blockMenu.add(renameItem);
+            JMenuItem removeItem = new JMenuItem(messages.getString("context.blockRemove"));
+            removeItem.addActionListener(e -> {
+                blockModel.removeBlock(existingBlockId);
+                repaint();
+            });
+            blockMenu.add(removeItem);
+        }
+        menu.add(blockMenu);
+    }
+
+    private void createBlock(int endCol, int endRow) {
+        if (blockStartCol < 0 || blockStartRow < 0) {
+            return;
+        }
+        if (blockStartCol == endCol && blockStartRow == endRow) {
+            blockStartCol = -1;
+            blockStartRow = -1;
+            repaint();
+            return;
+        }
+
+        Set<String> excludedTiles = new HashSet<>();
+        for (Block b : blockModel.getBlocks().values()) {
+            for (int[] p : b.getPath()) {
+                excludedTiles.add(Tile.key(p[0], p[1]));
+            }
+        }
+
+        List<int[]> path = routerService.bfsBlockPath(blockStartCol, blockStartRow, endCol, endRow, excludedTiles);
+        if (path == null) {
+            LOGGER.info("No block path found from ({},{}) to ({},{})", blockStartCol, blockStartRow, endCol, endRow);
+            JOptionPane.showMessageDialog(this, messages.getString("block.noPath"), messages.getString("block.title"), JOptionPane.INFORMATION_MESSAGE);
+            blockStartCol = -1;
+            blockStartRow = -1;
+            repaint();
+            return;
+        }
+
+        String id = generateBlockId();
+        Block block = new Block(id, id, path);
+        boolean added = blockModel.addBlock(block);
+        if (added) {
+            LOGGER.info("Block {} added with {} tiles", id, path.size());
+        } else {
+            LOGGER.warn("Block {} rejected: tile conflict", id);
+        }
+        blockStartCol = -1;
+        blockStartRow = -1;
+        repaint();
+    }
+
+    private void renameBlock(String blockId) {
+        Block block = blockModel.getBlock(blockId);
+        if (block == null) {
+            return;
+        }
+        String newName = (String) JOptionPane.showInputDialog(this,
+            messages.getString("block.renamePrompt"),
+            messages.getString("block.renameTitle"),
+            JOptionPane.PLAIN_MESSAGE, null, null, block.getName());
+        if (newName != null && !newName.isBlank()) {
+            blockModel.renameBlock(blockId, newName.trim());
+            repaint();
+        }
+    }
+
+    private String generateBlockId() {
+        int max = 0;
+        for (String id : blockModel.getBlocks().keySet()) {
+            if (id.startsWith(BLOCK_ID_PREFIX)) {
+                try {
+                    max = Math.max(max, Integer.parseInt(id.substring(BLOCK_ID_PREFIX.length())));
+                } catch (NumberFormatException e) {
+                    // ignore non-numeric suffixes
+                }
+            }
+        }
+        return BLOCK_ID_PREFIX + String.format("%03d", max + 1);
     }
 
     private void buildRouteMenuItems(JPopupMenu menu, int col, int row, Tile tile) {
@@ -676,6 +814,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         else {
             sb.append(messages.getString("info.typePlain")).append("\n");
         }
+        Block block = blockModel.getBlockForTile(tile.getCol(), tile.getRow());
+        if (block != null) {
+            sb.append(MessageFormat.format(messages.getString("info.block"), block.getName(), block.getId())).append("\n");
+        }
         JOptionPane.showMessageDialog(this, sb.toString(), messages.getString("info.title"), JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -742,10 +884,38 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         drawTiles(g2);
         drawGrid(g2);
         drawDirectionMarkers(g2);
+        drawBlocks(g2);
         drawSelection(g2);
         drawRoute(g2);
         drawOccupancy(g2);
         drawAlternatives(g2);
+    }
+
+    private void drawBlocks(Graphics2D g2) {
+        int half = tileSize / 2;
+        for (Block block : blockModel.getBlocks().values()) {
+            List<int[]> path = block.getPath();
+            if (path.isEmpty()) {
+                continue;
+            }
+            g2.setColor(COLOR_BLOCK);
+            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            int[] xPoints = new int[path.size()];
+            int[] yPoints = new int[path.size()];
+            for (int i = 0; i < path.size(); i++) {
+                int[] p = path.get(i);
+                xPoints[i] = p[0] * tileSize + half;
+                yPoints[i] = p[1] * tileSize + half;
+            }
+            g2.drawPolyline(xPoints, yPoints, path.size());
+        }
+
+        if (blockStartCol >= 0 && blockStartRow >= 0) {
+            int px = blockStartCol * tileSize + half;
+            int py = blockStartRow * tileSize + half;
+            g2.setColor(COLOR_BLOCK_START);
+            g2.fillRect(px - 6, py - 6, 12, 12);
+        }
     }
 
     private void drawGrid(Graphics2D g2) {
@@ -1239,6 +1409,32 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     public void testTileContextAction(int col, int row, ElementType type) {
         onTileContextAction(col, row, type);
+    }
+
+    public void testSetBlockStart(int col, int row) {
+        blockStartCol = col;
+        blockStartRow = row;
+    }
+
+    public Block testCreateBlock(int endCol, int endRow) {
+        if (blockStartCol < 0 || blockStartRow < 0) {
+            return null;
+        }
+        int startCol = blockStartCol;
+        int startRow = blockStartRow;
+        Set<String> excludedTiles = new HashSet<>();
+        for (Block b : blockModel.getBlocks().values()) {
+            for (int[] p : b.getPath()) {
+                excludedTiles.add(Tile.key(p[0], p[1]));
+            }
+        }
+        List<int[]> path = routerService.bfsBlockPath(startCol, startRow, endCol, endRow, excludedTiles);
+        if (path == null) {
+            return null;
+        }
+        String id = generateBlockId();
+        Block block = new Block(id, id, path);
+        return blockModel.addBlock(block) ? block : null;
     }
 
     public void testSetRouteAspects(List<int[]> path) {

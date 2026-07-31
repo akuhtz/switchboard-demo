@@ -1,5 +1,6 @@
 package org.bidib.switchboard.component.view;
 
+import org.bidib.switchboard.component.model.BlockModel;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.Tile;
@@ -23,4 +24,6 @@ public interface TileGrid {
     RailwayModel getModel();
 
     RouteModel getRouteModel();
+
+    BlockModel getBlockModel();
 }
