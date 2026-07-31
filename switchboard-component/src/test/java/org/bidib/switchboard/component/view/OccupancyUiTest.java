@@ -49,7 +49,7 @@ class OccupancyUiTest {
 
     private SwitchboardPanel panel;
 
-    private static final int DELAY = 200;
+    private static final int DELAY = 80;
 
 	private final OccupancyFactory occupancyFactory = new TestOccupancyFactory(); 
 

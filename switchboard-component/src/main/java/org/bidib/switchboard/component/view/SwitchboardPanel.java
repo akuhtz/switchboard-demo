@@ -191,6 +191,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private static final Color COLOR_BLOCK_START = new Color(255, 180, 0);
 
+    private static final int BLOCK_LINE_OFFSET = 4;
+
+    private static final int BLOCK_TICK_LENGTH = 12;
+
     private final Map<String, SimulationEntry> simulations = new HashMap<>();
 
     private record SimulationEntry(OccupancySimulation simulation, Timer timer) {
@@ -919,9 +923,14 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             for (int i = 0; i < path.size(); i++) {
                 int[] p = path.get(i);
                 xPoints[i] = p[0] * tileSize + half;
-                yPoints[i] = p[1] * tileSize + half;
+                yPoints[i] = p[1] * tileSize + half + BLOCK_LINE_OFFSET;
             }
             g2.drawPolyline(xPoints, yPoints, path.size());
+
+            if (path.size() > 1) {
+                drawBlockBoundaryTick(g2, path.get(0), path.get(1));
+                drawBlockBoundaryTick(g2, path.get(path.size() - 1), path.get(path.size() - 2));
+            }
         }
 
         if (blockStartCol >= 0 && blockStartRow >= 0) {
@@ -929,6 +938,23 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             int py = blockStartRow * tileSize + half;
             g2.setColor(COLOR_BLOCK_START);
             g2.fillRect(px - 6, py - 6, 12, 12);
+        }
+    }
+
+    private void drawBlockBoundaryTick(Graphics2D g2, int[] tile, int[] neighbor) {
+        int col = tile[0];
+        int row = tile[1];
+        int dc = neighbor[0] - col;
+        int dr = neighbor[1] - row;
+        int tickHalf = BLOCK_TICK_LENGTH / 2;
+        if (dc != 0) {
+            int edgeX = dc > 0 ? col * tileSize : col * tileSize + tileSize;
+            int cy = row * tileSize + tileSize / 2 + BLOCK_LINE_OFFSET;
+            g2.drawLine(edgeX, cy - tickHalf, edgeX, cy + tickHalf);
+        } else {
+            int edgeY = dr > 0 ? row * tileSize : row * tileSize + tileSize;
+            int cx = col * tileSize + tileSize / 2 + BLOCK_LINE_OFFSET;
+            g2.drawLine(cx - tickHalf, edgeY, cx + tickHalf, edgeY);
         }
     }
 

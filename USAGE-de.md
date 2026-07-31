@@ -95,8 +95,9 @@ nützlich, um Belegungsabschnitte zu modellieren.
 - Zum Umbenennen Rechtsklick auf eine Kachel des Blocks → **Block → Block umbenennen...** und im
   Dialog einen neuen Namen eingeben.
 - Zum Entfernen eines Blocks Rechtsklick auf eine Kachel des Blocks → **Block → Block entfernen**.
-- Blöcke werden als gelbe Polylinie entlang des Pfads gezeichnet; der ausstehende Blockanfang wird
-  als orangefarbene quadratische Markierung angezeigt.
+- Blöcke werden als 2 px breite gelbe Linie unterhalb des Gleises entlang des Pfads gezeichnet,
+  mit einem kurzen vertikalen Strich an der Außenkante der Start- und Endkachel. Der ausstehende
+  Blockanfang wird als orangefarbene quadratische Markierung angezeigt.
 - Blöcke werden mit dem Layout gespeichert und beim Laden wiederhergestellt.
 
 ## 9. Belegung simulieren

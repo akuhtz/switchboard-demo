@@ -248,7 +248,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Signal stops**: During occupancy simulation, a train arriving at a signal tile with aspect 0 (red) stops and waits. Signals have an implicit facing direction based on rotation (rot 0 → faces LEFT). Only trains entering from the signal's facing port are blocked; trains approaching from behind ignore the signal. `isSignalBlocking(Tile, int entryPort)` implements this check. When `autoChangeSignal` is enabled, a blocked signal auto-switches to green after 2 seconds. Toggling this option immediately affects all running simulations.
 - **Direction markers**: STRAIGHT and DIAGONAL tiles can have a direction constraint (`TileDirection`: FORWARD/BACKWARD/BOTH). Route finding (`RouterService.isAllowedDirection`) refuses traversal against the tile's direction. Rendered as a light-gray filled triangle via `drawDirectionMarkers()`.
 - **Signal side**: SIGNAL_2 and SIGNAL_3 tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode (labels internationalized via `ResourceBundle`). Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
-- **Blocks**: A connected, turnout-free path of tiles defining a track section. In edit mode the context menu shows a **Block** submenu to set a block start tile (orange square marker), then a block end tile. The connected path (via `RouterService.bfsBlockPath`) is found automatically, excluding turnouts and tiles of other blocks. Each block gets a unique id and a default name `blkNNN`; names are editable via **Rename Block...** dialog. Blocks render as a yellow polyline (`(255,220,80)`) and are persisted in the layout file.
+- **Blocks**: A connected, turnout-free path of tiles defining a track section. In edit mode the context menu shows a **Block** submenu to set a block start tile (orange square marker), then a block end tile. The connected path (via `RouterService.bfsBlockPath`) is found automatically, excluding turnouts and tiles of other blocks. Each block gets a unique id and a default name `blkNNN`; names are editable via **Rename Block...** dialog. Blocks render as a 2px yellow line (`(255,220,80)`) offset 4px below the track center, with a short vertical tick at the outer edge of the start and end tiles. Removal asks for confirmation. Blocks are persisted in the layout file.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
    `getActivePorts(aspect, rotation)` returns only the ports active for a given aspect (1 port for straight/curve/diagonal, 2 for turnouts, 4 for crossings).
 - **Rendering** (`paintComponent`):
@@ -439,7 +439,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-80 tests across eight test classes:
+81 tests across nine test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -452,7 +452,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
 | `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
-### `RouteFindingTest` (30 tests)
+### `RouteFindingTest` (31 tests)
 | Test | Description |
 |------|-------------|
 | `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
@@ -508,6 +508,11 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `blockPersistenceRoundTrip` | Blocks survive `capture()`/`apply()` round-trip with id/name/tiles |
 | `blockPathWithoutStartReturnsNull` | Creating a block without a start returns null |
 
+### `BlockUiTest` (1 test)
+| Test | Description |
+|------|-------------|
+| `createBlockFrom16x4To7x4InEditMode` | UI test: enables edit mode, creates block `blk001` from (16,4) to (7,4) on `switchboard-block1.json`, verifies 10 tiles span cols 7–16 of row 4. Screen recording support via `ScreenRecorder`.
+
 ### `DebugTest` (1 test)
 | Test | Description |
 |------|-------------|
@@ -523,7 +528,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoTileReplaceViaUI` | Original tile restored after undo of UI tile replacement |
 | `occupiedRouteTilesDetectedViaUI` | Occupied route tiles show occupancy color via `drawOccupancy` |
 
-### `OccupancyUiTest` (10 tests)
+### `OccupancyUiTest` (11 tests)
 | Test | Description |
 |------|-------------|
 | `occupancyAdvancesAlongRoute` | Timer-driven occupancy animation along a route path, verifying sliding-window pattern |
@@ -537,7 +542,7 @@ replacing brittle `Thread.sleep()` delays that could miss steps due to timer coa
 `maven-surefire-plugin` is configured with `--add-opens java.base/java.util=ALL-UNNAMED`
 to prevent `InaccessibleObjectException` from AssertJ Swing's `ProtectingTimerTask`.
 
-Screen recording is supported for occupancy UI tests via `ScreenRecorder` (JavaCV + FFmpeg).
+Screen recording is supported for occupancy and block UI tests via `ScreenRecorder` (JavaCV + FFmpeg).
 Pass `-Dscreen.recording=true` when running `mvn test` to capture MP4 videos of the test
 execution to `target/surefire-reports/`.
 
@@ -547,7 +552,7 @@ execution to `target/surefire-reports/`.
 | `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × all aspects × 4 rotations (64 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
 | ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
-Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, and `switchboard7.json` test layouts. 79 of 80 tests pass (1 disabled).
+Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, `switchboard7.json`, and `switchboard-block1.json` test layouts. 80 of 81 tests pass (1 disabled).
 
 ---
 

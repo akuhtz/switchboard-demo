@@ -94,7 +94,8 @@ modelling track occupancy sections.
 - To change the name, right-click any tile of the block → **Block → Rename Block...** and enter
   a new name in the dialog.
 - To remove a block, right-click any tile of the block → **Block → Remove Block**.
-- Blocks are drawn as a yellow polyline along the path; the pending block start is shown as an
+- Blocks are drawn as a 2px yellow line below the track along the path, with a short vertical
+  tick at the outer edge of the start and end tiles. The pending block start is shown as an
   orange square marker.
 - Blocks are saved with the layout and restored when it is loaded.
 
