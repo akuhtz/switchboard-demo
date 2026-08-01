@@ -927,12 +927,18 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             for (int i = 0; i < path.size(); i++) {
                 int[] p = path.get(i);
                 int[] dir = segmentDirection(path, i);
+                if (isCurveTile(p[0], p[1])) {
+                    int[] straight = straightSideDirection(path, i, p);
+                    if (straight != null) {
+                        dir = straight;
+                    }
+                }
                 int ox = dir[0] == 0 && dir[1] != 0 ? -BLOCK_LINE_OFFSET : 0;
                 int oy = dir[0] != 0 ? BLOCK_LINE_OFFSET : 0;
                 int[] center = new int[] { p[0] * tileSize + half + ox, p[1] * tileSize + half + oy };
                 if (isCurveTile(p[0], p[1]) && i > 0 && i < path.size() - 1) {
                     int[] cpt = curveGuidePoint(p[0], p[1], center, CORNER_PULL);
-                    if (exitPortOf(p, path.get(i + 1)) == curvePortOf(p[0], p[1])) {
+                    if (exitsThroughCorner(p, path.get(i + 1))) {
                         pts.add(center);
                         pts.add(cpt);
                     } else {
@@ -979,6 +985,22 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         return new int[] { path.get(i)[0] - path.get(i - 1)[0], path.get(i)[1] - path.get(i - 1)[1] };
     }
 
+    private int[] straightSideDirection(List<int[]> path, int i, int[] p) {
+        if (i > 0) {
+            int[] prev = path.get(i - 1);
+            if (prev[0] == p[0] || prev[1] == p[1]) {
+                return new int[] { p[0] - prev[0], p[1] - prev[1] };
+            }
+        }
+        if (i < path.size() - 1) {
+            int[] next = path.get(i + 1);
+            if (next[0] == p[0] || next[1] == p[1]) {
+                return new int[] { next[0] - p[0], next[1] - p[1] };
+            }
+        }
+        return null;
+    }
+
     private int[] blockEndpoint(List<int[]> path, int i) {
         int[] p = path.get(i);
         if (isCurveTile(p[0], p[1])) {
@@ -988,6 +1010,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         int dc = neighbor[0] - p[0];
         int dr = neighbor[1] - p[1];
         int half = tileSize / 2;
+        if (dc != 0 && dr != 0) {
+            return diagonalEndpoint(p[0], p[1], -dc, -dr);
+        }
         if (dc != 0) {
             int edgeX = dc > 0 ? p[0] * tileSize : p[0] * tileSize + tileSize;
             int cy = p[1] * tileSize + half + BLOCK_LINE_OFFSET;
@@ -996,6 +1021,27 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         int edgeY = dr > 0 ? p[1] * tileSize : p[1] * tileSize + tileSize;
         int cx = p[0] * tileSize + half - BLOCK_LINE_OFFSET;
         return new int[] { cx, edgeY };
+    }
+
+    /**
+     * Endpoint for a block that starts or ends on a diagonal tile: the line runs
+     * parallel to the track diagonal (offset on the block side, BLOCK_LINE_OFFSET
+     * below the track centre) to the tile edge the track exits through, instead of
+     * cutting straight across to the side.
+     *
+     * @param sx sign of the exit column step (+1 right, -1 left)
+     * @param sy sign of the exit row step (+1 down, -1 up)
+     */
+    private int[] diagonalEndpoint(int col, int row, int sx, int sy) {
+        int half = tileSize / 2;
+        double cx = col * tileSize + half;
+        double cy = row * tileSize + half + BLOCK_LINE_OFFSET;
+        double tRight = sx > 0 ? col * tileSize + tileSize - cx : Double.POSITIVE_INFINITY;
+        double tLeft = sx < 0 ? cx - col * tileSize : Double.POSITIVE_INFINITY;
+        double tBottom = sy > 0 ? row * tileSize + tileSize - cy : Double.POSITIVE_INFINITY;
+        double tTop = sy < 0 ? cy - row * tileSize : Double.POSITIVE_INFINITY;
+        double t = Math.min(Math.min(tRight, tLeft), Math.min(tBottom, tTop));
+        return new int[] { (int) Math.round(cx + sx * t), (int) Math.round(cy + sy * t) };
     }
 
     /**
@@ -1040,6 +1086,11 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         int dc = neighbor[0] - col;
         int dr = neighbor[1] - row;
         int tickHalf = BLOCK_TICK_LENGTH / 2;
+        if (dc != 0 && dr != 0) {
+            int[] ep = diagonalEndpoint(col, row, -dc, -dr);
+            g2.drawLine(ep[0] - dr * tickHalf, ep[1] - dc * tickHalf, ep[0] + dr * tickHalf, ep[1] + dc * tickHalf);
+            return;
+        }
         if (dc != 0) {
             int edgeX = dc > 0 ? col * tileSize : col * tileSize + tileSize;
             int cy = row * tileSize + tileSize / 2 + BLOCK_LINE_OFFSET;
@@ -1078,28 +1129,22 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         };
     }
 
-    private int exitPortOf(int[] p, int[] next) {
-        if (next[0] != p[0] && next[1] != p[1]) {
-            return next[1] > p[1] ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP;
-        }
-        if (next[0] > p[0]) {
-            return ElementType.PORT_RIGHT;
-        }
-        if (next[0] < p[0]) {
-            return ElementType.PORT_LEFT;
-        }
-        if (next[1] > p[1]) {
-            return ElementType.PORT_BOTTOM;
-        }
-        return ElementType.PORT_TOP;
-    }
-
-    private int curvePortOf(int col, int row) {
-        Tile tile = tiles.get(Tile.key(col, row));
-        int rotSteps = (tile.getRotation() / 90) % 4;
-        int base = (tile instanceof ElementTile et && et.getElementType() == ElementType.CURVE_LEFT)
-            ? ElementType.PORT_TOP : ElementType.PORT_BOTTOM;
-        return (base + rotSteps) % 4;
+    /**
+     * True when the block leaves the curve tile through its corner, i.e. the next
+     * tile lies in the quadrant of the curve corner (offset from the tile centre
+     * in the same direction as the corner). The block line must then bend from the
+     * tile centre toward the corner; otherwise it passes straight through and bends
+     * toward the corner on the way in.
+     */
+    private boolean exitsThroughCorner(int[] p, int[] next) {
+        int[] corner = curveCorner(p[0], p[1]);
+        int half = tileSize / 2;
+        int[] center = new int[] { p[0] * tileSize + half, p[1] * tileSize + half };
+        int sx = Integer.signum(corner[0] - center[0]);
+        int sy = Integer.signum(corner[1] - center[1]);
+        int dc = next[0] - p[0];
+        int dr = next[1] - p[1];
+        return (dc == 0 || Integer.signum(dc) == sx) && (dr == 0 || Integer.signum(dr) == sy);
     }
 
     private void drawGrid(Graphics2D g2) {

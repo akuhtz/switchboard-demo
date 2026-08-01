@@ -249,4 +249,76 @@ class BlockTest {
         assertThat(Math.abs(gp[1] - corner[1])).isLessThanOrEqualTo(8);
         assertThat(gp[1]).as("guide point must stay below the track diagonal").isGreaterThan(gp[0] - 32);
     }
+
+    @Test
+    void blockThroughCurveKeepsStraightRunAlignedWithOrthogonalNeighbor() throws Exception {
+        SwitchboardPanel panel = newPanel();
+        var url = BlockTest.class.getResource("/test-data/switchboard-block2.json");
+        new LayoutPersistence().load(panel, java.nio.file.Paths.get(url.toURI()));
+
+        java.lang.reflect.Method straightSide = SwitchboardPanel.class.getDeclaredMethod("straightSideDirection", List.class,
+            int.class, int[].class);
+        straightSide.setAccessible(true);
+        java.lang.reflect.Method segDir = SwitchboardPanel.class.getDeclaredMethod("segmentDirection", List.class, int.class);
+        segDir.setAccessible(true);
+
+        // blk001 path; the curve tile (14,4) is entered vertically from (14,5)
+        List<int[]> path = List.of(new int[] { 14, 6 }, new int[] { 14, 5 }, new int[] { 14, 4 }, new int[] { 13, 3 },
+            new int[] { 12, 3 });
+        int[] p = path.get(2);
+
+        int[] raw = (int[]) segDir.invoke(panel, path, 2);
+        int[] straight = (int[]) straightSide.invoke(panel, path, 2, p);
+
+        // the raw exit direction is diagonal; the straight side is the vertical neighbour (14,5)
+        assertThat(raw).containsExactly(-1, -1);
+        assertThat(straight).containsExactly(0, -1);
+
+        // offsetting by the straight side keeps the block line on the vertical run x=460
+        int ox = straight[0] == 0 && straight[1] != 0 ? -4 : 0;
+        int oy = straight[0] != 0 ? 4 : 0;
+        assertThat(new int[] { p[0] * 32 + 16 + ox, p[1] * 32 + 16 + oy }).containsExactly(460, 144);
+
+        // the run through (14,6) and (14,5) stays on the same vertical line x=460
+        int[] above = path.get(1);
+        int[] dir = (int[]) segDir.invoke(panel, path, 1);
+        assertThat(new int[] { above[0] * 32 + 16 + (dir[0] == 0 ? -4 : 0), above[1] * 32 + 16 }).containsExactly(460, 176);
+    }
+
+    @Test
+    void blockEndingOnDiagonalContinuesToUpperRightEdge() throws Exception {
+        SwitchboardPanel panel = newPanel();
+        var url = BlockTest.class.getResource("/test-data/switchboard-block3.json");
+        new LayoutPersistence().load(panel, java.nio.file.Paths.get(url.toURI()));
+
+        java.lang.reflect.Method blockEndpoint = SwitchboardPanel.class.getDeclaredMethod("blockEndpoint", List.class, int.class);
+        blockEndpoint.setAccessible(true);
+
+        // blk003 ends on the diagonal tile DG-006 at (24,18), entered from (23,19)
+        List<int[]> path = List.of(new int[] { 21, 19 }, new int[] { 22, 19 }, new int[] { 23, 19 }, new int[] { 24, 18 });
+        int[] end = (int[]) blockEndpoint.invoke(panel, path, 3);
+
+        // the block line must follow the diagonal up-right to the tile edge, not
+        // cut horizontally at the centre row
+        assertThat(end[0]).as("endpoint must reach the right edge").isEqualTo(24 * 32 + 32);
+        assertThat(end[1]).as("endpoint must stay above the centre row, on the diagonal").isEqualTo(580);
+    }
+
+    @Test
+    void diagonalEndpointExitsThroughEdgeInExitDirection() throws Exception {
+        SwitchboardPanel panel = newPanel();
+        var url = BlockTest.class.getResource("/test-data/switchboard-block3.json");
+        new LayoutPersistence().load(panel, java.nio.file.Paths.get(url.toURI()));
+
+        java.lang.reflect.Method diagonalEndpoint = SwitchboardPanel.class.getDeclaredMethod("diagonalEndpoint", int.class,
+            int.class, int.class, int.class);
+        diagonalEndpoint.setAccessible(true);
+
+        // block line sits 4px below the tile centre (col*32+16, row*32+20) and runs
+        // parallel to the track diagonal until it crosses the edge in the exit direction
+        assertThat((int[]) diagonalEndpoint.invoke(panel, 24, 18, 1, -1)).containsExactly(800, 580);
+        assertThat((int[]) diagonalEndpoint.invoke(panel, 24, 18, 1, 1)).containsExactly(796, 608);
+        assertThat((int[]) diagonalEndpoint.invoke(panel, 24, 18, -1, 1)).containsExactly(772, 608);
+        assertThat((int[]) diagonalEndpoint.invoke(panel, 24, 18, -1, -1)).containsExactly(768, 580);
+    }
 }
