@@ -1,6 +1,7 @@
 package org.bidib.switchboard.demoapp.service;
 
 import java.awt.Component;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -106,6 +107,7 @@ public class LayoutService {
 
     public void onLoad() {
         JFileChooser chooser = createFileChooser();
+        enterLastLayoutDirectory(chooser);
         if (chooser.showOpenDialog(parentComponent) == JFileChooser.APPROVE_OPTION) {
             Path path = chooser.getSelectedFile().toPath();
             try {
@@ -128,6 +130,7 @@ public class LayoutService {
         }
         try {
             layoutPersistence.save(tileGrid, currentFilePath);
+            settings.setLastLayoutFile(currentFilePath);
             log.info("Saved layout to {}", currentFilePath);
         }
         catch (IOException ex) {
@@ -140,6 +143,8 @@ public class LayoutService {
         JFileChooser chooser = createFileChooser();
         if (currentFilePath != null) {
             chooser.setSelectedFile(currentFilePath.toFile());
+        } else {
+            enterLastLayoutDirectory(chooser);
         }
         if (chooser.showSaveDialog(parentComponent) == JFileChooser.APPROVE_OPTION) {
             Path path = chooser.getSelectedFile().toPath();
@@ -156,6 +161,24 @@ public class LayoutService {
                 log.error("Error saving layout to {}", path, ex);
                 JOptionPane.showMessageDialog(parentComponent, "Error saving file:\n" + ex.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
             }
+        }
+    }
+
+    /**
+     * Points the chooser at the directory of the active layout, falling back to
+     * the directory of the last layout stored in the settings.
+     */
+    private void enterLastLayoutDirectory(JFileChooser chooser) {
+        if (currentFilePath != null) {
+            File parent = currentFilePath.toFile().getParentFile();
+            if (parent != null) {
+                chooser.setCurrentDirectory(parent);
+                return;
+            }
+        }
+        Path dir = settings.getLastLayoutDirectory();
+        if (dir != null) {
+            chooser.setCurrentDirectory(dir.toFile());
         }
     }
 

@@ -342,15 +342,16 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `SettingsManager`
 - Manages `settings.json` at `~/switchboard-demo-1/settings.json`, separate from the layout file.
-- Stores the `lastLayoutFile` path, `lookAndFeel` setting, and `signalSide` default.
+- Stores the `lastLayoutFile` path, the `lastLayoutDirectory` (parent of the last layout), the `lookAndFeel` setting, and the `signalSide` default.
 - Loaded on startup; auto-saves on every change.
+- `setLastLayoutFile()` also persists the layout's parent directory; `getLastLayoutDirectory()` returns it for the file choosers.
 
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
 - `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation, direction, signalSide), `ModelStateData`, routes, and blocks.
 - `ModelStateData` holds a `List<ElementData>` (each containing `id`, `nodeId`, `accessoryId`, `aspect`, `occupancyId`) and a `List<OccupancyData>` (each containing `id`, `nodeId`, `portId`, `state`).
 - `BlockData` (list under `blocks`) holds `id`, `name`, and an ordered `tiles` list of `[col, row]` coordinates.
-- `SettingsData` holds `lastLayoutFile`, `lookAndFeel` (LIGHT/DARK enum), and `signalSide` (LEFT/RIGHT).
+- `SettingsData` holds `lastLayoutFile`, `lastLayoutDirectory`, `lookAndFeel` (LIGHT/DARK enum), and `signalSide` (LEFT/RIGHT).
 
 ---
 
@@ -360,9 +361,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 | Menu | Item | Shortcut | Action |
 |------|------|----------|--------|
-| File | Load... | `Ctrl+L` | JFileChooser to load a `.json` layout |
+| File | Load... | `Ctrl+L` | JFileChooser to load a `.json` layout, opened in the directory of the active layout (or the last layout directory from settings) |
 | File | Save | `Ctrl+S` | Save to current file, or Save As if none |
-| File | Save As... | `Ctrl+Shift+S` | JFileChooser to save to a new location |
+| File | Save As... | `Ctrl+Shift+S` | JFileChooser to save to a new location, opened in the active layout's directory (or the last layout directory from settings) |
  | File | Settings > Light Look and Feel | — | Switch to FlatLaf light theme |
 | File | Settings > Dark Look and Feel | — | Switch to FlatLaf dark theme |
 | File | Settings > Signal Side | — | Submenu: Swiss (default LEFT) / German (default RIGHT) |

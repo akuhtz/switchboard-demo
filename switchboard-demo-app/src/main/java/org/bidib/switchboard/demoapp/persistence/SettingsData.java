@@ -11,6 +11,8 @@ public class SettingsData {
 
     private String lastLayoutFile;
 
+    private String lastLayoutDirectory;
+
     private LookAndFeel lookAndFeel = LookAndFeel.LIGHT;
 
     private boolean exhaustiveRouting;
@@ -34,6 +36,14 @@ public class SettingsData {
 
     public void setLastLayoutFile(String lastLayoutFile) {
         this.lastLayoutFile = lastLayoutFile;
+    }
+
+    public String getLastLayoutDirectory() {
+        return lastLayoutDirectory;
+    }
+
+    public void setLastLayoutDirectory(String lastLayoutDirectory) {
+        this.lastLayoutDirectory = lastLayoutDirectory;
     }
 
     public LookAndFeel getLookAndFeel() {

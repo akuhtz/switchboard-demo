@@ -1,5 +1,6 @@
 package org.bidib.switchboard.demoapp.persistence;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,11 +43,30 @@ public class SettingsManager {
     }
 
     /**
-     * Sets and persists the last opened layout file path.
+     * Sets and persists the last opened layout file path, together with the
+     * directory it lives in.
      */
     public void setLastLayoutFile(Path path) {
         data.setLastLayoutFile(path.toString());
+        File parent = path.toFile().getParentFile();
+        if (parent != null) {
+            data.setLastLayoutDirectory(parent.toString());
+            LOG.info("Persisting last layout directory {}", parent);
+        }
         save();
+    }
+
+    /**
+     * Returns the directory of the last opened layout file, or null.
+     */
+    public Path getLastLayoutDirectory() {
+        String dir = data.getLastLayoutDirectory();
+        if (dir != null && !dir.isBlank()) {
+            LOG.info("Reading last layout directory {}", dir);
+            return Paths.get(dir);
+        }
+        LOG.info("No last layout directory available.");
+        return null;
     }
 
     /**
