@@ -249,6 +249,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Direction markers**: STRAIGHT and DIAGONAL tiles can have a direction constraint (`TileDirection`: FORWARD/BACKWARD/BOTH). Route finding (`RouterService.isAllowedDirection`) refuses traversal against the tile's direction. Rendered as a light-gray filled triangle via `drawDirectionMarkers()`.
 - **Signal side**: SIGNAL_2 and SIGNAL_3 tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode (labels internationalized via `ResourceBundle`). Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
 - **Blocks**: A connected, turnout-free path of tiles defining a track section. In edit mode the context menu shows a **Block** submenu to set a block start tile (orange square marker), then a block end tile. The connected path (via `RouterService.bfsBlockPath`) is found automatically, excluding turnouts and tiles of other blocks. Each block gets a unique id and a default name `blkNNN`; names are editable via **Rename Block...** dialog. Blocks render as a 2px yellow line (`(255,220,80)`) offset 4px below the track center, with a short vertical tick at the outer edge of the start and end tiles. Removal asks for confirmation. Blocks are persisted in the layout file.
+   - **Curve-aware block lines**: On curve tiles the yellow block line bends around the corner, staying on the block side of the track. `curveCorner` locates the curve's corner pixel from its rotation (`center + rotateDelta(±half, ±half, rotSteps)`), and the direction of the exit (`exitPortOf`) picks which way to offset the elbow. The line follows the offset diagonal via `blockGuidePoint`/`curveGuidePoint` instead of crossing the track. Block lines that **end** on a curve terminate a few pixels *before* the corner pixel (`curveEndpoint`, pulled back `CORNER_PULL=5` along the offset track diagonal) so they never merge with or collide into the main track line.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
    `getActivePorts(aspect, rotation)` returns only the ports active for a given aspect (1 port for straight/curve/diagonal, 2 for turnouts, 4 for crossings).
 - **Rendering** (`paintComponent`):
@@ -439,7 +440,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-81 tests across nine test classes:
+86 tests across nine test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -494,7 +495,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `bfsRouteReturnsNullWhenBlocked` | BFS returns null when no path exists between valid tiles |
 | `diagonalConnectsThroughDiagonalTiles` | Diagonal tiles connect via corner ports in both directions |
 
-### `BlockTest` (10 tests)
+### `BlockTest` (13 tests)
 | Test | Description |
 |------|-------------|
 | `blockCreatedFromStartAndEnd` | Block created from start (0,0) to end (6,0) with id `blk001`, 7 tiles |
@@ -507,11 +508,16 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `removeBlockReleasesTiles` | Removing a block frees its tiles |
 | `blockPersistenceRoundTrip` | Blocks survive `capture()`/`apply()` round-trip with id/name/tiles |
 | `blockPathWithoutStartReturnsNull` | Creating a block without a start returns null |
+| `curveEndpointStopsLeftOfCornerForCurveRightRotation0` | `curveEndpoint(16,1,[15,1])` for CR-003 rot 0 terminates 4-9px left of the bottom-right corner (544,64) and below the track diagonal |
+| `blockEndingOnCurveUsesCurveEndpoint` | `blockEndpoint(path,1)` for a block ending on CR-003 (rot 0) yields an endpoint left of x=540, pulled back before the corner |
+| `curveGuidePointStaysBesideTrackForCurveRightRotation180` | `curveGuidePoint` for CR-002 (rot 180) keeps the elbow guide point 4px below/left of the track diagonal beside the corner |
 
-### `BlockUiTest` (1 test)
+### `BlockUiTest` (3 tests)
 | Test | Description |
 |------|-------------|
 | `createBlockFrom16x4To7x4InEditMode` | UI test: enables edit mode, creates block `blk001` from (16,4) to (7,4) on `switchboard-block1.json`, verifies 10 tiles span cols 7–16 of row 4. Screen recording support via `ScreenRecorder`.
+| `createBlockThroughCurveRightRotation180InEditMode` | UI test: creates block from (7,5) to (5,4) passing through CR-002 at (6,5) rotation 180, verifies the curve is the middle of the 3-tile path |
+| `createBlockEndingOnCurveRightRotation0InEditMode` | UI test: creates block from (15,1) to (16,1) ending on CR-003 at (16,1) rotation 0, verifies the curve is the last of the 2-tile path |
 
 ### `DebugTest` (1 test)
 | Test | Description |
@@ -552,7 +558,7 @@ execution to `target/surefire-reports/`.
 | `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × all aspects × 4 rotations (64 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
 | ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
-Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, `switchboard7.json`, and `switchboard-block1.json` test layouts. 80 of 81 tests pass (1 disabled).
+Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, `switchboard7.json`, and `switchboard-block1.json` test layouts. 85 of 86 tests pass (1 disabled).
 
 ---
 

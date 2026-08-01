@@ -185,4 +185,68 @@ class BlockTest {
         assertThat(block).isNull();
         assertThat(panel.getBlockModel().isEmpty()).isTrue();
     }
+
+    @Test
+    void curveEndpointStopsLeftOfCornerForCurveRightRotation0() throws Exception {
+        SwitchboardPanel panel = newPanel();
+        var url = BlockTest.class.getResource("/test-data/switchboard-block1.json");
+        new LayoutPersistence().load(panel, java.nio.file.Paths.get(url.toURI()));
+
+        java.lang.reflect.Method curveEndpoint = SwitchboardPanel.class.getDeclaredMethod("curveEndpoint", int.class, int.class,
+            int[].class);
+        curveEndpoint.setAccessible(true);
+        int[] ep = (int[]) curveEndpoint.invoke(panel, 16, 1, new int[] { 15, 1 });
+        java.lang.reflect.Method curveCorner = SwitchboardPanel.class.getDeclaredMethod("curveCorner", int.class, int.class);
+        curveCorner.setAccessible(true);
+        int[] corner = (int[]) curveCorner.invoke(panel, 16, 1);
+
+        assertThat(corner).containsExactly(16 * 32 + 32, 1 * 32 + 32);
+        assertThat(ep[0]).as("endpoint must terminate left of the bottom-right corner").isLessThan(corner[0] - 4);
+        assertThat(ep[0]).as("endpoint should sit a few pixels before the corner").isGreaterThan(corner[0] - 9);
+        // on the block side of the track (below the diagonal from center to corner)
+        assertThat(ep[1]).as("endpoint must stay below the track diagonal").isGreaterThan(ep[0] - 16 * 32);
+    }
+
+    @Test
+    void blockEndingOnCurveUsesCurveEndpoint() throws Exception {
+        SwitchboardPanel panel = newPanel();
+        var url = BlockTest.class.getResource("/test-data/switchboard-block1.json");
+        new LayoutPersistence().load(panel, java.nio.file.Paths.get(url.toURI()));
+
+        java.lang.reflect.Method blockEndpoint = SwitchboardPanel.class.getDeclaredMethod("blockEndpoint", List.class, int.class);
+        blockEndpoint.setAccessible(true);
+        List<int[]> path = List.of(new int[] { 15, 1 }, new int[] { 16, 1 });
+        int[] end = (int[]) blockEndpoint.invoke(panel, path, 1);
+
+        assertThat(end[0]).as("end of a block ending on CR-003 (rot 0) must be left of the corner x=544").isLessThan(540);
+        assertThat(end[0]).as("endpoint should sit a few pixels before the corner").isGreaterThan(534);
+        // on the block side of the track (below the diagonal y = x - 480 through (528,48) and (544,64))
+        assertThat(end[1]).as("endpoint must stay below the track diagonal").isGreaterThan(end[0] - 16 * 32);
+    }
+
+    @Test
+    void curveGuidePointStaysBesideTrackForCurveRightRotation180() throws Exception {
+        SwitchboardPanel panel = newPanel();
+        var url = BlockTest.class.getResource("/test-data/switchboard-block1.json");
+        new LayoutPersistence().load(panel, java.nio.file.Paths.get(url.toURI()));
+
+        java.lang.reflect.Method curveGuidePoint = SwitchboardPanel.class.getDeclaredMethod("curveGuidePoint", int.class, int.class,
+            int[].class, int.class);
+        curveGuidePoint.setAccessible(true);
+        java.lang.reflect.Method curveCorner = SwitchboardPanel.class.getDeclaredMethod("curveCorner", int.class, int.class);
+        curveCorner.setAccessible(true);
+
+        // CR-002 at (6,5) rotation 180, block approaches from (7,5): block line at (208,180)
+        int[] blockCenter = new int[] { 6 * 32 + 16, 5 * 32 + 16 + 4 };
+        int[] gp = (int[]) curveGuidePoint.invoke(panel, 6, 5, blockCenter, 5);
+        int[] corner = (int[]) curveCorner.invoke(panel, 6, 5);
+
+        assertThat(corner).containsExactly(6 * 32, 5 * 32);
+        // the guide point must stay on the block line (parallel to the track diagonal y = x - 28)
+        assertThat(gp[1]).as("guide point must follow the offset track diagonal").isEqualTo(gp[0] - 28);
+        // a few pixels before the corner, on the block side (below the track diagonal y = x - 32)
+        assertThat(Math.abs(gp[0] - corner[0])).isLessThanOrEqualTo(8);
+        assertThat(Math.abs(gp[1] - corner[1])).isLessThanOrEqualTo(8);
+        assertThat(gp[1]).as("guide point must stay below the track diagonal").isGreaterThan(gp[0] - 32);
+    }
 }

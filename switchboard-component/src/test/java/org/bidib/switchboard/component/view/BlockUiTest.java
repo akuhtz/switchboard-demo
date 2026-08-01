@@ -149,6 +149,105 @@ class BlockUiTest {
         }
     }
 
+    @Test
+    void createBlockThroughCurveRightRotation180InEditMode() throws Exception {
+        window.menuItemWithPath("Edit", "Edit Mode").click();
+        window.robot().waitForIdle();
+        assertThat(panel.isEditMode()).isTrue();
+
+        ScreenRecorder recorder = null;
+        if (ScreenRecorder.isEnabled()) {
+            java.awt.Rectangle panelBounds = GuiActionRunner.execute(() -> {
+                java.awt.Point loc = window.target().getLocationOnScreen();
+                return new java.awt.Rectangle(loc.x, loc.y, window.target().getWidth(), window.target().getHeight());
+            });
+            Path videoOutput = Path.of("target", "surefire-reports", "block-curve-7x5-5x4-" + System.currentTimeMillis() + ".mp4");
+            recorder = ScreenRecorder.startIfEnabled(panelBounds, videoOutput);
+        }
+        try {
+            waitSeconds(1);
+
+            GuiActionRunner.execute(() -> {
+                panel.testSetBlockStart(7, 5);
+                panel.repaint();
+            });
+            waitForRepaint();
+
+            Block block = GuiActionRunner.execute(() -> panel.testCreateBlock(5, 4));
+
+            assertThat(block).as("Block from (7,5) to (5,4) should be created").isNotNull();
+            assertThat(block.getId()).isEqualTo("blk001");
+            assertThat(panel.getBlockModel().size()).isEqualTo(1);
+            assertThat(block.size()).as("Block should span the 3 tiles through the rotated curve").isEqualTo(3);
+            assertThat(block.containsTile(6, 5)).as("Block should pass through CR-002 at (6,5) rotation 180").isTrue();
+            assertThat(block.getPath().get(1)).as("CR-002 should be the middle tile of the block path").containsExactly(6, 5);
+            assertThat(panel.getBlockModel().blockIdForTile(6, 5)).isEqualTo("blk001");
+
+            LOGGER.info("Block {} created with {} tiles from (7,5) to (5,4), crossing curve tile (6,5)", block.getId(), block.size());
+            panel.repaint();
+
+            waitSeconds(2);
+
+            if (recorder != null) {
+                waitAfterTest();
+            }
+        }
+        finally {
+            if (recorder != null) {
+                recorder.close();
+            }
+        }
+    }
+
+    @Test
+    void createBlockEndingOnCurveRightRotation0InEditMode() throws Exception {
+        window.menuItemWithPath("Edit", "Edit Mode").click();
+        window.robot().waitForIdle();
+        assertThat(panel.isEditMode()).isTrue();
+
+        ScreenRecorder recorder = null;
+        if (ScreenRecorder.isEnabled()) {
+            java.awt.Rectangle panelBounds = GuiActionRunner.execute(() -> {
+                java.awt.Point loc = window.target().getLocationOnScreen();
+                return new java.awt.Rectangle(loc.x, loc.y, window.target().getWidth(), window.target().getHeight());
+            });
+            Path videoOutput = Path.of("target", "surefire-reports", "block-end-cr-15x1-16x1-" + System.currentTimeMillis() + ".mp4");
+            recorder = ScreenRecorder.startIfEnabled(panelBounds, videoOutput);
+        }
+        try {
+            waitSeconds(1);
+
+            GuiActionRunner.execute(() -> {
+                panel.testSetBlockStart(15, 1);
+                panel.repaint();
+            });
+            waitForRepaint();
+
+            Block block = GuiActionRunner.execute(() -> panel.testCreateBlock(16, 1));
+
+            assertThat(block).as("Block from (15,1) to (16,1) should be created").isNotNull();
+            assertThat(block.getId()).isEqualTo("blk001");
+            assertThat(panel.getBlockModel().size()).isEqualTo(1);
+            assertThat(block.size()).as("Block should span the 2 tiles ending on the curve").isEqualTo(2);
+            assertThat(block.containsTile(16, 1)).as("Block should end on CR-003 at (16,1) rotation 0").isTrue();
+            assertThat(block.getPath().get(1)).as("CR-003 should be the last tile of the block path").containsExactly(16, 1);
+
+            LOGGER.info("Block {} created with {} tiles from (15,1) to (16,1), ending on curve tile (16,1)", block.getId(), block.size());
+            panel.repaint();
+
+            waitSeconds(2);
+
+            if (recorder != null) {
+                waitAfterTest();
+            }
+        }
+        finally {
+            if (recorder != null) {
+                recorder.close();
+            }
+        }
+    }
+
     private void waitForRepaint() {
         window.robot().waitForIdle();
     }
