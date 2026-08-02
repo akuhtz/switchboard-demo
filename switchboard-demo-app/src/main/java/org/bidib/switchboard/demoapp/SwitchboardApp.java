@@ -1,11 +1,17 @@
 package org.bidib.switchboard.demoapp;
 
+import java.io.IOException;
+
 import java.awt.BorderLayout;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -42,6 +48,23 @@ import com.formdev.flatlaf.FlatLightLaf;
 
 public class SwitchboardApp {
 
+    static {
+        Path logPath = isWindows()
+            ? Paths.get(System.getProperty("user.home"), "Documents", "switchboard-demo", "switchboard-demo-app.log")
+            : Paths.get(System.getProperty("java.io.tmpdir"), "switchboard-demo-app.log");
+        try {
+            Files.createDirectories(logPath.getParent());
+        }
+        catch (IOException e) {
+            System.err.println("Could not create log directory " + logPath.getParent() + ": " + e.getMessage());
+        }
+        System.setProperty("switchboard.logfile", logPath.toString());
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows");
+    }
+
     private static final Logger log = LoggerFactory.getLogger(SwitchboardApp.class);
 
     private final ResourceBundle messages = ResourceBundle.getBundle("i18n.app-messages");
@@ -63,6 +86,8 @@ public class SwitchboardApp {
     }
 
     SwitchboardApp(boolean autoLoad) {
+        log.info("Launch the SwitchboardApp.");
+
         model = new RailwayModel();
         panel = new SwitchboardPanel(occupancyFactory, new DemoAssignOccupancyDialogFactory(), model);
         settings = new SettingsManager();

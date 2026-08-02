@@ -408,6 +408,17 @@ strings use `java.text.MessageFormat` (e.g., `"Clear route ({0})"`, `"Position: 
 - `"SV-001"` (distant signal / Vorsignal at 12,3)
 - `"P-001"`..`"P-005"` (straight track at row 0, cols 0-4)
 
+### Logging
+
+The application logs via SLF4J/Logback to the console and to a log file:
+
+- **Windows**: `%USERPROFILE%\Documents\switchboard-demo\switchboard-demo-app.log`
+- **Other OS**: `<java.io.tmpdir>/switchboard-demo-app.log`
+
+The log directory is created automatically if it does not exist. The file
+location can be overridden with the system property `-Dswitchboard.logfile=...`.
+Logging configuration lives in `switchboard-demo-app/src/main/resources/logback.xml`.
+
 ---
 
 ## SVG Icons (`switchboard-component/src/main/resources/icons/` — tracks in `tracks/`, signals in `signals/sbb_l/`)

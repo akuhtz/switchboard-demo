@@ -137,3 +137,14 @@ Translations are maintained in `i18n/messages.properties` (component) and `i18n/
 - **Ctrl+L** — load a previously saved `.json` layout.
 - On startup, the app remembers the last loaded file and restores it automatically.
 - Settings are stored in `~/switchboard-demo-1/settings.json`.
+
+## 12. Logging
+
+The application writes log output both to the console and to a log file:
+
+- **Windows**: `%USERPROFILE%\Documents\switchboard-demo\switchboard-demo-app.log`
+- **Other operating systems**: `<java.io.tmpdir>/switchboard-demo-app.log`
+
+The log directory is created automatically if it does not exist. To use a
+different location, start the app with `-Dswitchboard.logfile=/path/to/logfile`.
+The log file is useful for troubleshooting startup or layout-loading issues.

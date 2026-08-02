@@ -138,3 +138,14 @@ Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und 
 - **Strg+L** — ein zuvor gespeichertes `.json`-Layout laden.
 - Beim Start merkt sich die Anwendung die zuletzt geladene Datei und stellt sie automatisch wieder her.
 - Einstellungen werden in `~/switchboard-demo-1/settings.json` gespeichert.
+
+## 12. Protokollierung
+
+Die Anwendung schreibt Log-Ausgaben sowohl auf die Konsole als auch in eine Protokolldatei:
+
+- **Windows**: `%USERPROFILE%\Documents\switchboard-demo\switchboard-demo-app.log`
+- **Andere Betriebssysteme**: `<java.io.tmpdir>/switchboard-demo-app.log`
+
+Das Protokollverzeichnis wird bei Bedarf automatisch erstellt. Um einen anderen
+Speicherort zu verwenden, starten Sie die Anwendung mit `-Dswitchboard.logfile=/pfad/zur/logdatei`.
+Die Protokolldatei hilft bei der Fehlersuche bei Start- oder Layout-Ladeproblemen.
