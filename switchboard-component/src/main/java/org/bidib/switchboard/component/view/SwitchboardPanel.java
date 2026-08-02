@@ -778,7 +778,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 boolean isRunning = simEntry != null && simEntry.isRunning();
                 JMenuItem simItem = new JMenuItem(MessageFormat.format(messages.getString("context.format.simulateOccupancy"), routeId));
                 simItem.setEnabled(!isRunning);
-                simItem.addActionListener(e -> startRouteOccupancySimulation(r));
+                simItem.addActionListener(e -> startRouteOccupancySimulation(r, 200));
                 menu.add(simItem);
                 if (isRunning) {
                     JMenuItem stopSimItem = new JMenuItem(MessageFormat.format(messages.getString("context.format.stopSimulation"), routeId));
@@ -1478,7 +1478,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         }
     }
 
-    private void startRouteOccupancySimulation(Route route) {
+    private void startRouteOccupancySimulation(Route route, int delay) {
         if (route.getPath().isEmpty()) {
             return;
         }
@@ -1496,7 +1496,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         sim.setOnTick(this::repaint);
         sim.start(route);
 
-        Timer timer = new Timer(200, e -> {
+        Timer timer = new Timer(delay, e -> {
             sim.tick();
             if (!sim.isRunning()) {
                 ((Timer) e.getSource()).stop();
@@ -1673,8 +1673,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         routerService.setRouteAspects(path, model);
     }
 
-    public void testStartOccupancySimulation(Route route) {
-        startRouteOccupancySimulation(route);
+    public void testStartOccupancySimulation(Route route, int delay) {
+        startRouteOccupancySimulation(route, delay);
     }
 
     public Timer getOccupancyTimer() {

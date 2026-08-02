@@ -445,7 +445,7 @@ class OccupancyUiTest {
         GuiActionRunner.execute(() -> panel.getModel().setElementAspect("S2-011", 1));
 
         // Start the occupancy simulation
-        GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(route));
+        GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(route, DELAY));
         window.robot().waitForIdle();
 
         // Verify simulation started
@@ -485,7 +485,7 @@ class OccupancyUiTest {
         assertThat(route).isNotNull();
 
         // Start the occupancy simulation
-        GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(route));
+        GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(route, DELAY));
 
         // Verify simulation is running
         assertThat(panel.isAnySimulationRunning()).as("Simulation should be running").isTrue();
@@ -617,7 +617,7 @@ class OccupancyUiTest {
         int totalWaitMs = path.size() * 200 + 2 * 2500 + 2000; // generous margin
 
         // Start the built-in simulation
-        GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(panel.getRouteModel().getRoute(routeId)));
+        GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(panel.getRouteModel().getRoute(routeId), DELAY));
 
         // Wait for completion — poll for the timer to stop
         Semaphore done = new Semaphore(0);
