@@ -115,7 +115,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 11,

@@ -271,15 +271,19 @@ public class LayoutPersistence {
     }
 
     /**
-     * Migrates old signal SVG paths (without _left/_right suffix) to use the _left variant.
-     * E.g. "/icons/signal_2_red.svg" → "/icons/signal_2_red_left.svg"
+     * Migrates old signal SVG paths (pre _left/_right suffix and old /icons directory)
+     * to the current location and naming.
+     * E.g. "/icons/signal_2_red.svg" → "/icons/signals/sbb_l/signal_2_red_left.svg"
      */
     private static String migrateSignalSvgPath(String path) {
         if (path == null) return null;
+        if (path.startsWith("/icons/signal_")) {
+            path = path.replace("/icons/signal_", "/icons/signals/sbb_l/signal_");
+        }
         if (path.contains("_left.svg") || path.contains("_right.svg")) {
             return path; // already migrated
         }
-        if (path.startsWith("/icons/signal_") && path.endsWith(".svg")) {
+        if (path.startsWith("/icons/signals/sbb_l/signal_") && path.endsWith(".svg")) {
             return path.replace(".svg", "_left.svg");
         }
         return path;

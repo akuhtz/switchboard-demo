@@ -424,14 +424,14 @@ strings use `java.text.MessageFormat` (e.g., `"Clear route ({0})"`, `"Position: 
 | `curve_right.svg` | <img src="switchboard-component/src/main/resources/icons/curve_right.svg" width="32" height="32"> | Horizontal to center then diagonal to bottom-right |
 | `diagonal.svg` | <img src="switchboard-component/src/main/resources/icons/diagonal.svg" width="32" height="32"> | Diagonal from lower-left to upper-right corner |
 | `bumper_stop.svg` | <img src="switchboard-component/src/main/resources/icons/bumper_stop.svg" width="32" height="32"> | Bumper stop (red/white) at a dead end |
-| `signal_2_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_2_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, green dim |
-| `signal_2_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_2_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red dim |
-| `signal_3_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_3_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, yellow+green dim |
-| `signal_3_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_3_yellow_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — yellow active, red+green dim |
-| `signal_3_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_3_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red+yellow dim |
-| `signal_v_orange_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_v_orange_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — two orange lit, green dim ("Halt erwarten") |
-| `signal_v_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_v_yellow_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — orange + green lit ("Langsamfahrt erwarten") |
-| `signal_v_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_v_green_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — two green lit, orange dim ("Frei erwarten") |
+| `signal_2_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_2_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, green dim |
+| `signal_2_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_2_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red dim |
+| `signal_3_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_3_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, yellow+green dim |
+| `signal_3_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_3_yellow_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — yellow active, red+green dim |
+| `signal_3_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_3_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red+yellow dim |
+| `signal_v_orange_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_v_orange_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — two orange lit, green dim ("Halt erwarten") |
+| `signal_v_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_v_yellow_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — orange + green lit ("Langsamfahrt erwarten") |
+| `signal_v_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_v_green_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — two green lit, orange dim ("Frei erwarten") |
 
 All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use light gray `#aaaaaa` for active paths, `#808080` for inactive paths, and `#ffa500` (orange) for the frog-end on turnouts.
 

@@ -61,8 +61,8 @@ class SignalVDemoUiTest {
                 (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, 3, 2, 32));
 
         List<List<String>> rows = List.of(
-            List.of("/icons/signal_v_orange_left.svg", "/icons/signal_v_yellow_left.svg", "/icons/signal_v_green_left.svg"),
-            List.of("/icons/signal_v_orange_right.svg", "/icons/signal_v_yellow_right.svg", "/icons/signal_v_green_right.svg"));
+            List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg"),
+            List.of("/icons/signals/sbb_l/signal_v_orange_right.svg", "/icons/signals/sbb_l/signal_v_yellow_right.svg", "/icons/signals/sbb_l/signal_v_green_right.svg"));
 
         GuiActionRunner.execute(() -> {
             int id = 1;

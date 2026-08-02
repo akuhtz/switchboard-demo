@@ -884,9 +884,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             case TURNOUT_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg"));
             case TURNOUT_3WAY -> new ElementTile(col, row, id, type,
                 List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg"));
-            case SIGNAL_2 -> new ElementTile(col, row, id, type, List.of("/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg"));
-            case SIGNAL_3 -> new ElementTile(col, row, id, type, List.of("/icons/signal_3_red_left.svg", "/icons/signal_3_yellow_left.svg", "/icons/signal_3_green_left.svg"));
-            case SIGNAL_V -> new ElementTile(col, row, id, type, List.of("/icons/signal_v_orange_left.svg", "/icons/signal_v_yellow_left.svg", "/icons/signal_v_green_left.svg"));
+            case SIGNAL_2 -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg"));
+            case SIGNAL_3 -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg"));
+            case SIGNAL_V -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg"));
             case STRAIGHT -> new ElementTile(col, row, id, type, List.of("/icons/straight.svg"));
             case CURVE_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/curve_left.svg"));
             case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/curve_right.svg"));

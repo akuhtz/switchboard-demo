@@ -2808,7 +2808,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_3_red_left.svg", "/icons/signal_3_yellow_left.svg", "/icons/signal_3_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg" ],
     "type" : "S33"
   }, {
     "col" : 3,
@@ -2961,7 +2961,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 6,
@@ -3078,7 +3078,7 @@
     "rotation" : 180,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 7,
@@ -3141,7 +3141,7 @@
     "rotation" : 180,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 8,
@@ -3150,7 +3150,7 @@
     "rotation" : 180,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 8,
@@ -3159,7 +3159,7 @@
     "rotation" : 180,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 8,
@@ -3222,7 +3222,7 @@
     "rotation" : 180,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 9,
@@ -3231,7 +3231,7 @@
     "rotation" : 180,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 9,
@@ -3825,7 +3825,7 @@
     "rotation" : 0,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 15,
@@ -3834,7 +3834,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 15,
@@ -3843,7 +3843,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_3_red_left.svg", "/icons/signal_3_yellow_left.svg", "/icons/signal_3_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg" ],
     "type" : "S33"
   }, {
     "col" : 15,
@@ -3852,7 +3852,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : "RIGHT",
-    "svgPaths" : [ "/icons/signal_2_red_right.svg", "/icons/signal_2_green_right.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_right.svg", "/icons/signals/sbb_l/signal_2_green_right.svg" ],
     "type" : "S22"
   }, {
     "col" : 15,
@@ -3861,7 +3861,7 @@
     "rotation" : 0,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 15,
@@ -4194,7 +4194,7 @@
     "rotation" : 180,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 19,
@@ -4203,7 +4203,7 @@
     "rotation" : 180,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 19,
@@ -4302,7 +4302,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 20,
@@ -4410,7 +4410,7 @@
     "rotation" : 180,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
     "type" : "S22"
   }, {
     "col" : 21,

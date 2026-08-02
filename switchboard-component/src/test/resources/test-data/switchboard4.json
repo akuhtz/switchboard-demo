@@ -781,9 +781,9 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/signal_3_red_left.svg",
-        "/icons/signal_3_yellow_left.svg",
-        "/icons/signal_3_green_left.svg"
+        "/icons/signals/sbb_l/signal_3_red_left.svg",
+        "/icons/signals/sbb_l/signal_3_yellow_left.svg",
+        "/icons/signals/sbb_l/signal_3_green_left.svg"
       ],
       "type": "S33"
     },
@@ -855,8 +855,8 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -949,8 +949,8 @@
       "rotation": 180,
       "row": 5,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -981,8 +981,8 @@
       "rotation": 180,
       "row": 2,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -992,8 +992,8 @@
       "rotation": 180,
       "row": 3,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1003,8 +1003,8 @@
       "rotation": 180,
       "row": 4,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1024,8 +1024,8 @@
       "rotation": 180,
       "row": 0,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1035,8 +1035,8 @@
       "rotation": 180,
       "row": 1,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1396,8 +1396,8 @@
       "rotation": 0,
       "row": 1,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1407,8 +1407,8 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1418,9 +1418,9 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/signal_3_red_left.svg",
-        "/icons/signal_3_yellow_left.svg",
-        "/icons/signal_3_green_left.svg"
+        "/icons/signals/sbb_l/signal_3_red_left.svg",
+        "/icons/signals/sbb_l/signal_3_yellow_left.svg",
+        "/icons/signals/sbb_l/signal_3_green_left.svg"
       ],
       "type": "S33"
     },
@@ -1430,8 +1430,8 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1441,8 +1441,8 @@
       "rotation": 0,
       "row": 5,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1619,8 +1619,8 @@
       "rotation": 180,
       "row": 3,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1630,8 +1630,8 @@
       "rotation": 180,
       "row": 4,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1641,8 +1641,8 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },
@@ -1703,8 +1703,8 @@
       "rotation": 180,
       "row": 3,
       "svgPaths": [
-        "/icons/signal_2_red_left.svg",
-        "/icons/signal_2_green_left.svg"
+        "/icons/signals/sbb_l/signal_2_red_left.svg",
+        "/icons/signals/sbb_l/signal_2_green_left.svg"
       ],
       "type": "S22"
     },

@@ -62,11 +62,11 @@ public class LayoutService {
             new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg")));
         tileGrid.setTile(new ElementTile(4, 3, "T3-001", ElementType.TURNOUT_3WAY,
             List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg")));
-        tileGrid.setTile(new ElementTile(10, 3, "S2-001", ElementType.SIGNAL_2, List.of("/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg")));
+        tileGrid.setTile(new ElementTile(10, 3, "S2-001", ElementType.SIGNAL_2, List.of("/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg")));
         tileGrid.setTile(new ElementTile(11, 3, "S3-001", ElementType.SIGNAL_3,
-            List.of("/icons/signal_3_red_left.svg", "/icons/signal_3_yellow_left.svg", "/icons/signal_3_green_left.svg")));
+            List.of("/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg")));
         tileGrid.setTile(new ElementTile(12, 3, "SV-001", ElementType.SIGNAL_V,
-            List.of("/icons/signal_v_orange_left.svg", "/icons/signal_v_yellow_left.svg", "/icons/signal_v_green_left.svg")));
+            List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg")));
 
         for (int col = 0; col < 5; col++) {
             String id = "P-" + String.format("%03d", col + 1);
