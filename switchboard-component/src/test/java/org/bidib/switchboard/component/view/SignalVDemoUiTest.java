@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
@@ -12,6 +14,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -87,7 +90,7 @@ class SignalVDemoUiTest {
                 cell.setBackground(new Color(45, 45, 50));
                 cell.setBorder(BorderFactory.createTitledBorder(
                     (r == 0 ? "Swiss (left)  " : "German (right)  ") + aspectLabel(c)));
-                cell.add(new JLabel(renderIcon(paths.get(c), 192), SwingConstants.CENTER), BorderLayout.CENTER);
+                cell.add(new JLabel(renderIcon(paths.get(c), 384), SwingConstants.CENTER), BorderLayout.CENTER);
                 previewGrid.add(cell);
             }
         }
@@ -151,7 +154,41 @@ class SignalVDemoUiTest {
         g.setColor(new Color(45, 45, 50));
         g.fillRect(0, 0, size, size);
         doc.render(null, g, new ViewBox(0, 0, size, size));
+        drawLampLabels(g, path.contains("_right"), size);
         g.dispose();
         return new ImageIcon(img);
+    }
+
+    /** Lamp identifiers and their positions (cx, cy) in the SVG's 200x200 signal space. */
+    private static final Map<String, double[]> LAMP_POSITIONS = Map.of(
+        "vs1_o1", new double[] { 150, 150 },
+        "vs1_o2", new double[] { 50, 150 },
+        "vs1_o3", new double[] { 50, 50 },
+        "vs1_g1", new double[] { 50, 100 },
+        "vs1_g2", new double[] { 150, 50 });
+
+    /**
+     * Maps a lamp position from the SVG signal space to the 32x32 tile space using the same
+     * transform as the signal_v_*.svg files ({@code _left} rotate 270, {@code _right} rotate 90).
+     */
+    private static double[] tilePosition(double x, double y, boolean right) {
+        return right
+            ? new double[] { 24.79 - 0.085 * y, 13.7 + 0.085 * x }
+            : new double[] { 7.21 + 0.085 * y, 18.3 - 0.085 * x };
+    }
+
+    private static void drawLampLabels(Graphics2D g, boolean right, int size) {
+        double scale = size / 32.0;
+        double lampRadiusPx = 20 * 0.085 * scale;
+        g.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        g.setColor(Color.WHITE);
+        FontMetrics fm = g.getFontMetrics();
+        for (Map.Entry<String, double[]> e : LAMP_POSITIONS.entrySet()) {
+            double[] p = tilePosition(e.getValue()[0], e.getValue()[1], right);
+            String label = e.getKey();
+            int x = (int) (p[0] * scale - fm.stringWidth(label) / 2.0);
+            int y = (int) (p[1] * scale + lampRadiusPx + 4 + fm.getAscent());
+            g.drawString(label, x, y);
+        }
     }
 }
