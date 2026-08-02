@@ -52,17 +52,17 @@ class OccupancyElementUiTest {
 
     private static Map<ElementType, List<String>> svgByType() {
         Map<ElementType, List<String>> map = new LinkedHashMap<>();
-        map.put(ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg"));
-        map.put(ElementType.TURNOUT_RIGHT, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg"));
-        map.put(ElementType.TURNOUT_3WAY, List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg"));
+        map.put(ElementType.TURNOUT_LEFT, List.of("/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg"));
+        map.put(ElementType.TURNOUT_RIGHT, List.of("/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg"));
+        map.put(ElementType.TURNOUT_3WAY, List.of("/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg"));
         map.put(ElementType.SIGNAL_2, List.of("/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg"));
         map.put(ElementType.SIGNAL_3, List.of("/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg"));
         map.put(ElementType.SIGNAL_V, List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg"));
-        map.put(ElementType.STRAIGHT, List.of("/icons/straight.svg"));
-        map.put(ElementType.CURVE_LEFT, List.of("/icons/curve_left.svg"));
-        map.put(ElementType.CURVE_RIGHT, List.of("/icons/curve_right.svg"));
-        map.put(ElementType.DIAGONAL, List.of("/icons/diagonal.svg"));
-        map.put(ElementType.BUMPER, List.of("/icons/bumper_stop.svg"));
+        map.put(ElementType.STRAIGHT, List.of("/icons/tracks/straight.svg"));
+        map.put(ElementType.CURVE_LEFT, List.of("/icons/tracks/curve_left.svg"));
+        map.put(ElementType.CURVE_RIGHT, List.of("/icons/tracks/curve_right.svg"));
+        map.put(ElementType.DIAGONAL, List.of("/icons/tracks/diagonal.svg"));
+        map.put(ElementType.BUMPER, List.of("/icons/tracks/bumper_stop.svg"));
         return map;
     }
 

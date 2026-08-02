@@ -407,23 +407,23 @@ strings use `java.text.MessageFormat` (e.g., `"Clear route ({0})"`, `"Position: 
 
 ---
 
-## SVG Icons (`switchboard-component/src/main/resources/icons/`)
+## SVG Icons (`switchboard-component/src/main/resources/icons/` — tracks in `tracks/`, signals in `signals/sbb_l/`)
 
 | File | Preview | Description |
 |------|---------|-------------|
 | `empty.svg` | <img src="switchboard-component/src/main/resources/icons/empty.svg" width="32" height="32"> | Dark background only |
-| `straight.svg` | <img src="switchboard-component/src/main/resources/icons/straight.svg" width="32" height="32"> | Full light gray horizontal line |
-| `turnout_straight_left.svg` | <img src="switchboard-component/src/main/resources/icons/turnout_straight_left.svg" width="32" height="32"> | Straight active (light gray+orange), diverted left gray |
-| `turnout_straight_right.svg` | <img src="switchboard-component/src/main/resources/icons/turnout_straight_right.svg" width="32" height="32"> | Straight active (light gray+orange), diverted right gray |
-| `turnout_diverted_left.svg` | <img src="switchboard-component/src/main/resources/icons/turnout_diverted_left.svg" width="32" height="32"> | Left diverted active (light gray+orange), straight gray |
-| `turnout_diverted_right.svg` | <img src="switchboard-component/src/main/resources/icons/turnout_diverted_right.svg" width="32" height="32"> | Right diverted active (light gray+orange), straight gray |
-| `turnout_3way_straight.svg` | <img src="switchboard-component/src/main/resources/icons/turnout_3way_straight.svg" width="32" height="32"> | Straight active, both diverted gray |
-| `turnout_3way_left.svg` | <img src="switchboard-component/src/main/resources/icons/turnout_3way_left.svg" width="32" height="32"> | Left active, straight and right gray |
-| `turnout_3way_right.svg` | <img src="switchboard-component/src/main/resources/icons/turnout_3way_right.svg" width="32" height="32"> | Right active, straight and left gray |
-| `curve_left.svg` | <img src="switchboard-component/src/main/resources/icons/curve_left.svg" width="32" height="32"> | Horizontal to center then diagonal to top-right |
-| `curve_right.svg` | <img src="switchboard-component/src/main/resources/icons/curve_right.svg" width="32" height="32"> | Horizontal to center then diagonal to bottom-right |
-| `diagonal.svg` | <img src="switchboard-component/src/main/resources/icons/diagonal.svg" width="32" height="32"> | Diagonal from lower-left to upper-right corner |
-| `bumper_stop.svg` | <img src="switchboard-component/src/main/resources/icons/bumper_stop.svg" width="32" height="32"> | Bumper stop (red/white) at a dead end |
+| `straight.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/straight.svg" width="32" height="32"> | Full light gray horizontal line |
+| `turnout_straight_left.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/turnout_straight_left.svg" width="32" height="32"> | Straight active (light gray+orange), diverted left gray |
+| `turnout_straight_right.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/turnout_straight_right.svg" width="32" height="32"> | Straight active (light gray+orange), diverted right gray |
+| `turnout_diverted_left.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/turnout_diverted_left.svg" width="32" height="32"> | Left diverted active (light gray+orange), straight gray |
+| `turnout_diverted_right.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/turnout_diverted_right.svg" width="32" height="32"> | Right diverted active (light gray+orange), straight gray |
+| `turnout_3way_straight.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/turnout_3way_straight.svg" width="32" height="32"> | Straight active, both diverted gray |
+| `turnout_3way_left.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/turnout_3way_left.svg" width="32" height="32"> | Left active, straight and right gray |
+| `turnout_3way_right.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/turnout_3way_right.svg" width="32" height="32"> | Right active, straight and left gray |
+| `curve_left.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/curve_left.svg" width="32" height="32"> | Horizontal to center then diagonal to top-right |
+| `curve_right.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/curve_right.svg" width="32" height="32"> | Horizontal to center then diagonal to bottom-right |
+| `diagonal.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/diagonal.svg" width="32" height="32"> | Diagonal from lower-left to upper-right corner |
+| `bumper_stop.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/bumper_stop.svg" width="32" height="32"> | Bumper stop (red/white) at a dead end |
 | `signal_2_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_2_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, green dim |
 | `signal_2_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_2_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red dim |
 | `signal_3_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_3_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, yellow+green dim |

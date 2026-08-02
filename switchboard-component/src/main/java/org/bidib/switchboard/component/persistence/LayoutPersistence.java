@@ -226,9 +226,11 @@ public class LayoutPersistence {
             return null;
         }
 
-        // Migrate old signal SVG paths (without _left/_right suffix) to _left
+        // Migrate old signal SVG paths (without _left/_right suffix) and old track SVG paths
+        // (pre /icons/tracks directory) to their current locations
         List<String> svgPaths = td.getSvgPaths().stream()
             .map(LayoutPersistence::migrateSignalSvgPath)
+            .map(LayoutPersistence::migrateTrackSvgPath)
             .toList();
         td.setSvgPaths(svgPaths);
 
@@ -285,6 +287,27 @@ public class LayoutPersistence {
         }
         if (path.startsWith("/icons/signals/sbb_l/signal_") && path.endsWith(".svg")) {
             return path.replace(".svg", "_left.svg");
+        }
+        return path;
+    }
+
+    private static final List<String> TRACK_SVG_FILES = List.of(
+        "bumper_stop.svg", "curve_left.svg", "curve_right.svg", "diagonal.svg",
+        "straight.svg", "turnout_3way_left.svg", "turnout_3way_right.svg",
+        "turnout_3way_straight.svg", "turnout_diverted_left.svg",
+        "turnout_diverted_right.svg", "turnout_straight_left.svg",
+        "turnout_straight_right.svg");
+
+    /**
+     * Migrates old track SVG paths (pre /icons/tracks directory) to the current location.
+     * E.g. "/icons/turnout_straight_left.svg" → "/icons/tracks/turnout_straight_left.svg"
+     */
+    private static String migrateTrackSvgPath(String path) {
+        if (path == null) return null;
+        for (String file : TRACK_SVG_FILES) {
+            if (path.equals("/icons/" + file)) {
+                return "/icons/tracks/" + file;
+            }
         }
         return path;
     }

@@ -880,18 +880,18 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private static Tile createDefaultTile(int col, int row, String id, ElementType type) {
         return switch (type) {
-            case TURNOUT_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg"));
-            case TURNOUT_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg"));
+            case TURNOUT_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg"));
+            case TURNOUT_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg"));
             case TURNOUT_3WAY -> new ElementTile(col, row, id, type,
-                List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg"));
+                List.of("/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg"));
             case SIGNAL_2 -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg"));
             case SIGNAL_3 -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg"));
             case SIGNAL_V -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg"));
-            case STRAIGHT -> new ElementTile(col, row, id, type, List.of("/icons/straight.svg"));
-            case CURVE_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/curve_left.svg"));
-            case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/curve_right.svg"));
-            case DIAGONAL -> new ElementTile(col, row, id, type, List.of("/icons/diagonal.svg"));
-            case BUMPER -> new ElementTile(col, row, id, type, List.of("/icons/bumper_stop.svg"));
+            case STRAIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/straight.svg"));
+            case CURVE_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/curve_left.svg"));
+            case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/curve_right.svg"));
+            case DIAGONAL -> new ElementTile(col, row, id, type, List.of("/icons/tracks/diagonal.svg"));
+            case BUMPER -> new ElementTile(col, row, id, type, List.of("/icons/tracks/bumper_stop.svg"));
         };
     }
 

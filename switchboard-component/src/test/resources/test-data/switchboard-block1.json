@@ -731,7 +731,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -741,7 +741,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -751,7 +751,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -761,7 +761,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -771,7 +771,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -793,7 +793,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -803,9 +803,9 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/turnout_3way_straight.svg",
-        "/icons/turnout_3way_left.svg",
-        "/icons/turnout_3way_right.svg"
+        "/icons/tracks/turnout_3way_straight.svg",
+        "/icons/tracks/turnout_3way_left.svg",
+        "/icons/tracks/turnout_3way_right.svg"
       ],
       "type": "T33"
     },
@@ -815,7 +815,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -825,7 +825,7 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/diagonal.svg"
+        "/icons/tracks/diagonal.svg"
       ],
       "type": "DG1"
     },
@@ -835,7 +835,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -845,7 +845,7 @@
       "rotation": 90,
       "row": 4,
       "svgPaths": [
-        "/icons/diagonal.svg"
+        "/icons/tracks/diagonal.svg"
       ],
       "type": "DG1"
     },
@@ -866,7 +866,7 @@
       "rotation": 180,
       "row": 1,
       "svgPaths": [
-        "/icons/curve_left.svg"
+        "/icons/tracks/curve_left.svg"
       ],
       "type": "CL1"
     },
@@ -876,9 +876,9 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/turnout_3way_straight.svg",
-        "/icons/turnout_3way_left.svg",
-        "/icons/turnout_3way_right.svg"
+        "/icons/tracks/turnout_3way_straight.svg",
+        "/icons/tracks/turnout_3way_left.svg",
+        "/icons/tracks/turnout_3way_right.svg"
       ],
       "type": "T33"
     },
@@ -888,7 +888,7 @@
       "rotation": 180,
       "row": 5,
       "svgPaths": [
-        "/icons/curve_right.svg"
+        "/icons/tracks/curve_right.svg"
       ],
       "type": "CR1"
     },
@@ -898,8 +898,8 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/turnout_straight_right.svg",
-        "/icons/turnout_diverted_right.svg"
+        "/icons/tracks/turnout_straight_right.svg",
+        "/icons/tracks/turnout_diverted_right.svg"
       ],
       "type": "TR2"
     },
@@ -909,7 +909,7 @@
       "rotation": 0,
       "row": 1,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -919,7 +919,7 @@
       "rotation": 180,
       "row": 2,
       "svgPaths": [
-        "/icons/curve_left.svg"
+        "/icons/tracks/curve_left.svg"
       ],
       "type": "CL1"
     },
@@ -929,7 +929,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -939,7 +939,7 @@
       "rotation": 180,
       "row": 4,
       "svgPaths": [
-        "/icons/curve_right.svg"
+        "/icons/tracks/curve_right.svg"
       ],
       "type": "CR1"
     },
@@ -960,7 +960,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -970,8 +970,8 @@
       "rotation": 180,
       "row": 1,
       "svgPaths": [
-        "/icons/turnout_straight_right.svg",
-        "/icons/turnout_diverted_right.svg"
+        "/icons/tracks/turnout_straight_right.svg",
+        "/icons/tracks/turnout_diverted_right.svg"
       ],
       "type": "TR2"
     },
@@ -1014,7 +1014,7 @@
       "rotation": 0,
       "row": 5,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1046,7 +1046,7 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1056,7 +1056,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1066,7 +1066,7 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1076,7 +1076,7 @@
       "rotation": 0,
       "row": 5,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1086,7 +1086,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1096,7 +1096,7 @@
       "rotation": 0,
       "row": 1,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1106,7 +1106,7 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1116,7 +1116,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1126,7 +1126,7 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1136,7 +1136,7 @@
       "rotation": 0,
       "row": 5,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1146,7 +1146,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1156,7 +1156,7 @@
       "rotation": 0,
       "row": 1,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1166,7 +1166,7 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1176,7 +1176,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1186,7 +1186,7 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1196,7 +1196,7 @@
       "rotation": 0,
       "row": 5,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1206,7 +1206,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1216,7 +1216,7 @@
       "rotation": 0,
       "row": 1,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1226,7 +1226,7 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1236,7 +1236,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1246,7 +1246,7 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1256,7 +1256,7 @@
       "rotation": 0,
       "row": 5,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1266,7 +1266,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1276,7 +1276,7 @@
       "rotation": 0,
       "row": 1,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1286,7 +1286,7 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1296,7 +1296,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1306,7 +1306,7 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1316,7 +1316,7 @@
       "rotation": 0,
       "row": 5,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1326,7 +1326,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1336,7 +1336,7 @@
       "rotation": 0,
       "row": 1,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1346,7 +1346,7 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1356,7 +1356,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1366,7 +1366,7 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1376,7 +1376,7 @@
       "rotation": 0,
       "row": 5,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1386,7 +1386,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1452,7 +1452,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1462,7 +1462,7 @@
       "rotation": 0,
       "row": 1,
       "svgPaths": [
-        "/icons/curve_right.svg"
+        "/icons/tracks/curve_right.svg"
       ],
       "type": "CR1"
     },
@@ -1472,7 +1472,7 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1482,7 +1482,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1492,7 +1492,7 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1502,7 +1502,7 @@
       "rotation": 0,
       "row": 5,
       "svgPaths": [
-        "/icons/curve_left.svg"
+        "/icons/tracks/curve_left.svg"
       ],
       "type": "CL1"
     },
@@ -1512,7 +1512,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1522,8 +1522,8 @@
       "rotation": 180,
       "row": 2,
       "svgPaths": [
-        "/icons/turnout_straight_right.svg",
-        "/icons/turnout_diverted_right.svg"
+        "/icons/tracks/turnout_straight_right.svg",
+        "/icons/tracks/turnout_diverted_right.svg"
       ],
       "type": "TR2"
     },
@@ -1533,9 +1533,9 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/turnout_3way_straight.svg",
-        "/icons/turnout_3way_left.svg",
-        "/icons/turnout_3way_right.svg"
+        "/icons/tracks/turnout_3way_straight.svg",
+        "/icons/tracks/turnout_3way_left.svg",
+        "/icons/tracks/turnout_3way_right.svg"
       ],
       "type": "T33"
     },
@@ -1545,8 +1545,8 @@
       "rotation": 180,
       "row": 4,
       "svgPaths": [
-        "/icons/turnout_straight_left.svg",
-        "/icons/turnout_diverted_left.svg"
+        "/icons/tracks/turnout_straight_left.svg",
+        "/icons/tracks/turnout_diverted_left.svg"
       ],
       "type": "TL2"
     },
@@ -1556,7 +1556,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1566,8 +1566,8 @@
       "rotation": 180,
       "row": 2,
       "svgPaths": [
-        "/icons/turnout_straight_left.svg",
-        "/icons/turnout_diverted_left.svg"
+        "/icons/tracks/turnout_straight_left.svg",
+        "/icons/tracks/turnout_diverted_left.svg"
       ],
       "type": "TL2"
     },
@@ -1577,7 +1577,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1587,8 +1587,8 @@
       "rotation": 180,
       "row": 4,
       "svgPaths": [
-        "/icons/turnout_straight_right.svg",
-        "/icons/turnout_diverted_right.svg"
+        "/icons/tracks/turnout_straight_right.svg",
+        "/icons/tracks/turnout_diverted_right.svg"
       ],
       "type": "TR2"
     },
@@ -1598,7 +1598,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1608,8 +1608,8 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/turnout_straight_right.svg",
-        "/icons/turnout_diverted_right.svg"
+        "/icons/tracks/turnout_straight_right.svg",
+        "/icons/tracks/turnout_diverted_right.svg"
       ],
       "type": "TR2"
     },
@@ -1652,7 +1652,7 @@
       "rotation": 0,
       "row": 2,
       "svgPaths": [
-        "/icons/curve_left.svg"
+        "/icons/tracks/curve_left.svg"
       ],
       "type": "CL1"
     },
@@ -1662,8 +1662,8 @@
       "rotation": 180,
       "row": 3,
       "svgPaths": [
-        "/icons/turnout_straight_right.svg",
-        "/icons/turnout_diverted_right.svg"
+        "/icons/tracks/turnout_straight_right.svg",
+        "/icons/tracks/turnout_diverted_right.svg"
       ],
       "type": "TR2"
     },
@@ -1673,7 +1673,7 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1683,7 +1683,7 @@
       "rotation": 0,
       "row": 0,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1693,7 +1693,7 @@
       "rotation": 0,
       "row": 1,
       "svgPaths": [
-        "/icons/diagonal.svg"
+        "/icons/tracks/diagonal.svg"
       ],
       "type": "DG1"
     },
@@ -1714,7 +1714,7 @@
       "rotation": 180,
       "row": 4,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1724,8 +1724,8 @@
       "rotation": 180,
       "row": 0,
       "svgPaths": [
-        "/icons/turnout_straight_left.svg",
-        "/icons/turnout_diverted_left.svg"
+        "/icons/tracks/turnout_straight_left.svg",
+        "/icons/tracks/turnout_diverted_left.svg"
       ],
       "type": "TL2"
     },
@@ -1735,7 +1735,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1745,7 +1745,7 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1765,7 +1765,7 @@
       "rotation": 0,
       "row": 3,
       "svgPaths": [
-        "/icons/curve_right.svg"
+        "/icons/tracks/curve_right.svg"
       ],
       "type": "CR1"
     },
@@ -1775,7 +1775,7 @@
       "rotation": 0,
       "row": 4,
       "svgPaths": [
-        "/icons/curve_right.svg"
+        "/icons/tracks/curve_right.svg"
       ],
       "type": "CR1"
     },
@@ -1795,7 +1795,7 @@
       "rotation": 90,
       "row": 4,
       "svgPaths": [
-        "/icons/diagonal.svg"
+        "/icons/tracks/diagonal.svg"
       ],
       "type": "DG1"
     },
@@ -1805,7 +1805,7 @@
       "rotation": 270,
       "row": 5,
       "svgPaths": [
-        "/icons/curve_left.svg"
+        "/icons/tracks/curve_left.svg"
       ],
       "type": "CL1"
     },
@@ -1815,7 +1815,7 @@
       "rotation": 90,
       "row": 6,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },
@@ -1835,7 +1835,7 @@
       "rotation": 270,
       "row": 5,
       "svgPaths": [
-        "/icons/curve_left.svg"
+        "/icons/tracks/curve_left.svg"
       ],
       "type": "CL1"
     },
@@ -1845,7 +1845,7 @@
       "rotation": 90,
       "row": 6,
       "svgPaths": [
-        "/icons/straight.svg"
+        "/icons/tracks/straight.svg"
       ],
       "type": "P1"
     },

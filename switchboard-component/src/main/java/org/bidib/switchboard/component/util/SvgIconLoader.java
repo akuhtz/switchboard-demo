@@ -22,7 +22,7 @@ public class SvgIconLoader {
      * Loads an SVG document from a classpath resource path.
      * Results are cached for repeated lookups.
      *
-     * @param resourcePath classpath path, e.g. "/icons/straight.svg"
+     * @param resourcePath classpath path, e.g. "/icons/tracks/straight.svg"
      * @return the parsed SVGDocument, or null if loading failed
      */
     public static SVGDocument load(String resourcePath) {

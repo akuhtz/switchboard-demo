@@ -210,35 +210,35 @@
     "elementId" : "P-001",
     "rotation" : 0,
     "row" : 0,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 1,
     "elementId" : "P-002",
     "rotation" : 0,
     "row" : 0,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 2,
     "elementId" : "P-003",
     "rotation" : 0,
     "row" : 0,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 2,
     "elementId" : "P-015",
     "rotation" : 0,
     "row" : 3,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 3,
     "elementId" : "P-004",
     "rotation" : 0,
     "row" : 0,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 3,
@@ -252,42 +252,42 @@
     "elementId" : "P-005",
     "rotation" : 0,
     "row" : 0,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 4,
     "elementId" : "T3-001",
     "rotation" : 0,
     "row" : 3,
-    "svgPaths" : [ "/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg" ],
     "type" : "T33"
   }, {
     "col" : 5,
     "elementId" : "P-010",
     "rotation" : 0,
     "row" : 0,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 5,
     "elementId" : "DG-001",
     "rotation" : 0,
     "row" : 2,
-    "svgPaths" : [ "/icons/diagonal.svg" ],
+    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
     "type" : "DG1"
   }, {
     "col" : 5,
     "elementId" : "P-009",
     "rotation" : 0,
     "row" : 3,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 5,
     "elementId" : "DG-002",
     "rotation" : 90,
     "row" : 4,
-    "svgPaths" : [ "/icons/diagonal.svg" ],
+    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
     "type" : "DG1"
   }, {
     "col" : 6,
@@ -301,56 +301,56 @@
     "elementId" : "CL-003",
     "rotation" : 180,
     "row" : 1,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 6,
     "elementId" : "T3-002",
     "rotation" : 0,
     "row" : 3,
-    "svgPaths" : [ "/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg" ],
     "type" : "T33"
   }, {
     "col" : 6,
     "elementId" : "CR-002",
     "rotation" : 180,
     "row" : 5,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 7,
     "elementId" : "TR-003",
     "rotation" : 0,
     "row" : 0,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 7,
     "elementId" : "P-008",
     "rotation" : 0,
     "row" : 1,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 7,
     "elementId" : "CL-001",
     "rotation" : 180,
     "row" : 2,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 7,
     "elementId" : "P-016",
     "rotation" : 0,
     "row" : 3,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 7,
     "elementId" : "CR-001",
     "rotation" : 180,
     "row" : 4,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 7,
@@ -364,14 +364,14 @@
     "elementId" : "P-014",
     "rotation" : 0,
     "row" : 0,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 8,
     "elementId" : "TR-002",
     "rotation" : 180,
     "row" : 1,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 8,
@@ -399,7 +399,7 @@
     "elementId" : "P-022",
     "rotation" : 0,
     "row" : 5,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
@@ -420,70 +420,70 @@
     "elementId" : "P-007",
     "rotation" : 0,
     "row" : 2,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
     "elementId" : "P-019",
     "rotation" : 0,
     "row" : 3,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
     "elementId" : "P-017",
     "rotation" : 0,
     "row" : 4,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
     "elementId" : "P-023",
     "rotation" : 0,
     "row" : 5,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
     "elementId" : "P-013",
     "rotation" : 0,
     "row" : 0,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
     "elementId" : "P-011",
     "rotation" : 0,
     "row" : 1,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
     "elementId" : "P-021",
     "rotation" : 0,
     "row" : 2,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
     "elementId" : "P-020",
     "rotation" : 0,
     "row" : 3,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
     "elementId" : "P-018",
     "rotation" : 0,
     "row" : 4,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
     "elementId" : "P-024",
     "rotation" : 0,
     "row" : 5,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,

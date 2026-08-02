@@ -2574,7 +2574,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2583,7 +2583,7 @@
     "rotation" : 270,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 0,
@@ -2592,7 +2592,7 @@
     "rotation" : 90,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2601,7 +2601,7 @@
     "rotation" : 90,
     "row" : 6,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2610,7 +2610,7 @@
     "rotation" : 90,
     "row" : 7,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2619,7 +2619,7 @@
     "rotation" : 90,
     "row" : 8,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2628,7 +2628,7 @@
     "rotation" : 90,
     "row" : 9,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2637,7 +2637,7 @@
     "rotation" : 90,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 0,
@@ -2646,7 +2646,7 @@
     "rotation" : 90,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2655,7 +2655,7 @@
     "rotation" : 90,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2664,7 +2664,7 @@
     "rotation" : 270,
     "row" : 13,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 0,
@@ -2673,7 +2673,7 @@
     "rotation" : 90,
     "row" : 14,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2682,7 +2682,7 @@
     "rotation" : 90,
     "row" : 15,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2691,7 +2691,7 @@
     "rotation" : 90,
     "row" : 16,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 0,
@@ -2700,7 +2700,7 @@
     "rotation" : 90,
     "row" : 17,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 1,
@@ -2709,7 +2709,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 1,
@@ -2718,7 +2718,7 @@
     "rotation" : 180,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 1,
@@ -2727,7 +2727,7 @@
     "rotation" : 180,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 1,
@@ -2736,7 +2736,7 @@
     "rotation" : 180,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 1,
@@ -2745,7 +2745,7 @@
     "rotation" : 180,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 2,
@@ -2754,7 +2754,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 2,
@@ -2763,7 +2763,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 2,
@@ -2772,7 +2772,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 2,
@@ -2781,7 +2781,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 2,
@@ -2790,7 +2790,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 3,
@@ -2799,7 +2799,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 3,
@@ -2817,7 +2817,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 3,
@@ -2826,7 +2826,7 @@
     "rotation" : 180,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 3,
@@ -2835,7 +2835,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 4,
@@ -2844,7 +2844,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 4,
@@ -2853,7 +2853,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg" ],
     "type" : "T33"
   }, {
     "col" : 4,
@@ -2862,7 +2862,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 4,
@@ -2871,7 +2871,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 4,
@@ -2880,7 +2880,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 5,
@@ -2889,7 +2889,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 5,
@@ -2898,7 +2898,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/diagonal.svg" ],
+    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
     "type" : "DG1"
   }, {
     "col" : 5,
@@ -2907,7 +2907,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 5,
@@ -2916,7 +2916,7 @@
     "rotation" : 90,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/diagonal.svg" ],
+    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
     "type" : "DG1"
   }, {
     "col" : 5,
@@ -2925,7 +2925,7 @@
     "rotation" : 180,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 5,
@@ -2934,7 +2934,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 5,
@@ -2943,7 +2943,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 5,
@@ -2952,7 +2952,7 @@
     "rotation" : 180,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 6,
@@ -2970,7 +2970,7 @@
     "rotation" : 180,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 6,
@@ -2979,7 +2979,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg" ],
     "type" : "T33"
   }, {
     "col" : 6,
@@ -2988,7 +2988,7 @@
     "rotation" : 180,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 6,
@@ -2997,7 +2997,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 6,
@@ -3006,7 +3006,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 6,
@@ -3015,7 +3015,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 6,
@@ -3024,7 +3024,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 7,
@@ -3033,7 +3033,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 7,
@@ -3042,7 +3042,7 @@
     "rotation" : 0,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 7,
@@ -3051,7 +3051,7 @@
     "rotation" : 180,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 7,
@@ -3060,7 +3060,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 7,
@@ -3069,7 +3069,7 @@
     "rotation" : 180,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 7,
@@ -3087,7 +3087,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 7,
@@ -3096,7 +3096,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 7,
@@ -3105,7 +3105,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 7,
@@ -3114,7 +3114,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 8,
@@ -3123,7 +3123,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 8,
@@ -3132,7 +3132,7 @@
     "rotation" : 180,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 8,
@@ -3168,7 +3168,7 @@
     "rotation" : 0,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 8,
@@ -3177,7 +3177,7 @@
     "rotation" : 180,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 8,
@@ -3186,7 +3186,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 8,
@@ -3195,7 +3195,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 8,
@@ -3204,7 +3204,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 8,
@@ -3213,7 +3213,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
@@ -3240,7 +3240,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
@@ -3249,7 +3249,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
@@ -3258,7 +3258,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
@@ -3267,7 +3267,7 @@
     "rotation" : 0,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
@@ -3276,7 +3276,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
@@ -3285,7 +3285,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
@@ -3294,7 +3294,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
@@ -3303,7 +3303,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 9,
@@ -3312,7 +3312,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3321,7 +3321,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3330,7 +3330,7 @@
     "rotation" : 0,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3339,7 +3339,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3348,7 +3348,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3357,7 +3357,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3366,7 +3366,7 @@
     "rotation" : 0,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3375,7 +3375,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3384,7 +3384,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3393,7 +3393,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3402,7 +3402,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 10,
@@ -3411,7 +3411,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3420,7 +3420,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3429,7 +3429,7 @@
     "rotation" : 0,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3438,7 +3438,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3447,7 +3447,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3456,7 +3456,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3465,7 +3465,7 @@
     "rotation" : 0,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3474,7 +3474,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3483,7 +3483,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3492,7 +3492,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3501,7 +3501,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 11,
@@ -3510,7 +3510,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3519,7 +3519,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3528,7 +3528,7 @@
     "rotation" : 0,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3537,7 +3537,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3546,7 +3546,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3555,7 +3555,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3564,7 +3564,7 @@
     "rotation" : 0,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3573,7 +3573,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3582,7 +3582,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3591,7 +3591,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3600,7 +3600,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 12,
@@ -3609,7 +3609,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3618,7 +3618,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3627,7 +3627,7 @@
     "rotation" : 0,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3636,7 +3636,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3645,7 +3645,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3654,7 +3654,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3663,7 +3663,7 @@
     "rotation" : 0,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3672,7 +3672,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3681,7 +3681,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3690,7 +3690,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3699,7 +3699,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 13,
@@ -3708,7 +3708,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3717,7 +3717,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3726,7 +3726,7 @@
     "rotation" : 0,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3735,7 +3735,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3744,7 +3744,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3753,7 +3753,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3762,7 +3762,7 @@
     "rotation" : 0,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3771,7 +3771,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3780,7 +3780,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3789,7 +3789,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3798,7 +3798,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 14,
@@ -3807,7 +3807,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 15,
@@ -3816,7 +3816,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 15,
@@ -3870,7 +3870,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 15,
@@ -3879,7 +3879,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 15,
@@ -3888,7 +3888,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 15,
@@ -3897,7 +3897,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 15,
@@ -3906,7 +3906,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 16,
@@ -3915,7 +3915,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 16,
@@ -3924,7 +3924,7 @@
     "rotation" : 0,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 16,
@@ -3933,7 +3933,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 16,
@@ -3942,7 +3942,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 16,
@@ -3951,7 +3951,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 16,
@@ -3960,7 +3960,7 @@
     "rotation" : 0,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 16,
@@ -3969,7 +3969,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 16,
@@ -3978,7 +3978,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 16,
@@ -3987,7 +3987,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 16,
@@ -3996,7 +3996,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 16,
@@ -4005,7 +4005,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 17,
@@ -4014,7 +4014,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 17,
@@ -4023,7 +4023,7 @@
     "rotation" : 180,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 17,
@@ -4032,7 +4032,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg" ],
     "type" : "T33"
   }, {
     "col" : 17,
@@ -4041,7 +4041,7 @@
     "rotation" : 180,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 17,
@@ -4050,7 +4050,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 17,
@@ -4059,7 +4059,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 17,
@@ -4068,7 +4068,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 17,
@@ -4077,7 +4077,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 17,
@@ -4086,7 +4086,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 18,
@@ -4095,7 +4095,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 18,
@@ -4104,7 +4104,7 @@
     "rotation" : 180,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 18,
@@ -4113,7 +4113,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 18,
@@ -4122,7 +4122,7 @@
     "rotation" : 180,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 18,
@@ -4131,7 +4131,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 18,
@@ -4140,7 +4140,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 18,
@@ -4149,7 +4149,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 18,
@@ -4158,7 +4158,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 18,
@@ -4167,7 +4167,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 19,
@@ -4176,7 +4176,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 19,
@@ -4185,7 +4185,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 19,
@@ -4212,7 +4212,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 19,
@@ -4221,7 +4221,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 19,
@@ -4230,7 +4230,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 19,
@@ -4239,7 +4239,7 @@
     "rotation" : 270,
     "row" : 13,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 19,
@@ -4248,7 +4248,7 @@
     "rotation" : 90,
     "row" : 14,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 19,
@@ -4257,7 +4257,7 @@
     "rotation" : 90,
     "row" : 15,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 19,
@@ -4266,7 +4266,7 @@
     "rotation" : 90,
     "row" : 16,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 19,
@@ -4275,7 +4275,7 @@
     "rotation" : 90,
     "row" : 17,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 19,
@@ -4284,7 +4284,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 19,
@@ -4293,7 +4293,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 20,
@@ -4311,7 +4311,7 @@
     "rotation" : 0,
     "row" : 2,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 20,
@@ -4320,7 +4320,7 @@
     "rotation" : 180,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 20,
@@ -4329,7 +4329,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 20,
@@ -4338,7 +4338,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 20,
@@ -4347,7 +4347,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 20,
@@ -4356,7 +4356,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 20,
@@ -4365,7 +4365,7 @@
     "rotation" : 90,
     "row" : 17,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/diagonal.svg" ],
+    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
     "type" : "DG1"
   }, {
     "col" : 20,
@@ -4374,7 +4374,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 20,
@@ -4383,7 +4383,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 21,
@@ -4392,7 +4392,7 @@
     "rotation" : 0,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 21,
@@ -4401,7 +4401,7 @@
     "rotation" : 0,
     "row" : 1,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/diagonal.svg" ],
+    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
     "type" : "DG1"
   }, {
     "col" : 21,
@@ -4419,7 +4419,7 @@
     "rotation" : 180,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 21,
@@ -4428,7 +4428,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 21,
@@ -4437,7 +4437,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 21,
@@ -4446,7 +4446,7 @@
     "rotation" : 180,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 21,
@@ -4455,7 +4455,7 @@
     "rotation" : 180,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg" ],
     "type" : "T33"
   }, {
     "col" : 21,
@@ -4464,7 +4464,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 22,
@@ -4473,7 +4473,7 @@
     "rotation" : 180,
     "row" : 0,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 22,
@@ -4482,7 +4482,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 22,
@@ -4491,7 +4491,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 22,
@@ -4500,7 +4500,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 22,
@@ -4509,7 +4509,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 22,
@@ -4518,7 +4518,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 22,
@@ -4527,7 +4527,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 22,
@@ -4536,7 +4536,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 23,
@@ -4554,7 +4554,7 @@
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 23,
@@ -4563,7 +4563,7 @@
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 23,
@@ -4572,7 +4572,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 23,
@@ -4581,7 +4581,7 @@
     "rotation" : 0,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 23,
@@ -4590,7 +4590,7 @@
     "rotation" : 0,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 23,
@@ -4599,7 +4599,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 23,
@@ -4608,7 +4608,7 @@
     "rotation" : 0,
     "row" : 19,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 24,
@@ -4626,7 +4626,7 @@
     "rotation" : 90,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/diagonal.svg" ],
+    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
     "type" : "DG1"
   }, {
     "col" : 24,
@@ -4635,7 +4635,7 @@
     "rotation" : 270,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 24,
@@ -4644,7 +4644,7 @@
     "rotation" : 90,
     "row" : 6,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 24,
@@ -4653,7 +4653,7 @@
     "rotation" : 90,
     "row" : 7,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 24,
@@ -4662,7 +4662,7 @@
     "rotation" : 90,
     "row" : 8,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 24,
@@ -4671,7 +4671,7 @@
     "rotation" : 90,
     "row" : 9,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 24,
@@ -4680,7 +4680,7 @@
     "rotation" : 0,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/diagonal.svg" ],
+    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
     "type" : "DG1"
   }, {
     "col" : 24,
@@ -4689,7 +4689,7 @@
     "rotation" : 270,
     "row" : 13,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 24,
@@ -4698,7 +4698,7 @@
     "rotation" : 270,
     "row" : 14,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 24,
@@ -4707,7 +4707,7 @@
     "rotation" : 90,
     "row" : 15,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 24,
@@ -4716,7 +4716,7 @@
     "rotation" : 90,
     "row" : 16,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 24,
@@ -4725,7 +4725,7 @@
     "rotation" : 90,
     "row" : 17,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 24,
@@ -4734,7 +4734,7 @@
     "rotation" : 0,
     "row" : 18,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/diagonal.svg" ],
+    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
     "type" : "DG1"
   }, {
     "col" : 25,
@@ -4752,7 +4752,7 @@
     "rotation" : 270,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
     "type" : "CL1"
   }, {
     "col" : 25,
@@ -4761,7 +4761,7 @@
     "rotation" : 90,
     "row" : 6,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 25,
@@ -4770,7 +4770,7 @@
     "rotation" : 90,
     "row" : 7,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 25,
@@ -4779,7 +4779,7 @@
     "rotation" : 90,
     "row" : 8,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 25,
@@ -4788,7 +4788,7 @@
     "rotation" : 90,
     "row" : 9,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_right.svg", "/icons/turnout_diverted_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
     "type" : "TR2"
   }, {
     "col" : 25,
@@ -4797,7 +4797,7 @@
     "rotation" : 90,
     "row" : 10,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 25,
@@ -4806,7 +4806,7 @@
     "rotation" : 90,
     "row" : 11,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 25,
@@ -4815,7 +4815,7 @@
     "rotation" : 90,
     "row" : 12,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 25,
@@ -4824,7 +4824,7 @@
     "rotation" : 90,
     "row" : 13,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg" ],
     "type" : "T33"
   }, {
     "col" : 25,
@@ -4833,7 +4833,7 @@
     "rotation" : 90,
     "row" : 14,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 25,
@@ -4842,7 +4842,7 @@
     "rotation" : 90,
     "row" : 15,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/straight.svg" ],
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
     "type" : "P1"
   }, {
     "col" : 25,
@@ -4851,7 +4851,7 @@
     "rotation" : 270,
     "row" : 16,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg" ],
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
     "type" : "TL2"
   }, {
     "col" : 25,
@@ -4860,7 +4860,7 @@
     "rotation" : 90,
     "row" : 17,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/curve_right.svg" ],
+    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
     "type" : "CR1"
   }, {
     "col" : 26,

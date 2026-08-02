@@ -32,7 +32,7 @@ class RouterServiceTest {
     }
 
     private static Tile straight(int col, int row, String id) {
-        return new ElementTile(col, row, id, ElementType.STRAIGHT, List.of("/icons/straight.svg"));
+        return new ElementTile(col, row, id, ElementType.STRAIGHT, List.of("/icons/tracks/straight.svg"));
     }
 
     private static Tile straight(int col, int row) {
@@ -126,10 +126,10 @@ class RouterServiceTest {
     @Test
     void bfsRouteFindsDiagonalPath() {
         Map<String, Tile> tiles = tileMap(
-            new ElementTile(0, 0, "P1", ElementType.STRAIGHT, List.of("/icons/straight.svg")),
-            new ElementTile(1, 0, "P2", ElementType.STRAIGHT, List.of("/icons/straight.svg")),
-            new ElementTile(1, 1, "P3", ElementType.STRAIGHT, List.of("/icons/straight.svg")),
-            new ElementTile(2, 1, "P4", ElementType.STRAIGHT, List.of("/icons/straight.svg"))
+            new ElementTile(0, 0, "P1", ElementType.STRAIGHT, List.of("/icons/tracks/straight.svg")),
+            new ElementTile(1, 0, "P2", ElementType.STRAIGHT, List.of("/icons/tracks/straight.svg")),
+            new ElementTile(1, 1, "P3", ElementType.STRAIGHT, List.of("/icons/tracks/straight.svg")),
+            new ElementTile(2, 1, "P4", ElementType.STRAIGHT, List.of("/icons/tracks/straight.svg"))
         );
         // Add missing intermediate tile so path (0,0)-(1,0)-(1,1)-(2,1) works
         // Actually (1,0) is straight with PORTS LEFT,RIGHT, so it can't traverse to (1,1) which requires PORT_BOTTOM
