@@ -40,6 +40,7 @@ Folgende Kacheltypen sind verfügbar:
 
 Im **Normalmodus** (Strg+E zum Umschalten):
 - Auf eine Weiche oder ein Signal klicken, um die Stellung zu wechseln (gerade ↔ abzweigend, rot ↔ grün, orange ↔ grün ↔ orange+grün ↔ Stellung 3 beim Vorsignal usw.).
+- Ein Klick auf ein **Hauptsignal** schaltet auch jedes **verknüpfte Vorsignal** auf die passende Vorankündigung (siehe [Abschnitt 8](#8-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)).
 - Weichen werden automatisch auf die korrekte Stellung gesetzt, wenn eine Fahrstraße gefunden wird.
 
 ## 5. Fahrstraße erstellen
@@ -79,7 +80,17 @@ Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unter
 - Bei Änderung der Signalseite wird das Kachelbild sofort aktualisiert.
 - Der **Kachel-Info**-Dialog (Linksklick auf ein Signal im Normalmodus) zeigt die aufgelöste Signalseite an.
 
-## 8. Blöcke definieren
+## 8. Vorsignal mit Hauptsignal verknüpfen
+
+Ein Vorsignal (SIGNAL_V) kann mit dem Hauptsignal (SIGNAL_2/SIGNAL_3) verknüpft werden, das es ankündigt. Nach der Verknüpfung gilt:
+
+- **Manuelle Spiegelung**: Im Normalmodus schaltet ein Klick auf das Hauptsignal auch jedes verknüpfte Vorsignal auf die passende Vorankündigung: rot → orange „Halt erwarten", grün → grün „Frei erwarten", bei SIGNAL_3 zusätzlich gelb → orange+grün „Langsamfahrt erwarten". Dies funktioniert auch außerhalb der Simulation.
+- **Zuordnung**: Im Bearbeitungsmodus Rechtsklick auf das Vorsignal → **Hauptsignal zuweisen** → ein Hauptsignal aus der Liste wählen (oder **Keins**). Das nächste Hauptsignal in Fahrtrichtung wird vorausgewählt und mit „(auto)" markiert.
+- **Entfernen**: Beim Löschen eines Hauptsignals mit verknüpften Vorsignalen wird gefragt, ob die Vorsignale mit entfernt (**Verknüpfte entfernen**), behalten (**Behalten** — die Verknüpfung wird gelöst) oder ob abgebrochen (**Abbrechen**) werden soll.
+- Die Verknüpfung wird mit dem Layout gespeichert und beim Laden wiederhergestellt.
+- Der **Kachel-Info**-Dialog zeigt die Verknüpfung an (Hauptsignal / Vorsignale).
+
+## 9. Blöcke definieren
 
 Ein **Block** ist ein verbundener Pfad aus Kacheln, der einen Gleisabschnitt bildet. Blöcke sind
 nützlich, um Belegungsabschnitte zu modellieren.
@@ -101,7 +112,7 @@ nützlich, um Belegungsabschnitte zu modellieren.
   Blockanfang wird als orangefarbene quadratische Markierung angezeigt.
 - Blöcke werden mit dem Layout gespeichert und beim Laden wiederhergestellt.
 
-## 9. Belegung simulieren
+## 10. Belegung simulieren
 
 Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert werden:
 
@@ -109,7 +120,7 @@ Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert w
 - Die Simulation erzeugt Belegungsmarkierungen auf jeder Kachel der Fahrstraße und schiebt den **OCCUPIED**-Zustand vom Start zum Ende, eine Kachel pro Schritt (200ms pro Schritt).
 - Weichen entlang der Fahrstraße werden automatisch auf die korrekte Position für den simulierten Weg gesetzt.
 - **Signalhalt**: Wenn ein Zug ein Hauptsignal (SIGNAL_2/SIGNAL_3) mit Stellung 0 (rot) erreicht, hält er an und wartet. Signale blockieren nur Züge, die sich von vorne nähern (die Richtung, in die das Signal basierend auf seiner Rotation zeigt). Züge, die sich einem Signal von hinten nähern, ignorieren es.
-- **Vorsignale (SIGNAL_V)**: Das Vorsignal hält den Zug nie an. Es spiegelt die Stellung des nächsten Hauptsignals im Pfad wider und kündigt so die kommende Stellung an: orange „Halt erwarten", grün „Frei erwarten", orange+grün „Langsamfahrt erwarten".
+- **Vorsignale (SIGNAL_V)**: Das Vorsignal hält den Zug nie an. Es spiegelt die Stellung des nächsten Hauptsignals im Pfad wider und kündigt so die kommende Stellung an: orange „Halt erwarten", grün „Frei erwarten", orange+grün „Langsamfahrt erwarten". Ein mit einem Hauptsignal verknüpftes Vorsignal (siehe [Abschnitt 8](#8-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)) spiegelt dessen Stellung auch beim manuellen Klicken außerhalb der Simulation.
 - **Automatischer Signalwechsel**: Aktivieren über **Bearbeiten → Automatischer Signalwechsel**. Wenn aktiv, schaltet ein Hauptsignal, das einen Zug blockiert, nach 2 Sekunden automatisch auf Stellung 1 (grün) um, sodass der Zug weiterfahren kann. Das Umschalten dieser Option wirkt sich sofort auf alle laufenden Simulationen aus.
 - **Mehrere Simulationen**: Jede Fahrstraße kann ihre eigene unabhängige Simulation gleichzeitig ausführen.
 - **Simulation stoppen**: Rechtsklick auf die Startkachel einer laufenden Simulation → **Simulation stoppen ({id})**, um sie mitten in der Strecke zu stoppen.
@@ -121,25 +132,25 @@ Simulation zurücksetzen:
 - Setzt alle Belegungszustände entlang der Fahrstraße auf FREE zurück.
 - **Simulierte Belegung löschen** ist deaktiviert, solange eine Simulation läuft.
 
-## 10. Sprache / Internationalisierung
+## 11. Sprache / Internationalisierung
 
 Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Sprache wird anhand der Systemsprache beim Start ermittelt.
 
-- **Kontextmenü**-Einträge (Info, Signalseite, Löschen, Richtung, Fahrstraßenaktionen) werden lokalisiert angezeigt.
+- **Kontextmenü**-Einträge (Info, Signalseite, Hauptsignal zuweisen, Löschen, Richtung, Fahrstraßenaktionen) werden lokalisiert angezeigt.
 - Der **Kachel-Info**-Dialog verwendet übersetzte Bezeichnungen.
 - **Hauptmenü** und **Symbolleiste** werden lokalisiert angezeigt (Datei, Bearbeiten, Einstellungen usw.).
 - Falls Ihre Systemsprache Deutsch ist, wechselt die UI automatisch zu deutschen Bezeichnungen. Sie können die Sprache auch über `-Duser.language=en` oder `-Duser.language=de` in der Java-Befehlszeile erzwingen.
 
 Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und `i18n/app-messages.properties` (Demo-Anwendung), jeweils mit einer `_de`-Variante.
 
-## 11. Speichern & Laden
+## 12. Speichern & Laden
 
 - **Strg+S** — in die aktuelle Datei speichern (oder Speichern-Dialog öffnen, falls keine vorhanden).
 - **Strg+L** — ein zuvor gespeichertes `.json`-Layout laden.
 - Beim Start merkt sich die Anwendung die zuletzt geladene Datei und stellt sie automatisch wieder her.
 - Einstellungen werden in `~/switchboard-demo-1/settings.json` gespeichert.
 
-## 12. Protokollierung
+## 13. Protokollierung
 
 Die Anwendung schreibt Log-Ausgaben sowohl auf die Konsole als auch in eine Protokolldatei:
 

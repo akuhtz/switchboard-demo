@@ -47,6 +47,7 @@ import org.bidib.switchboard.component.command.Command;
 import org.bidib.switchboard.component.command.CreateRouteCommand;
 import org.bidib.switchboard.component.command.CycleElementCommand;
 import org.bidib.switchboard.component.command.DirectionCommand;
+import org.bidib.switchboard.component.command.SetElementAspectCommand;
 import org.bidib.switchboard.component.command.TileCommand;
 import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Block;
@@ -81,6 +82,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     public static final int DEFAULT_ROWS = 30;
 
     public static final String BLOCK_ID_PREFIX = "blk";
+
+    static final int REMOVE_LINKED_OPTION = 0;
+
+    static final int KEEP_DISTANT_OPTION = 1;
 
     private static final Color COLOR_BACKGROUND = new Color(45, 45, 50);
 
@@ -577,6 +582,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                     }
                     menu.add(sideMenu);
                 }
+                if (et.getElementType() == ElementType.SIGNAL_V) {
+                    buildAssignMainSignalSubmenu(menu, et);
+                }
                 buildBlockMenuItems(menu, col, row, tile);
                 menu.addSeparator();
             }
@@ -600,6 +608,86 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             dirMenu.add(item);
         }
         menu.add(dirMenu);
+    }
+
+    /**
+     * Adds an "Assign main signal" submenu to the distant signal's context menu. Lists every
+     * placed main signal (SIGNAL_2/SIGNAL_3) plus "None". When no link is set yet, the main
+     * signal suggested by {@link #suggestMainSignalForDistant(ElementTile)} is preselected.
+     */
+    private void buildAssignMainSignalSubmenu(JPopupMenu menu, ElementTile distantTile) {
+        JMenu assignMenu = new JMenu(messages.getString("context.assignMainSignal"));
+        String current = distantTile.getMainSignalId();
+        String suggested = suggestMainSignalForDistant(distantTile);
+        String defaultChecked = current != null ? current : suggested;
+
+        JCheckBoxMenuItem noneItem = new JCheckBoxMenuItem(
+            messages.getString("context.assignMainSignal.none"), defaultChecked == null);
+        noneItem.addActionListener(e -> {
+            distantTile.setMainSignalId(null);
+            repaint();
+        });
+        assignMenu.add(noneItem);
+
+        for (Tile t : tiles.values()) {
+            if (!(t instanceof ElementTile met) || met.getElementId() == null) {
+                continue;
+            }
+            ElementType type = met.getElementType();
+            if (type != ElementType.SIGNAL_2 && type != ElementType.SIGNAL_3) {
+                continue;
+            }
+            String label = met.getElementId();
+            if (current == null && met.getElementId().equals(suggested)) {
+                label += messages.getString("context.assignMainSignal.suggested");
+            }
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(label, met.getElementId().equals(defaultChecked));
+            item.addActionListener(e -> {
+                distantTile.setMainSignalId(met.getElementId());
+                repaint();
+            });
+            assignMenu.add(item);
+        }
+        menu.add(assignMenu);
+    }
+
+    /**
+     * Suggests the main signal the given distant signal previews by walking straight ahead in
+     * the direction of travel (opposite to the signal's facing port) until a main signal is
+     * found. Returns null when no main signal lies straight ahead.
+     */
+    String suggestMainSignalForDistant(ElementTile distantTile) {
+        int rotSteps = (distantTile.getRotation() / 90) % 4;
+        int facingPort = (ElementType.PORT_LEFT + rotSteps) % 4;
+        int exitPort = (facingPort + 2) % 4;
+        int dc = switch (exitPort) {
+            case ElementType.PORT_LEFT -> -1;
+            case ElementType.PORT_RIGHT -> 1;
+            default -> 0;
+        };
+        int dr = switch (exitPort) {
+            case ElementType.PORT_TOP -> -1;
+            case ElementType.PORT_BOTTOM -> 1;
+            default -> 0;
+        };
+        int c = distantTile.getCol() + dc;
+        int r = distantTile.getRow() + dr;
+        for (int i = 0; i < 100 && c >= 0 && c < cols && r >= 0 && r < rows; i++) {
+            Tile t = getTile(c, r);
+            if (!(t instanceof ElementTile et) || et.getElementId() == null) {
+                break;
+            }
+            ElementType type = et.getElementType();
+            if (type == ElementType.SIGNAL_2 || type == ElementType.SIGNAL_3) {
+                return et.getElementId();
+            }
+            if (type == ElementType.SIGNAL_V) {
+                break;
+            }
+            c += dc;
+            r += dr;
+        }
+        return null;
     }
 
     private void buildBlockMenuItems(JPopupMenu menu, int col, int row, Tile tile) {
@@ -843,6 +931,18 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 }
                 sb.append("\n");
             }
+            if (et.getElementType() == ElementType.SIGNAL_V && et.getMainSignalId() != null) {
+                sb.append(MessageFormat.format(messages.getString("info.mainSignal"), et.getMainSignalId())).append("\n");
+            }
+            if (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3) {
+                List<ElementTile> linked = findDistantSignalsLinkedTo(et.getElementId());
+                if (!linked.isEmpty()) {
+                    String ids = linked.stream()
+                        .map(ElementTile::getElementId)
+                        .collect(Collectors.joining(", "));
+                    sb.append(MessageFormat.format(messages.getString("info.linkedDistantSignals"), ids)).append("\n");
+                }
+            }
         }
         else {
             sb.append(messages.getString("info.typePlain")).append("\n");
@@ -861,13 +961,12 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     private void onTileContextAction(int col, int row, ElementType type) {
         Tile oldTile = getTile(col, row);
         String oldElementId = oldTile != null ? oldTile.getElementId() : null;
+        if (type == null) {
+            clearTileWithLinkCheck(col, row);
+            return;
+        }
         if (oldElementId != null) {
             model.removeElement(oldElementId);
-        }
-        if (type == null) {
-            removeTile(col, row);
-            undoStack.push(new TileCommand(this, model, col, row, oldTile, oldElementId, null, null));
-            return;
         }
         String id = generateId(type);
         model.addElement(new Element(id, 0, 0));
@@ -875,6 +974,67 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         setTile(newTile);
         setSelectedTile(col, row);
         undoStack.push(new TileCommand(this, model, col, row, oldTile, oldElementId, newTile, id));
+    }
+
+    /**
+     * Clears the tile at the given position, asking the user how to handle any distant signals
+     * linked to a main signal being removed. All removals are pushed onto the undo stack so that
+     * {@link #undoLast()} restores everything in reverse order.
+     */
+    void clearTileWithLinkCheck(int col, int row) {
+        Tile oldTile = getTile(col, row);
+        String oldElementId = oldTile != null ? oldTile.getElementId() : null;
+        if (oldTile instanceof ElementTile et && oldElementId != null
+            && (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3)) {
+            List<ElementTile> linked = findDistantSignalsLinkedTo(oldElementId);
+            if (!linked.isEmpty()) {
+                switch (confirmRemoveMainSignal(linked)) {
+                    case REMOVE_LINKED_OPTION -> linked.forEach(d -> clearTileWithUndo(d.getCol(), d.getRow()));
+                    case KEEP_DISTANT_OPTION -> linked.forEach(d -> d.setMainSignalId(null));
+                    default -> { return; } // cancelled
+                }
+            }
+        }
+        clearTileWithUndo(col, row);
+    }
+
+    private void clearTileWithUndo(int col, int row) {
+        Tile tile = getTile(col, row);
+        String elementId = tile != null ? tile.getElementId() : null;
+        if (elementId != null) {
+            model.removeElement(elementId);
+        }
+        removeTile(col, row);
+        undoStack.push(new TileCommand(this, model, col, row, tile, elementId, null, null));
+    }
+
+    private List<ElementTile> findDistantSignalsLinkedTo(String mainSignalId) {
+        List<ElementTile> linked = new ArrayList<>();
+        for (Tile t : tiles.values()) {
+            if (t instanceof ElementTile det
+                && det.getElementType() == ElementType.SIGNAL_V
+                && mainSignalId.equals(det.getMainSignalId())) {
+                linked.add(det);
+            }
+        }
+        return linked;
+    }
+
+    int confirmRemoveMainSignal(List<ElementTile> linked) {
+        String ids = linked.stream()
+            .map(ElementTile::getElementId)
+            .collect(Collectors.joining(", "));
+        Object[] options = {
+            messages.getString("signal.removeLinked"),
+            messages.getString("signal.keep"),
+            messages.getString("signal.cancel")
+        };
+        return JOptionPane.showOptionDialog(this,
+            MessageFormat.format(messages.getString("signal.confirmRemoveLinked"), ids),
+            messages.getString("signal.confirmRemoveTitle"),
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.WARNING_MESSAGE,
+            null, options, options[0]);
     }
 
     private String generateId(ElementType type) {
@@ -1661,7 +1821,33 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 Command cmd = new CycleElementCommand(model, id, count);
                 cmd.execute();
                 undoStack.push(cmd);
+                if (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3) {
+                    mirrorLinkedDistantSignals(et);
+                }
             }
+        }
+    }
+
+    /**
+     * Keeps every distant signal (SIGNAL_V) linked to the given main signal in sync with its
+     * current aspect. Each linked distant signal is switched via a separate undoable command,
+     * pushed after the main signal's command so undo restores the distant signal first.
+     */
+    private void mirrorLinkedDistantSignals(ElementTile mainSignal) {
+        ElementType mainType = mainSignal.getElementType();
+        String mainId = mainSignal.getElementId();
+        int mainAspect = model.getElementAspect(mainId);
+        for (Tile t : tiles.values()) {
+            if (!(t instanceof ElementTile det)
+                || det.getElementType() != ElementType.SIGNAL_V
+                || det.getElementId() == null
+                || !mainId.equals(det.getMainSignalId())) {
+                continue;
+            }
+            int distantAspect = OccupancySimulation.distantAspectForMainSignal(mainType, mainAspect);
+            Command cmd = new SetElementAspectCommand(model, det.getElementId(), distantAspect);
+            cmd.execute();
+            undoStack.push(cmd);
         }
     }
 

@@ -135,6 +135,9 @@ public class LayoutPersistence {
         if (tile.getSignalSide() != SignalSide.DEFAULT) {
             td.setSignalSide(tile.getSignalSide().name());
         }
+        if (tile instanceof ElementTile et && et.getMainSignalId() != null) {
+            td.setMainSignalId(et.getMainSignalId());
+        }
 
         if (tile instanceof ElementTile et) {
             td.setType(et.getElementType().getPrefix() + et.getAspectCount());
@@ -268,6 +271,9 @@ public class LayoutPersistence {
                 tile.setSignalSide(SignalSide.valueOf(td.getSignalSide()));
             } catch (IllegalArgumentException ignored) {
             }
+        }
+        if (tile instanceof ElementTile et && td.getMainSignalId() != null) {
+            et.setMainSignalId(td.getMainSignalId());
         }
         return tile;
     }

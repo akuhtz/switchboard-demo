@@ -200,6 +200,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - `getSvgForAspect(int ordinal)` — returns the matching SVG path (falls back to index 0).
 - `getAspectCount()` — returns `svgPaths.size()`.
 - `applySignalSide(SignalSide resolvedSide)` — swaps SVG paths between `_left` and `_right` variants in place.
+- `getMainSignalId()` / `setMainSignalId(String)` — optional reference to the main signal (SIGNAL_2/SIGNAL_3) a distant signal (SIGNAL_V) previews. Null when unlinked; persisted in the layout file.
 
 ---
 
@@ -209,7 +210,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Registers as observer on the `RailwayModel`.
 - Delegates route finding to `RouterService`.
 - **Modes**:
-  - **Normal**: left-click cycles aspects on clickable tiles (aspectCount > 1).
+  - **Normal**: left-click cycles aspects on clickable tiles (aspectCount > 1). Clicking a main signal (SIGNAL_2/SIGNAL_3) also switches every linked distant signal to the matching preview aspect.
   - **Edit**: left-click selects tiles (cyan border), Ctrl+R rotates selected tile 90°, right-click context menu to place/clear tiles. No aspect cycling. Selection clears when edit mode is turned off.
   - **Route Finding**:
   - Ctrl+click source tile, then Ctrl+click target tile.
@@ -250,6 +251,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Distant signals (SIGNAL_V)**: Distant signals never stop the train. Each distant signal on a route mirrors the aspect of the next main signal (SIGNAL_2/SIGNAL_3) ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". The preview is mapped from the next signal's aspect (SIGNAL_2: red→orange, green→green; SIGNAL_3: red→orange, yellow→orange+green, green→green). Mirroring is applied on simulation start and refreshed every simulation step. The fourth aspect (aspect 3: bottom-right orange + both green lights) is only reachable by manually cycling the signal.
 - **Direction markers**: STRAIGHT and DIAGONAL tiles can have a direction constraint (`TileDirection`: FORWARD/BACKWARD/BOTH). Route finding (`RouterService.isAllowedDirection`) refuses traversal against the tile's direction. Rendered as a light-gray filled triangle via `drawDirectionMarkers()`.
 - **Signal side**: SIGNAL_2, SIGNAL_3 and SIGNAL_V tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode (labels internationalized via `ResourceBundle`). Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
+- **Distant signal linking**: A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_2/SIGNAL_3) it previews via `ElementTile.mainSignalId`. In edit mode the context menu shows an **Assign Main Signal** submenu listing every placed main signal plus **None**; when no link is set, the nearest main signal straight ahead in the travel direction is preselected (marked "(auto)") via `suggestMainSignalForDistant()`. Once linked, clicking the main signal in normal mode switches every linked distant signal to the matching preview aspect (`SetElementAspectCommand`, pushed onto the undo stack so undo restores distant signals first). Clearing a main signal with linked distant signals asks whether to **Remove linked** (also removed, undoable), **Keep** (the link is removed), or **Cancel**. The link is persisted in the layout file and shown in the **Tile Info** dialog (Main signal / Distant signals).
 - **Blocks**: A connected, turnout-free path of tiles defining a track section. In edit mode the context menu shows a **Block** submenu to set a block start tile (orange square marker), then a block end tile. The connected path (via `RouterService.bfsBlockPath`) is found automatically, excluding turnouts and tiles of other blocks. Each block gets a unique id and a default name `blkNNN`; names are editable via **Rename Block...** dialog. Blocks render as a 2px yellow line (`(255,220,80)`) offset 4px below the track center, with a short vertical tick at the outer edge of the start and end tiles. Removal asks for confirmation. Blocks are persisted in the layout file.
    - **Curve-aware block lines**: On curve tiles the yellow block line bends around the corner, staying on the block side of the track. `curveCorner` locates the curve's corner pixel from its rotation (`center + rotateDelta(±half, ±half, rotSteps)`). The tile's center offset follows the straight-side neighbour (`straightSideDirection`, so a vertically-entered curve keeps the incoming straight run aligned), and `exitsThroughCorner` decides whether the elbow point comes before or after the center. The line follows the offset diagonal via `blockGuidePoint`/`curveGuidePoint` instead of crossing the track. Block lines that **end** on a curve terminate a few pixels *before* the corner pixel (`curveEndpoint`, pulled back `CORNER_PULL=5` along the offset track diagonal) so they never merge with or collide into the main track line. Blocks that start or end on a **diagonal** tile keep running parallel to the track diagonal (`diagonalEndpoint`) and stop at the tile edge the track exits through (e.g. upper-right) instead of cutting straight across to the side.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
@@ -263,10 +265,12 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Interaction**:
   - Left-click: selects position + cycles aspect (normal) or selects only (edit).
      - Right-click: context menu with Info (element data dialog), ElementTypes + Signals submenu,
-       Assign Occupancy / Remove Occupancy (edit mode only), Clear route on route tiles,
+       Assign Occupancy / Remove Occupancy (edit mode only), Assign Main Signal (distant signals,
+       edit mode only), Clear route on route tiles,
        Simulate occupancy on route start tile (disabled while running, creates sliding
        occupancy animation), Clear simulated occupancy on any route tile with OCCUPIED
-       state (disabled while running).
+       state (disabled while running). Clearing a main signal with linked distant signals
+       shows a removal confirmation (Remove linked / Keep / Cancel).
   - Ctrl+R: rotates selected tile 90° (edit mode only).
   - Edit-mode tooltip shows element ID on hover.
 - **Thread safety**:
@@ -280,7 +284,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
    - `setShowOtherAlternatives(boolean)` — shows non-selected alternatives as dotted cyan lines during preview when `true` (default `false`).
    - `setTileContextHandler(TileContextHandler)` — callback for context menu actions.
    - `testSetRouteAspects(List<int[]>)` — applies aspect-for-port/route logic to a given path (test helper).
-- **Undo stack**: `Deque<Command> undoStack` — pushed by route finding, tile creation/clearing, aspect cycling. Accessible via `undoLast()`. Menu item Edit > Undo (Ctrl+Z).
+- **Undo stack**: `Deque<Command> undoStack` — pushed by route finding, tile creation/clearing, aspect cycling, and linked distant signal mirroring. Accessible via `undoLast()`. Menu item Edit > Undo (Ctrl+Z).
 
 ---
 
@@ -293,6 +297,13 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - `execute()` calls `model.setElementAspect(id, newAspect)`.
 - `undo()` calls `model.setElementAspect(id, oldAspect)`.
 - Logs execute/undo via SLF4J.
+
+### `SetElementAspectCommand`
+- Implements `Command`.
+- Captures the element's current aspect in the constructor.
+- `execute()` calls `model.setElementAspect(id, newAspect)`.
+- `undo()` calls `model.setElementAspect(id, oldAspect)`.
+- Used by `SwitchboardPanel` to mirror a linked distant signal's aspect when a main signal is clicked; pushed after the main signal's command so undo restores the distant signal first.
 
 ### `CreateRouteCommand`
 - Implements `Command`.
@@ -350,7 +361,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `LayoutData` / `SettingsData`
 - POJOs for Jackson serialization.
-- `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation, direction, signalSide), `ModelStateData`, routes, and blocks.
+- `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation, direction, signalSide, and optional mainSignalId for linked distant signals), `ModelStateData`, routes, and blocks.
 - `ModelStateData` holds a `List<ElementData>` (each containing `id`, `nodeId`, `accessoryId`, `aspect`, `occupancyId`) and a `List<OccupancyData>` (each containing `id`, `nodeId`, `portId`, `state`).
 - `BlockData` (list under `blocks`) holds `id`, `name`, and an ordered `tiles` list of `[col, row]` coordinates.
 - `SettingsData` holds `lastLayoutFile`, `lastLayoutDirectory`, `lookAndFeel` (LIGHT/DARK enum), and `signalSide` (LEFT/RIGHT).
@@ -460,7 +471,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-89 tests across nine test classes:
+101 tests across eleven test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -582,7 +593,25 @@ execution to `target/surefire-reports/`.
 | `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 11 ElementTypes × all aspects × 4 rotations plus right-side signal variants (120 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (one row per aspect, four rotations in columns 0/3/6/9, insertion-order iteration). |
 | ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
-Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, `switchboard7.json`, `switchboard-block1.json`, `switchboard-block2.json`, and `switchboard-block3.json` test layouts. 88 of 89 tests pass (1 disabled).
+### `SignalVDemoUiTest` (1 test)
+| Test | Description |
+|------|-------------|
+| `displayDistantSignalForVisualCheck` | Visual check: renders all SIGNAL_V aspect icons (orange, yellow, green, aspect 3) for left/right variants with lamp ID labels, 2×4 grid |
+
+### `SignalLinkTest` (9 tests)
+| Test | Description |
+|------|-------------|
+| `linkSurvivesLoad` | `mainSignalId` restored when loading `switchboard3a.json` |
+| `linkSurvivesPersistenceRoundTrip` | Distant→main link survives `capture()`/`apply()` round-trip |
+| `switchingMainSignalToZeroSwitchesLinkedDistantSignalToZero` | Clicking main S2-009 to red (0) switches linked SV-001 to 0; to green (1) mirrors to 1 |
+| `mirrorUndoRestoresBothSignals` | Undo restores distant signal first, then the main signal cycle |
+| `unlinkedDistantSignalIsNotAffectedByOtherMainSignals` | Clicking a main signal without linked distants leaves SV-001 unchanged |
+| `suggestMainSignalFindsSignalAhead` | Auto-suggest finds S2-009 straight ahead of SV-001 |
+| `removeLinkedChoiceRemovesDistantSignalWithUndo` | "Remove linked" removes distant+main, undo restores both with the link |
+| `keepChoiceKeepsDistantSignalUnlinked` | "Keep" removes main only and clears the link on the distant signal |
+| `cancelChoiceAbortsRemoval` | "Cancel" leaves main and distant signal untouched |
+
+Uses `switchboard3.json`, `switchboard3a.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, `switchboard7.json`, `switchboard-block1.json`, `switchboard-block2.json`, and `switchboard-block3.json` test layouts. 100 of 101 tests pass (1 disabled).
 
 ---
 

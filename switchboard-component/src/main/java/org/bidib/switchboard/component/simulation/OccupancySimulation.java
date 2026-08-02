@@ -267,7 +267,7 @@ public class OccupancySimulation {
      * SIGNAL_2: red -> orange (Halt erwarten), green -> green (Frei erwarten).
      * SIGNAL_3: red -> orange, yellow -> orange+green (Langsamfahrt erwarten), green -> green.
      */
-    private int distantAspectForMainSignal(ElementType type, int mainAspect) {
+    public static int distantAspectForMainSignal(ElementType type, int mainAspect) {
         if (type == ElementType.SIGNAL_3) {
             return switch (mainAspect) {
                 case 1 -> 2;

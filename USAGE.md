@@ -40,6 +40,7 @@ The following tile types are available:
 
 In **normal mode** (Ctrl+E to toggle):
 - Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, orange ↔ green ↔ orange+green ↔ aspect 3 for the distant signal, etc.).
+- Clicking a **main signal** also switches every **linked distant signal** to the matching preview aspect (see [section 8](#8-link-a-distant-signal-to-a-main-signal)).
 - Turnouts auto-switch to the correct aspect when a route is found.
 
 ## 5. Create a route
@@ -79,7 +80,17 @@ Signal tiles can display their body above (Swiss, `_left`) or below (German, `_r
 - When you change the signal side, the tile image updates immediately.
 - The **Tile Info** dialog (left‑click a signal in normal mode) shows the resolved signal side.
 
-## 8. Define blocks
+## 8. Link a distant signal to a main signal
+
+A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_2/SIGNAL_3) it previews. Once linked:
+
+- **Manual mirroring**: In normal mode, clicking the main signal also switches every linked distant signal to the matching preview aspect: red → orange ("Halt erwarten"), green → green ("Frei erwarten"), and for SIGNAL_3 also yellow → orange+green ("Langsamfahrt erwarten"). This works outside simulation runs, too.
+- **Assignment**: In edit mode, right-click the distant signal → **Assign Main Signal** → pick a main signal from the list (or **None**). The nearest main signal straight ahead in the travel direction is preselected and marked "(auto)".
+- **Removal**: When you clear a main signal that has linked distant signals, you are asked whether to **Remove linked** (remove the distant signals too), **Keep** the distant signals (the link is removed), or **Cancel**.
+- The link is saved with the layout and restored on load.
+- The **Tile Info** dialog shows the link (Main signal / Distant signals).
+
+## 9. Define blocks
 
 A **block** is a connected path of tiles that forms a section of track. Blocks are useful for
 modelling track occupancy sections.
@@ -100,7 +111,7 @@ modelling track occupancy sections.
   orange square marker.
 - Blocks are saved with the layout and restored when it is loaded.
 
-## 9. Simulate occupancy
+## 10. Simulate occupancy
 
 After a route is created, you can animate a train moving along it:
 
@@ -108,7 +119,7 @@ After a route is created, you can animate a train moving along it:
 - The simulation creates occupancy markers on every tile along the route and slides the **OCCUPIED** state from the start to the end, one tile at a time (200ms per step).
 - Turnouts along the route are automatically set to the correct position for the simulated path.
 - **Signal stops**: When a train reaches a main signal (SIGNAL_2/SIGNAL_3) at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it.
-- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of the next main signal ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten".
+- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of the next main signal ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". A distant signal linked to a main signal (see [section 8](#8-link-a-distant-signal-to-a-main-signal)) also mirrors the main signal's aspect when you click it manually, outside the simulation.
 - **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a main signal that blocks a train auto-switches to aspect 1 (green) after 2 seconds, allowing the train to resume. Toggling this option immediately affects all running simulations.
 - **Multiple simulations**: Each route can have its own independent simulation running concurrently.
 - **Stop simulation**: Right-click the source tile of a running simulation → **Stop simulation ({id})** to stop it mid-route.
@@ -120,25 +131,25 @@ To reset the simulation:
 - Sets all occupancy states along the route back to FREE.
 - **Clear simulated occupancy** is disabled while a simulation is in progress.
 
-## 10. Language / Internationalization
+## 11. Language / Internationalization
 
 The application supports **English** and **German** locales. UI language is determined by the system locale at startup.
 
-- **Context menu** items (Info, Signal Side, Clear, Direction, route actions) use localized strings.
+- **Context menu** items (Info, Signal Side, Assign Main Signal, Clear, Direction, route actions) use localized strings.
 - **Tile Info dialog** labels are localized.
 - **Main menu** and **toolbar** use localized strings (File, Edit, Settings, etc.).
 - If your system locale is German (`de`), the UI automatically switches to German labels. You can also force the locale by passing `-Duser.language=de` or `-Duser.language=en` on the Java command line.
 
 Translations are maintained in `i18n/messages.properties` (component) and `i18n/app-messages.properties` (demo app), each with a `_de` variant.
 
-## 11. Save & load
+## 12. Save & load
 
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.
 - On startup, the app remembers the last loaded file and restores it automatically.
 - Settings are stored in `~/switchboard-demo-1/settings.json`.
 
-## 12. Logging
+## 13. Logging
 
 The application writes log output both to the console and to a log file:
 

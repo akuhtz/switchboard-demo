@@ -7,6 +7,7 @@ public class ElementTile extends Tile {
 
     private final List<String> svgPaths = new ArrayList<>();
     private final ElementType elementType;
+    private String mainSignalId;
 
     public ElementTile(int col, int row, String elementId,
                        ElementType elementType, List<String> svgPaths) {
@@ -28,6 +29,14 @@ public class ElementTile extends Tile {
 
     public ElementType getElementType() {
         return elementType;
+    }
+
+    public String getMainSignalId() {
+        return mainSignalId;
+    }
+
+    public void setMainSignalId(String mainSignalId) {
+        this.mainSignalId = mainSignalId;
     }
 
     public void applySignalSide(SignalSide resolvedSide) {

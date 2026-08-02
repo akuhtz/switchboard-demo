@@ -69,6 +69,10 @@ public class LayoutData {
         private String signalSide;
         public String getSignalSide() { return signalSide; }
         public void setSignalSide(String signalSide) { this.signalSide = signalSide; }
+
+        private String mainSignalId;
+        public String getMainSignalId() { return mainSignalId; }
+        public void setMainSignalId(String mainSignalId) { this.mainSignalId = mainSignalId; }
     }
 
     // --- Model state ---
