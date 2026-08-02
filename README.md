@@ -445,7 +445,7 @@ Logging configuration lives in `switchboard-demo-app/src/main/resources/logback.
 | `signal_3_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_3_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red+yellow dim |
 | `signal_v_orange_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_v_orange_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — two orange lit, green off ("Halt erwarten") |
 | `signal_v_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_v_yellow_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — two green lit, orange off ("Frei erwarten") |
-| `signal_v_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_v_green_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — left orange + right green lit ("Langsamfahrt erwarten") |
+| `signal_v_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_v_green_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — right orange + green lit ("Langsamfahrt erwarten") |
 
 All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use light gray `#aaaaaa` for active paths, `#808080` for inactive paths, and `#ffa500` (orange) for the frog-end on turnouts.
 
