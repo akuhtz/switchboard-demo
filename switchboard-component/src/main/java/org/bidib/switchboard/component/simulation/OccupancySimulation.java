@@ -21,9 +21,11 @@ import org.slf4j.LoggerFactory;
  * interval (e.g., every 200ms). This decouples the simulation from Swing timers, allowing
  * headless usage and direct testing.
  * <p>
- * Signal handling: when a train reaches a signal at aspect 0 (red) from the signal's facing
- * direction, the train stops. If {@link #setAutoChangeSignal(boolean)} is enabled, the signal
- * auto-switches to green after {@value #AUTO_CHANGE_DELAY_MS}ms.
+ * Signal handling: when a train reaches a main signal (SIGNAL_2/SIGNAL_3) at aspect 0 (red)
+ * from the signal's facing direction, the train stops. If {@link #setAutoChangeSignal(boolean)}
+ * is enabled, the signal auto-switches to aspect 1 after {@value #AUTO_CHANGE_DELAY_MS}ms.
+ * Distant signals (SIGNAL_V) never stop the train; they mirror the aspect of the next main
+ * signal ahead in the path.
  */
 public class OccupancySimulation {
 
@@ -106,6 +108,8 @@ public class OccupancySimulation {
 
         currentIndex = 1;
         running = true;
+
+        syncDistantSignals();
     }
 
     /**
@@ -147,6 +151,8 @@ public class OccupancySimulation {
             running = false;
             return;
         }
+
+        syncDistantSignals();
 
         int prev = currentIndex - 1;
         int[] pp = path.get(prev);
@@ -217,6 +223,45 @@ public class OccupancySimulation {
         }
     }
 
+    /**
+     * Keeps every distant signal (SIGNAL_V) on the route in sync with the next main signal
+     * (SIGNAL_2/SIGNAL_3) ahead in the path, so the distant signal previews the upcoming aspect.
+     */
+    private void syncDistantSignals() {
+        if (path == null) {
+            return;
+        }
+        for (int i = 0; i < path.size(); i++) {
+            int[] p = path.get(i);
+            Tile tile = tileGrid.getTile(p[0], p[1]);
+            if (!(tile instanceof ElementTile et) || et.getElementType() != ElementType.SIGNAL_V) {
+                continue;
+            }
+            if (et.getElementId() == null) {
+                continue;
+            }
+            int nextAspect = findNextSignalAspect(i);
+            if (nextAspect >= 0) {
+                model.setElementAspect(et.getElementId(), nextAspect);
+            }
+        }
+    }
+
+    private int findNextSignalAspect(int fromIndex) {
+        for (int i = fromIndex + 1; i < path.size(); i++) {
+            int[] p = path.get(i);
+            Tile tile = tileGrid.getTile(p[0], p[1]);
+            if (tile instanceof ElementTile et && et.getElementId() != null
+                && (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3)) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null) {
+                    return el.getCurrentAspect();
+                }
+            }
+        }
+        return -1;
+    }
+
     // --- Query ---
 
     public boolean isRunning() {
@@ -238,14 +283,15 @@ public class OccupancySimulation {
     // --- Static signal utilities ---
 
     /**
-     * Returns true if the tile is a signal element with aspect 0 (red).
+     * Returns true if the tile is a main signal (SIGNAL_2/SIGNAL_3) with aspect 0 (red).
+     * Distant signals (SIGNAL_V) never block a train.
      */
     public static boolean isSignalAtRed(Tile tile, RailwayModel model) {
         if (!(tile instanceof ElementTile et)) {
             return false;
         }
         ElementType type = et.getElementType();
-        if (type != ElementType.SIGNAL_2 && type != ElementType.SIGNAL_3 && type != ElementType.SIGNAL_V) {
+        if (type != ElementType.SIGNAL_2 && type != ElementType.SIGNAL_3) {
             return false;
         }
         Element el = model.getElement(et.getElementId());

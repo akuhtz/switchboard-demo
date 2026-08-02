@@ -16,7 +16,7 @@ Der Installer enthält eine JRE — eine separate Java-Installation ist nicht er
 
 ## 3. Kacheln hinzufügen
 
-- Rechtsklick auf eine beliebige Zelle → einen Kacheltyp aus der Liste auswählen (z.B. `P (STRAIGHT)`, `TR (TURNOUT_RIGHT)`, `TL (TURNOUT_LEFT)`, `S2 (SIGNAL_2)`).
+- Rechtsklick auf eine beliebige Zelle → einen Kacheltyp aus der Liste auswählen (z.B. `P (STRAIGHT)`, `TR (TURNOUT_RIGHT)`, `TL (TURNOUT_LEFT)`, `S2 (SIGNAL_2)`, `SV (SIGNAL_V)`).
 - Die Kachel erscheint sofort.
 - **Drehen**: Kachel mit Linksklick auswählen (cyan Rahmen), dann **Strg+R** drücken, um 90° zu drehen.
 
@@ -33,12 +33,13 @@ Folgende Kacheltypen sind verfügbar:
 | TURNOUT_3WAY   | T3 | Dreiwegeweiche (3 Stellungen)| 0 / 90 / 180 / 270 |
 | SIGNAL_2       | S2 | 2-begriffiges Signal (rot/grün)  | 0 / 90 / 180 / 270 |
 | SIGNAL_3       | S3 | 3-begriffiges Signal (rot/gelb/grün) | 0 / 90 / 180 / 270 |
+| SIGNAL_V       | SV | Vorsignal (orange/gelb/grün) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Prellbock (Gleisende)                | 0 / 90 / 180 / 270 |
 
 ## 4. Elemente klicken, um Stellungen zu wechseln
 
 Im **Normalmodus** (Strg+E zum Umschalten):
-- Auf eine Weiche oder ein Signal klicken, um die Stellung zu wechseln (gerade ↔ abzweigend, rot ↔ grün usw.).
+- Auf eine Weiche oder ein Signal klicken, um die Stellung zu wechseln (gerade ↔ abzweigend, rot ↔ grün, orange ↔ gelb ↔ grün beim Vorsignal usw.).
 - Weichen werden automatisch auf die korrekte Stellung gesetzt, wenn eine Fahrstraße gefunden wird.
 
 ## 5. Fahrstraße erstellen
@@ -71,7 +72,7 @@ Gerade und diagonale Kacheln können eine **Richtungsbeschränkung** haben (FORW
 
 ## 7. Signalseite
 
-Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unterhalb (deutsche Norm, `_right`) des Gleises anzeigen.
+Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unterhalb (deutsche Norm, `_right`) des Gleises anzeigen. Dies gilt für alle Signaltypen (SIGNAL_2, SIGNAL_3, SIGNAL_V).
 
 - Der globale Standard wird unter **Datei → Einstellungen → Signalseite Links / Signalseite Rechts** festgelegt.
 - Kachelspezifische Einstellung: im **Bearbeitungsmodus** Rechtsklick auf eine Signalkachel → **Signalseite**-Untermenü → Links / Rechts / Standard auswählen.
@@ -107,8 +108,9 @@ Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert w
 - Rechtsklick auf den **grünen Startkreis** einer Fahrstraße → **Belegung simulieren ({id})**.
 - Die Simulation erzeugt Belegungsmarkierungen auf jeder Kachel der Fahrstraße und schiebt den **OCCUPIED**-Zustand vom Start zum Ende, eine Kachel pro Schritt (200ms pro Schritt).
 - Weichen entlang der Fahrstraße werden automatisch auf die korrekte Position für den simulierten Weg gesetzt.
-- **Signalhalt**: Wenn ein Zug eine Signalkachel mit Stellung 0 (rot) erreicht, hält er an und wartet. Signale blockieren nur Züge, die sich von vorne nähern (die Richtung, in die das Signal basierend auf seiner Rotation zeigt). Züge, die sich einem Signal von hinten nähern, ignorieren es.
-- **Automatischer Signalwechsel**: Aktivieren über **Bearbeiten → Automatischer Signalwechsel**. Wenn aktiv, schaltet ein rotes Signal, das einen Zug blockiert, nach 2 Sekunden automatisch auf grün um, sodass der Zug weiterfahren kann. Das Umschalten dieser Option wirkt sich sofort auf alle laufenden Simulationen aus.
+- **Signalhalt**: Wenn ein Zug ein Hauptsignal (SIGNAL_2/SIGNAL_3) mit Stellung 0 (rot) erreicht, hält er an und wartet. Signale blockieren nur Züge, die sich von vorne nähern (die Richtung, in die das Signal basierend auf seiner Rotation zeigt). Züge, die sich einem Signal von hinten nähern, ignorieren es.
+- **Vorsignale (SIGNAL_V)**: Das Vorsignal hält den Zug nie an. Es spiegelt die Stellung des nächsten Hauptsignals im Pfad wider und kündigt so die kommende Stellung an (orange „Halt erwarten", gelb „Langsamfahrt erwarten", grün „Frei erwarten").
+- **Automatischer Signalwechsel**: Aktivieren über **Bearbeiten → Automatischer Signalwechsel**. Wenn aktiv, schaltet ein Hauptsignal, das einen Zug blockiert, nach 2 Sekunden automatisch auf Stellung 1 (grün) um, sodass der Zug weiterfahren kann. Das Umschalten dieser Option wirkt sich sofort auf alle laufenden Simulationen aus.
 - **Mehrere Simulationen**: Jede Fahrstraße kann ihre eigene unabhängige Simulation gleichzeitig ausführen.
 - **Simulation stoppen**: Rechtsklick auf die Startkachel einer laufenden Simulation → **Simulation stoppen ({id})**, um sie mitten in der Strecke zu stoppen.
 - **Belegung simulieren** ist deaktiviert, solange die Simulation dieser Fahrstraße bereits läuft.

@@ -16,7 +16,7 @@ The installer bundles a JRE — no separate Java installation required. After in
 
 ## 3. Add tiles
 
-- Right-click any cell → choose a tile type from the list (e.g. `P (STRAIGHT)`, `TR (TURNOUT_RIGHT)`, `TL (TURNOUT_LEFT)`, `S2 (SIGNAL_2)`).
+- Right-click any cell → choose a tile type from the list (e.g. `P (STRAIGHT)`, `TR (TURNOUT_RIGHT)`, `TL (TURNOUT_LEFT)`, `S2 (SIGNAL_2)`, `SV (SIGNAL_V)`).
 - The tile appears immediately.
 - **Rotate**: select the tile with a left-click (cyan border), then press **Ctrl+R** to rotate 90°.
 
@@ -33,12 +33,13 @@ The following tile types are available:
 | TURNOUT_3WAY   | T3 | Three-way turnout (3 aspects)| 0 / 90 / 180 / 270 |
 | SIGNAL_2       | S2 | 2-aspect signal (red/green)  | 0 / 90 / 180 / 270 |
 | SIGNAL_3       | S3 | 3-aspect signal (red/yellow/green) | 0 / 90 / 180 / 270 |
+| SIGNAL_V       | SV | Distant signal / Vorsignal (orange/yellow/green) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Bumper stop (dead end)             | 0 / 90 / 180 / 270 |
 
 ## 4. Click elements to cycle aspects
 
 In **normal mode** (Ctrl+E to toggle):
-- Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, etc.).
+- Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, orange ↔ yellow ↔ green for the distant signal, etc.).
 - Turnouts auto-switch to the correct aspect when a route is found.
 
 ## 5. Create a route
@@ -71,7 +72,7 @@ Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWA
 
 ## 7. Signal side
 
-Signal tiles can display their body above (Swiss, `_left`) or below (German, `_right`) the track.
+Signal tiles can display their body above (Swiss, `_left`) or below (German, `_right`) the track. This applies to all signal types (SIGNAL_2, SIGNAL_3, SIGNAL_V).
 
 - The global default is set via **File → Settings → Signal Side** (Swiss/German).
 - Per‑tile override: in **edit mode**, right‑click a signal tile → **Signal Side** submenu → choose Left / Right / Default.
@@ -106,8 +107,9 @@ After a route is created, you can animate a train moving along it:
 - Right-click the **green source circle** of a route → **Simulate occupancy ({id})**.
 - The simulation creates occupancy markers on every tile along the route and slides the **OCCUPIED** state from the start to the end, one tile at a time (200ms per step).
 - Turnouts along the route are automatically set to the correct position for the simulated path.
-- **Signal stops**: When a train reaches a signal tile at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it.
-- **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a red signal that blocks a train auto-switches to green after 2 seconds, allowing the train to resume. Toggling this option immediately affects all running simulations.
+- **Signal stops**: When a train reaches a main signal (SIGNAL_2/SIGNAL_3) at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it.
+- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of the next main signal ahead in the path, previewing the upcoming aspect (orange "Halt erwarten", yellow "Langsamfahrt erwarten", green "Frei erwarten").
+- **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a main signal that blocks a train auto-switches to aspect 1 (green) after 2 seconds, allowing the train to resume. Toggling this option immediately affects all running simulations.
 - **Multiple simulations**: Each route can have its own independent simulation running concurrently.
 - **Stop simulation**: Right-click the source tile of a running simulation → **Stop simulation ({id})** to stop it mid-route.
 - **Simulate occupancy** is disabled while that route's simulation is already running.

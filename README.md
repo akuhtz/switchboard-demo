@@ -72,6 +72,7 @@ type-specific enums — just element types distinguished by prefix.
 | `TURNOUT_3WAY` | `T3` | yes | 3 (straight, left, right) | yes |
 | `SIGNAL_2` | `S2` | yes | 2 (red, green) | yes |
 | `SIGNAL_3` | `S3` | yes | 3 (red, yellow, green) | yes |
+| `SIGNAL_V` | `SV` | yes | 3 (orange, yellow, green) | yes |
 | `STRAIGHT` | `P` | yes | 1 | no |
 | `CURVE_LEFT` | `CL` | yes | 1 | no |
 | `CURVE_RIGHT` | `CR` | yes | 1 | no |
@@ -86,7 +87,7 @@ connecting bottom-left corner ports with top-right corner ports.
 `hasValidDiagonal(port1, port2, rotation)` checks whether a tile's SVG track path has
 an endpoint at the given corner, used for diagonal neighbor connections.
 
-Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"S2-001"`, `"P-001"`.
+Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"S2-001"`, `"SV-001"`, `"P-001"`.
 IDs are generated uniquely per prefix by scanning existing model elements for the highest suffix.
 
 ---
@@ -245,9 +246,10 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
         and "Clear simulated occupancy ({id})" when tiles on the route have OCCUPIED state.
         Multiple routes can run simulations concurrently.
 - **Occupancy rendering**: In `paintComponent`, `drawOccupancy()` is called last, after routes. For each tile with an OCCUPIED occupancy, it draws port-based line segments using the element's current aspect: `getActivePorts(el.getCurrentAspect(), tile.getRotation())`. Lines are drawn from tile center to each active port. Straight, diagonal, and crossing elements draw to edge midpoints via `drawPortLine()`. Turnouts draw the main port to its edge midpoint and the diverted port to a corner. Curves (CURVE_LEFT, CURVE_RIGHT) draw port[0] to its edge midpoint and port[1] to a corner: `dx` comes from the port's own x-side if horizontal (or the opposite of port[0]'s x-side if vertical), `dy` comes from the port's own y-side if vertical (or the opposite of port[0]'s y-side if horizontal). Color: `COLOR_OCCUPIED` = `(255, 80, 80)` with stroke-width 4.
-- **Signal stops**: During occupancy simulation, a train arriving at a signal tile with aspect 0 (red) stops and waits. Signals have an implicit facing direction based on rotation (rot 0 → faces LEFT). Only trains entering from the signal's facing port are blocked; trains approaching from behind ignore the signal. `isSignalBlocking(Tile, int entryPort)` implements this check. When `autoChangeSignal` is enabled, a blocked signal auto-switches to green after 2 seconds. Toggling this option immediately affects all running simulations.
+- **Signal stops**: During occupancy simulation, a train arriving at a main signal (SIGNAL_2/SIGNAL_3) with aspect 0 (red) stops and waits. Signals have an implicit facing direction based on rotation (rot 0 → faces LEFT). Only trains entering from the signal's facing port are blocked; trains approaching from behind ignore the signal. `isSignalBlocking(Tile, int entryPort)` implements this check. When `autoChangeSignal` is enabled, a blocked signal auto-switches to aspect 1 after 2 seconds. Toggling this option immediately affects all running simulations.
+- **Distant signals (SIGNAL_V)**: Distant signals never stop the train. Each distant signal on a route mirrors the aspect of the next main signal (SIGNAL_2/SIGNAL_3) ahead in the path, previewing the upcoming aspect (orange "Halt erwarten", yellow "Langsamfahrt erwarten", green "Frei erwarten"). Mirroring is applied on simulation start and refreshed every simulation step.
 - **Direction markers**: STRAIGHT and DIAGONAL tiles can have a direction constraint (`TileDirection`: FORWARD/BACKWARD/BOTH). Route finding (`RouterService.isAllowedDirection`) refuses traversal against the tile's direction. Rendered as a light-gray filled triangle via `drawDirectionMarkers()`.
-- **Signal side**: SIGNAL_2 and SIGNAL_3 tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode (labels internationalized via `ResourceBundle`). Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
+- **Signal side**: SIGNAL_2, SIGNAL_3 and SIGNAL_V tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode (labels internationalized via `ResourceBundle`). Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
 - **Blocks**: A connected, turnout-free path of tiles defining a track section. In edit mode the context menu shows a **Block** submenu to set a block start tile (orange square marker), then a block end tile. The connected path (via `RouterService.bfsBlockPath`) is found automatically, excluding turnouts and tiles of other blocks. Each block gets a unique id and a default name `blkNNN`; names are editable via **Rename Block...** dialog. Blocks render as a 2px yellow line (`(255,220,80)`) offset 4px below the track center, with a short vertical tick at the outer edge of the start and end tiles. Removal asks for confirmation. Blocks are persisted in the layout file.
    - **Curve-aware block lines**: On curve tiles the yellow block line bends around the corner, staying on the block side of the track. `curveCorner` locates the curve's corner pixel from its rotation (`center + rotateDelta(±half, ±half, rotSteps)`). The tile's center offset follows the straight-side neighbour (`straightSideDirection`, so a vertically-entered curve keeps the incoming straight run aligned), and `exitsThroughCorner` decides whether the elbow point comes before or after the center. The line follows the offset diagonal via `blockGuidePoint`/`curveGuidePoint` instead of crossing the track. Block lines that **end** on a curve terminate a few pixels *before* the corner pixel (`curveEndpoint`, pulled back `CORNER_PULL=5` along the offset track diagonal) so they never merge with or collide into the main track line. Blocks that start or end on a **diagonal** tile keep running parallel to the track diagonal (`diagonalEndpoint`) and stop at the tile edge the track exits through (e.g. upper-right) instead of cutting straight across to the side.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
@@ -373,7 +375,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | Edit | Edit Mode | `Ctrl+E` | Toggle normal/edit mode |
 | Edit | Load Default Layout | — | Load the built-in default layout |
 | Edit | Occupancies... | — | Show dialog with all occupancies sorted by id |
-| Edit | Auto-change signal | — | Toggle: auto-switch red signals to green after 2s during simulation |
+| Edit | Auto-change signal | — | Toggle: auto-switch blocked signals to aspect 1 after 2s during simulation |
 
 ### Toolbar
 - `wrench.png` / `wrench_selected.png` toggle button with tooltip "Toggle Edit Mode", synced with the Edit menu item.
@@ -403,6 +405,7 @@ strings use `java.text.MessageFormat` (e.g., `"Clear route ({0})"`, `"Position: 
 - `"T3-001"` (3-way turnout at 4,3)
 - `"S2-001"` (2-aspect signal at 10,3)
 - `"S3-001"` (3-aspect signal at 11,3)
+- `"SV-001"` (distant signal / Vorsignal at 12,3)
 - `"P-001"`..`"P-005"` (straight track at row 0, cols 0-4)
 
 ---
@@ -542,7 +545,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoTileReplaceViaUI` | Original tile restored after undo of UI tile replacement |
 | `occupiedRouteTilesDetectedViaUI` | Occupied route tiles show occupancy color via `drawOccupancy` |
 
-### `OccupancyUiTest` (11 tests)
+### `OccupancyUiTest` (12 tests)
 | Test | Description |
 |------|-------------|
 | `occupancyAdvancesAlongRoute` | Timer-driven occupancy animation along a route path, verifying sliding-window pattern |
@@ -550,6 +553,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `routeFromTL003ToTR002Straight` | Primary route TL-003→P-001 along row 0, TL-003 aspect 0 (through), alternatives cleared |
 | `alternativeRouteTL003ToP001` | Alternative route TL-003→P-001 via DG-003/CL-005/row-1 corridor, verified 23-tile path, TL-003 aspect 1 (diverted), TR-003 aspect 1 (diverted) |
 | `routeP112ToCL013WithAndWithoutPreExistingRoutes` | Route P-112→CL-013 found with and without pre-existing CR-010-P-130 via UI test hooks |
+| `distantSignalDoesNotStopTrainAndMirrorsNextSignal` | Distant signal (SIGNAL_V) never stops the train and mirrors the aspect of the next main signal (uses `switchboard3a.json`) |
 
 Timer-driven tests use a `Semaphore` to synchronise the test thread with the Swing `Timer` tick,
 replacing brittle `Thread.sleep()` delays that could miss steps due to timer coalescing.
@@ -563,7 +567,7 @@ execution to `target/surefire-reports/`.
 ### `OccupancyElementUiTest` (2 tests, 1 disabled)
 | Test | Description |
 |------|-------------|
-| `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 10 ElementTypes × all aspects × 4 rotations (112 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
+| `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 11 ElementTypes × all aspects × 4 rotations plus right-side signal variants (112 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (one row per aspect, four rotations in columns 0/3/6/9, insertion-order iteration). |
 | ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
 Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, `switchboard7.json`, `switchboard-block1.json`, `switchboard-block2.json`, and `switchboard-block3.json` test layouts. 88 of 89 tests pass (1 disabled).

@@ -528,6 +528,71 @@ class OccupancyUiTest {
     }
 
     @Test
+    void distantSignalDoesNotStopTrainAndMirrorsNextSignal() throws Exception {
+        // Load switchboard3a.json: distant signal SV-001 (10,5) ahead of main signal S2-009 (7,5)
+        var url = OccupancyUiTest.class.getResource("/test-data/switchboard3a.json");
+        Path layoutPath = Paths.get(url.toURI());
+        var layoutPersistence = new LayoutPersistence();
+        GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
+
+        // Pre-existing route P-028-DG-002 runs R→L through SV-001 then S2-009
+        String routeId = "P-028-DG-002";
+        Route route = panel.getRouteModel().getRoute(routeId);
+        assertThat(route).as("Persisted route should be loaded").isNotNull();
+
+        List<int[]> path = route.getPath();
+        assertThat(path.stream().anyMatch(p -> p[0] == 10 && p[1] == 5)).as("Route should go via SV-001 (10,5)").isTrue();
+        assertThat(path.stream().anyMatch(p -> p[0] == 7 && p[1] == 5)).as("Route should go via S2-009 (7,5)").isTrue();
+
+        // Enable auto-change so the train can pass the red main signal after 2s
+        panel.setAutoChangeSignal(true);
+
+        // Distant signal must never block the train, regardless of aspect
+        Tile sv = panel.getTile(10, 5);
+        assertThat(panel.isSignalAtRed(sv)).as("Distant signal is not a blocking (red) signal").isFalse();
+        assertThat(panel.isSignalBlocking(sv, ElementType.PORT_RIGHT))
+            .as("Distant signal must not block the train entering from RIGHT").isFalse();
+
+        // Main signal at aspect 0 (red), rot 180 → faces RIGHT → blocks train entering from RIGHT
+        Tile s2009 = panel.getTile(7, 5);
+        assertThat(panel.isSignalAtRed(s2009)).as("Main signal should be at red").isTrue();
+        assertThat(panel.isSignalBlocking(s2009, ElementType.PORT_RIGHT))
+            .as("Main signal (rot 180) should block train entering from RIGHT").isTrue();
+
+        // Start the simulation — the distant signal mirrors the next signal's aspect
+        GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(route, DELAY));
+
+        // The file stored SV-001 at aspect 1; after start it must mirror S2-009 (aspect 0)
+        assertThat(panel.getModel().getElementAspect("SV-001"))
+            .as("Distant signal should mirror the main signal's aspect after start")
+            .isEqualTo(panel.getModel().getElementAspect("S2-009"));
+
+        // Wait for the simulation to complete
+        int totalWaitMs = path.size() * 300 + 3000;
+        Semaphore done = new Semaphore(0);
+        Timer watchdog = new Timer(100, e -> {
+            if (!panel.isAnySimulationRunning()) {
+                ((Timer) e.getSource()).stop();
+                done.release();
+            }
+        });
+        GuiActionRunner.execute(() -> watchdog.start());
+        boolean finished = done.tryAcquire(totalWaitMs, TimeUnit.MILLISECONDS);
+        GuiActionRunner.execute(() -> watchdog.stop());
+        assertThat(finished).as("Simulation should complete within timeout").isTrue();
+
+        // Main signal was auto-changed to green (aspect 1); the distant signal mirrors it
+        assertThat(panel.getModel().getElementAspect("S2-009"))
+            .as("Main signal should have been auto-changed to green").isEqualTo(1);
+        assertThat(panel.getModel().getElementAspect("SV-001"))
+            .as("Distant signal should mirror the main signal after auto-change")
+            .isEqualTo(panel.getModel().getElementAspect("S2-009"));
+
+        // The train passed the distant signal and reached the route target
+        assertThat(panel.isTileOccupied(5, 4)).as("Train should reach the route target DG-002 (5,4)").isTrue();
+    }
+
+    @Test
     void routeP087ToP015StopsAtFacingSignals() throws Exception {
         // Load switchboard7.json
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard7.json");
