@@ -40,7 +40,7 @@ The following tile types are available:
 
 In **normal mode** (Ctrl+E to toggle):
 - Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, orange ↔ green ↔ orange+green ↔ aspect 3 for the distant signal, etc.).
-- Clicking a **main signal** also switches every **linked distant signal** to the matching preview aspect (see [section 8](#8-link-a-distant-signal-to-a-main-signal)).
+- Clicking a **main signal** also switches every **linked distant signal** to the matching preview aspect (see [section 8](#8-link-a-distant-signal-to-a-main-signal)). A linked distant signal itself cannot be clicked to change its aspect.
 - Turnouts auto-switch to the correct aspect when a route is found.
 
 ## 5. Create a route
@@ -85,6 +85,7 @@ Signal tiles can display their body above (Swiss, `_left`) or below (German, `_r
 A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_2/SIGNAL_3) it previews. Once linked:
 
 - **Manual mirroring**: In normal mode, clicking the main signal also switches every linked distant signal to the matching preview aspect: red → orange ("Halt erwarten"), green → green ("Frei erwarten"), and for SIGNAL_3 also yellow → orange+green ("Langsamfahrt erwarten"). This works outside simulation runs, too.
+- Clicking a **linked distant signal** itself does **not** change its aspect — its aspect is controlled by the linked main signal.
 - **Assignment**: In edit mode, right-click the distant signal → **Assign Main Signal** → pick a main signal from the list (or **None**). The nearest main signal straight ahead in the travel direction is preselected and marked "(auto)".
 - **Removal**: When you clear a main signal that has linked distant signals, you are asked whether to **Remove linked** (remove the distant signals too), **Keep** the distant signals (the link is removed), or **Cancel**.
 - The link is saved with the layout and restored on load.

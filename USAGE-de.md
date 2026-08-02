@@ -40,7 +40,7 @@ Folgende Kacheltypen sind verfügbar:
 
 Im **Normalmodus** (Strg+E zum Umschalten):
 - Auf eine Weiche oder ein Signal klicken, um die Stellung zu wechseln (gerade ↔ abzweigend, rot ↔ grün, orange ↔ grün ↔ orange+grün ↔ Stellung 3 beim Vorsignal usw.).
-- Ein Klick auf ein **Hauptsignal** schaltet auch jedes **verknüpfte Vorsignal** auf die passende Vorankündigung (siehe [Abschnitt 8](#8-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)).
+- Ein Klick auf ein **Hauptsignal** schaltet auch jedes **verknüpfte Vorsignal** auf die passende Vorankündigung (siehe [Abschnitt 8](#8-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)). Ein verknüpftes Vorsignal selbst lässt sich nicht anklicken, um seine Stellung zu ändern.
 - Weichen werden automatisch auf die korrekte Stellung gesetzt, wenn eine Fahrstraße gefunden wird.
 
 ## 5. Fahrstraße erstellen
@@ -85,6 +85,7 @@ Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unter
 Ein Vorsignal (SIGNAL_V) kann mit dem Hauptsignal (SIGNAL_2/SIGNAL_3) verknüpft werden, das es ankündigt. Nach der Verknüpfung gilt:
 
 - **Manuelle Spiegelung**: Im Normalmodus schaltet ein Klick auf das Hauptsignal auch jedes verknüpfte Vorsignal auf die passende Vorankündigung: rot → orange „Halt erwarten", grün → grün „Frei erwarten", bei SIGNAL_3 zusätzlich gelb → orange+grün „Langsamfahrt erwarten". Dies funktioniert auch außerhalb der Simulation.
+- Ein Klick auf ein **verknüpftes Vorsignal** selbst ändert dessen Stellung **nicht** — seine Stellung wird über das verknüpfte Hauptsignal gesteuert.
 - **Zuordnung**: Im Bearbeitungsmodus Rechtsklick auf das Vorsignal → **Hauptsignal zuweisen** → ein Hauptsignal aus der Liste wählen (oder **Keins**). Das nächste Hauptsignal in Fahrtrichtung wird vorausgewählt und mit „(auto)" markiert.
 - **Entfernen**: Beim Löschen eines Hauptsignals mit verknüpften Vorsignalen wird gefragt, ob die Vorsignale mit entfernt (**Verknüpfte entfernen**), behalten (**Behalten** — die Verknüpfung wird gelöst) oder ob abgebrochen (**Abbrechen**) werden soll.
 - Die Verknüpfung wird mit dem Layout gespeichert und beim Laden wiederhergestellt.

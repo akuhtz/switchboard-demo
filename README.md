@@ -471,7 +471,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-101 tests across eleven test classes:
+102 tests across eleven test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -598,12 +598,13 @@ execution to `target/surefire-reports/`.
 |------|-------------|
 | `displayDistantSignalForVisualCheck` | Visual check: renders all SIGNAL_V aspect icons (orange, yellow, green, aspect 3) for left/right variants with lamp ID labels, 2×4 grid |
 
-### `SignalLinkTest` (9 tests)
+### `SignalLinkTest` (10 tests)
 | Test | Description |
 |------|-------------|
 | `linkSurvivesLoad` | `mainSignalId` restored when loading `switchboard3a.json` |
 | `linkSurvivesPersistenceRoundTrip` | Distant→main link survives `capture()`/`apply()` round-trip |
 | `switchingMainSignalToZeroSwitchesLinkedDistantSignalToZero` | Clicking main S2-009 to red (0) switches linked SV-001 to 0; to green (1) mirrors to 1 |
+| `clickingLinkedDistantSignalDoesNotChangeItsAspect` | Clicking a linked distant signal leaves its aspect untouched; clicking the main signal still mirrors |
 | `mirrorUndoRestoresBothSignals` | Undo restores distant signal first, then the main signal cycle |
 | `unlinkedDistantSignalIsNotAffectedByOtherMainSignals` | Clicking a main signal without linked distants leaves SV-001 unchanged |
 | `suggestMainSignalFindsSignalAhead` | Auto-suggest finds S2-009 straight ahead of SV-001 |
@@ -611,7 +612,7 @@ execution to `target/surefire-reports/`.
 | `keepChoiceKeepsDistantSignalUnlinked` | "Keep" removes main only and clears the link on the distant signal |
 | `cancelChoiceAbortsRemoval` | "Cancel" leaves main and distant signal untouched |
 
-Uses `switchboard3.json`, `switchboard3a.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, `switchboard7.json`, `switchboard-block1.json`, `switchboard-block2.json`, and `switchboard-block3.json` test layouts. 100 of 101 tests pass (1 disabled).
+Uses `switchboard3.json`, `switchboard3a.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, `switchboard7.json`, `switchboard-block1.json`, `switchboard-block2.json`, and `switchboard-block3.json` test layouts. 101 of 102 tests pass (1 disabled).
 
 ---
 

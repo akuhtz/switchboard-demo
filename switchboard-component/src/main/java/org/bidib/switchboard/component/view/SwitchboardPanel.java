@@ -1817,7 +1817,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         if (tile instanceof ElementTile et) {
             String id = et.getElementId();
             int count = et.getAspectCount();
-            if (id != null && count > 1) {
+            boolean linkedDistantSignal = et.getElementType() == ElementType.SIGNAL_V && et.getMainSignalId() != null;
+            if (id != null && count > 1 && !linkedDistantSignal) {
                 Command cmd = new CycleElementCommand(model, id, count);
                 cmd.execute();
                 undoStack.push(cmd);

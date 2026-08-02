@@ -80,6 +80,25 @@ class SignalLinkTest {
     }
 
     @Test
+    void clickingLinkedDistantSignalDoesNotChangeItsAspect() throws Exception {
+        TestablePanel panel = loadSignalLayout();
+        Tile sv = panel.getTile(10, 5);
+        assertThat(panel.getModel().getElementAspect("SV-001")).isEqualTo(1);
+
+        // Clicking the linked distant signal must leave its aspect untouched
+        panel.onTileClicked(sv);
+        assertThat(panel.getModel().getElementAspect("SV-001"))
+            .as("Clicking a linked distant signal must not change its aspect").isEqualTo(1);
+
+        // Clicking the main signal still changes the linked distant signal
+        Tile s2009 = panel.getTile(7, 5);
+        panel.onTileClicked(s2009);
+        panel.onTileClicked(s2009);
+        assertThat(panel.getModel().getElementAspect("S2-009")).isEqualTo(0);
+        assertThat(panel.getModel().getElementAspect("SV-001")).isEqualTo(0);
+    }
+
+    @Test
     void mirrorUndoRestoresBothSignals() throws Exception {
         TestablePanel panel = loadSignalLayout();
         Tile s2009 = panel.getTile(7, 5);
