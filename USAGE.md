@@ -33,13 +33,13 @@ The following tile types are available:
 | TURNOUT_3WAY   | T3 | Three-way turnout (3 aspects)| 0 / 90 / 180 / 270 |
 | SIGNAL_2       | S2 | 2-aspect signal (red/green)  | 0 / 90 / 180 / 270 |
 | SIGNAL_3       | S3 | 3-aspect signal (red/yellow/green) | 0 / 90 / 180 / 270 |
-| SIGNAL_V       | SV | Distant signal / Vorsignal (orange/green/orange+green) | 0 / 90 / 180 / 270 |
+| SIGNAL_V       | SV | Distant signal / Vorsignal (orange/green/orange+green/aspect 3) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Bumper stop (dead end)             | 0 / 90 / 180 / 270 |
 
 ## 4. Click elements to cycle aspects
 
 In **normal mode** (Ctrl+E to toggle):
-- Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, orange ↔ green ↔ orange+green for the distant signal, etc.).
+- Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, orange ↔ green ↔ orange+green ↔ aspect 3 for the distant signal, etc.).
 - Turnouts auto-switch to the correct aspect when a route is found.
 
 ## 5. Create a route

@@ -696,8 +696,8 @@
     "rotation" : 180,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg" ],
-    "type" : "SV3"
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg" ],
+    "type" : "SV4"
   }, {
     "col" : 11,
     "direction" : null,

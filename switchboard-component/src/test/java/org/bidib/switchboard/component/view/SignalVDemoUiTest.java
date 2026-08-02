@@ -61,8 +61,8 @@ class SignalVDemoUiTest {
                 (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, 3, 2, 32));
 
         List<List<String>> rows = List.of(
-            List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg"),
-            List.of("/icons/signals/sbb_l/signal_v_orange_right.svg", "/icons/signals/sbb_l/signal_v_yellow_right.svg", "/icons/signals/sbb_l/signal_v_green_right.svg"));
+            List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg"),
+            List.of("/icons/signals/sbb_l/signal_v_orange_right.svg", "/icons/signals/sbb_l/signal_v_yellow_right.svg", "/icons/signals/sbb_l/signal_v_green_right.svg", "/icons/signals/sbb_l/signal_v_aspect3_right.svg"));
 
         GuiActionRunner.execute(() -> {
             int id = 1;
@@ -77,9 +77,9 @@ class SignalVDemoUiTest {
                 }
             }
         });
-        assertThat(panel.getTiles()).hasSize(6);
+        assertThat(panel.getTiles()).hasSize(8);
 
-        JPanel previewGrid = new JPanel(new GridLayout(2, 3));
+        JPanel previewGrid = new JPanel(new GridLayout(2, 4));
         for (int r = 0; r < rows.size(); r++) {
             List<String> paths = rows.get(r);
             for (int c = 0; c < paths.size(); c++) {
@@ -137,6 +137,7 @@ class SignalVDemoUiTest {
             case 0 -> "orange";
             case 1 -> "yellow";
             case 2 -> "green";
+            case 3 -> "aspect 3";
             default -> "aspect " + aspect;
         };
     }
