@@ -33,13 +33,13 @@ The following tile types are available:
 | TURNOUT_3WAY   | T3 | Three-way turnout (3 aspects)| 0 / 90 / 180 / 270 |
 | SIGNAL_2       | S2 | 2-aspect signal (red/green)  | 0 / 90 / 180 / 270 |
 | SIGNAL_3       | S3 | 3-aspect signal (red/yellow/green) | 0 / 90 / 180 / 270 |
-| SIGNAL_V       | SV | Distant signal / Vorsignal (orange/yellow/green) | 0 / 90 / 180 / 270 |
+| SIGNAL_V       | SV | Distant signal / Vorsignal (orange/green/orange+green) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Bumper stop (dead end)             | 0 / 90 / 180 / 270 |
 
 ## 4. Click elements to cycle aspects
 
 In **normal mode** (Ctrl+E to toggle):
-- Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, orange ↔ yellow ↔ green for the distant signal, etc.).
+- Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, orange ↔ green ↔ orange+green for the distant signal, etc.).
 - Turnouts auto-switch to the correct aspect when a route is found.
 
 ## 5. Create a route
@@ -108,7 +108,7 @@ After a route is created, you can animate a train moving along it:
 - The simulation creates occupancy markers on every tile along the route and slides the **OCCUPIED** state from the start to the end, one tile at a time (200ms per step).
 - Turnouts along the route are automatically set to the correct position for the simulated path.
 - **Signal stops**: When a train reaches a main signal (SIGNAL_2/SIGNAL_3) at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it.
-- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of the next main signal ahead in the path, previewing the upcoming aspect (orange "Halt erwarten", yellow "Langsamfahrt erwarten", green "Frei erwarten").
+- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of the next main signal ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten".
 - **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a main signal that blocks a train auto-switches to aspect 1 (green) after 2 seconds, allowing the train to resume. Toggling this option immediately affects all running simulations.
 - **Multiple simulations**: Each route can have its own independent simulation running concurrently.
 - **Stop simulation**: Right-click the source tile of a running simulation → **Stop simulation ({id})** to stop it mid-route.

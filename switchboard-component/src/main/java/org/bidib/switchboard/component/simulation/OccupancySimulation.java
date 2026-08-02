@@ -255,11 +255,27 @@ public class OccupancySimulation {
                 && (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3)) {
                 Element el = model.getElement(et.getElementId());
                 if (el != null) {
-                    return el.getCurrentAspect();
+                    return distantAspectForMainSignal(et.getElementType(), el.getCurrentAspect());
                 }
             }
         }
         return -1;
+    }
+
+    /**
+     * Maps a next main signal's aspect to the distant signal (SIGNAL_V) aspect that previews it.
+     * SIGNAL_2: red -> orange (Halt erwarten), green -> green (Frei erwarten).
+     * SIGNAL_3: red -> orange, yellow -> orange+green (Langsamfahrt erwarten), green -> green.
+     */
+    private int distantAspectForMainSignal(ElementType type, int mainAspect) {
+        if (type == ElementType.SIGNAL_3) {
+            return switch (mainAspect) {
+                case 1 -> 2;
+                case 2 -> 1;
+                default -> 0;
+            };
+        }
+        return mainAspect;
     }
 
     // --- Query ---

@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +134,12 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     private final RailwayModel model;
 
     private final Map<String, Tile> tiles = new LinkedHashMap<>();
+
+    private final Map<TileImageKey, BufferedImage> tileImageCache = new LinkedHashMap<>(64, 0.75f, true);
+
+    private static final int TILE_IMAGE_CACHE_MAX = 1024;
+
+    private static final String SIGNAL_BASE_SVG = "/icons/tracks/straight.svg";
 
     private final Deque<Command> undoStack = new ArrayDeque<>();
 
@@ -264,6 +272,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     @Override
     public void setTile(Tile tile) {
         tiles.put(Tile.key(tile.getCol(), tile.getRow()), tile);
+        clearTileImageCache();
         repaint();
     }
 
@@ -321,6 +330,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         blockStartRow = -1;
         routeSourceCol = -1;
         routeSourceRow = -1;
+        clearTileImageCache();
         repaint();
     }
 
@@ -343,6 +353,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         if (block != null) {
             blockModel.removeBlock(block.getId());
         }
+        clearTileImageCache();
         repaint();
     }
 
@@ -912,6 +923,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         drawRoute(g2);
         drawOccupancy(g2);
         drawAlternatives(g2);
+        drawSignals(g2);
     }
 
     private void drawBlocks(Graphics2D g2) {
@@ -1510,30 +1522,84 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private void drawTiles(Graphics2D g2) {
         for (Tile tile : tiles.values()) {
-            String svgPath = resolveSvgResource(tile);
-            if (svgPath == null) {
+            if (isSignalTile(tile)) {
+                drawTile(g2, tile, SIGNAL_BASE_SVG);
                 continue;
             }
-            SVGDocument doc = SvgIconLoader.load(svgPath);
-            if (doc == null) {
-                continue;
-            }
+            drawTile(g2, tile);
+        }
+    }
 
-            int px = tile.getCol() * tileSize;
-            int py = tile.getRow() * tileSize;
-
-            Graphics2D tileG = (Graphics2D) g2.create(px, py, tileSize, tileSize);
-            try {
-                int rot = tile.getRotation();
-                if (rot != 0) {
-                    tileG.rotate(Math.toRadians(rot), tileSize / 2.0, tileSize / 2.0);
-                }
-                doc.render(null, tileG, new ViewBox(0, 0, tileSize, tileSize));
-            }
-            finally {
-                tileG.dispose();
+    private void drawSignals(Graphics2D g2) {
+        for (Tile tile : tiles.values()) {
+            if (isSignalTile(tile)) {
+                drawTile(g2, tile);
             }
         }
+    }
+
+    private boolean isSignalTile(Tile tile) {
+        return tile instanceof ElementTile et
+            && (et.getElementType() == ElementType.SIGNAL_2
+                || et.getElementType() == ElementType.SIGNAL_3
+                || et.getElementType() == ElementType.SIGNAL_V);
+    }
+
+    private void drawTile(Graphics2D g2, Tile tile) {
+        String svgPath = resolveSvgResource(tile);
+        if (svgPath == null) {
+            return;
+        }
+        drawTile(g2, tile, svgPath);
+    }
+
+    private void drawTile(Graphics2D g2, Tile tile, String svgPath) {
+        BufferedImage img = getTileImage(svgPath, tile.getRotation());
+        if (img == null) {
+            return;
+        }
+        int px = tile.getCol() * tileSize;
+        int py = tile.getRow() * tileSize;
+        g2.drawImage(img, px, py, null);
+    }
+
+    private BufferedImage getTileImage(String svgPath, int rotation) {
+        TileImageKey key = new TileImageKey(svgPath, rotation);
+        BufferedImage cached = tileImageCache.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        SVGDocument doc = SvgIconLoader.load(svgPath);
+        if (doc == null) {
+            return null;
+        }
+        BufferedImage img = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D ig = img.createGraphics();
+        try {
+            ig.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ig.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            if (rotation != 0) {
+                ig.rotate(Math.toRadians(rotation), tileSize / 2.0, tileSize / 2.0);
+            }
+            doc.render(null, ig, new ViewBox(0, 0, tileSize, tileSize));
+        }
+        finally {
+            ig.dispose();
+        }
+        if (tileImageCache.size() >= TILE_IMAGE_CACHE_MAX) {
+            Iterator<TileImageKey> it = tileImageCache.keySet().iterator();
+            it.next();
+            it.remove();
+        }
+        tileImageCache.put(key, img);
+        return img;
+    }
+
+    private void clearTileImageCache() {
+        tileImageCache.clear();
+    }
+
+    private record TileImageKey(String svgPath, int rotation) {
     }
 
     private String resolveSvgResource(Tile tile) {
