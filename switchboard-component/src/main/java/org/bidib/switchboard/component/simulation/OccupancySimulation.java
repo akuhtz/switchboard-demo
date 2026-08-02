@@ -245,7 +245,7 @@ public class OccupancySimulation {
             return false;
         }
         ElementType type = et.getElementType();
-        if (type != ElementType.SIGNAL_2 && type != ElementType.SIGNAL_3) {
+        if (type != ElementType.SIGNAL_2 && type != ElementType.SIGNAL_3 && type != ElementType.SIGNAL_V) {
             return false;
         }
         Element el = model.getElement(et.getElementId());

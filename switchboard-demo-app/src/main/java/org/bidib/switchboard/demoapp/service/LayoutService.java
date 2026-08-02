@@ -54,6 +54,7 @@ public class LayoutService {
         model.addElement(new Element("T3-001", 0, 0));
         model.addElement(new Element("S2-001", 0, 0));
         model.addElement(new Element("S3-001", 0, 0));
+        model.addElement(new Element("SV-001", 0, 0));
 
         tileGrid.setTile(
             new ElementTile(2, 3, "TL-001", ElementType.TURNOUT_LEFT, List.of("/icons/turnout_straight_left.svg", "/icons/turnout_diverted_left.svg")));
@@ -64,6 +65,8 @@ public class LayoutService {
         tileGrid.setTile(new ElementTile(10, 3, "S2-001", ElementType.SIGNAL_2, List.of("/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg")));
         tileGrid.setTile(new ElementTile(11, 3, "S3-001", ElementType.SIGNAL_3,
             List.of("/icons/signal_3_red_left.svg", "/icons/signal_3_yellow_left.svg", "/icons/signal_3_green_left.svg")));
+        tileGrid.setTile(new ElementTile(12, 3, "SV-001", ElementType.SIGNAL_V,
+            List.of("/icons/signal_v_orange_left.svg", "/icons/signal_v_yellow_left.svg", "/icons/signal_v_green_left.svg")));
 
         for (int col = 0; col < 5; col++) {
             String id = "P-" + String.format("%03d", col + 1);

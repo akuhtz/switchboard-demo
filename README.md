@@ -429,6 +429,9 @@ strings use `java.text.MessageFormat` (e.g., `"Clear route ({0})"`, `"Position: 
 | `signal_3_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_3_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, yellow+green dim |
 | `signal_3_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_3_yellow_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — yellow active, red+green dim |
 | `signal_3_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_3_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red+yellow dim |
+| `signal_v_orange_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_v_orange_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — two orange lit, green dim ("Halt erwarten") |
+| `signal_v_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_v_yellow_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — orange + green lit ("Langsamfahrt erwarten") |
+| `signal_v_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signal_v_green_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — two green lit, orange dim ("Frei erwarten") |
 
 All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use light gray `#aaaaaa` for active paths, `#808080` for inactive paths, and `#ffa500` (orange) for the frog-end on turnouts.
 
@@ -436,12 +439,13 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | Path | Description |
 |------|-------------|
 | `switchboard-component/src/main/resources/signals/sbb_l/SBB-L-H01.svg` | Source SBB L signal shape (200x400, rotated for icons) |
+| `switchboard-component/src/main/resources/signals/sbb_l/SBB-L-V16.svg` | Source SBB L distant signal (Vorsignal) shape (200x400, rotated for icons) |
 
 ---
 
 ## Tests
 
-86 tests across nine test classes:
+89 tests across nine test classes:
 
 ### `SwitchboardAppTest` (7 tests)
 | Test | Description |
@@ -559,7 +563,7 @@ execution to `target/surefire-reports/`.
 ### `OccupancyElementUiTest` (2 tests, 1 disabled)
 | Test | Description |
 |------|-------------|
-| `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 9 ElementTypes × all aspects × 4 rotations (64 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
+| `occupancyCyclesThroughAllElements` | Timer-driven occupancy cycle across all 10 ElementTypes × all aspects × 4 rotations (112 elements), verifying sliding-window pattern. Tiles built programmatically in `@BeforeEach` (16 rows × 10 columns, 2 empty tiles between rotations, insertion-order iteration). |
 | ~~`occupancyAtCurveRotations`~~ | ~~Verifies `drawOccupancy` line endpoints for all CURVE_LEFT and CURVE_RIGHT rotations: first port draws to edge midpoint, second port draws to the corner determined by the exit port and its tangent.~~ |
 
 Uses `switchboard3.json`, `switchboard4.json`, `switchboard5.json`, `switchboard6.json`, `switchboard7.json`, `switchboard-block1.json`, `switchboard-block2.json`, and `switchboard-block3.json` test layouts. 88 of 89 tests pass (1 disabled).

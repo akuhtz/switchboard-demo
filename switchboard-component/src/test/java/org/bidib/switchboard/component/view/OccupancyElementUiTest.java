@@ -57,6 +57,7 @@ class OccupancyElementUiTest {
         map.put(ElementType.TURNOUT_3WAY, List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg"));
         map.put(ElementType.SIGNAL_2, List.of("/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg"));
         map.put(ElementType.SIGNAL_3, List.of("/icons/signal_3_red_left.svg", "/icons/signal_3_yellow_left.svg", "/icons/signal_3_green_left.svg"));
+        map.put(ElementType.SIGNAL_V, List.of("/icons/signal_v_orange_left.svg", "/icons/signal_v_yellow_left.svg", "/icons/signal_v_green_left.svg"));
         map.put(ElementType.STRAIGHT, List.of("/icons/straight.svg"));
         map.put(ElementType.CURVE_LEFT, List.of("/icons/curve_left.svg"));
         map.put(ElementType.CURVE_RIGHT, List.of("/icons/curve_right.svg"));
@@ -69,6 +70,7 @@ class OccupancyElementUiTest {
         Map<ElementType, List<String>> map = new LinkedHashMap<>();
         map.put(ElementType.SIGNAL_2, List.of("/icons/signal_2_red_right.svg", "/icons/signal_2_green_right.svg"));
         map.put(ElementType.SIGNAL_3, List.of("/icons/signal_3_red_right.svg", "/icons/signal_3_yellow_right.svg", "/icons/signal_3_green_right.svg"));
+        map.put(ElementType.SIGNAL_V, List.of("/icons/signal_v_orange_right.svg", "/icons/signal_v_yellow_right.svg", "/icons/signal_v_green_right.svg"));
         return map;
     }
 
@@ -165,7 +167,7 @@ class OccupancyElementUiTest {
     @Test
     void occupancyCyclesThroughAllElements() throws Exception {
         List<Element> elements = new ArrayList<>(panel.getModel().getElements().values());
-        assertThat(elements).hasSize(88);
+        assertThat(elements).hasSize(112);
 
         Map<String, int[]> elementPositions = new LinkedHashMap<>();
         for (Tile tile : panel.getTiles().values()) {
@@ -173,7 +175,7 @@ class OccupancyElementUiTest {
                 elementPositions.put(et.getElementId(), new int[] { tile.getCol(), tile.getRow() });
             }
         }
-        assertThat(elementPositions).hasSize(88);
+        assertThat(elementPositions).hasSize(112);
 
         int limit = elements.size();
         LOGGER.info("Testing {} elements across all types, aspects, and rotations", limit);

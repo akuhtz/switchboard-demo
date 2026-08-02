@@ -550,7 +550,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 if (et.getElementType() == ElementType.STRAIGHT || et.getElementType() == ElementType.DIAGONAL) {
                     buildDirectionSubmenu(menu, tile);
                 }
-                if (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3) {
+                if (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3
+                    || et.getElementType() == ElementType.SIGNAL_V) {
                     JMenu sideMenu = new JMenu(messages.getString("context.signalSide"));
                     SignalSide currentSide = tile.getSignalSide();
                     for (SignalSide side : SignalSide.values()) {
@@ -822,7 +823,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 }
             }
             sb.append(MessageFormat.format(messages.getString("info.aspects"), et.getAspectCount())).append("\n");
-            if (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3) {
+            if (et.getElementType() == ElementType.SIGNAL_2 || et.getElementType() == ElementType.SIGNAL_3
+                || et.getElementType() == ElementType.SIGNAL_V) {
                 SignalSide side = tile.getSignalSide();
                 sb.append(MessageFormat.format(messages.getString("info.signalSide"), side));
                 if (side == SignalSide.DEFAULT) {
@@ -884,6 +886,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 List.of("/icons/turnout_3way_straight.svg", "/icons/turnout_3way_left.svg", "/icons/turnout_3way_right.svg"));
             case SIGNAL_2 -> new ElementTile(col, row, id, type, List.of("/icons/signal_2_red_left.svg", "/icons/signal_2_green_left.svg"));
             case SIGNAL_3 -> new ElementTile(col, row, id, type, List.of("/icons/signal_3_red_left.svg", "/icons/signal_3_yellow_left.svg", "/icons/signal_3_green_left.svg"));
+            case SIGNAL_V -> new ElementTile(col, row, id, type, List.of("/icons/signal_v_orange_left.svg", "/icons/signal_v_yellow_left.svg", "/icons/signal_v_green_left.svg"));
             case STRAIGHT -> new ElementTile(col, row, id, type, List.of("/icons/straight.svg"));
             case CURVE_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/curve_left.svg"));
             case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/curve_right.svg"));

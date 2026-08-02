@@ -7,6 +7,7 @@ public enum ElementType {
     TURNOUT_3WAY("T3", true),
     SIGNAL_2("S2", true),
     SIGNAL_3("S3", true),
+    SIGNAL_V("SV", true),
     STRAIGHT("P", true),
     CURVE_LEFT("CL", true),
     CURVE_RIGHT("CR", true),
@@ -62,7 +63,7 @@ public enum ElementType {
             case TURNOUT_LEFT -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_TOP };
             case TURNOUT_RIGHT -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_BOTTOM };
             case TURNOUT_3WAY -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_TOP, PORT_BOTTOM };
-            case SIGNAL_2, SIGNAL_3 -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case SIGNAL_2, SIGNAL_3, SIGNAL_V -> new int[] { PORT_LEFT, PORT_RIGHT };
             case BUMPER -> new int[] { PORT_LEFT };
         };
         return rotatePorts(base, rotation);
@@ -145,7 +146,7 @@ public enum ElementType {
 
     private int[] getBaseThroughPaths() {
         return switch (this) {
-            case STRAIGHT, SIGNAL_2, SIGNAL_3 -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case STRAIGHT, SIGNAL_2, SIGNAL_3, SIGNAL_V -> new int[] { PORT_LEFT, PORT_RIGHT };
             case DIAGONAL -> new int[] { PORT_LEFT, PORT_TOP, PORT_LEFT, PORT_RIGHT, PORT_TOP, PORT_BOTTOM, PORT_RIGHT, PORT_BOTTOM };
             case CURVE_LEFT -> new int[] { PORT_LEFT, PORT_TOP };
             case CURVE_RIGHT -> new int[] { PORT_LEFT, PORT_BOTTOM };
@@ -160,7 +161,7 @@ public enum ElementType {
         return switch (this) {
             case STRAIGHT, DIAGONAL, CURVE_LEFT, CURVE_RIGHT, BUMPER -> 1;
             case TURNOUT_LEFT, TURNOUT_RIGHT, SIGNAL_2 -> 2;
-            case TURNOUT_3WAY, SIGNAL_3 -> 3;
+            case TURNOUT_3WAY, SIGNAL_3, SIGNAL_V -> 3;
         };
     }
 
@@ -181,7 +182,7 @@ public enum ElementType {
                 case 1 -> new int[] { PORT_LEFT, PORT_TOP };
                 default -> new int[] { PORT_LEFT, PORT_BOTTOM };
             };
-            case SIGNAL_2, SIGNAL_3 -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case SIGNAL_2, SIGNAL_3, SIGNAL_V -> new int[] { PORT_LEFT, PORT_RIGHT };
             case BUMPER -> new int[] { PORT_LEFT };
         };
     }

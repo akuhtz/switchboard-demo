@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400">
+	<g>
+		<path d="M 1 20 L 1 180 L 20 199 L 180 199 L 199 180 L 199 20 L 180 1 L 20 1 L 1 20 Z" fill="white" stroke="black" stroke-width="2"></path>
+		<path d="M 10 25 L 10 175 L 25 190 L 175 190 L 190 175 L 190 25 L 175 10 L 25 10 L 10 25 Z" fill="black"></path>
+		<circle id="vs1_o1" data-bidib-key="vs1_o1" cx="50" cy="50" r="20" fill="#FF8000"></circle>
+		<circle id="vs1_o2" data-bidib-key="vs1_o2" cx="150" cy="50" r="20" fill="#FF8000"></circle>
+		<circle id="vs1_g1" data-bidib-key="vs1_g1" cx="150" cy="100" r="20" fill="#00FF40"></circle>
+		<circle id="vs1_g2" data-bidib-key="vs1_g2" cx="50" cy="150" r="20" fill="#00FF40"></circle>
+		<circle id="vs1_o3" data-bidib-key="vs1_o3" cx="150" cy="150" r="20" fill="#202020"></circle>
+	</g>
+</svg>
