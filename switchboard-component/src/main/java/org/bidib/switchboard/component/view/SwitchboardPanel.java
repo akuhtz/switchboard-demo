@@ -1084,6 +1084,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         drawOccupancy(g2);
         drawAlternatives(g2);
         drawSignals(g2);
+        drawSignalDirectionMarkers(g2);
     }
 
     private void drawBlocks(Graphics2D g2) {
@@ -1357,6 +1358,38 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
             // Determine the angle for the triangle (pointing toward exit port)
             double angle = computeDirectionAngle(type, rotSteps, tile.getDirection());
+            drawTriangle(g2, cx, cy, arrowSize, angle);
+        }
+    }
+
+    /**
+     * Draws a small arrow on each signal tile in edit mode showing the signal's driving
+     * direction, i.e. the direction a train travels when it is influenced by the signal
+     * (stopped at "halt"). This is independent of the track's direction markers.
+     * <p>
+     * Signal facing convention: at rotation 0 the signal faces LEFT and stops trains
+     * entering from port LEFT (traveling LEFT→RIGHT), so the arrow points toward the exit
+     * port {@code (facingPort + 2) % 4}.
+     */
+    private void drawSignalDirectionMarkers(Graphics2D g2) {
+        if (!editMode) {
+            return;
+        }
+        int half = tileSize / 2;
+        int arrowSize = Math.max(4, tileSize / 5);
+        g2.setColor(COLOR_DIRECTION);
+        for (Tile tile : tiles.values()) {
+            if (!(tile instanceof ElementTile et)) {
+                continue;
+            }
+            ElementType type = et.getElementType();
+            if (type != ElementType.SIGNAL_2 && type != ElementType.SIGNAL_3 && type != ElementType.SIGNAL_V) {
+                continue;
+            }
+            int cx = tile.getCol() * tileSize + half;
+            int cy = tile.getRow() * tileSize + half;
+            int rotSteps = (tile.getRotation() / 90) % 4;
+            double angle = rotSteps * Math.PI / 2;
             drawTriangle(g2, cx, cy, arrowSize, angle);
         }
     }
