@@ -16,7 +16,7 @@ The installer bundles a JRE — no separate Java installation required. After in
 
 ## 3. Add tiles
 
-- Right-click any cell → choose a tile type from the list (e.g. `P (STRAIGHT)`, `TR (TURNOUT_RIGHT)`, `TL (TURNOUT_LEFT)`, `S2 (SIGNAL_2)`, `SV (SIGNAL_V)`).
+- Right-click any cell → choose a tile type from the list (e.g. `P (STRAIGHT)`, `TR (TURNOUT_RIGHT)`, `TL (TURNOUT_LEFT)`, `S3 (SIGNAL_3)`, `SV (SIGNAL_V)`).
 - The tile appears immediately.
 - **Rotate**: select the tile with a left-click (cyan border), then press **Ctrl+R** to rotate 90°.
 
@@ -31,8 +31,7 @@ The following tile types are available:
 | TURNOUT_LEFT   | TL | Left turnout (2 aspects)     | 0 / 90 / 180 / 270 |
 | TURNOUT_RIGHT  | TR | Right turnout (2 aspects)    | 0 / 90 / 180 / 270 |
 | TURNOUT_3WAY   | T3 | Three-way turnout (3 aspects)| 0 / 90 / 180 / 270 |
-| SIGNAL_2       | S2 | 2-aspect signal (red/green)  | 0 / 90 / 180 / 270 |
-| SIGNAL_3       | S3 | 3-aspect signal (red/yellow/green) | 0 / 90 / 180 / 270 |
+| SIGNAL_3       | S3 | 3-aspect signal (red/green/yellow) | 0 / 90 / 180 / 270 |
 | SIGNAL_V       | SV | Distant signal / Vorsignal (orange/green/orange+green/aspect 3) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Bumper stop (dead end)             | 0 / 90 / 180 / 270 |
 
@@ -73,7 +72,7 @@ Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWA
 
 ## 7. Signal side
 
-Signal tiles can display their body above (Swiss, `_left`) or below (German, `_right`) the track. This applies to all signal types (SIGNAL_2, SIGNAL_3, SIGNAL_V).
+Signal tiles can display their body above (Swiss, `_left`) or below (German, `_right`) the track. This applies to all signal types (SIGNAL_3, SIGNAL_V).
 
 - The global default is set via **File → Settings → Signal Side** (Swiss/German).
 - Per‑tile override: in **edit mode**, right‑click a signal tile → **Signal Side** submenu → choose Left / Right / Default.
@@ -82,7 +81,7 @@ Signal tiles can display their body above (Swiss, `_left`) or below (German, `_r
 
 ## 8. Link a distant signal to a main signal
 
-A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_2/SIGNAL_3) it previews. Once linked:
+A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_3) it previews. Once linked:
 
 - **Manual mirroring**: In normal mode, clicking the main signal also switches every linked distant signal to the matching preview aspect: red → orange ("Halt erwarten"), green → green ("Frei erwarten"), and for SIGNAL_3 also yellow → orange+green ("Langsamfahrt erwarten"). This works outside simulation runs, too.
 - Clicking a **linked distant signal** itself does **not** change its aspect — its aspect is controlled by the linked main signal.
@@ -119,7 +118,7 @@ After a route is created, you can animate a train moving along it:
 - Right-click the **green source circle** of a route → **Simulate occupancy ({id})**.
 - The simulation creates occupancy markers on every tile along the route and slides the **OCCUPIED** state from the start to the end, one tile at a time (200ms per step).
 - Turnouts along the route are automatically set to the correct position for the simulated path.
-- **Signal stops**: When a train reaches a main signal (SIGNAL_2/SIGNAL_3) at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it.
+- **Signal stops**: When a train reaches a main signal (SIGNAL_3) at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it.
 - **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of the next main signal ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". A distant signal linked to a main signal (see [section 8](#8-link-a-distant-signal-to-a-main-signal)) also mirrors the main signal's aspect when you click it manually, outside the simulation.
 - **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a main signal that blocks a train auto-switches to aspect 1 (green) after 2 seconds, allowing the train to resume. Toggling this option immediately affects all running simulations.
 - **Multiple simulations**: Each route can have its own independent simulation running concurrently.

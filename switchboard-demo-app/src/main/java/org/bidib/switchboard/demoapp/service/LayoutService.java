@@ -52,7 +52,6 @@ public class LayoutService {
         model.addElement(new Element("TL-001", 0, 0));
         model.addElement(new Element("TR-001", 0, 0));
         model.addElement(new Element("T3-001", 0, 0));
-        model.addElement(new Element("S2-001", 0, 0));
         model.addElement(new Element("S3-001", 0, 0));
         model.addElement(new Element("SV-001", 0, 0));
 
@@ -62,9 +61,8 @@ public class LayoutService {
             new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg")));
         tileGrid.setTile(new ElementTile(4, 3, "T3-001", ElementType.TURNOUT_3WAY,
             List.of("/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg")));
-        tileGrid.setTile(new ElementTile(10, 3, "S2-001", ElementType.SIGNAL_2, List.of("/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg")));
         tileGrid.setTile(new ElementTile(11, 3, "S3-001", ElementType.SIGNAL_3,
-            List.of("/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg")));
+            List.of("/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg")));
         tileGrid.setTile(new ElementTile(12, 3, "SV-001", ElementType.SIGNAL_V,
             List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg")));
 

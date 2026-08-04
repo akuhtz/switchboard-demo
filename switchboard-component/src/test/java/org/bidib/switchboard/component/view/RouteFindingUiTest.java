@@ -242,21 +242,21 @@ class RouteFindingUiTest {
     }
 
     @Test
-    void routeP086ToS2013WithDirectionAndAlternatives() throws Exception {
+    void routeP086ToS3015WithDirectionAndAlternatives() throws Exception {
         // Load switchboard7.json which has a direction marker at P-099 (24,8)
         var url = RouteFindingUiTest.class.getResource("/test-data/switchboard7.json");
         Path layoutPath = Paths.get(url.toURI());
         var layoutPersistence = new LayoutPersistence();
         GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
 
-        // Create route from P-086 (9,10) to S2-013 (19,4)
+        // Create route from P-086 (9,10) to S3-015 (19,4)
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
             panel.testSetRouteSource(9, 10);
             panel.testFindRoute(19, 4);
         });
 
-        String routeId = "P-086-S2-013";
+        String routeId = "P-086-S3-015";
         Route route = panel.getRouteModel().getRoute(routeId);
         assertThat(route).as("Route %s should be found", routeId).isNotNull();
 

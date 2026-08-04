@@ -281,7 +281,7 @@ public class LayoutPersistence {
     /**
      * Migrates old signal SVG paths (pre _left/_right suffix and old /icons directory)
      * to the current location and naming.
-     * E.g. "/icons/signal_2_red.svg" → "/icons/signals/sbb_l/signal_2_red_left.svg"
+     * E.g. "/icons/signal_3_red.svg" → "/icons/signals/sbb_l/signal_3_red_left.svg"
      */
     private static String migrateSignalSvgPath(String path) {
         if (path == null) return null;

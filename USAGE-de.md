@@ -16,7 +16,7 @@ Der Installer enthält eine JRE — eine separate Java-Installation ist nicht er
 
 ## 3. Kacheln hinzufügen
 
-- Rechtsklick auf eine beliebige Zelle → einen Kacheltyp aus der Liste auswählen (z.B. `P (STRAIGHT)`, `TR (TURNOUT_RIGHT)`, `TL (TURNOUT_LEFT)`, `S2 (SIGNAL_2)`, `SV (SIGNAL_V)`).
+- Rechtsklick auf eine beliebige Zelle → einen Kacheltyp aus der Liste auswählen (z.B. `P (STRAIGHT)`, `TR (TURNOUT_RIGHT)`, `TL (TURNOUT_LEFT)`, `S3 (SIGNAL_3)`, `SV (SIGNAL_V)`).
 - Die Kachel erscheint sofort.
 - **Drehen**: Kachel mit Linksklick auswählen (cyan Rahmen), dann **Strg+R** drücken, um 90° zu drehen.
 
@@ -31,8 +31,7 @@ Folgende Kacheltypen sind verfügbar:
 | TURNOUT_LEFT   | TL | Linksweiche (2 Stellungen)   | 0 / 90 / 180 / 270 |
 | TURNOUT_RIGHT  | TR | Rechtsweiche (2 Stellungen)  | 0 / 90 / 180 / 270 |
 | TURNOUT_3WAY   | T3 | Dreiwegeweiche (3 Stellungen)| 0 / 90 / 180 / 270 |
-| SIGNAL_2       | S2 | 2-begriffiges Signal (rot/grün)  | 0 / 90 / 180 / 270 |
-| SIGNAL_3       | S3 | 3-begriffiges Signal (rot/gelb/grün) | 0 / 90 / 180 / 270 |
+| SIGNAL_3       | S3 | 3-begriffiges Signal (rot/grün/gelb) | 0 / 90 / 180 / 270 |
 | SIGNAL_V       | SV | Vorsignal (orange/grün/orange+grün/Stellung 3) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Prellbock (Gleisende)                | 0 / 90 / 180 / 270 |
 
@@ -73,7 +72,7 @@ Gerade und diagonale Kacheln können eine **Richtungsbeschränkung** haben (FORW
 
 ## 7. Signalseite
 
-Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unterhalb (deutsche Norm, `_right`) des Gleises anzeigen. Dies gilt für alle Signaltypen (SIGNAL_2, SIGNAL_3, SIGNAL_V).
+Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unterhalb (deutsche Norm, `_right`) des Gleises anzeigen. Dies gilt für alle Signaltypen (SIGNAL_3, SIGNAL_V).
 
 - Der globale Standard wird unter **Datei → Einstellungen → Signalseite Links / Signalseite Rechts** festgelegt.
 - Kachelspezifische Einstellung: im **Bearbeitungsmodus** Rechtsklick auf eine Signalkachel → **Signalseite**-Untermenü → Links / Rechts / Standard auswählen.
@@ -82,7 +81,7 @@ Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unter
 
 ## 8. Vorsignal mit Hauptsignal verknüpfen
 
-Ein Vorsignal (SIGNAL_V) kann mit dem Hauptsignal (SIGNAL_2/SIGNAL_3) verknüpft werden, das es ankündigt. Nach der Verknüpfung gilt:
+Ein Vorsignal (SIGNAL_V) kann mit dem Hauptsignal (SIGNAL_3) verknüpft werden, das es ankündigt. Nach der Verknüpfung gilt:
 
 - **Manuelle Spiegelung**: Im Normalmodus schaltet ein Klick auf das Hauptsignal auch jedes verknüpfte Vorsignal auf die passende Vorankündigung: rot → orange „Halt erwarten", grün → grün „Frei erwarten", bei SIGNAL_3 zusätzlich gelb → orange+grün „Langsamfahrt erwarten". Dies funktioniert auch außerhalb der Simulation.
 - Ein Klick auf ein **verknüpftes Vorsignal** selbst ändert dessen Stellung **nicht** — seine Stellung wird über das verknüpfte Hauptsignal gesteuert.
@@ -120,7 +119,7 @@ Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert w
 - Rechtsklick auf den **grünen Startkreis** einer Fahrstraße → **Belegung simulieren ({id})**.
 - Die Simulation erzeugt Belegungsmarkierungen auf jeder Kachel der Fahrstraße und schiebt den **OCCUPIED**-Zustand vom Start zum Ende, eine Kachel pro Schritt (200ms pro Schritt).
 - Weichen entlang der Fahrstraße werden automatisch auf die korrekte Position für den simulierten Weg gesetzt.
-- **Signalhalt**: Wenn ein Zug ein Hauptsignal (SIGNAL_2/SIGNAL_3) mit Stellung 0 (rot) erreicht, hält er an und wartet. Signale blockieren nur Züge, die sich von vorne nähern (die Richtung, in die das Signal basierend auf seiner Rotation zeigt). Züge, die sich einem Signal von hinten nähern, ignorieren es.
+- **Signalhalt**: Wenn ein Zug ein Hauptsignal (SIGNAL_3) mit Stellung 0 (rot) erreicht, hält er an und wartet. Signale blockieren nur Züge, die sich von vorne nähern (die Richtung, in die das Signal basierend auf seiner Rotation zeigt). Züge, die sich einem Signal von hinten nähern, ignorieren es.
 - **Vorsignale (SIGNAL_V)**: Das Vorsignal hält den Zug nie an. Es spiegelt die Stellung des nächsten Hauptsignals im Pfad wider und kündigt so die kommende Stellung an: orange „Halt erwarten", grün „Frei erwarten", orange+grün „Langsamfahrt erwarten". Ein mit einem Hauptsignal verknüpftes Vorsignal (siehe [Abschnitt 8](#8-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)) spiegelt dessen Stellung auch beim manuellen Klicken außerhalb der Simulation.
 - **Automatischer Signalwechsel**: Aktivieren über **Bearbeiten → Automatischer Signalwechsel**. Wenn aktiv, schaltet ein Hauptsignal, das einen Zug blockiert, nach 2 Sekunden automatisch auf Stellung 1 (grün) um, sodass der Zug weiterfahren kann. Das Umschalten dieser Option wirkt sich sofort auf alle laufenden Simulationen aus.
 - **Mehrere Simulationen**: Jede Fahrstraße kann ihre eigene unabhängige Simulation gleichzeitig ausführen.

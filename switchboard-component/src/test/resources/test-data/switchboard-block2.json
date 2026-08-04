@@ -9,7 +9,7 @@
     "elements" : [ {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "S2-001",
+      "id" : "S3-001",
       "nodeId" : 0,
       "occupancyId" : null
     }, {
@@ -111,12 +111,12 @@
   }, {
     "col" : 10,
     "direction" : null,
-    "elementId" : "S2-001",
+    "elementId" : "S3-001",
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
-    "type" : "S22"
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg" ],
+    "type" : "S33"
   }, {
     "col" : 11,
     "direction" : null,

@@ -84,12 +84,12 @@
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "S2-002",
+      "id" : "S3-002",
       "nodeId" : 0
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "S2-003",
+      "id" : "S3-008",
       "nodeId" : 0
     }, {
       "accessoryId" : 0,
@@ -104,7 +104,7 @@
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "S2-005",
+      "id" : "S3-007",
       "nodeId" : 0
     }, {
       "accessoryId" : 0,
@@ -119,7 +119,7 @@
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "S3-002",
+      "id" : "S3-001",
       "nodeId" : 0
     }, {
       "accessoryId" : 0,
@@ -134,7 +134,7 @@
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "S2-006",
+      "id" : "S3-006",
       "nodeId" : 0
     }, {
       "accessoryId" : 0,
@@ -149,7 +149,7 @@
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "S2-007",
+      "id" : "S3-005",
       "nodeId" : 0
     }, {
       "accessoryId" : 0,
@@ -164,7 +164,7 @@
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "S2-008",
+      "id" : "S3-004",
       "nodeId" : 0
     }, {
       "accessoryId" : 0,
@@ -184,7 +184,7 @@
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "S2-009",
+      "id" : "S3-003",
       "nodeId" : 0
     }, {
       "accessoryId" : 0,
@@ -242,10 +242,10 @@
     "type" : "P1"
   }, {
     "col" : 3,
-    "elementId" : "S3-002",
+    "elementId" : "S3-001",
     "rotation" : 0,
     "row" : 3,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg" ],
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg" ],
     "type" : "S33"
   }, {
     "col" : 4,
@@ -291,11 +291,11 @@
     "type" : "DG1"
   }, {
     "col" : 6,
-    "elementId" : "S2-002",
+    "elementId" : "S3-002",
     "rotation" : 0,
     "row" : 0,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
-    "type" : "S22"
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg" ],
+    "type" : "S33"
   }, {
     "col" : 6,
     "elementId" : "CL-003",
@@ -354,11 +354,11 @@
     "type" : "CR1"
   }, {
     "col" : 7,
-    "elementId" : "S2-009",
+    "elementId" : "S3-003",
     "rotation" : 180,
     "row" : 5,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
-    "type" : "S22"
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg" ],
+    "type" : "S33"
   }, {
     "col" : 8,
     "elementId" : "P-014",
@@ -375,25 +375,25 @@
     "type" : "TR2"
   }, {
     "col" : 8,
-    "elementId" : "S2-008",
+    "elementId" : "S3-004",
     "rotation" : 180,
     "row" : 2,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
-    "type" : "S22"
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg" ],
+    "type" : "S33"
   }, {
     "col" : 8,
-    "elementId" : "S2-007",
+    "elementId" : "S3-005",
     "rotation" : 180,
     "row" : 3,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
-    "type" : "S22"
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg" ],
+    "type" : "S33"
   }, {
     "col" : 8,
-    "elementId" : "S2-006",
+    "elementId" : "S3-006",
     "rotation" : 180,
     "row" : 4,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
-    "type" : "S22"
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg" ],
+    "type" : "S33"
   }, {
     "col" : 8,
     "elementId" : "P-022",
@@ -403,18 +403,18 @@
     "type" : "P1"
   }, {
     "col" : 9,
-    "elementId" : "S2-005",
+    "elementId" : "S3-007",
     "rotation" : 180,
     "row" : 0,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
-    "type" : "S22"
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg" ],
+    "type" : "S33"
   }, {
     "col" : 9,
-    "elementId" : "S2-003",
+    "elementId" : "S3-008",
     "rotation" : 180,
     "row" : 1,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_2_red_left.svg", "/icons/signals/sbb_l/signal_2_green_left.svg" ],
-    "type" : "S22"
+    "svgPaths" : [ "/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg" ],
+    "type" : "S33"
   }, {
     "col" : 9,
     "elementId" : "P-007",

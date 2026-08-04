@@ -45,7 +45,7 @@ class SignalLinkTest {
         TestablePanel panel = loadSignalLayout();
         Tile sv = panel.getTile(10, 5);
         assertThat(sv).as("Distant signal SV-001 at (10,5) should be loaded").isNotNull();
-        assertThat(((ElementTile) sv).getMainSignalId()).isEqualTo("S2-009");
+        assertThat(((ElementTile) sv).getMainSignalId()).isEqualTo("S3-003");
     }
 
     @Test
@@ -59,23 +59,28 @@ class SignalLinkTest {
 
         Tile sv = panel2.getTile(10, 5);
         assertThat(sv).as("Distant signal should be restored").isNotNull();
-        assertThat(((ElementTile) sv).getMainSignalId()).as("Link should survive round-trip").isEqualTo("S2-009");
+        assertThat(((ElementTile) sv).getMainSignalId()).as("Link should survive round-trip").isEqualTo("S3-003");
     }
 
     @Test
     void switchingMainSignalToZeroSwitchesLinkedDistantSignalToZero() throws Exception {
         TestablePanel panel = loadSignalLayout();
-        Tile s2009 = panel.getTile(7, 5);
-        assertThat(panel.getModel().getElementAspect("S2-009")).isEqualTo(0);
+        Tile s3003 = panel.getTile(7, 5);
+        assertThat(panel.getModel().getElementAspect("S3-003")).isEqualTo(0);
 
         // Click the main signal once: 0 -> 1 (green), the distant signal mirrors to 1
-        panel.onTileClicked(s2009);
-        assertThat(panel.getModel().getElementAspect("S2-009")).isEqualTo(1);
+        panel.onTileClicked(s3003);
+        assertThat(panel.getModel().getElementAspect("S3-003")).isEqualTo(1);
         assertThat(panel.getModel().getElementAspect("SV-001")).isEqualTo(1);
 
-        // Click again: 1 -> 0 (red), the distant signal must switch to 0 too
-        panel.onTileClicked(s2009);
-        assertThat(panel.getModel().getElementAspect("S2-009")).isEqualTo(0);
+        // Click again: 1 -> 2 (yellow), the distant signal mirrors to 2
+        panel.onTileClicked(s3003);
+        assertThat(panel.getModel().getElementAspect("S3-003")).isEqualTo(2);
+        assertThat(panel.getModel().getElementAspect("SV-001")).isEqualTo(2);
+
+        // Click a third time: 2 -> 0 (red), the distant signal must switch to 0 too
+        panel.onTileClicked(s3003);
+        assertThat(panel.getModel().getElementAspect("S3-003")).isEqualTo(0);
         assertThat(panel.getModel().getElementAspect("SV-001")).isEqualTo(0);
     }
 
@@ -91,29 +96,34 @@ class SignalLinkTest {
             .as("Clicking a linked distant signal must not change its aspect").isEqualTo(1);
 
         // Clicking the main signal still changes the linked distant signal
-        Tile s2009 = panel.getTile(7, 5);
-        panel.onTileClicked(s2009);
-        panel.onTileClicked(s2009);
-        assertThat(panel.getModel().getElementAspect("S2-009")).isEqualTo(0);
+        Tile s3003 = panel.getTile(7, 5);
+        panel.onTileClicked(s3003);
+        panel.onTileClicked(s3003);
+        panel.onTileClicked(s3003);
+        assertThat(panel.getModel().getElementAspect("S3-003")).isEqualTo(0);
         assertThat(panel.getModel().getElementAspect("SV-001")).isEqualTo(0);
     }
 
     @Test
     void mirrorUndoRestoresBothSignals() throws Exception {
         TestablePanel panel = loadSignalLayout();
-        Tile s2009 = panel.getTile(7, 5);
-        panel.onTileClicked(s2009);
-        panel.onTileClicked(s2009);
-        assertThat(panel.getModel().getElementAspect("S2-009")).isEqualTo(0);
+        Tile s3003 = panel.getTile(7, 5);
+        // 3-aspect main signal cycles 0 -> 1 -> 2 -> 0, mirroring each step
+        panel.onTileClicked(s3003);
+        panel.onTileClicked(s3003);
+        panel.onTileClicked(s3003);
+        assertThat(panel.getModel().getElementAspect("S3-003")).isEqualTo(0);
         assertThat(panel.getModel().getElementAspect("SV-001")).isEqualTo(0);
 
         panel.undoLast();
-        assertThat(panel.getModel().getElementAspect("SV-001")).as("Undo distant signal mirror").isEqualTo(1);
+        assertThat(panel.getModel().getElementAspect("SV-001")).as("Undo distant signal mirror").isEqualTo(2);
         panel.undoLast();
-        assertThat(panel.getModel().getElementAspect("S2-009")).as("Undo main signal cycle").isEqualTo(1);
+        assertThat(panel.getModel().getElementAspect("S3-003")).as("Undo main signal cycle").isEqualTo(2);
         panel.undoLast();
         panel.undoLast();
-        assertThat(panel.getModel().getElementAspect("S2-009")).as("Full undo restores main aspect").isEqualTo(0);
+        panel.undoLast();
+        panel.undoLast();
+        assertThat(panel.getModel().getElementAspect("S3-003")).as("Full undo restores main aspect").isEqualTo(0);
         assertThat(panel.getModel().getElementAspect("SV-001")).as("Full undo restores distant aspect").isEqualTo(1);
     }
 
@@ -122,7 +132,7 @@ class SignalLinkTest {
         TestablePanel panel = loadSignalLayout();
         Tile s2008 = panel.getTile(8, 2);
         panel.onTileClicked(s2008);
-        assertThat(panel.getModel().getElementAspect("S2-008")).isEqualTo(1);
+        assertThat(panel.getModel().getElementAspect("S3-004")).isEqualTo(1);
         assertThat(panel.getModel().getElementAspect("SV-001")).as("Unlinked distant signal unchanged").isEqualTo(1);
     }
 
@@ -130,7 +140,7 @@ class SignalLinkTest {
     void suggestMainSignalFindsSignalAhead() throws Exception {
         TestablePanel panel = loadSignalLayout();
         ElementTile sv = (ElementTile) panel.getTile(10, 5);
-        assertThat(panel.suggestMainSignalForDistant(sv)).isEqualTo("S2-009");
+        assertThat(panel.suggestMainSignalForDistant(sv)).isEqualTo("S3-003");
     }
 
     @Test
@@ -141,7 +151,7 @@ class SignalLinkTest {
 
         assertThat(panel.getTile(7, 5)).as("Main signal removed").isNull();
         assertThat(panel.getTile(10, 5)).as("Linked distant signal removed").isNull();
-        assertThat(panel.getModel().getElement("S2-009")).isNull();
+        assertThat(panel.getModel().getElement("S3-003")).isNull();
         assertThat(panel.getModel().getElement("SV-001")).isNull();
 
         panel.undoLast();
@@ -149,7 +159,7 @@ class SignalLinkTest {
         panel.undoLast();
         assertThat(panel.getTile(10, 5)).as("Undo restores distant signal").isNotNull();
         assertThat(((ElementTile) panel.getTile(10, 5)).getMainSignalId())
-            .as("Undo restores the link").isEqualTo("S2-009");
+            .as("Undo restores the link").isEqualTo("S3-003");
     }
 
     @Test
@@ -171,7 +181,7 @@ class SignalLinkTest {
 
         assertThat(panel.getTile(7, 5)).as("Main signal kept on cancel").isNotNull();
         assertThat(panel.getTile(10, 5)).as("Distant signal kept on cancel").isNotNull();
-        assertThat(panel.getModel().getElement("S2-009")).isNotNull();
+        assertThat(panel.getModel().getElement("S3-003")).isNotNull();
         assertThat(panel.getModel().getElement("SV-001")).isNotNull();
     }
 }
