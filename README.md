@@ -86,7 +86,7 @@ connecting bottom-left corner ports with top-right corner ports.
 `hasValidDiagonal(port1, port2, rotation)` checks whether a tile's SVG track path has
 an endpoint at the given corner, used for diagonal neighbor connections.
 
-Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"S2-001"`, `"SV-001"`, `"P-001"`.
+Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"S3-001"`, `"SV-001"`, `"P-001"`.
 IDs are generated uniquely per prefix by scanning existing model elements for the highest suffix.
 
 ---
@@ -414,9 +414,10 @@ strings use `java.text.MessageFormat` (e.g., `"Clear route ({0})"`, `"Position: 
 - `"TL-001"` (2-way left turnout at 2,3)
 - `"TR-001"` (2-way right turnout at 3,3)
 - `"T3-001"` (3-way turnout at 4,3)
-- `"S2-001"` (2-aspect signal at 10,3)
+- `"SV-001"` (distant signal / Vorsignal at 9,3, linked to `S3-001`)
+- `"P-101"` (straight track at 10,3)
 - `"S3-001"` (3-aspect signal at 11,3)
-- `"SV-001"` (distant signal / Vorsignal at 12,3)
+- `"P-102"` (straight track at 12,3)
 - `"P-001"`..`"P-005"` (straight track at row 0, cols 0-4)
 
 ### Logging
