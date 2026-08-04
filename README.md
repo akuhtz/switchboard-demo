@@ -178,6 +178,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Persisted in `LayoutData.ModelStateData.occupancies` and restored on load.
 
 ---
+### `Tile`
 - Represents a single grid cell at `(col, row)`.
 - Carries an optional `elementId` and a single `svgResource` path.
 - Has a `rotation` field (0/90/180/270) applied as a transform during rendering.
@@ -642,3 +643,33 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 ## Related Projects
 
 - [jbidibc](https://github.com/akuhtz/jbidibc) — Java BiDiB library for controlling model railways
+
+---
+
+## Changelog
+
+### v1.0-SNAPSHOT
+
+**2026-08-04 — signal consolidation**
+
+- Removed the two-aspect `SIGNAL_2` element type entirely (enum, palette, rendering, simulation, demo app) and migrated all layouts to `SIGNAL_3`.
+- Canonicalized the `SIGNAL_3` aspect order to **[red, green, yellow]** (svgPaths index = aspect). Distant signal mirroring is now an identity mapping since aspect indices align.
+- Renumbered signal ids sequentially per layout (`S2-XXX` → `S3-XXX`) and rebuilt route ids from their source/target elements.
+- Migrated all bundled test layouts plus the live layouts under `~/.bidib/data/switchboard/`; deleted the orphaned `signal_2_*.svg` icons.
+
+**2026-08-02/03 — signals**
+
+- Added the SBB distant signal (`SIGNAL_V`, Vorsignal) with orange/green/aspect-3 aspects; it never stops the train and mirrors the next main signal ahead.
+- Added main-signal linking for distant signals, with undoable "remove linked" / "keep" handling; clicking a linked distant signal leaves its aspect untouched.
+- Showed signal driving direction in edit mode and corrected the signal lamp layouts for both signal sides.
+
+**2026-07 — occupancy & routing**
+
+- Added occupancy model, persistence, and per-aspect occupancy rendering on the switchboard.
+- Added alternative route finding with preview/selection, exhaustive k-shortest-paths search, and route conflict detection (extracted into `RouterService`).
+- Added edit mode with tile placement/rotation, Undo (Ctrl+Z) for tile and route operations, and JGoodies-bound occupancy assignment dialog.
+
+**2026-07-12 — unified element system**
+
+- Unified all railway elements into a single `ElementTile`/`ElementType` model with prefix-based type resolution and per-aspect SVG paths.
+- Introduced through-path validation for route-finding BFS and diagonal/curve connectivity fixes.
