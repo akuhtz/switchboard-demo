@@ -654,27 +654,27 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 
 ### v1.0-SNAPSHOT
 
-**2026-08-04 — signal consolidation**
+**2026-08-06 — selectable UI language**
 
-- Removed the two-aspect `SIGNAL_2` element type entirely (enum, palette, rendering, simulation, demo app) and migrated all layouts to `SIGNAL_3`.
-- Canonicalized the `SIGNAL_3` aspect order to **[red, green, yellow]** (svgPaths index = aspect). Distant signal mirroring is now an identity mapping since aspect indices align.
-- Renumbered signal ids sequentially per layout (`S2-XXX` → `S3-XXX`) and rebuilt route ids from their source/target elements.
-- Migrated all bundled test layouts plus the live layouts under `~/.bidib/data/switchboard/`; deleted the orphaned `signal_2_*.svg` icons.
-
-**2026-08-06 — rotation-based main signal auto-assign**
-
-- Rotating a distant signal (`SIGNAL_V`, Ctrl+R in edit mode) now re-evaluates the main signal straight ahead in the travel direction and auto-assigns it. When it was linked to a different main signal, the old link is replaced and the distant signal switches to the new main signal's current aspect. Both the unassign and the reassign are logged.
-- Added `switchboard3b.json` test layout and tests covering auto-assign, reassign, and aspect sync on rotation.
+- The demo app now lets the user choose the UI language under **File → Settings → Language → English / Deutsch**. The selection is persisted in `settings.json` and applied immediately (menus, tooltips, the frame title, and all component context menus re-localize).
+- To guarantee the stored language is respected, settings are loaded before any resource bundle is read (`SwitchboardApp` resolves the locale from settings first, sets the default locale, clears the resource bundle cache, then constructs the panel and menu). `SwitchboardPanel.setLocale(Locale)` swaps its own bundle.
 
 **2026-08-06 — track-following main signal suggestion**
 
 - `suggestMainSignalForDistant()` now walks the connected physical track instead of a fixed straight line: it follows curves (including diagonal corner connections) and turnouts according to their current aspect, and does not bridge gaps. A distant signal therefore auto-assigns a main signal reached around a corner, e.g. from (14,5) to a main signal at (17,8) via the (16,5)→(17,6) curve corner.
 - Added `switchboard3c.json` test layout and the `suggestMainSignalFollowsTrackAroundCurveCorner` test covering the curve corner walk.
 
-**2026-08-06 — selectable UI language**
+**2026-08-06 — rotation-based main signal auto-assign**
 
-- The demo app now lets the user choose the UI language under **File → Settings → Language → English / Deutsch**. The selection is persisted in `settings.json` and applied immediately (menus, tooltips, the frame title, and all component context menus re-localize).
-- To guarantee the stored language is respected, settings are loaded before any resource bundle is read (`SwitchboardApp` resolves the locale from settings first, sets the default locale, clears the resource bundle cache, then constructs the panel and menu). `SwitchboardPanel.setLocale(Locale)` swaps its own bundle.
+- Rotating a distant signal (`SIGNAL_V`, Ctrl+R in edit mode) now re-evaluates the main signal straight ahead in the travel direction and auto-assigns it. When it was linked to a different main signal, the old link is replaced and the distant signal switches to the new main signal's current aspect. Both the unassign and the reassign are logged.
+- Added `switchboard3b.json` test layout and tests covering auto-assign, reassign, and aspect sync on rotation.
+
+**2026-08-04 — signal consolidation**
+
+- Removed the two-aspect `SIGNAL_2` element type entirely (enum, palette, rendering, simulation, demo app) and migrated all layouts to `SIGNAL_3`.
+- Canonicalized the `SIGNAL_3` aspect order to **[red, green, yellow]** (svgPaths index = aspect). Distant signal mirroring is now an identity mapping since aspect indices align.
+- Renumbered signal ids sequentially per layout (`S2-XXX` → `S3-XXX`) and rebuilt route ids from their source/target elements.
+- Migrated all bundled test layouts plus the live layouts under `~/.bidib/data/switchboard/`; deleted the orphaned `signal_2_*.svg` icons.
 
 **2026-08-02/03 — signals**
 
