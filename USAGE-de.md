@@ -135,12 +135,13 @@ Simulation zurücksetzen:
 
 ## 11. Sprache / Internationalisierung
 
-Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Sprache wird anhand der Systemsprache beim Start ermittelt.
+Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Sprache wird beim Start ermittelt: Falls eine Sprache unter **Datei → Einstellungen → Sprache** gespeichert ist, wird diese verwendet, sonst die Systemsprache. Die gewählte Sprache wird gespeichert und beim nächsten Start wieder angewendet.
 
 - **Kontextmenü**-Einträge (Info, Signalseite, Hauptsignal zuweisen, Löschen, Richtung, Fahrstraßenaktionen) werden lokalisiert angezeigt.
 - Der **Kachel-Info**-Dialog verwendet übersetzte Bezeichnungen.
 - **Hauptmenü** und **Symbolleiste** werden lokalisiert angezeigt (Datei, Bearbeiten, Einstellungen usw.).
 - Falls Ihre Systemsprache Deutsch ist, wechselt die UI automatisch zu deutschen Bezeichnungen. Sie können die Sprache auch über `-Duser.language=en` oder `-Duser.language=de` in der Java-Befehlszeile erzwingen.
+- Zum Wechseln der Sprache während des Betriebs: **Datei → Einstellungen → Sprache → Englisch / Deutsch**. Die Auswahl wird gespeichert und sofort angewendet (Menüs, Tooltips und Kontextmenüs aktualisieren sich).
 
 Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und `i18n/app-messages.properties` (Demo-Anwendung), jeweils mit einer `_de`-Variante.
 

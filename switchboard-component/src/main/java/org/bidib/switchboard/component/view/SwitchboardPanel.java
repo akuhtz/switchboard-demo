@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -190,7 +191,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private boolean editMode;
 
-    private final ResourceBundle messages = ResourceBundle.getBundle("i18n.messages");
+    private ResourceBundle messages = ResourceBundle.getBundle("i18n.messages");
 
     private final RouteModel routeModel = new RouteModel();
 
@@ -372,6 +373,15 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             selectedCol = -1;
             selectedRow = -1;
         }
+        repaint();
+    }
+
+    /**
+     * Switches the resource bundle used for all localized strings (context menus, tile info, etc.)
+     * to the given locale. Future context menus and tooltips use the new language immediately.
+     */
+    public void setLocale(Locale locale) {
+        this.messages = ResourceBundle.getBundle("i18n.messages", locale);
         repaint();
     }
 

@@ -105,6 +105,21 @@ public class SettingsManager {
         save();
     }
 
+    /**
+     * Returns the stored UI language code ("en" or "de"), or null when the system default is used.
+     */
+    public String getLanguage() {
+        return data.getLanguage();
+    }
+
+    /**
+     * Sets and persists the UI language code ("en" or "de"), or null to use the system default.
+     */
+    public void setLanguage(String language) {
+        data.setLanguage(language);
+        save();
+    }
+
     // --- Internal ---
 
     private static SettingsData load() {

@@ -134,12 +134,12 @@ To reset the simulation:
 
 ## 11. Language / Internationalization
 
-The application supports **English** and **German** locales. UI language is determined by the system locale at startup.
+The application supports **English** and **German** locales. The UI language is determined at startup: it uses the language saved in **File → Settings → Language** when one is stored, otherwise the system locale. The selected language is persisted so it is applied again on the next start.
 
 - **Context menu** items (Info, Signal Side, Assign Main Signal, Clear, Direction, route actions) use localized strings.
 - **Tile Info dialog** labels are localized.
 - **Main menu** and **toolbar** use localized strings (File, Edit, Settings, etc.).
-- If your system locale is German (`de`), the UI automatically switches to German labels. You can also force the locale by passing `-Duser.language=de` or `-Duser.language=en` on the Java command line.
+- To change the language while running: **File → Settings → Language → English / Deutsch**. The choice is saved and applied immediately (menus, tooltips, and context menus update). If your system locale is German (`de`) and no language is stored, the UI automatically switches to German labels. You can also force the locale by passing `-Duser.language=de` or `-Duser.language=en` on the Java command line.
 
 Translations are maintained in `i18n/messages.properties` (component) and `i18n/app-messages.properties` (demo app), each with a `_de` variant.
 

@@ -67,7 +67,7 @@ public class SwitchboardApp {
 
     private static final Logger log = LoggerFactory.getLogger(SwitchboardApp.class);
 
-    private final ResourceBundle messages = ResourceBundle.getBundle("i18n.app-messages");
+    private ResourceBundle messages;
 
     private final RailwayModel model;
 
@@ -88,9 +88,17 @@ public class SwitchboardApp {
     SwitchboardApp(boolean autoLoad) {
         log.info("Launch the SwitchboardApp.");
 
+        // Load settings first: the stored language determines the locale used for every
+        // resource bundle the UI reads afterwards.
+        settings = new SettingsManager();
+        Locale locale = resolveLocale(settings.getLanguage());
+        Locale.setDefault(locale);
+        ResourceBundle.clearCache();
+        messages = ResourceBundle.getBundle("i18n.app-messages");
+
         model = new RailwayModel();
         panel = new SwitchboardPanel(occupancyFactory, new DemoAssignOccupancyDialogFactory(), model);
-        settings = new SettingsManager();
+        panel.setLocale(locale);
 
         if (LookAndFeel.DARK == settings.getLookAndFeel()) {
             FlatDarkLaf.setup();
@@ -107,6 +115,34 @@ public class SwitchboardApp {
         }
         buildMenu();
         buildFrame();
+    }
+
+    /** Maps the stored language code ("en", "de", or null) to a Ui locale, defaulting to the system locale. */
+    private static Locale resolveLocale(String language) {
+        if (language == null) {
+            return Locale.getDefault();
+        }
+        return switch (language.toLowerCase()) {
+            case "en" -> Locale.ENGLISH;
+            case "de" -> Locale.GERMAN;
+            default -> Locale.getDefault();
+        };
+    }
+
+    /** Applies a new UI language: persists it, reloads bundles, and rebuilds the menus and frame title. */
+    private void applyLanguage(String language) {
+        settings.setLanguage(language);
+        Locale locale = resolveLocale(language);
+        Locale.setDefault(locale);
+        ResourceBundle.clearCache();
+        messages = ResourceBundle.getBundle("i18n.app-messages");
+        panel.setLocale(locale);
+        buildMenu();
+        if (editToggle != null) {
+            editToggle.setToolTipText(messages.getString("toolbar.editMode.tooltip"));
+        }
+        updateTitle();
+        SwingUtilities.updateComponentTreeUI(frame);
     }
 
     public static void main(String[] args) {
@@ -194,6 +230,22 @@ public class SwitchboardApp {
         settingsMenu.add(signalLeftItem);
         settingsMenu.add(signalRightItem);
 
+        settingsMenu.addSeparator();
+        JMenu languageMenu = new JMenu(messages.getString("menu.file.settings.language"));
+        ButtonGroup languageGroup = new ButtonGroup();
+        Locale currentLocale = resolveLocale(settings.getLanguage());
+        JRadioButtonMenuItem enItem = new JRadioButtonMenuItem(messages.getString("menu.file.settings.language.en"));
+        enItem.setSelected(currentLocale.getLanguage().equals("en"));
+        enItem.addActionListener(e -> applyLanguage("en"));
+        languageGroup.add(enItem);
+        languageMenu.add(enItem);
+        JRadioButtonMenuItem deItem = new JRadioButtonMenuItem(messages.getString("menu.file.settings.language.de"));
+        deItem.setSelected(currentLocale.getLanguage().equals("de"));
+        deItem.addActionListener(e -> applyLanguage("de"));
+        languageGroup.add(deItem);
+        languageMenu.add(deItem);
+        settingsMenu.add(languageMenu);
+
         panel.setGlobalSignalSide(settings.getSignalSide());
 
         fileMenu.add(settingsMenu);
@@ -217,6 +269,7 @@ public class SwitchboardApp {
         editModeItem = new JCheckBoxMenuItem(messages.getString("menu.edit.editMode"));
         editModeItem.setMnemonic('M');
         editModeItem.setAccelerator(KeyStroke.getKeyStroke("control E"));
+        editModeItem.setSelected(panel.isEditMode());
         editModeItem.addActionListener(e -> setEditMode(editModeItem.isSelected()));
         editMenu.add(editModeItem);
 

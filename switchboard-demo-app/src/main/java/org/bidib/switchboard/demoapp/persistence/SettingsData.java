@@ -19,8 +19,13 @@ public class SettingsData {
 
     private String signalSide = "LEFT"; // Swiss default
 
+    private String language; // "en" or "de"; null = system default
+
     public String getSignalSide() { return signalSide; }
     public void setSignalSide(String signalSide) { this.signalSide = signalSide; }
+
+    public String getLanguage() { return language; }
+    public void setLanguage(String language) { this.language = language; }
 
     public boolean isExhaustiveRouting() {
         return exhaustiveRouting;

@@ -671,6 +671,11 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 - `suggestMainSignalForDistant()` now walks the connected physical track instead of a fixed straight line: it follows curves (including diagonal corner connections) and turnouts according to their current aspect, and does not bridge gaps. A distant signal therefore auto-assigns a main signal reached around a corner, e.g. from (14,5) to a main signal at (17,8) via the (16,5)→(17,6) curve corner.
 - Added `switchboard3c.json` test layout and the `suggestMainSignalFollowsTrackAroundCurveCorner` test covering the curve corner walk.
 
+**2026-08-06 — selectable UI language**
+
+- The demo app now lets the user choose the UI language under **File → Settings → Language → English / Deutsch**. The selection is persisted in `settings.json` and applied immediately (menus, tooltips, the frame title, and all component context menus re-localize).
+- To guarantee the stored language is respected, settings are loaded before any resource bundle is read (`SwitchboardApp` resolves the locale from settings first, sets the default locale, clears the resource bundle cache, then constructs the panel and menu). `SwitchboardPanel.setLocale(Locale)` swaps its own bundle.
+
 **2026-08-02/03 — signals**
 
 - Added the SBB distant signal (`SIGNAL_V`, Vorsignal) with orange/green/aspect-3 aspects; it never stops the train and mirrors the next main signal ahead.
