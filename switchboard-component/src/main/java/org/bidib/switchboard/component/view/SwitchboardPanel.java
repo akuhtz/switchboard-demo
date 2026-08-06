@@ -1890,8 +1890,57 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         Tile tile = getTile(selectedCol, selectedRow);
         if (tile != null) {
             tile.setRotation(tile.getRotation() + 90);
+            if (tile instanceof ElementTile et && et.getElementType() == ElementType.SIGNAL_V) {
+                autoAssignMainSignalToDistant(et);
+            }
             repaint();
         }
+    }
+
+    /**
+     * Auto-assigns a main signal to the given distant signal when one lies straight ahead in
+     * the direction of travel (as determined by its current rotation). If the distant signal was
+     * linked to a different main signal, that link is replaced so it always previews the main
+     * signal now ahead of it; both changes are logged.
+     */
+    private void autoAssignMainSignalToDistant(ElementTile distantTile) {
+        String newMainId = suggestMainSignalForDistant(distantTile);
+        if (newMainId == null) {
+            return;
+        }
+        String oldMainId = distantTile.getMainSignalId();
+        if (oldMainId != null && !oldMainId.equals(newMainId)) {
+            LOGGER.info("Unassigned main signal {} from distant signal {} at ({},{})",
+                oldMainId, distantTile.getElementId(), distantTile.getCol(), distantTile.getRow());
+        }
+        distantTile.setMainSignalId(newMainId);
+        syncDistantSignalToAspect(distantTile, newMainId);
+        if (oldMainId == null) {
+            LOGGER.info("Auto-assigned main signal {} to distant signal {} at ({},{})",
+                newMainId, distantTile.getElementId(), distantTile.getCol(), distantTile.getRow());
+        } else if (!oldMainId.equals(newMainId)) {
+            LOGGER.info("Reassigned distant signal {} at ({},{}) to main signal {}",
+                distantTile.getElementId(), distantTile.getCol(), distantTile.getRow(), newMainId);
+        }
+    }
+
+    /** Switches the distant signal to the preview aspect of the given main signal's current aspect. */
+    private void syncDistantSignalToAspect(ElementTile distantTile, String newMainId) {
+        ElementTile mainSignal = null;
+        for (Tile t : tiles.values()) {
+            if (t instanceof ElementTile met
+                && met.getElementType() == ElementType.SIGNAL_3
+                && newMainId.equals(met.getElementId())) {
+                mainSignal = met;
+                break;
+            }
+        }
+        if (mainSignal == null) {
+            return;
+        }
+        int mainAspect = model.getElementAspect(newMainId);
+        int distantAspect = OccupancySimulation.distantAspectForMainSignal(mainSignal.getElementType(), mainAspect);
+        new SetElementAspectCommand(model, distantTile.getElementId(), distantAspect).execute();
     }
 
     public void undoLast() {
@@ -1925,6 +1974,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     public void testTileContextAction(int col, int row, ElementType type) {
         onTileContextAction(col, row, type);
+    }
+
+    public void testRotateSelectedTile() {
+        rotateSelectedTile();
     }
 
     public void testSetBlockStart(int col, int row) {

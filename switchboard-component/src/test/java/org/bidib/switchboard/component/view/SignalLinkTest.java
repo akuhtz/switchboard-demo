@@ -9,6 +9,7 @@ import java.util.List;
 import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.ElementTile;
+import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.persistence.LayoutData;
@@ -32,7 +33,11 @@ class SignalLinkTest {
     }
 
     private TestablePanel loadSignalLayout() throws Exception {
-        var url = SignalLinkTest.class.getResource("/test-data/switchboard3a.json");
+        return loadLayout("/test-data/switchboard3a.json");
+    }
+
+    private TestablePanel loadLayout(String resource) throws Exception {
+        var url = SignalLinkTest.class.getResource(resource);
         Path path = Paths.get(url.toURI());
         RailwayModel model = new RailwayModel();
         TestablePanel panel = new TestablePanel(occupancyFactory, model);
@@ -141,6 +146,51 @@ class SignalLinkTest {
         TestablePanel panel = loadSignalLayout();
         ElementTile sv = (ElementTile) panel.getTile(10, 5);
         assertThat(panel.suggestMainSignalForDistant(sv)).isEqualTo("S3-003");
+    }
+
+    @Test
+    void rotateDistantSignalAutoAssignsMainSignalAhead() throws Exception {
+        TestablePanel panel = loadLayout("/test-data/switchboard3b.json");
+        panel.setEditMode(true);
+        panel.testTileContextAction(12, 5, ElementType.SIGNAL_V);
+        ElementTile sv = (ElementTile) panel.getTile(12, 5);
+        assertThat(sv).as("SIGNAL_V placed at (12,5)").isNotNull();
+        assertThat(panel.suggestMainSignalForDistant(sv))
+            .as("No main signal straight ahead at default rotation").isNull();
+        panel.getModel().setElementAspect("S3-003", 2);
+        panel.getModel().setElementAspect("SV-002", 1);
+
+        panel.testRotateSelectedTile();
+        panel.testRotateSelectedTile();
+        assertThat(panel.suggestMainSignalForDistant(sv))
+            .as("S3-003 lies left of (12,5) on the straight row").isEqualTo("S3-003");
+        assertThat(sv.getMainSignalId())
+            .as("Rotating a SIGNAL_V auto-assigns the main signal found ahead").isEqualTo("S3-003");
+        assertThat(panel.getModel().getElementAspect("SV-002"))
+            .as("Auto-assigned distant signal switches to the main signal's aspect").isEqualTo(2);
+    }
+
+    @Test
+    void rotateDistantSignalReassignsNewMainSignalAhead() throws Exception {
+        TestablePanel panel = loadLayout("/test-data/switchboard3b.json");
+        panel.setEditMode(true);
+        panel.testTileContextAction(12, 5, ElementType.SIGNAL_V);
+        ElementTile sv = (ElementTile) panel.getTile(12, 5);
+        sv.setMainSignalId("S3-002");
+        assertThat(sv.getMainSignalId()).as("Pre-existing link").isEqualTo("S3-002");
+        panel.getModel().setElementAspect("S3-003", 2);
+        panel.getModel().setElementAspect("SV-002", 1);
+
+        panel.testRotateSelectedTile();
+        panel.testRotateSelectedTile();
+        assertThat(panel.suggestMainSignalForDistant(sv))
+            .as("S3-003 lies left of (12,5) on the straight row").isEqualTo("S3-003");
+        assertThat(sv.getMainSignalId())
+            .as("Rotating a SIGNAL_V replaces the old main signal with the one now ahead")
+            .isEqualTo("S3-003");
+        assertThat(panel.getModel().getElementAspect("SV-002"))
+            .as("A reassigned distant signal switches to the new main signal's aspect")
+            .isEqualTo(2);
     }
 
     @Test

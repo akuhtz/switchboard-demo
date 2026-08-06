@@ -86,6 +86,7 @@ A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_3) it previ
 - **Manual mirroring**: In normal mode, clicking the main signal also switches every linked distant signal to the matching preview aspect: red → orange ("Halt erwarten"), green → green ("Frei erwarten"), and for SIGNAL_3 also yellow → orange+green ("Langsamfahrt erwarten"). This works outside simulation runs, too.
 - Clicking a **linked distant signal** itself does **not** change its aspect — its aspect is controlled by the linked main signal.
 - **Assignment**: In edit mode, right-click the distant signal → **Assign Main Signal** → pick a main signal from the list (or **None**). The nearest main signal straight ahead in the travel direction is preselected and marked "(auto)".
+- **Auto-assign on rotation**: Select the distant signal and press **Ctrl+R** to rotate it. The nearest main signal straight ahead in the new travel direction is auto-assigned. If the distant signal was already linked to a different main signal, the old link is replaced and the distant signal switches to the new main signal's current aspect. Both changes are written to the log.
 - **Removal**: When you clear a main signal that has linked distant signals, you are asked whether to **Remove linked** (remove the distant signals too), **Keep** the distant signals (the link is removed), or **Cancel**.
 - The link is saved with the layout and restored on load.
 - The **Tile Info** dialog shows the link (Main signal / Distant signals).
