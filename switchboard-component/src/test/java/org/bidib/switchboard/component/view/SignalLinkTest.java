@@ -171,6 +171,29 @@ class SignalLinkTest {
     }
 
     @Test
+    void suggestMainSignalFollowsTrackAroundCurveCorner() throws Exception {
+        TestablePanel panel = loadLayout("/test-data/switchboard3c.json");
+        panel.setEditMode(true);
+
+        // Main signal placed on the vertical leg at (17,8), rotated once so it connects up
+        // to the straight at (17,7).
+        panel.testTileContextAction(17, 8, ElementType.SIGNAL_3);
+        panel.testRotateSelectedTile();
+        ElementTile main = (ElementTile) panel.getTile(17, 8);
+        assertThat(main).as("SIGNAL_3 placed at (17,8)").isNotNull();
+
+        // Distant signal placed at (14,5) facing east; the track bends around the diagonal
+        // curve corner (16,5) CR -> (17,6) CL before reaching the main signal.
+        panel.testTileContextAction(14, 5, ElementType.SIGNAL_V);
+        ElementTile sv = (ElementTile) panel.getTile(14, 5);
+        assertThat(sv).as("SIGNAL_V placed at (14,5)").isNotNull();
+
+        assertThat(panel.suggestMainSignalForDistant(sv))
+            .as("Main signal at (17,8) reached around the (16,5)->(17,6) curve corner")
+            .isEqualTo(main.getElementId());
+    }
+
+    @Test
     void rotateDistantSignalReassignsNewMainSignalAhead() throws Exception {
         TestablePanel panel = loadLayout("/test-data/switchboard3b.json");
         panel.setEditMode(true);

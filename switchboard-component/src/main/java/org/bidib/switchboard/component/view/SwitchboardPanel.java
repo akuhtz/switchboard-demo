@@ -652,9 +652,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     /**
-     * Suggests the main signal the given distant signal previews by walking straight ahead in
-     * the direction of travel (opposite to the signal's facing port) until a main signal is
-     * found. Returns null when no main signal lies straight ahead.
+     * Suggests the main signal the given distant signal previews by walking the physical track
+     * from the signal's direction of travel (opposite to its facing port), following the current
+     * aspect of each tile, until a main signal is found. Returns null when no main signal lies
+     * along the connected track ahead.
      */
     String suggestMainSignalForDistant(ElementTile distantTile) {
         int rotSteps = (distantTile.getRotation() / 90) % 4;
@@ -672,22 +673,124 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         };
         int c = distantTile.getCol() + dc;
         int r = distantTile.getRow() + dr;
+        int prevCol = distantTile.getCol();
+        int prevRow = distantTile.getRow();
+        Set<String> visited = new HashSet<>();
         for (int i = 0; i < 100 && c >= 0 && c < cols && r >= 0 && r < rows; i++) {
             Tile t = getTile(c, r);
             if (!(t instanceof ElementTile et) || et.getElementId() == null) {
-                break;
+                return null;
             }
             ElementType type = et.getElementType();
             if (type == ElementType.SIGNAL_3) {
                 return et.getElementId();
             }
             if (type == ElementType.SIGNAL_V) {
-                break;
+                return null;
             }
-            c += dc;
-            r += dr;
+            String key = c + "," + r;
+            if (!visited.add(key)) {
+                return null;
+            }
+            int[] next = trackConnectedCell(c, r, prevCol, prevRow);
+            if (next == null) {
+                return null;
+            }
+            prevCol = c;
+            prevRow = r;
+            c = next[0];
+            r = next[1];
         }
         return null;
+    }
+
+    /**
+     * Returns the physical track cell reachable from ({@code col},{@code row}) in the direction of
+     * travel, i.e. the connected neighbor that is not the tile we just came from. Connectivity is
+     * computed from the tile's current-aspect active ports only, so turnouts follow the aspect they
+     * are currently set to. Returns null when there is no onward physical connection.
+     */
+    private int[] trackConnectedCell(int col, int row, int fromCol, int fromRow) {
+        for (int[] neighbor : trackConnectedNeighbors(col, row)) {
+            if (neighbor[0] != fromCol || neighbor[1] != fromRow) {
+                return neighbor;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Lists the physically connected neighbours of a tile. Mirrors the connectivity of
+     * {@link RouterService} but uses the tile's current-aspect ports, so a turnout only exposes the
+     * leg it is currently set to.
+     */
+    private List<int[]> trackConnectedNeighbors(int col, int row) {
+        List<int[]> neighbors = new ArrayList<>();
+        Tile tile = getTile(col, row);
+        if (!(tile instanceof ElementTile et) || et.getElementId() == null) {
+            return neighbors;
+        }
+        Integer aspect = model.getElementAspect(et.getElementId());
+        int currentAspect = aspect != null ? aspect : 0;
+        int[] ports = et.getElementType().getActivePorts(currentAspect, et.getRotation());
+        Set<Integer> portSet = new HashSet<>();
+        for (int p : ports) {
+            portSet.add(p);
+        }
+        if (portSet.contains(ElementType.PORT_LEFT) && col > 0 && hasPhysicalPort(col - 1, row, ElementType.PORT_RIGHT)) {
+            neighbors.add(new int[] { col - 1, row });
+        }
+        if (portSet.contains(ElementType.PORT_TOP) && row > 0 && hasPhysicalPort(col, row - 1, ElementType.PORT_BOTTOM)) {
+            neighbors.add(new int[] { col, row - 1 });
+        }
+        if (portSet.contains(ElementType.PORT_RIGHT) && col < cols - 1 && hasPhysicalPort(col + 1, row, ElementType.PORT_LEFT)) {
+            neighbors.add(new int[] { col + 1, row });
+        }
+        if (portSet.contains(ElementType.PORT_BOTTOM) && row < rows - 1 && hasPhysicalPort(col, row + 1, ElementType.PORT_TOP)) {
+            neighbors.add(new int[] { col, row + 1 });
+        }
+        if ((portSet.contains(ElementType.PORT_RIGHT) || portSet.contains(ElementType.PORT_BOTTOM))
+            && et.getElementType().hasValidDiagonal(ElementType.PORT_RIGHT, ElementType.PORT_BOTTOM, et.getRotation())
+            && col < cols - 1 && row < rows - 1
+            && (hasPhysicalPort(col + 1, row + 1, ElementType.PORT_LEFT) || hasPhysicalPort(col + 1, row + 1, ElementType.PORT_TOP))) {
+            neighbors.add(new int[] { col + 1, row + 1 });
+        }
+        if ((portSet.contains(ElementType.PORT_LEFT) || portSet.contains(ElementType.PORT_BOTTOM))
+            && et.getElementType().hasValidDiagonal(ElementType.PORT_LEFT, ElementType.PORT_BOTTOM, et.getRotation())
+            && col > 0 && row < rows - 1
+            && (hasPhysicalPort(col - 1, row + 1, ElementType.PORT_RIGHT) || hasPhysicalPort(col - 1, row + 1, ElementType.PORT_TOP))) {
+            neighbors.add(new int[] { col - 1, row + 1 });
+        }
+        if ((portSet.contains(ElementType.PORT_RIGHT) || portSet.contains(ElementType.PORT_TOP))
+            && et.getElementType().hasValidDiagonal(ElementType.PORT_RIGHT, ElementType.PORT_TOP, et.getRotation())
+            && col < cols - 1 && row > 0
+            && (hasPhysicalPort(col + 1, row - 1, ElementType.PORT_LEFT) || hasPhysicalPort(col + 1, row - 1, ElementType.PORT_BOTTOM))) {
+            neighbors.add(new int[] { col + 1, row - 1 });
+        }
+        if ((portSet.contains(ElementType.PORT_LEFT) || portSet.contains(ElementType.PORT_TOP))
+            && et.getElementType().hasValidDiagonal(ElementType.PORT_LEFT, ElementType.PORT_TOP, et.getRotation())
+            && col > 0 && row > 0
+            && (hasPhysicalPort(col - 1, row - 1, ElementType.PORT_RIGHT) || hasPhysicalPort(col - 1, row - 1, ElementType.PORT_BOTTOM))) {
+            neighbors.add(new int[] { col - 1, row - 1 });
+        }
+        return neighbors;
+    }
+
+    private boolean hasPhysicalPort(int col, int row, int port) {
+        Tile t = getTile(col, row);
+        if (!(t instanceof ElementTile et) || et.getElementId() == null) {
+            return false;
+        }
+        int[] ports = et.getElementType().getPhysicalPorts(et.getRotation());
+        if (ports == null) {
+            return false;
+        }
+        for (int p : ports) {
+            if (p == port) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void buildBlockMenuItems(JPopupMenu menu, int col, int row, Tile tile) {
@@ -1898,10 +2001,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     /**
-     * Auto-assigns a main signal to the given distant signal when one lies straight ahead in
-     * the direction of travel (as determined by its current rotation). If the distant signal was
-     * linked to a different main signal, that link is replaced so it always previews the main
-     * signal now ahead of it; both changes are logged.
+     * Auto-assigns a main signal to the given distant signal when one lies along the connected
+     * track ahead in the direction of travel (as determined by its current rotation). If the
+     * distant signal was linked to a different main signal, that link is replaced so it always
+     * previews the main signal now ahead of it; both changes are logged.
      */
     private void autoAssignMainSignalToDistant(ElementTile distantTile) {
         String newMainId = suggestMainSignalForDistant(distantTile);
