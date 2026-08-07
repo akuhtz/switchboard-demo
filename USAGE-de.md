@@ -31,7 +31,7 @@ Folgende Kacheltypen sind verfügbar:
 | TURNOUT_LEFT   | TL | Linksweiche (2 Stellungen)   | 0 / 90 / 180 / 270 |
 | TURNOUT_RIGHT  | TR | Rechtsweiche (2 Stellungen)  | 0 / 90 / 180 / 270 |
 | TURNOUT_3WAY   | T3 | Dreiwegeweiche (3 Stellungen)| 0 / 90 / 180 / 270 |
-| SIGNAL_3       | S3 | 3-begriffiges Signal (rot/grün/gelb) | 0 / 90 / 180 / 270 |
+| SIGNAL_3       | S3 | 3-begriffiges Signal (rot/grün/orange) | 0 / 90 / 180 / 270 |
 | SIGNAL_V       | SV | Vorsignal (orange/grün/orange+grün/Stellung 3) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Prellbock (Gleisende)                | 0 / 90 / 180 / 270 |
 
@@ -83,7 +83,7 @@ Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unter
 
 Ein Vorsignal (SIGNAL_V) kann mit dem Hauptsignal (SIGNAL_3) verknüpft werden, das es ankündigt. Nach der Verknüpfung gilt:
 
-- **Manuelle Spiegelung**: Im Normalmodus schaltet ein Klick auf das Hauptsignal auch jedes verknüpfte Vorsignal auf die passende Vorankündigung: rot → orange „Halt erwarten", grün → grün „Frei erwarten", bei SIGNAL_3 zusätzlich gelb → orange+grün „Langsamfahrt erwarten". Dies funktioniert auch außerhalb der Simulation.
+- **Manuelle Spiegelung**: Im Normalmodus schaltet ein Klick auf das Hauptsignal auch jedes verknüpfte Vorsignal auf die passende Vorankündigung: rot → orange „Halt erwarten", grün → grün „Frei erwarten", bei SIGNAL_3 zusätzlich orange → orange+grün „Langsamfahrt erwarten". Dies funktioniert auch außerhalb der Simulation.
 - Ein Klick auf ein **verknüpftes Vorsignal** selbst ändert dessen Stellung **nicht** — seine Stellung wird über das verknüpfte Hauptsignal gesteuert.
 - **Zuordnung**: Im Bearbeitungsmodus Rechtsklick auf das Vorsignal → **Hauptsignal zuweisen** → ein Hauptsignal aus der Liste wählen (oder **Keins**). Das nächste Hauptsignal in Fahrtrichtung entlang des verbundenen Gleises wird vorausgewählt und mit „(auto)" markiert — dabei folgt die Suche Kurven (einschließlich diagonaler Bogenecken) sowie Weichen entsprechend ihrer aktuellen Stellung und überbrückt keine Lücken.
 - **Automatische Zuweisung beim Drehen**: Das Vorsignal auswählen und **Strg+R** drücken. Das Hauptsignal vor ihm in der neuen Fahrtrichtung entlang des Gleises (Kurven und Weichenstellung folgend) wird automatisch zugewiesen. War das Vorsignal bereits mit einem anderen Hauptsignal verknüpft, wird die alte Verknüpfung ersetzt und das Vorsignal auf die aktuelle Stellung des neuen Hauptsignals umgeschaltet. Beide Änderungen werden protokolliert.

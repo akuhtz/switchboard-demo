@@ -31,7 +31,7 @@ The following tile types are available:
 | TURNOUT_LEFT   | TL | Left turnout (2 aspects)     | 0 / 90 / 180 / 270 |
 | TURNOUT_RIGHT  | TR | Right turnout (2 aspects)    | 0 / 90 / 180 / 270 |
 | TURNOUT_3WAY   | T3 | Three-way turnout (3 aspects)| 0 / 90 / 180 / 270 |
-| SIGNAL_3       | S3 | 3-aspect signal (red/green/yellow) | 0 / 90 / 180 / 270 |
+| SIGNAL_3       | S3 | 3-aspect signal (red/green/orange) | 0 / 90 / 180 / 270 |
 | SIGNAL_V       | SV | Distant signal / Vorsignal (orange/green/orange+green/aspect 3) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Bumper stop (dead end)             | 0 / 90 / 180 / 270 |
 
@@ -83,7 +83,7 @@ Signal tiles can display their body above (Swiss, `_left`) or below (German, `_r
 
 A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_3) it previews. Once linked:
 
-- **Manual mirroring**: In normal mode, clicking the main signal also switches every linked distant signal to the matching preview aspect: red → orange ("Halt erwarten"), green → green ("Frei erwarten"), and for SIGNAL_3 also yellow → orange+green ("Langsamfahrt erwarten"). This works outside simulation runs, too.
+- **Manual mirroring**: In normal mode, clicking the main signal also switches every linked distant signal to the matching preview aspect: red → orange ("Halt erwarten"), green → green ("Frei erwarten"), and for SIGNAL_3 also orange → orange+green ("Langsamfahrt erwarten"). This works outside simulation runs, too.
 - Clicking a **linked distant signal** itself does **not** change its aspect — its aspect is controlled by the linked main signal.
 - **Assignment**: In edit mode, right-click the distant signal → **Assign Main Signal** → pick a main signal from the list (or **None**). The nearest main signal straight ahead in the travel direction is preselected and marked "(auto)".
 - **Auto-assign on rotation**: Select the distant signal and press **Ctrl+R** to rotate it. The nearest main signal straight ahead in the new travel direction is auto-assigned. If the distant signal was already linked to a different main signal, the old link is replaced and the distant signal switches to the new main signal's current aspect. Both changes are written to the log.

@@ -4,7 +4,7 @@
       <path d="M 1 20 L 1 180 L 20 199 L 80 199 L 99 180 L 99 20 L 80 1 L 20 1 L 1 20 Z" fill="white" stroke="black" stroke-width="6"/>
       <path d="M 10 25 L 10 175 L 25 190 L 75 190 L 90 175 L 90 25 L 75 10 L 25 10 L 10 25 Z" fill="black"/>
       <circle id="hs3_f1" data-bidib-key="hs3_f1" cx="50" cy="150" r="20" fill="#00FF40" fill-opacity="0.50"/>
-      <circle id="hs3_f2" data-bidib-key="hs3_f2" cx="50" cy="50" r="20" fill="#FFFF00" fill-opacity="0.50"/>
+      <circle id="hs3_f2" data-bidib-key="hs3_f2" cx="50" cy="50" r="20" fill="#FF8000" fill-opacity="0.50"/>
       <circle id="hs3_h" data-bidib-key="hs3_h" cx="50" cy="100" r="20" fill="#FF0020"/>
     </g>
   </g>
