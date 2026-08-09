@@ -143,6 +143,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private final Map<TileImageKey, BufferedImage> tileImageCache = new LinkedHashMap<>(64, 0.75f, true);
 
+    private final Map<CombinedImageKey, BufferedImage> combinedImageCache = new LinkedHashMap<>(64, 0.75f, true);
+
     private static final int TILE_IMAGE_CACHE_MAX = 1024;
 
     private static final String SIGNAL_BASE_SVG = "/icons/tracks/straight.svg";
@@ -577,7 +579,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                     buildDirectionSubmenu(menu, tile);
                 }
                 if (et.getElementType() == ElementType.SIGNAL_3
-                    || et.getElementType() == ElementType.SIGNAL_V) {
+                    || et.getElementType() == ElementType.SIGNAL_V
+                    || et.getElementType() == ElementType.SIGNAL_COMBINED) {
                     JMenu sideMenu = new JMenu(messages.getString("context.signalSide"));
                     SignalSide currentSide = tile.getSignalSide();
                     for (SignalSide side : SignalSide.values()) {
@@ -592,7 +595,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                     }
                     menu.add(sideMenu);
                 }
-                if (et.getElementType() == ElementType.SIGNAL_V) {
+                if (et.getElementType() == ElementType.SIGNAL_V
+                    || et.getElementType() == ElementType.SIGNAL_COMBINED) {
                     buildAssignMainSignalSubmenu(menu, et);
                 }
                 buildBlockMenuItems(menu, col, row, tile);
@@ -644,7 +648,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 continue;
             }
             ElementType type = met.getElementType();
-            if (type != ElementType.SIGNAL_3) {
+            if (type != ElementType.SIGNAL_3 && type != ElementType.SIGNAL_COMBINED) {
                 continue;
             }
             String label = met.getElementId();
@@ -692,7 +696,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 return null;
             }
             ElementType type = et.getElementType();
-            if (type == ElementType.SIGNAL_3) {
+            if (type == ElementType.SIGNAL_3 || type == ElementType.SIGNAL_COMBINED) {
                 return et.getElementId();
             }
             if (type == ElementType.SIGNAL_V) {
@@ -1036,7 +1040,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             }
             sb.append(MessageFormat.format(messages.getString("info.aspects"), et.getAspectCount())).append("\n");
             if (et.getElementType() == ElementType.SIGNAL_3
-                || et.getElementType() == ElementType.SIGNAL_V) {
+                || et.getElementType() == ElementType.SIGNAL_V
+                || et.getElementType() == ElementType.SIGNAL_COMBINED) {
                 SignalSide side = tile.getSignalSide();
                 sb.append(MessageFormat.format(messages.getString("info.signalSide"), side));
                 if (side == SignalSide.DEFAULT) {
@@ -1044,10 +1049,16 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 }
                 sb.append("\n");
             }
-            if (et.getElementType() == ElementType.SIGNAL_V && et.getMainSignalId() != null) {
+            if ((et.getElementType() == ElementType.SIGNAL_V
+                || et.getElementType() == ElementType.SIGNAL_COMBINED)
+                && et.getMainSignalId() != null) {
                 sb.append(MessageFormat.format(messages.getString("info.mainSignal"), et.getMainSignalId())).append("\n");
             }
-            if (et.getElementType() == ElementType.SIGNAL_3) {
+            if (et.getElementType() == ElementType.SIGNAL_COMBINED) {
+                sb.append(MessageFormat.format(messages.getString("info.combinedPlateAspect"), et.getPlateAspect())).append("\n");
+            }
+            if (et.getElementType() == ElementType.SIGNAL_3
+                || et.getElementType() == ElementType.SIGNAL_COMBINED) {
                 List<ElementTile> linked = findDistantSignalsLinkedTo(et.getElementId());
                 if (!linked.isEmpty()) {
                     String ids = linked.stream()
@@ -1098,7 +1109,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         Tile oldTile = getTile(col, row);
         String oldElementId = oldTile != null ? oldTile.getElementId() : null;
         if (oldTile instanceof ElementTile et && oldElementId != null
-            && et.getElementType() == ElementType.SIGNAL_3) {
+            && (et.getElementType() == ElementType.SIGNAL_3
+                || et.getElementType() == ElementType.SIGNAL_COMBINED)) {
             List<ElementTile> linked = findDistantSignalsLinkedTo(oldElementId);
             if (!linked.isEmpty()) {
                 switch (confirmRemoveMainSignal(linked)) {
@@ -1170,6 +1182,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 List.of("/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg"));
             case SIGNAL_3 -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_3_red_left.svg", "/icons/signals/sbb_l/signal_3_green_left.svg", "/icons/signals/sbb_l/signal_3_yellow_left.svg"));
             case SIGNAL_V -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg"));
+            case SIGNAL_COMBINED -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_sm_head_red_left.svg", "/icons/signals/sbb_l/signal_sm_head_green_left.svg", "/icons/signals/sbb_l/signal_sm_head_orange_left.svg"));
             case STRAIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/straight.svg"));
             case CURVE_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/curve_left.svg"));
             case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/curve_right.svg"));
@@ -1495,7 +1508,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 continue;
             }
             ElementType type = et.getElementType();
-            if (type != ElementType.SIGNAL_3 && type != ElementType.SIGNAL_V) {
+            if (type != ElementType.SIGNAL_3 && type != ElementType.SIGNAL_V
+                && type != ElementType.SIGNAL_COMBINED) {
                 continue;
             }
             int cx = tile.getCol() * tileSize + half;
@@ -1846,15 +1860,98 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     private boolean isSignalTile(Tile tile) {
         return tile instanceof ElementTile et
             && (et.getElementType() == ElementType.SIGNAL_3
-                || et.getElementType() == ElementType.SIGNAL_V);
+                || et.getElementType() == ElementType.SIGNAL_V
+                || et.getElementType() == ElementType.SIGNAL_COMBINED);
     }
 
     private void drawTile(Graphics2D g2, Tile tile) {
+        if (tile instanceof ElementTile et && et.getElementType() == ElementType.SIGNAL_COMBINED) {
+            drawCombinedSignalTile(g2, et);
+            return;
+        }
         String svgPath = resolveSvgResource(tile);
         if (svgPath == null) {
             return;
         }
         drawTile(g2, tile, svgPath);
+    }
+
+    /**
+     * Renders a combined signal (SIGNAL_COMBINED) by composing its main head fragment (own
+     * aspect) and its distant plate fragment (mirrored next-main aspect) into a single cached
+     * tile image. Both fragments keep their level aspect ratios; no stretching is applied.
+     */
+    private void drawCombinedSignalTile(Graphics2D g2, ElementTile et) {
+        String headPath = resolveSvgResource(et);
+        if (headPath == null) {
+            return;
+        }
+        String platePath = resolvePlateSvgResource(et, headPath);
+        if (platePath == null) {
+            return;
+        }
+        CombinedImageKey key = new CombinedImageKey(headPath, platePath, et.getRotation());
+        BufferedImage img = combinedImageCache.get(key);
+        if (img == null) {
+            img = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D ig = img.createGraphics();
+            try {
+                ig.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                ig.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                if (et.getRotation() != 0) {
+                    ig.rotate(Math.toRadians(et.getRotation()), tileSize / 2.0, tileSize / 2.0);
+                }
+                renderSvgInto(ig, headPath);
+                renderSvgInto(ig, platePath);
+            }
+            finally {
+                ig.dispose();
+            }
+            if (combinedImageCache.size() >= TILE_IMAGE_CACHE_MAX) {
+                Iterator<CombinedImageKey> it = combinedImageCache.keySet().iterator();
+                it.next();
+                it.remove();
+            }
+            combinedImageCache.put(key, img);
+        }
+        int px = et.getCol() * tileSize;
+        int py = et.getRow() * tileSize;
+        g2.drawImage(img, px, py, null);
+    }
+
+    private void renderSvgInto(Graphics2D ig, String svgPath) {
+        SVGDocument doc = SvgIconLoader.load(svgPath);
+        if (doc != null) {
+            doc.render(null, ig, new ViewBox(0, 0, tileSize, tileSize));
+        }
+    }
+
+    /**
+     * Resolves the distant plate fragment for a combined signal. When the signal is linked to a
+     * main signal ({@code mainSignalId}), the plate live-mirrors that main's current aspect
+     * (keeping the {@link OccupancySimulation#distantAspectForMainSignal} mapping, which is the
+     * identity for the plate colour order). Otherwise the stored {@link ElementTile#getPlateAspect()}
+     * (used by the route simulation to follow the next main ahead) is used, defaulting to orange.
+     * The plate keeps the same side (left/right) as the head fragment.
+     */
+    private String resolvePlateSvgResource(ElementTile et, String headPath) {
+        int plateAspect;
+        String mainId = et.getMainSignalId();
+        if (mainId != null) {
+            Integer mainAspect = model.getElementAspect(mainId);
+            plateAspect = mainAspect != null
+                ? OccupancySimulation.distantAspectForMainSignal(ElementType.SIGNAL_3, mainAspect)
+                : et.getPlateAspect();
+        } else {
+            plateAspect = et.getPlateAspect();
+        }
+        String colour = switch (plateAspect) {
+            case 1 -> "green";
+            case 2 -> "orgreen";
+            default -> "orange";
+        };
+        String side = headPath != null && headPath.contains("_right.svg") ? "_right.svg" : "_left.svg";
+        return "/icons/signals/sbb_l/signal_sm_plate_" + colour + side;
     }
 
     private void drawTile(Graphics2D g2, Tile tile, String svgPath) {
@@ -1901,9 +1998,13 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     private void clearTileImageCache() {
         tileImageCache.clear();
+        combinedImageCache.clear();
     }
 
     private record TileImageKey(String svgPath, int rotation) {
+    }
+
+    private record CombinedImageKey(String headPath, String platePath, int rotation) {
     }
 
     private String resolveSvgResource(Tile tile) {
@@ -1966,7 +2067,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 Command cmd = new CycleElementCommand(model, id, count);
                 cmd.execute();
                 undoStack.push(cmd);
-                if (et.getElementType() == ElementType.SIGNAL_3) {
+                if (et.getElementType() == ElementType.SIGNAL_3
+                    || et.getElementType() == ElementType.SIGNAL_COMBINED) {
                     mirrorLinkedDistantSignals(et);
                 }
             }
@@ -2003,7 +2105,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         Tile tile = getTile(selectedCol, selectedRow);
         if (tile != null) {
             tile.setRotation(tile.getRotation() + 90);
-            if (tile instanceof ElementTile et && et.getElementType() == ElementType.SIGNAL_V) {
+            if (tile instanceof ElementTile et
+                && (et.getElementType() == ElementType.SIGNAL_V
+                    || et.getElementType() == ElementType.SIGNAL_COMBINED)) {
                 autoAssignMainSignalToDistant(et);
             }
             repaint();
@@ -2042,7 +2146,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         ElementTile mainSignal = null;
         for (Tile t : tiles.values()) {
             if (t instanceof ElementTile met
-                && met.getElementType() == ElementType.SIGNAL_3
+                && (met.getElementType() == ElementType.SIGNAL_3
+                    || met.getElementType() == ElementType.SIGNAL_COMBINED)
                 && newMainId.equals(met.getElementId())) {
                 mainSignal = met;
                 break;
@@ -2053,6 +2158,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         }
         int mainAspect = model.getElementAspect(newMainId);
         int distantAspect = OccupancySimulation.distantAspectForMainSignal(mainSignal.getElementType(), mainAspect);
+        if (distantTile.getElementType() == ElementType.SIGNAL_COMBINED) {
+            distantTile.setPlateAspect(distantAspect);
+            return;
+        }
         new SetElementAspectCommand(model, distantTile.getElementId(), distantAspect).execute();
     }
 

@@ -8,6 +8,7 @@ public class ElementTile extends Tile {
     private final List<String> svgPaths = new ArrayList<>();
     private final ElementType elementType;
     private String mainSignalId;
+    private int plateAspect = 0;
 
     public ElementTile(int col, int row, String elementId,
                        ElementType elementType, List<String> svgPaths) {
@@ -37,6 +38,14 @@ public class ElementTile extends Tile {
 
     public void setMainSignalId(String mainSignalId) {
         this.mainSignalId = mainSignalId;
+    }
+
+    public int getPlateAspect() {
+        return plateAspect;
+    }
+
+    public void setPlateAspect(int plateAspect) {
+        this.plateAspect = plateAspect;
     }
 
     public void applySignalSide(SignalSide resolvedSide) {

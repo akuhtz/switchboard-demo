@@ -225,7 +225,9 @@ public class OccupancySimulation {
 
     /**
      * Keeps every distant signal (SIGNAL_V) on the route in sync with the next main signal
-     * (SIGNAL_3) ahead in the path, so the distant signal previews the upcoming aspect.
+     * (SIGNAL_3) ahead in the path, so the distant signal previews the upcoming aspect. For
+     * combined signals (SIGNAL_COMBINED) the DISTANT PLATE on the signal's own mast mirrors the
+     * next main signal ahead, while the main head keeps its own operator-set aspect.
      */
     private void syncDistantSignals() {
         if (path == null) {
@@ -234,10 +236,14 @@ public class OccupancySimulation {
         for (int i = 0; i < path.size(); i++) {
             int[] p = path.get(i);
             Tile tile = tileGrid.getTile(p[0], p[1]);
-            if (!(tile instanceof ElementTile et) || et.getElementType() != ElementType.SIGNAL_V) {
+            if (!(tile instanceof ElementTile et)) {
                 continue;
             }
-            if (et.getElementId() == null) {
+            if (et.getElementType() == ElementType.SIGNAL_COMBINED) {
+                syncCombinedPlate(i, et);
+                continue;
+            }
+            if (et.getElementType() != ElementType.SIGNAL_V || et.getElementId() == null) {
                 continue;
             }
             int nextAspect = findNextSignalAspect(i);
@@ -247,12 +253,21 @@ public class OccupancySimulation {
         }
     }
 
+    /** Updates the distant plate of the combined signal at path index i to mirror the next main ahead. */
+    private void syncCombinedPlate(int fromIndex, ElementTile combined) {
+        int nextAspect = findNextSignalAspect(fromIndex);
+        if (nextAspect >= 0) {
+            combined.setPlateAspect(nextAspect);
+        }
+    }
+
     private int findNextSignalAspect(int fromIndex) {
         for (int i = fromIndex + 1; i < path.size(); i++) {
             int[] p = path.get(i);
             Tile tile = tileGrid.getTile(p[0], p[1]);
             if (tile instanceof ElementTile et && et.getElementId() != null
-                && et.getElementType() == ElementType.SIGNAL_3) {
+                && (et.getElementType() == ElementType.SIGNAL_3
+                    || et.getElementType() == ElementType.SIGNAL_COMBINED)) {
                 Element el = model.getElement(et.getElementId());
                 if (el != null) {
                     return distantAspectForMainSignal(et.getElementType(), el.getCurrentAspect());
@@ -293,7 +308,7 @@ public class OccupancySimulation {
     // --- Static signal utilities ---
 
     /**
-     * Returns true if the tile is a main signal (SIGNAL_3) with aspect 0 (red).
+     * Returns true if the tile is a main signal (SIGNAL_3 or SIGNAL_COMBINED) with aspect 0 (red).
      * Distant signals (SIGNAL_V) never block a train.
      */
     public static boolean isSignalAtRed(Tile tile, RailwayModel model) {
@@ -301,7 +316,7 @@ public class OccupancySimulation {
             return false;
         }
         ElementType type = et.getElementType();
-        if (type != ElementType.SIGNAL_3) {
+        if (type != ElementType.SIGNAL_3 && type != ElementType.SIGNAL_COMBINED) {
             return false;
         }
         Element el = model.getElement(et.getElementId());

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+    <g transform="translate(16,16) rotate(90) translate(-16,-16)">
+      <g transform="rotate(-90, 16, 22)">
+        <g transform="translate(32,0) scale(-1,1) translate(16, 22) scale(0.7) translate(-15.66, -9.8) translate(17.41, 20) rotate(270) scale(0.085) translate(20, -120)">
+          <g id="signal" data-bidib="signal_sm_plate_orgreen">
+            <path d="M 1 20 L 1 180 L 20 199 L 180 199 L 199 180 L 199 20 L 180 1 L 20 1 L 1 20 Z" fill="white" stroke="black" stroke-width="6"/><path d="M 13 32 L 13 168 L 32 187 L 168 187 L 187 168 L 187 32 L 168 13 L 32 13 L 13 32 Z" fill="black"/><circle id="vs1_o1" cx="150" cy="150" r="20" fill="#FF8000"/><circle id="vs1_o2" cx="50" cy="150" r="20" fill="#202020"/><circle id="vs1_g1" cx="50" cy="100" r="20" fill="#00FF40"/><circle id="vs1_g2" cx="150" cy="50" r="20" fill="#202020"/><circle id="vs1_o3" cx="50" cy="50" r="20" fill="#202020"/>
+          </g>
+        </g>
+      </g>
+      <path d="M 16 13 L 16 29.5" stroke="#202020" stroke-width="2"/>
+    </g>
+</svg>
