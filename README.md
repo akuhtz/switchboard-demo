@@ -70,7 +70,7 @@ type-specific enums — just element types distinguished by prefix.
 | `TURNOUT_LEFT` | `TL` | yes | 2 (straight, diverted left) | yes |
 | `TURNOUT_RIGHT` | `TR` | yes | 2 (straight, diverted right) | yes |
 | `TURNOUT_3WAY` | `T3` | yes | 3 (straight, left, right) | yes |
-| `SIGNAL_3` | `S3` | yes | 3 (red, green, orange) | yes |
+| `SIGNAL_M3` | `SM3` | yes | 3 (red, green, orange) | yes |
 | `SIGNAL_V` | `SV` | yes | 4 (orange, green, orange+green, orange+both greens) | yes |
 | `SIGNAL_COMBINED` | `SM` | yes | 3 (main head: red, green, orange) | yes |
 | `STRAIGHT` | `P` | yes | 1 | no |
@@ -87,7 +87,7 @@ connecting bottom-left corner ports with top-right corner ports.
 `hasValidDiagonal(port1, port2, rotation)` checks whether a tile's SVG track path has
 an endpoint at the given corner, used for diagonal neighbor connections.
 
-Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"S3-001"`, `"SV-001"`, `"SM-001"`, `"P-001"`.
+Element IDs follow the pattern `{prefix}-{number}`, e.g. `"TL-001"`, `"SM3-001"`, `"SV-001"`, `"SM-001"`, `"P-001"`.
 IDs are generated uniquely per prefix by scanning existing model elements for the highest suffix.
 
 ---
@@ -201,7 +201,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - `getSvgForAspect(int ordinal)` — returns the matching SVG path (falls back to index 0).
 - `getAspectCount()` — returns `svgPaths.size()`.
 - `applySignalSide(SignalSide resolvedSide)` — swaps SVG paths between `_left` and `_right` variants in place.
-- `getMainSignalId()` / `setMainSignalId(String)` — optional reference to the main signal (SIGNAL_3) a distant signal (SIGNAL_V) previews. Null when unlinked; persisted in the layout file. A combined signal (SIGNAL_COMBINED) also uses this link: its distant plate mirrors the linked main signal's aspect.
+- `getMainSignalId()` / `setMainSignalId(String)` — optional reference to the main signal (SIGNAL_M3) a distant signal (SIGNAL_V) previews. Null when unlinked; persisted in the layout file. A combined signal (SIGNAL_COMBINED) also uses this link: its distant plate mirrors the linked main signal's aspect.
 - `getPlateAspect()` / `setPlateAspect(int)` — the combined signal's distant plate aspect (0 = orange, 1 = green, 2 = orange+green), updated by the route simulation to mirror the next main signal ahead. Rendering uses the linked main's live aspect instead when a `mainSignalId` is set.
 
 ---
@@ -212,7 +212,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Registers as observer on the `RailwayModel`.
 - Delegates route finding to `RouterService`.
 - **Modes**:
-  - **Normal**: left-click cycles aspects on clickable tiles (aspectCount > 1). Clicking a main signal (SIGNAL_3 or SIGNAL_COMBINED) also switches every linked distant signal to the matching preview aspect.
+  - **Normal**: left-click cycles aspects on clickable tiles (aspectCount > 1). Clicking a main signal (SIGNAL_M3 or SIGNAL_COMBINED) also switches every linked distant signal to the matching preview aspect.
   - **Edit**: left-click selects tiles (cyan border), Ctrl+R rotates selected tile 90°, right-click context menu to place/clear tiles. No aspect cycling. Selection clears when edit mode is turned off.
   - **Route Finding**:
   - Ctrl+click source tile, then Ctrl+click target tile.
@@ -249,12 +249,12 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
         and "Clear simulated occupancy ({id})" when tiles on the route have OCCUPIED state.
         Multiple routes can run simulations concurrently.
 - **Occupancy rendering**: In `paintComponent`, `drawOccupancy()` is called last, after routes. For each tile with an OCCUPIED occupancy, it draws port-based line segments using the element's current aspect: `getActivePorts(el.getCurrentAspect(), tile.getRotation())`. Lines are drawn from tile center to each active port. Straight, diagonal, and crossing elements draw to edge midpoints via `drawPortLine()`. Turnouts draw the main port to its edge midpoint and the diverted port to a corner. Curves (CURVE_LEFT, CURVE_RIGHT) draw port[0] to its edge midpoint and port[1] to a corner: `dx` comes from the port's own x-side if horizontal (or the opposite of port[0]'s x-side if vertical), `dy` comes from the port's own y-side if vertical (or the opposite of port[0]'s y-side if horizontal). Color: `COLOR_OCCUPIED` = `(255, 80, 80)` with stroke-width 4.
-- **Signal stops**: During occupancy simulation, a train arriving at a main signal (SIGNAL_3 or SIGNAL_COMBINED) with aspect 0 (red) stops and waits. Signals have an implicit facing direction based on rotation (rot 0 → faces LEFT). Only trains entering from the signal's facing port are blocked; trains approaching from behind ignore the signal. `isSignalBlocking(Tile, int entryPort)` implements this check. When `autoChangeSignal` is enabled, a blocked signal auto-switches to aspect 1 after 2 seconds. Toggling this option immediately affects all running simulations.
-- **Distant signals (SIGNAL_V)**: Distant signals never stop the train. Each distant signal on a route mirrors the aspect of the next main signal (SIGNAL_3) ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". The preview is mapped from the next signal's aspect (SIGNAL_3: red→orange, orange→orange+green, green→green). Mirroring is applied on simulation start and refreshed every simulation step. The fourth aspect (aspect 3: bottom-right orange + both green lights) is only reachable by manually cycling the signal.
-- **Combined signals (SIGNAL_COMBINED)**: A combined signal carries its own main head (top, own aspect: red/green/orange, cycled by clicking like SIGNAL_3) and a distant plate (bottom) that mirrors the next main signal ahead on the mast. Both fragments are composed at runtime from separate SVGs (head + plate) without stretching. When linked to a main signal the plate always mirrors that main's live aspect; on a route simulation the plate follows the next main signal ahead in the path (`syncCombinedPlate`). The plate aspect range is 3 (orange, green, orange+green) and is shown in the **Tile Info** dialog. Combined signals support the same signal-side override as SIGNAL_3/SIGNAL_V.
+- **Signal stops**: During occupancy simulation, a train arriving at a main signal (SIGNAL_M3 or SIGNAL_COMBINED) with aspect 0 (red) stops and waits. Signals have an implicit facing direction based on rotation (rot 0 → faces LEFT). Only trains entering from the signal's facing port are blocked; trains approaching from behind ignore the signal. `isSignalBlocking(Tile, int entryPort)` implements this check. When `autoChangeSignal` is enabled, a blocked signal auto-switches to aspect 1 after 2 seconds. Toggling this option immediately affects all running simulations.
+- **Distant signals (SIGNAL_V)**: Distant signals never stop the train. Each distant signal on a route mirrors the aspect of the next main signal (SIGNAL_M3) ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". The preview is mapped from the next signal's aspect (SIGNAL_M3: red→orange, orange→orange+green, green→green). Mirroring is applied on simulation start and refreshed every simulation step. The fourth aspect (aspect 3: bottom-right orange + both green lights) is only reachable by manually cycling the signal.
+- **Combined signals (SIGNAL_COMBINED)**: A combined signal carries its own main head (top, own aspect: red/green/orange, cycled by clicking like SIGNAL_M3) and a distant plate (bottom) that mirrors the next main signal ahead on the mast. Both fragments are composed at runtime from separate SVGs (head + plate) without stretching. When linked to a main signal the plate always mirrors that main's live aspect; on a route simulation the plate follows the next main signal ahead in the path (`syncCombinedPlate`). The plate aspect range is 3 (orange, green, orange+green) and is shown in the **Tile Info** dialog. Combined signals support the same signal-side override as SIGNAL_M3/SIGNAL_V.
 - **Direction markers**: STRAIGHT and DIAGONAL tiles can have a direction constraint (`TileDirection`: FORWARD/BACKWARD/BOTH). Route finding (`RouterService.isAllowedDirection`) refuses traversal against the tile's direction. Rendered as a light-gray filled triangle via `drawDirectionMarkers()`.
-- **Signal side**: SIGNAL_3, SIGNAL_V and SIGNAL_COMBINED tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode (labels internationalized via `ResourceBundle`). Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
-- **Distant signal linking**: A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_3 or SIGNAL_COMBINED) it previews via `ElementTile.mainSignalId`. In edit mode the context menu shows an **Assign Main Signal** submenu listing every placed main signal plus **None**; when no link is set, the main signal ahead in the travel direction along the connected physical track (following curves and the current turnout aspect, no gap bridging) is preselected (marked "(auto)") via `suggestMainSignalForDistant()`. Once linked, clicking the main signal in normal mode switches every linked distant signal to the matching preview aspect (`SetElementAspectCommand`, pushed onto the undo stack so undo restores distant signals first). Combined signals also use this link to drive their distant plate. Clearing a main signal with linked distant signals asks whether to **Remove linked** (also removed, undoable), **Keep** (the link is removed), or **Cancel**. The link is persisted in the layout file and shown in the **Tile Info** dialog (Main signal / Distant signals). Rotating a distant or combined signal (Ctrl+R in edit mode) re-evaluates the main signal ahead along the track and auto-assigns it; when it was linked to a different main signal, the old link is replaced and the signal is switched to the new main signal's current aspect. Both actions are logged.
+- **Signal side**: SIGNAL_M3, SIGNAL_V and SIGNAL_COMBINED tiles support a per‑tile signal side override (LEFT/RIGHT/DEFAULT). The context menu shows a **Signal Side** submenu in edit mode (labels internationalized via `ResourceBundle`). Changing the side immediately updates the tile's SVG paths via `ElementTile.applySignalSide()`. The **Tile Info** dialog displays the resolved signal side for signal tiles.
+- **Distant signal linking**: A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_M3 or SIGNAL_COMBINED) it previews via `ElementTile.mainSignalId`. In edit mode the context menu shows an **Assign Main Signal** submenu listing every placed main signal plus **None**; when no link is set, the main signal ahead in the travel direction along the connected physical track (following curves and the current turnout aspect, no gap bridging) is preselected (marked "(auto)") via `suggestMainSignalForDistant()`. Once linked, clicking the main signal in normal mode switches every linked distant signal to the matching preview aspect (`SetElementAspectCommand`, pushed onto the undo stack so undo restores distant signals first). Combined signals also use this link to drive their distant plate. Clearing a main signal with linked distant signals asks whether to **Remove linked** (also removed, undoable), **Keep** (the link is removed), or **Cancel**. The link is persisted in the layout file and shown in the **Tile Info** dialog (Main signal / Distant signals). Rotating a distant or combined signal (Ctrl+R in edit mode) re-evaluates the main signal ahead along the track and auto-assigns it; when it was linked to a different main signal, the old link is replaced and the signal is switched to the new main signal's current aspect. Both actions are logged.
 - **Blocks**: A connected, turnout-free path of tiles defining a track section. In edit mode the context menu shows a **Block** submenu to set a block start tile (orange square marker), then a block end tile. The connected path (via `RouterService.bfsBlockPath`) is found automatically, excluding turnouts and tiles of other blocks. Each block gets a unique id and a default name `blkNNN`; names are editable via **Rename Block...** dialog. Blocks render as a 2px yellow line (`(255,220,80)`) offset 4px below the track center, with a short vertical tick at the outer edge of the start and end tiles. Removal asks for confirmation. Blocks are persisted in the layout file.
    - **Curve-aware block lines**: On curve tiles the yellow block line bends around the corner, staying on the block side of the track. `curveCorner` locates the curve's corner pixel from its rotation (`center + rotateDelta(±half, ±half, rotSteps)`). The tile's center offset follows the straight-side neighbour (`straightSideDirection`, so a vertically-entered curve keeps the incoming straight run aligned), and `exitsThroughCorner` decides whether the elbow point comes before or after the center. The line follows the offset diagonal via `blockGuidePoint`/`curveGuidePoint` instead of crossing the track. Block lines that **end** on a curve terminate a few pixels *before* the corner pixel (`curveEndpoint`, pulled back `CORNER_PULL=5` along the offset track diagonal) so they never merge with or collide into the main track line. Blocks that start or end on a **diagonal** tile keep running parallel to the track diagonal (`diagonalEndpoint`) and stop at the tile edge the track exits through (e.g. upper-right) instead of cutting straight across to the side.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
@@ -417,11 +417,11 @@ strings use `java.text.MessageFormat` (e.g., `"Clear route ({0})"`, `"Position: 
 - `"TL-001"` (2-way left turnout at 2,3)
 - `"TR-001"` (2-way right turnout at 3,3)
 - `"T3-001"` (3-way turnout at 4,3)
-- `"SV-001"` (distant signal / Vorsignal at 9,3, linked to `S3-001`)
+- `"SV-001"` (distant signal / Vorsignal at 9,3, linked to `SM3-001`)
 - `"P-101"` (straight track at 10,3)
-- `"S3-001"` (3-aspect signal at 11,3)
+- `"SM3-001"` (3-aspect signal at 11,3)
 - `"P-102"` (straight track at 12,3)
-- `"SM-001"` (combined signal at 13,3, main head linked to `S3-001` for the distant plate)
+- `"SM-001"` (combined signal at 13,3, main head linked to `SM3-001` for the distant plate)
 - `"P-001"`..`"P-005"` (straight track at row 0, cols 0-4)
 
 ### Logging
@@ -454,9 +454,9 @@ Logging configuration lives in `switchboard-demo-app/src/main/resources/logback.
 | `curve_right.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/curve_right.svg" width="32" height="32"> | Horizontal to center then diagonal to bottom-right |
 | `diagonal.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/diagonal.svg" width="32" height="32"> | Diagonal from lower-left to upper-right corner |
 | `bumper_stop.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/bumper_stop.svg" width="32" height="32"> | Bumper stop (red/white) at a dead end |
-| `signal_3_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_3_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, orange+green dim |
-| `signal_3_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_3_yellow_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — orange active, red+green dim |
-| `signal_3_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_3_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red+orange dim |
+| `signal_m3_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_m3_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, orange+green dim |
+| `signal_m3_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_m3_yellow_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — orange active, red+green dim |
+| `signal_m3_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_m3_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red+orange dim |
 | `signal_v_orange_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_v_orange_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — two orange lit, green off ("Halt erwarten") |
 | `signal_v_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_v_yellow_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — two green lit, orange off ("Frei erwarten") |
 | `signal_v_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_v_green_left.svg" width="32" height="32"> | SBB distant (Vorsignal) shape (Swiss/German) — right orange + green lit ("Langsamfahrt erwarten") |
@@ -668,7 +668,7 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 
 **2026-08-07 — orange lamp on main signals**
 
-- The third aspect of a main signal (`SIGNAL_3`) is now lit **orange** (`#FF8000`), matching the orange lamps of the distant signal (`SIGNAL_V`) — SBB main signals show an orange lamp, not yellow. Updated all `signal_3_*` icon lamps (the orange-aspect icon plus the dim orange lamp shown in the red and green icons).
+- The third aspect of a main signal (`SIGNAL_M3`) is now lit **orange** (`#FF8000`), matching the orange lamps of the distant signal (`SIGNAL_V`) — SBB main signals show an orange lamp, not yellow. Updated all `signal_m3_*` icon lamps (the orange-aspect icon plus the dim orange lamp shown in the red and green icons).
 
 **2026-08-06 — selectable UI language**
 
@@ -687,8 +687,8 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 
 **2026-08-04 — signal consolidation**
 
-- Removed the two-aspect `SIGNAL_2` element type entirely (enum, palette, rendering, simulation, demo app) and migrated all layouts to `SIGNAL_3`.
-- Canonicalized the `SIGNAL_3` aspect order to **[red, green, yellow]** (svgPaths index = aspect). Distant signal mirroring is now an identity mapping since aspect indices align.
+- Removed the two-aspect `SIGNAL_2` element type entirely (enum, palette, rendering, simulation, demo app) and migrated all layouts to `SIGNAL_M3`.
+- Canonicalized the `SIGNAL_M3` aspect order to **[red, green, yellow]** (svgPaths index = aspect). Distant signal mirroring is now an identity mapping since aspect indices align.
 - Renumbered signal ids sequentially per layout (`S2-XXX` → `S3-XXX`) and rebuilt route ids from their source/target elements.
 - Migrated all bundled test layouts plus the live layouts under `~/.bidib/data/switchboard/`; deleted the orphaned `signal_2_*.svg` icons.
 

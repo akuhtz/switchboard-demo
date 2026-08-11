@@ -5,7 +5,7 @@ public enum ElementType {
     TURNOUT_LEFT("TL", true),
     TURNOUT_RIGHT("TR", true),
     TURNOUT_3WAY("T3", true),
-    SIGNAL_3("S3", true),
+    SIGNAL_M3("SM3", true),
     SIGNAL_V("SV", true),
     SIGNAL_COMBINED("SM", true),
     STRAIGHT("P", true),
@@ -63,7 +63,7 @@ public enum ElementType {
             case TURNOUT_LEFT -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_TOP };
             case TURNOUT_RIGHT -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_BOTTOM };
             case TURNOUT_3WAY -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_TOP, PORT_BOTTOM };
-            case SIGNAL_3, SIGNAL_V, SIGNAL_COMBINED -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED -> new int[] { PORT_LEFT, PORT_RIGHT };
             case BUMPER -> new int[] { PORT_LEFT };
         };
         return rotatePorts(base, rotation);
@@ -146,7 +146,7 @@ public enum ElementType {
 
     private int[] getBaseThroughPaths() {
         return switch (this) {
-            case STRAIGHT, SIGNAL_3, SIGNAL_V, SIGNAL_COMBINED -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case STRAIGHT, SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED -> new int[] { PORT_LEFT, PORT_RIGHT };
             case DIAGONAL -> new int[] { PORT_LEFT, PORT_TOP, PORT_LEFT, PORT_RIGHT, PORT_TOP, PORT_BOTTOM, PORT_RIGHT, PORT_BOTTOM };
             case CURVE_LEFT -> new int[] { PORT_LEFT, PORT_TOP };
             case CURVE_RIGHT -> new int[] { PORT_LEFT, PORT_BOTTOM };
@@ -161,7 +161,7 @@ public enum ElementType {
         return switch (this) {
             case STRAIGHT, DIAGONAL, CURVE_LEFT, CURVE_RIGHT, BUMPER -> 1;
             case TURNOUT_LEFT, TURNOUT_RIGHT -> 2;
-            case TURNOUT_3WAY, SIGNAL_3, SIGNAL_V, SIGNAL_COMBINED -> 3;
+            case TURNOUT_3WAY, SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED -> 3;
         };
     }
 
@@ -182,7 +182,7 @@ public enum ElementType {
                 case 1 -> new int[] { PORT_LEFT, PORT_TOP };
                 default -> new int[] { PORT_LEFT, PORT_BOTTOM };
             };
-            case SIGNAL_3, SIGNAL_V, SIGNAL_COMBINED -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED -> new int[] { PORT_LEFT, PORT_RIGHT };
             case BUMPER -> new int[] { PORT_LEFT };
         };
     }

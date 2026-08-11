@@ -310,7 +310,7 @@ class RouteFindingTest {
         new LayoutPersistence().load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
 
-        Route existing = panel.getRouteModel().getRoute("TL-003-S3-008");
+        Route existing = panel.getRouteModel().getRoute("TL-003-SM3-008");
         assertThat(existing).isNotNull();
 
         String srcId = panel.getTile(2, 3).getElementId();
@@ -594,7 +594,7 @@ class RouteFindingTest {
     @Test
     void signalAtRedBlocksSimulation() throws Exception {
         var f = setup();
-        // S3-002 is at (6, 0), rotation 0 — faces LEFT, stops trains entering from LEFT
+        // SM3-002 is at (6, 0), rotation 0 — faces LEFT, stops trains entering from LEFT
         Tile signalTile = f.panel().getTile(6, 0);
         assertThat(signalTile).isNotNull();
 
@@ -605,7 +605,7 @@ class RouteFindingTest {
             .as("Signal should block train entering from facing direction").isTrue();
 
         // Change to aspect 1 (green) — no longer blocking
-        f.model().setElementAspect("S3-002", 1);
+        f.model().setElementAspect("SM3-002", 1);
         assertThat(f.panel().isSignalAtRed(signalTile)).as("Signal at aspect 1 should not be red").isFalse();
         assertThat(f.panel().isSignalBlocking(signalTile, ElementType.PORT_LEFT))
             .as("Green signal should not block").isFalse();
@@ -614,7 +614,7 @@ class RouteFindingTest {
     @Test
     void signalIgnoredFromBehind() throws Exception {
         var f = setup();
-        // S3-002 is at (6, 0), rotation 0 — faces LEFT
+        // SM3-002 is at (6, 0), rotation 0 — faces LEFT
         Tile signalTile = f.panel().getTile(6, 0);
         assertThat(signalTile).isNotNull();
 

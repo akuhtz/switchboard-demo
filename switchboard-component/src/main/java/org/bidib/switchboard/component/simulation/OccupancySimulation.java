@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * interval (e.g., every 200ms). This decouples the simulation from Swing timers, allowing
  * headless usage and direct testing.
  * <p>
- * Signal handling: when a train reaches a main signal (SIGNAL_3) at aspect 0 (red)
+ * Signal handling: when a train reaches a main signal (SIGNAL_M3) at aspect 0 (red)
  * from the signal's facing direction, the train stops. If {@link #setAutoChangeSignal(boolean)}
  * is enabled, the signal auto-switches to aspect 1 after {@value #AUTO_CHANGE_DELAY_MS}ms.
  * Distant signals (SIGNAL_V) never stop the train; they mirror the aspect of the next main
@@ -225,7 +225,7 @@ public class OccupancySimulation {
 
     /**
      * Keeps every distant signal (SIGNAL_V) on the route in sync with the next main signal
-     * (SIGNAL_3) ahead in the path, so the distant signal previews the upcoming aspect. For
+     * (SIGNAL_M3) ahead in the path, so the distant signal previews the upcoming aspect. For
      * combined signals (SIGNAL_COMBINED) the DISTANT PLATE on the signal's own mast mirrors the
      * next main signal ahead, while the main head keeps its own operator-set aspect.
      */
@@ -266,7 +266,7 @@ public class OccupancySimulation {
             int[] p = path.get(i);
             Tile tile = tileGrid.getTile(p[0], p[1]);
             if (tile instanceof ElementTile et && et.getElementId() != null
-                && (et.getElementType() == ElementType.SIGNAL_3
+                && (et.getElementType() == ElementType.SIGNAL_M3
                     || et.getElementType() == ElementType.SIGNAL_COMBINED)) {
                 Element el = model.getElement(et.getElementId());
                 if (el != null) {
@@ -279,7 +279,7 @@ public class OccupancySimulation {
 
     /**
      * Maps a next main signal's aspect to the distant signal (SIGNAL_V) aspect that previews it.
-     * SIGNAL_3 (canonical order red, green, yellow): red -> orange (Halt erwarten),
+     * SIGNAL_M3 (canonical order red, green, yellow): red -> orange (Halt erwarten),
      * green -> green (Frei erwarten), yellow -> orange+green (Langsamfahrt erwarten).
      * Aspect indices match: 0 -> orange, 1 -> green, 2 -> orange+green.
      */
@@ -308,7 +308,7 @@ public class OccupancySimulation {
     // --- Static signal utilities ---
 
     /**
-     * Returns true if the tile is a main signal (SIGNAL_3 or SIGNAL_COMBINED) with aspect 0 (red).
+     * Returns true if the tile is a main signal (SIGNAL_M3 or SIGNAL_COMBINED) with aspect 0 (red).
      * Distant signals (SIGNAL_V) never block a train.
      */
     public static boolean isSignalAtRed(Tile tile, RailwayModel model) {
@@ -316,7 +316,7 @@ public class OccupancySimulation {
             return false;
         }
         ElementType type = et.getElementType();
-        if (type != ElementType.SIGNAL_3 && type != ElementType.SIGNAL_COMBINED) {
+        if (type != ElementType.SIGNAL_M3 && type != ElementType.SIGNAL_COMBINED) {
             return false;
         }
         Element el = model.getElement(et.getElementId());

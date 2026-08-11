@@ -249,14 +249,14 @@ class RouteFindingUiTest {
         var layoutPersistence = new LayoutPersistence();
         GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
 
-        // Create route from P-086 (9,10) to S3-015 (19,4)
+        // Create route from P-086 (9,10) to SM3-015 (19,4)
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
             panel.testSetRouteSource(9, 10);
             panel.testFindRoute(19, 4);
         });
 
-        String routeId = "P-086-S3-015";
+        String routeId = "P-086-SM3-015";
         Route route = panel.getRouteModel().getRoute(routeId);
         assertThat(route).as("Route %s should be found", routeId).isNotNull();
 

@@ -229,8 +229,8 @@ public class LayoutPersistence {
             return null;
         }
 
-        // Migrate old signal SVG paths (without _left/_right suffix) and old track SVG paths
-        // (pre /icons/tracks directory) to their current locations
+        // Migrate old signal SVG paths (without _left/_right suffix and old /icons directory)
+        // to their current locations, and the old SIGNAL_3 (S3) naming to SIGNAL_M3 (SM3)
         List<String> svgPaths = td.getSvgPaths().stream()
             .map(LayoutPersistence::migrateSignalSvgPath)
             .map(LayoutPersistence::migrateTrackSvgPath)
@@ -245,11 +245,18 @@ public class LayoutPersistence {
             if (typeStr == null || typeStr.isEmpty()) {
                 return null;
             }
+            typeStr = migrateSignalType(typeStr);
             ElementType elementType = null;
+            int bestPrefixLen = -1;
             for (ElementType et : ElementType.values()) {
-                if (typeStr.startsWith(et.getPrefix())) {
-                    elementType = et;
-                    break;
+                String prefix = et.getPrefix();
+                if (typeStr.startsWith(prefix)) {
+                    String remainder = typeStr.substring(prefix.length());
+                    if (!remainder.isEmpty() && remainder.chars().allMatch(Character::isDigit)
+                            && prefix.length() > bestPrefixLen) {
+                        elementType = et;
+                        bestPrefixLen = prefix.length();
+                    }
                 }
             }
             if (elementType == null) {
@@ -281,13 +288,15 @@ public class LayoutPersistence {
     /**
      * Migrates old signal SVG paths (pre _left/_right suffix and old /icons directory)
      * to the current location and naming.
-     * E.g. "/icons/signal_3_red.svg" → "/icons/signals/sbb_l/signal_3_red_left.svg"
+     * E.g. "/icons/signal_3_red.svg" → "/icons/signals/sbb_l/signal_m3_red_left.svg"
+     * and "/icons/signals/sbb_l/signal_3_red_left.svg" → "/icons/signals/sbb_l/signal_m3_red_left.svg".
      */
     private static String migrateSignalSvgPath(String path) {
         if (path == null) return null;
         if (path.startsWith("/icons/signal_")) {
             path = path.replace("/icons/signal_", "/icons/signals/sbb_l/signal_");
         }
+        path = path.replace("/signal_3_", "/signal_m3_").replace("/signal_3.", "/signal_m3.");
         if (path.contains("_left.svg") || path.contains("_right.svg")) {
             return path; // already migrated
         }
@@ -295,6 +304,17 @@ public class LayoutPersistence {
             return path.replace(".svg", "_left.svg");
         }
         return path;
+    }
+
+    /**
+     * Migrates the old SIGNAL_3 persisted type prefix "S3" (e.g. "S33") to the
+     * renamed SIGNAL_M3 prefix "SM3" (e.g. "SM33").
+     */
+    private static String migrateSignalType(String type) {
+        if (type != null && type.startsWith("S3") && !type.startsWith("SM3")) {
+            return "SM3" + type.substring(2);
+        }
+        return type;
     }
 
     private static final List<String> TRACK_SVG_FILES = List.of(

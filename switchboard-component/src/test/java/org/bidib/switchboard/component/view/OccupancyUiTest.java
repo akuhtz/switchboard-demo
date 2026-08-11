@@ -441,8 +441,8 @@ class OccupancyUiTest {
         List<int[]> path = route.getPath();
         LOGGER.info("Route {} has {} tiles", routeId, path.size());
 
-        // Set signal S3-013 at (15,5) to green so the train can pass
-        GuiActionRunner.execute(() -> panel.getModel().setElementAspect("S3-013", 1));
+        // Set signal SM3-013 at (15,5) to green so the train can pass
+        GuiActionRunner.execute(() -> panel.getModel().setElementAspect("SM3-013", 1));
 
         // Start the occupancy simulation
         GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(route, DELAY));
@@ -529,20 +529,20 @@ class OccupancyUiTest {
 
     @Test
     void distantSignalDoesNotStopTrainAndMirrorsNextSignal() throws Exception {
-        // Load switchboard3a.json: distant signal SV-001 (10,5) ahead of main signal S3-003 (7,5)
+        // Load switchboard3a.json: distant signal SV-001 (10,5) ahead of main signal SM3-003 (7,5)
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard3a.json");
         Path layoutPath = Paths.get(url.toURI());
         var layoutPersistence = new LayoutPersistence();
         GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
 
-        // Pre-existing route P-028-DG-002 runs R→L through SV-001 then S3-003
+        // Pre-existing route P-028-DG-002 runs R→L through SV-001 then SM3-003
         String routeId = "P-028-DG-002";
         Route route = panel.getRouteModel().getRoute(routeId);
         assertThat(route).as("Persisted route should be loaded").isNotNull();
 
         List<int[]> path = route.getPath();
         assertThat(path.stream().anyMatch(p -> p[0] == 10 && p[1] == 5)).as("Route should go via SV-001 (10,5)").isTrue();
-        assertThat(path.stream().anyMatch(p -> p[0] == 7 && p[1] == 5)).as("Route should go via S3-003 (7,5)").isTrue();
+        assertThat(path.stream().anyMatch(p -> p[0] == 7 && p[1] == 5)).as("Route should go via SM3-003 (7,5)").isTrue();
 
         // Enable auto-change so the train can pass the red main signal after 2s
         panel.setAutoChangeSignal(true);
@@ -562,10 +562,10 @@ class OccupancyUiTest {
         // Start the simulation — the distant signal mirrors the next signal's aspect
         GuiActionRunner.execute(() -> panel.testStartOccupancySimulation(route, DELAY));
 
-        // The file stored SV-001 at aspect 1; after start it must mirror S3-003 (aspect 0)
+        // The file stored SV-001 at aspect 1; after start it must mirror SM3-003 (aspect 0)
         assertThat(panel.getModel().getElementAspect("SV-001"))
             .as("Distant signal should mirror the main signal's aspect after start")
-            .isEqualTo(panel.getModel().getElementAspect("S3-003"));
+            .isEqualTo(panel.getModel().getElementAspect("SM3-003"));
 
         // Wait for the simulation to complete
         int totalWaitMs = path.size() * 300 + 3000;
@@ -582,11 +582,11 @@ class OccupancyUiTest {
         assertThat(finished).as("Simulation should complete within timeout").isTrue();
 
         // Main signal was auto-changed to green (aspect 1); the distant signal mirrors it
-        assertThat(panel.getModel().getElementAspect("S3-003"))
+        assertThat(panel.getModel().getElementAspect("SM3-003"))
             .as("Main signal should have been auto-changed to green").isEqualTo(1);
         assertThat(panel.getModel().getElementAspect("SV-001"))
             .as("Distant signal should mirror the main signal after auto-change")
-            .isEqualTo(panel.getModel().getElementAspect("S3-003"));
+            .isEqualTo(panel.getModel().getElementAspect("SM3-003"));
 
         // The train passed the distant signal and reached the route target
         assertThat(panel.isTileOccupied(5, 4)).as("Train should reach the route target DG-002 (5,4)").isTrue();
@@ -614,7 +614,7 @@ class OccupancyUiTest {
         assertThat(panel.getRouteModel().getRoute(routeId)).as("Route should be found").isNotNull();
         assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).as("Alternatives should exist").isTrue();
 
-        // Select Alternative 1 that goes via S3-015, S3-012, S3-006, S3-001
+        // Select Alternative 1 that goes via SM3-015, SM3-012, SM3-006, SM3-001
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().setSelectedAlternativeIndex(routeId, 0);
             panel.getRouteModel().swapWithAlternative(routeId);
@@ -627,16 +627,16 @@ class OccupancyUiTest {
         LOGGER.info("Route {} has {} tiles", routeId, path.size());
 
         // Verify route goes through all expected signals
-        assertThat(path.stream().anyMatch(p -> p[0] == 19 && p[1] == 4)).as("Route should go via S3-015 (19,4)").isTrue();
-        assertThat(path.stream().anyMatch(p -> p[0] == 15 && p[1] == 4)).as("Route should go via S3-012 (15,4)").isTrue();
-        assertThat(path.stream().anyMatch(p -> p[0] == 8 && p[1] == 4)).as("Route should go via S3-006 (8,4)").isTrue();
-        assertThat(path.stream().anyMatch(p -> p[0] == 3 && p[1] == 3)).as("Route should go via S3-001 (3,3)").isTrue();
+        assertThat(path.stream().anyMatch(p -> p[0] == 19 && p[1] == 4)).as("Route should go via SM3-015 (19,4)").isTrue();
+        assertThat(path.stream().anyMatch(p -> p[0] == 15 && p[1] == 4)).as("Route should go via SM3-012 (15,4)").isTrue();
+        assertThat(path.stream().anyMatch(p -> p[0] == 8 && p[1] == 4)).as("Route should go via SM3-006 (8,4)").isTrue();
+        assertThat(path.stream().anyMatch(p -> p[0] == 3 && p[1] == 3)).as("Route should go via SM3-001 (3,3)").isTrue();
 
         // Verify signal facing directions:
-        // S3-015 (19,4) rot 180 → faces RIGHT → blocks R→L (our direction) → SHOULD STOP
-        // S3-012 (15,4) rot 0   → faces LEFT  → blocks L→R (opposite) → SHOULD NOT STOP
-        // S3-006 (8,4)  rot 180 → faces RIGHT → blocks R→L (our direction) → SHOULD STOP
-        // S3-001 (3,3)  rot 0   → faces LEFT  → blocks L→R (opposite) → SHOULD NOT STOP
+        // SM3-015 (19,4) rot 180 → faces RIGHT → blocks R→L (our direction) → SHOULD STOP
+        // SM3-012 (15,4) rot 0   → faces LEFT  → blocks L→R (opposite) → SHOULD NOT STOP
+        // SM3-006 (8,4)  rot 180 → faces RIGHT → blocks R→L (our direction) → SHOULD STOP
+        // SM3-001 (3,3)  rot 0   → faces LEFT  → blocks L→R (opposite) → SHOULD NOT STOP
         Tile s2013 = panel.getTile(19, 4);
         Tile s2010 = panel.getTile(15, 4);
         Tile s2006 = panel.getTile(8, 4);
@@ -649,18 +649,18 @@ class OccupancyUiTest {
         assertThat(panel.isSignalAtRed(s3002)).isTrue();
 
         // Train moves R→L, so entry port is RIGHT for horizontal movement
-        // S3-015 rot 180: facing port = (LEFT + 2) % 4 = RIGHT → blocks entry from RIGHT → STOP
+        // SM3-015 rot 180: facing port = (LEFT + 2) % 4 = RIGHT → blocks entry from RIGHT → STOP
         assertThat(panel.isSignalBlocking(s2013, ElementType.PORT_RIGHT))
-            .as("S3-015 (rot 180) should block train entering from RIGHT").isTrue();
-        // S3-012 rot 0: facing port = LEFT → does NOT block entry from RIGHT → PASS
+            .as("SM3-015 (rot 180) should block train entering from RIGHT").isTrue();
+        // SM3-012 rot 0: facing port = LEFT → does NOT block entry from RIGHT → PASS
         assertThat(panel.isSignalBlocking(s2010, ElementType.PORT_RIGHT))
-            .as("S3-012 (rot 0) should NOT block train entering from RIGHT").isFalse();
-        // S3-006 rot 180: facing port = RIGHT → blocks entry from RIGHT → STOP
+            .as("SM3-012 (rot 0) should NOT block train entering from RIGHT").isFalse();
+        // SM3-006 rot 180: facing port = RIGHT → blocks entry from RIGHT → STOP
         assertThat(panel.isSignalBlocking(s2006, ElementType.PORT_RIGHT))
-            .as("S3-006 (rot 180) should block train entering from RIGHT").isTrue();
-        // S3-001 rot 0: facing port = LEFT → does NOT block entry from RIGHT → PASS
+            .as("SM3-006 (rot 180) should block train entering from RIGHT").isTrue();
+        // SM3-001 rot 0: facing port = LEFT → does NOT block entry from RIGHT → PASS
         assertThat(panel.isSignalBlocking(s3002, ElementType.PORT_RIGHT))
-            .as("S3-001 (rot 0) should NOT block train entering from RIGHT").isFalse();
+            .as("SM3-001 (rot 0) should NOT block train entering from RIGHT").isFalse();
 
         // Now run the actual occupancy simulation and verify stopping behavior
         assignOccupanciesToPath(path);
@@ -674,7 +674,7 @@ class OccupancyUiTest {
             if (p[0] == 8 && p[1] == 4) idxS2006 = i;
             if (p[0] == 3 && p[1] == 3) idxS3002 = i;
         }
-        LOGGER.info("Signal indices in path: S3-015={}, S3-012={}, S3-006={}, S3-001={}", idxS2013, idxS2010, idxS2006, idxS3002);
+        LOGGER.info("Signal indices in path: SM3-015={}, SM3-012={}, SM3-006={}, SM3-001={}", idxS2013, idxS2010, idxS2006, idxS3002);
 
         // Use the simulation timer (200ms per step, signals auto-change after 2s)
         // We wait long enough for the simulation to complete, including 2 signal stops of ~2s each
@@ -699,16 +699,16 @@ class OccupancyUiTest {
 
         LOGGER.info("Simulation completed. Verifying signal auto-changes.");
 
-        // After simulation, S3-015 and S3-006 should have been auto-changed to aspect 1
-        assertThat(panel.getModel().getElementAspect("S3-015"))
-            .as("S3-015 should have been auto-changed to green").isEqualTo(1);
-        assertThat(panel.getModel().getElementAspect("S3-006"))
-            .as("S3-006 should have been auto-changed to green").isEqualTo(1);
-        // S3-012 and S3-001 should still be at aspect 0 (never auto-changed because train didn't stop)
-        assertThat(panel.getModel().getElementAspect("S3-012"))
-            .as("S3-012 should still be red (train passed without stopping)").isEqualTo(0);
-        assertThat(panel.getModel().getElementAspect("S3-001"))
-            .as("S3-001 should still be red (train passed without stopping)").isEqualTo(0);
+        // After simulation, SM3-015 and SM3-006 should have been auto-changed to aspect 1
+        assertThat(panel.getModel().getElementAspect("SM3-015"))
+            .as("SM3-015 should have been auto-changed to green").isEqualTo(1);
+        assertThat(panel.getModel().getElementAspect("SM3-006"))
+            .as("SM3-006 should have been auto-changed to green").isEqualTo(1);
+        // SM3-012 and SM3-001 should still be at aspect 0 (never auto-changed because train didn't stop)
+        assertThat(panel.getModel().getElementAspect("SM3-012"))
+            .as("SM3-012 should still be red (train passed without stopping)").isEqualTo(0);
+        assertThat(panel.getModel().getElementAspect("SM3-001"))
+            .as("SM3-001 should still be red (train passed without stopping)").isEqualTo(0);
 
         clearOccupancies(path);
     }
