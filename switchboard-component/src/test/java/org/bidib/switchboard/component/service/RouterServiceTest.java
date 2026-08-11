@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.config.TestOccupancyFactory;
+import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.RailwayModel;
@@ -194,6 +195,35 @@ class RouterServiceTest {
         assertThat(r).isNotNull();
         assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
         assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(4);
+    }
+
+    @Test
+    void setRouteAspectsDiagonalTurnoutSelectsStraightAndDivertedAspects() {
+        ElementType dtr = ElementType.DIAGONAL_TURNOUT_RIGHT;
+        Map<String, Tile> tiles = tileMap(
+            new ElementTile(0, 2, "P1", ElementType.DIAGONAL, List.of("/icons/tracks/diagonal.svg")),
+            new ElementTile(1, 1, "DTR-001", dtr, List.of("/icons/tracks/diag_turnout_straight_right.svg", "/icons/tracks/diag_turnout_diverted_right.svg")),
+            new ElementTile(2, 0, "P2", ElementType.DIAGONAL, List.of("/icons/tracks/diagonal.svg")),
+            new ElementTile(2, 1, "P3", ElementType.STRAIGHT, List.of("/icons/tracks/straight.svg"))
+        );
+        RailwayModel model = new RailwayModel();
+        Element turnout = new Element("DTR-001", 0, 0);
+        model.addElement(turnout);
+        RouterService svc = new RouterService(tiles, 10, 10, new RouteModel());
+
+        List<int[]> straight = svc.bfsRoute(0, 2, 2, 0);
+        assertThat(straight).isNotNull();
+        List<String> straightKeys = straight.stream().map(p -> p[0] + "," + p[1]).toList();
+        assertThat(straightKeys).contains("1,1");
+        svc.setRouteAspects(straight, model);
+        assertThat(model.getElement("DTR-001").getCurrentAspect()).as("straight diagonal pass").isEqualTo(0);
+
+        List<int[]> diverted = svc.bfsRoute(0, 2, 2, 1);
+        assertThat(diverted).isNotNull();
+        List<String> divertedKeys = diverted.stream().map(p -> p[0] + "," + p[1]).toList();
+        assertThat(divertedKeys).containsSequence("0,2", "1,1", "2,1");
+        svc.setRouteAspects(diverted, model);
+        assertThat(model.getElement("DTR-001").getCurrentAspect()).as("diverted to right edge").isEqualTo(1);
     }
 
     @Test

@@ -28,6 +28,7 @@ Folgende Kacheltypen sind verfügbar:
 | CURVE_LEFT     | CL | 90°-Kurve nach links         | 0 / 90 / 180 / 270 |
 | CURVE_RIGHT    | CR | 90°-Kurve nach rechts        | 0 / 90 / 180 / 270 |
 | DIAGONAL       | DG | Diagonales Gleis (↗)         | 0 / 90 / 180 / 270 |
+| DIAGONAL_TURNOUT_RIGHT | DTR | Diagonalweiche (2 Stellungen): gerade ↗ oder nach rechts abzweigend | 0 / 90 / 180 / 270 |
 | TURNOUT_LEFT   | TL | Linksweiche (2 Stellungen)   | 0 / 90 / 180 / 270 |
 | TURNOUT_RIGHT  | TR | Rechtsweiche (2 Stellungen)  | 0 / 90 / 180 / 270 |
 | TURNOUT_3WAY   | T3 | Dreiwegeweiche (3 Stellungen)| 0 / 90 / 180 / 270 |

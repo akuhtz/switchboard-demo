@@ -326,6 +326,48 @@
       "id" : "SM-002",
       "nodeId" : 0,
       "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "DTR-001",
+      "nodeId" : 0,
+      "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "P-035",
+      "nodeId" : 0,
+      "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "P-036",
+      "nodeId" : 0,
+      "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "CL-006",
+      "nodeId" : 0,
+      "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "P-037",
+      "nodeId" : 0,
+      "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "TL-001",
+      "nodeId" : 0,
+      "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "P-038",
+      "nodeId" : 0,
+      "occupancyId" : null
     } ],
     "occupancies" : [ {
       "id" : "occ-1",
@@ -965,6 +1007,16 @@
   }, {
     "col" : 16,
     "direction" : null,
+    "elementId" : "TL-001",
+    "mainSignalId" : null,
+    "rotation" : 0,
+    "row" : 3,
+    "signalSide" : null,
+    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
+    "type" : "TL2"
+  }, {
+    "col" : 16,
+    "direction" : null,
     "elementId" : "CR-003",
     "mainSignalId" : null,
     "rotation" : 0,
@@ -982,6 +1034,26 @@
     "signalSide" : null,
     "svgPaths" : [ "/icons/empty.svg" ],
     "type" : "plain"
+  }, {
+    "col" : 17,
+    "direction" : null,
+    "elementId" : "DTR-001",
+    "mainSignalId" : null,
+    "rotation" : 0,
+    "row" : 2,
+    "signalSide" : null,
+    "svgPaths" : [ "/icons/tracks/diag_turnout_straight_right.svg", "/icons/tracks/diag_turnout_diverted_right.svg" ],
+    "type" : "DTR2"
+  }, {
+    "col" : 17,
+    "direction" : null,
+    "elementId" : "P-038",
+    "mainSignalId" : null,
+    "rotation" : 0,
+    "row" : 3,
+    "signalSide" : null,
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
+    "type" : "P1"
   }, {
     "col" : 17,
     "direction" : null,
@@ -1013,6 +1085,26 @@
     "svgPaths" : [ "/icons/empty.svg" ],
     "type" : "plain"
   }, {
+    "col" : 18,
+    "direction" : null,
+    "elementId" : "CL-006",
+    "mainSignalId" : null,
+    "rotation" : 180,
+    "row" : 1,
+    "signalSide" : null,
+    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
+    "type" : "CL1"
+  }, {
+    "col" : 18,
+    "direction" : null,
+    "elementId" : "P-035",
+    "mainSignalId" : null,
+    "rotation" : 0,
+    "row" : 2,
+    "signalSide" : null,
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
+    "type" : "P1"
+  }, {
     "col" : 19,
     "direction" : null,
     "elementId" : null,
@@ -1022,6 +1114,26 @@
     "signalSide" : null,
     "svgPaths" : [ "/icons/empty.svg" ],
     "type" : "plain"
+  }, {
+    "col" : 19,
+    "direction" : null,
+    "elementId" : "P-037",
+    "mainSignalId" : null,
+    "rotation" : 0,
+    "row" : 1,
+    "signalSide" : null,
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
+    "type" : "P1"
+  }, {
+    "col" : 19,
+    "direction" : null,
+    "elementId" : "P-036",
+    "mainSignalId" : null,
+    "rotation" : 0,
+    "row" : 2,
+    "signalSide" : null,
+    "svgPaths" : [ "/icons/tracks/straight.svg" ],
+    "type" : "P1"
   }, {
     "col" : 20,
     "direction" : null,

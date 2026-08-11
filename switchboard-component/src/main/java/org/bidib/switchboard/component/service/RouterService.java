@@ -215,7 +215,8 @@ public class RouterService {
 
                 int dc = next[0] - curr[0];
                 int dr = next[1] - curr[1];
-                if (dc != 0 && dr != 0) {
+                boolean diagonalTurnout = type == ElementType.DIAGONAL_TURNOUT_RIGHT;
+                if (dc != 0 && dr != 0 && !diagonalTurnout) {
                     boolean entryIsHorizontal = entryPort == ElementType.PORT_LEFT || entryPort == ElementType.PORT_RIGHT;
                     boolean exitIsHorizontal = exitPort == ElementType.PORT_LEFT || exitPort == ElementType.PORT_RIGHT;
                     if (entryIsHorizontal == exitIsHorizontal) {
@@ -228,7 +229,7 @@ public class RouterService {
                 int prevDc = curr[0] - prev[0];
                 int prevDr = curr[1] - prev[1];
                 aspect = type.aspectForRoute(entryPort, exitPort, tile.getRotation());
-                if (prevDc != 0 && prevDr != 0 && type.getAspectCount() > 1) {
+                if (prevDc != 0 && prevDr != 0 && type.getAspectCount() > 1 && !diagonalTurnout) {
                     int altEntry = prevDc > 0 ? ElementType.PORT_LEFT : ElementType.PORT_RIGHT;
                     int altAspect = type.aspectForRoute(altEntry, exitPort, tile.getRotation());
                     if (altAspect > aspect) {
