@@ -35,6 +35,7 @@
         <jgoodies-validation.version>2.5.1</jgoodies-validation.version>
         <jgoodies-binding.version>2.13.0</jgoodies-binding.version>
         <junit6.version>6.0.3</junit6.version>
+        <mockito.version>5.20.0</mockito.version>
         
         <project.organization.name>bidib.org</project.organization.name>
         <project.inceptionYear>2026</project.inceptionYear>
@@ -140,6 +141,11 @@
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>${junit6.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

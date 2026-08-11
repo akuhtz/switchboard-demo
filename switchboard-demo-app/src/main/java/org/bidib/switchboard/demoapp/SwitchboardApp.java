@@ -35,6 +35,7 @@ import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.demoapp.config.DemoOccupancy;
 import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
+import org.bidib.switchboard.demoapp.persistence.DefaultSettingsManager;
 import org.bidib.switchboard.demoapp.persistence.DemoOccupancySerializer;
 import org.bidib.switchboard.demoapp.persistence.SettingsData.LookAndFeel;
 import org.bidib.switchboard.demoapp.persistence.SettingsManager;
@@ -82,15 +83,19 @@ public class SwitchboardApp {
 	private final DemoOccupancyFactory occupancyFactory = new DemoOccupancyFactory();
 
     SwitchboardApp() {
-        this(true);
+        this(new DefaultSettingsManager(), true);
     }
 
     SwitchboardApp(boolean autoLoad) {
+        this(new DefaultSettingsManager(), autoLoad);
+    }
+
+    SwitchboardApp(SettingsManager settings, boolean autoLoad) {
         log.info("Launch the SwitchboardApp.");
 
         // Load settings first: the stored language determines the locale used for every
         // resource bundle the UI reads afterwards.
-        settings = new SettingsManager();
+        this.settings = settings;
         Locale locale = resolveLocale(settings.getLanguage());
         Locale.setDefault(locale);
         ResourceBundle.clearCache();
