@@ -678,6 +678,12 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 - Added the `DIAGONAL_TURNOUT_LEFT` element (`DTL`, 2 aspects), the mirror of `DTR`. Its heel is the lower-right corner: the straight aspect continues diagonally to the upper-left corner, the diverted aspect exits through the left edge port. New `diag_turnout_straight_left.svg` / `diag_turnout_diverted_left.svg` icons, context-menu entry, mirrored occupancy rendering, and locale labels.
 - Routing now sets the correct aspect on the diagonal turnouts (`RouterService.setRouteAspects` skips the frog-corner exit correction for `DTR` and `DTL`) and `RouterServiceTest` covers straight and diverted aspect selection for both.
 
+**2026-08-09/11 — combined signal**
+
+- Added the `SIGNAL_COMBINED` element (`SM`, 3 aspects). A combined signal carries its own main head (top, red/green/orange, cycled like `SIGNAL_M3`) plus a distant plate (bottom) that mirrors a linked main signal. Both fragments are composed at runtime from separate SVGs (head + plate) without stretching (`drawCombinedSignalTile`, cached rotated rendering), and combined signals support per-tile signal side override.
+- The distant plate follows the next main signal ahead during a route simulation (`syncCombinedPlate`) or the linked `mainSignalId` otherwise. Combined signals are recognized as main signals for linking, signal blocking and aspect mirroring; the plate aspect (orange, green, orange+green) is shown in the **Tile Info** dialog. Added EN/DE i18n keys and placed `SM-001` linked to `SM3-001` in the demo layout.
+- Fixed the distant plate being clipped at the tile border: the combined signal is now composed onto a 3×3 tile canvas so the plate is drawn in the horizontally adjacent tile (`1eff14f`).
+
 **2026-08-07 — orange lamp on main signals**
 
 - The third aspect of a main signal (`SIGNAL_M3`) is now lit **orange** (`#FF8000`), matching the orange lamps of the distant signal (`SIGNAL_V`) — SBB main signals show an orange lamp, not yellow. Updated all `signal_m3_*` icon lamps (the orange-aspect icon plus the dim orange lamp shown in the red and green icons).
