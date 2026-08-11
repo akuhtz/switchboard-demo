@@ -62,6 +62,7 @@ class OccupancyElementUiTest {
         map.put(ElementType.CURVE_RIGHT, List.of("/icons/tracks/curve_right.svg"));
         map.put(ElementType.DIAGONAL, List.of("/icons/tracks/diagonal.svg"));
         map.put(ElementType.DIAGONAL_TURNOUT_RIGHT, List.of("/icons/tracks/diag_turnout_straight_right.svg", "/icons/tracks/diag_turnout_diverted_right.svg"));
+        map.put(ElementType.DIAGONAL_TURNOUT_LEFT, List.of("/icons/tracks/diag_turnout_straight_left.svg", "/icons/tracks/diag_turnout_diverted_left.svg"));
         map.put(ElementType.BUMPER, List.of("/icons/tracks/bumper_stop.svg"));
         return map;
     }
@@ -166,7 +167,7 @@ class OccupancyElementUiTest {
     @Test
     void occupancyCyclesThroughAllElements() throws Exception {
         List<Element> elements = new ArrayList<>(panel.getModel().getElements().values());
-        assertThat(elements).hasSize(112);
+        assertThat(elements).hasSize(120);
 
         Map<String, int[]> elementPositions = new LinkedHashMap<>();
         for (Tile tile : panel.getTiles().values()) {
@@ -174,7 +175,7 @@ class OccupancyElementUiTest {
                 elementPositions.put(et.getElementId(), new int[] { tile.getCol(), tile.getRow() });
             }
         }
-        assertThat(elementPositions).hasSize(112);
+        assertThat(elementPositions).hasSize(120);
 
         int limit = elements.size();
         LOGGER.info("Testing {} elements across all types, aspects, and rotations", limit);

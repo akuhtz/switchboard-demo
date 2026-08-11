@@ -78,6 +78,7 @@ type-specific enums — just element types distinguished by prefix.
 | `CURVE_RIGHT` | `CR` | yes | 1 | no |
 | `DIAGONAL` | `DG` | yes | 1 | no |
 | `DIAGONAL_TURNOUT_RIGHT` | `DTR` | yes | 2 (straight, diverted right) | yes |
+| `DIAGONAL_TURNOUT_LEFT` | `DTL` | yes | 2 (straight, diverted left) | yes |
 | `BUMPER` | `BS` | yes | 1 | no |
 
 Route finding uses `isValidThroughPath(port1, port2, rotation)` which validates that
@@ -86,7 +87,9 @@ common-heel→frog-end paths (e.g., LEFT↔RIGHT and LEFT↔BOTTOM for TURNOUT_R
 preventing frog-end→frog-end traversal. DIAGONAL elements allow all combinations
 connecting bottom-left corner ports with top-right corner ports. DIAGONAL_TURNOUT_RIGHT
 routes from its lower-left corner (heel) either diagonally to the upper-right corner
-(straight) or through the right edge port (diverted right).
+(straight) or through the right edge port (diverted right). Its mirror DIAGONAL_TURNOUT_LEFT
+has its heel at the lower-right corner, routes diagonally to the upper-left frog, and
+diverts through the left edge port.
 `hasValidDiagonal(port1, port2, rotation)` checks whether a tile's SVG track path has
 an endpoint at the given corner, used for diagonal neighbor connections.
 
@@ -669,10 +672,11 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 
 ### v1.0-SNAPSHOT
 
-**2026-08-11 — diagonal turnout right**
+**2026-08-11 — diagonal turnout right and left**
 
 - Added the `DIAGONAL_TURNOUT_RIGHT` element (`DTR`, 2 aspects). Its heel is the lower-left corner: the straight aspect continues diagonally to the upper-right corner, the diverted aspect exits through the right edge port. New `diag_turnout_straight_right.svg` / `diag_turnout_diverted_right.svg` icons, context-menu entry, occupancy rendering, and locale labels.
-- Routing now sets the correct aspect on the diagonal turnout (`RouterService.setRouteAspects` skips the frog-corner exit correction for this element type) and a `RouterServiceTest` covers straight and diverted aspect selection.
+- Added the `DIAGONAL_TURNOUT_LEFT` element (`DTL`, 2 aspects), the mirror of `DTR`. Its heel is the lower-right corner: the straight aspect continues diagonally to the upper-left corner, the diverted aspect exits through the left edge port. New `diag_turnout_straight_left.svg` / `diag_turnout_diverted_left.svg` icons, context-menu entry, mirrored occupancy rendering, and locale labels.
+- Routing now sets the correct aspect on the diagonal turnouts (`RouterService.setRouteAspects` skips the frog-corner exit correction for `DTR` and `DTL`) and `RouterServiceTest` covers straight and diverted aspect selection for both.
 
 **2026-08-07 — orange lamp on main signals**
 

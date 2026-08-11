@@ -215,7 +215,8 @@ public class RouterService {
 
                 int dc = next[0] - curr[0];
                 int dr = next[1] - curr[1];
-                boolean diagonalTurnout = type == ElementType.DIAGONAL_TURNOUT_RIGHT;
+                boolean diagonalTurnout = type == ElementType.DIAGONAL_TURNOUT_RIGHT
+                    || type == ElementType.DIAGONAL_TURNOUT_LEFT;
                 if (dc != 0 && dr != 0 && !diagonalTurnout) {
                     boolean entryIsHorizontal = entryPort == ElementType.PORT_LEFT || entryPort == ElementType.PORT_RIGHT;
                     boolean exitIsHorizontal = exitPort == ElementType.PORT_LEFT || exitPort == ElementType.PORT_RIGHT;

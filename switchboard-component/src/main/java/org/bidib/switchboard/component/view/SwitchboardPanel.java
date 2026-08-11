@@ -1200,6 +1200,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/curve_right.svg"));
             case DIAGONAL -> new ElementTile(col, row, id, type, List.of("/icons/tracks/diagonal.svg"));
             case DIAGONAL_TURNOUT_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/diag_turnout_straight_right.svg", "/icons/tracks/diag_turnout_diverted_right.svg"));
+            case DIAGONAL_TURNOUT_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/diag_turnout_straight_left.svg", "/icons/tracks/diag_turnout_diverted_left.svg"));
             case BUMPER -> new ElementTile(col, row, id, type, List.of("/icons/tracks/bumper_stop.svg"));
         };
     }
@@ -1652,7 +1653,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                         continue;
                     }
 
-                    if (et.getElementType() == ElementType.DIAGONAL_TURNOUT_RIGHT) {
+                    if (et.getElementType() == ElementType.DIAGONAL_TURNOUT_RIGHT
+                        || et.getElementType() == ElementType.DIAGONAL_TURNOUT_LEFT) {
                         drawDiagonalTurnoutOccupancy(g2, cx, cy, d, rotSteps, et, el);
                         continue;
                     }
@@ -1674,33 +1676,41 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private static void drawDiagonalOccupancy(Graphics2D g2, int cx, int cy, int d, int rotSteps) {
-        int[][] pairs = { { ElementType.PORT_LEFT, ElementType.PORT_BOTTOM },
-            { ElementType.PORT_TOP, ElementType.PORT_RIGHT } };
-        for (int[] pair : pairs) {
-            int p1 = (pair[0] + rotSteps) % 4;
-            int p2 = (pair[1] + rotSteps) % 4;
-            int dx = (p1 == ElementType.PORT_RIGHT || p2 == ElementType.PORT_RIGHT) ? d
-                : (p1 == ElementType.PORT_LEFT || p2 == ElementType.PORT_LEFT) ? -d : 0;
-            int dy = (p1 == ElementType.PORT_BOTTOM || p2 == ElementType.PORT_BOTTOM) ? d
-                : (p1 == ElementType.PORT_TOP || p2 == ElementType.PORT_TOP) ? -d : 0;
-            g2.drawLine(cx, cy, cx + dx, cy + dy);
-        }
+        drawCornerLine(g2, cx, cy, d, rotSteps, ElementType.PORT_LEFT, ElementType.PORT_BOTTOM);
+        drawCornerLine(g2, cx, cy, d, rotSteps, ElementType.PORT_TOP, ElementType.PORT_RIGHT);
+    }
+
+    private static void drawCornerLine(Graphics2D g2, int cx, int cy, int d, int rotSteps, int portA, int portB) {
+        int p1 = (portA + rotSteps) % 4;
+        int p2 = (portB + rotSteps) % 4;
+        int dx = (p1 == ElementType.PORT_RIGHT || p2 == ElementType.PORT_RIGHT) ? d
+            : (p1 == ElementType.PORT_LEFT || p2 == ElementType.PORT_LEFT) ? -d : 0;
+        int dy = (p1 == ElementType.PORT_BOTTOM || p2 == ElementType.PORT_BOTTOM) ? d
+            : (p1 == ElementType.PORT_TOP || p2 == ElementType.PORT_TOP) ? -d : 0;
+        g2.drawLine(cx, cy, cx + dx, cy + dy);
     }
 
     private void drawDiagonalTurnoutOccupancy(Graphics2D g2, int cx, int cy, int d, int rotSteps,
                                                ElementTile et, Element el) {
+        boolean left = et.getElementType() == ElementType.DIAGONAL_TURNOUT_LEFT;
         if (el.getCurrentAspect() == 0) {
-            drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
+            if (left) {
+                drawCornerLine(g2, cx, cy, d, rotSteps, ElementType.PORT_RIGHT, ElementType.PORT_BOTTOM);
+                drawCornerLine(g2, cx, cy, d, rotSteps, ElementType.PORT_TOP, ElementType.PORT_LEFT);
+            } else {
+                drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
+            }
             return;
         }
-        int heel = (ElementType.PORT_LEFT + rotSteps) % 4;
+        int heelBase = left ? ElementType.PORT_RIGHT : ElementType.PORT_LEFT;
+        int heel = (heelBase + rotSteps) % 4;
         int heelCorner = (ElementType.PORT_BOTTOM + rotSteps) % 4;
         int dx = (heel == ElementType.PORT_LEFT || heel == ElementType.PORT_RIGHT)
             ? (heel == ElementType.PORT_RIGHT ? d : -d) : 0;
         int dy = (heelCorner == ElementType.PORT_TOP || heelCorner == ElementType.PORT_BOTTOM)
             ? (heelCorner == ElementType.PORT_BOTTOM ? d : -d) : 0;
         g2.drawLine(cx, cy, cx + dx, cy + dy);
-        int exit = (ElementType.PORT_RIGHT + rotSteps) % 4;
+        int exit = ((left ? ElementType.PORT_LEFT : ElementType.PORT_RIGHT) + rotSteps) % 4;
         drawPortLine(g2, cx, cy, exit, tileSize);
     }
 

@@ -29,6 +29,7 @@ The following tile types are available:
 | CURVE_RIGHT    | CR | 90° curve to the right       | 0 / 90 / 180 / 270 |
 | DIAGONAL       | DG | Diagonal track (↗)           | 0 / 90 / 180 / 270 |
 | DIAGONAL_TURNOUT_RIGHT | DTR | Diagonal turnout (2 aspects): straight ↗ or diverted to the right | 0 / 90 / 180 / 270 |
+| DIAGONAL_TURNOUT_LEFT | DTL | Diagonal turnout (2 aspects): straight ↘ or diverted to the left | 0 / 90 / 180 / 270 |
 | TURNOUT_LEFT   | TL | Left turnout (2 aspects)     | 0 / 90 / 180 / 270 |
 | TURNOUT_RIGHT  | TR | Right turnout (2 aspects)    | 0 / 90 / 180 / 270 |
 | TURNOUT_3WAY   | T3 | Three-way turnout (3 aspects)| 0 / 90 / 180 / 270 |

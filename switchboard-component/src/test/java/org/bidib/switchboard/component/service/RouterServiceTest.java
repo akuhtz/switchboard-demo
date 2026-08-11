@@ -227,6 +227,37 @@ class RouterServiceTest {
     }
 
     @Test
+    void setRouteAspectsDiagonalTurnoutLeftSelectsStraightAndDivertedAspects() {
+        ElementType dtl = ElementType.DIAGONAL_TURNOUT_LEFT;
+        List<String> dtlSvgs = List.of("/icons/tracks/diag_turnout_straight_left.svg", "/icons/tracks/diag_turnout_diverted_left.svg");
+        Map<String, Tile> tiles = tileMap(
+            new ElementTile(0, 0, "DTL-A", dtl, dtlSvgs),
+            new ElementTile(1, 1, "DTL-001", dtl, dtlSvgs),
+            new ElementTile(2, 2, "DTL-B", dtl, dtlSvgs),
+            new ElementTile(0, 1, "P3", ElementType.STRAIGHT, List.of("/icons/tracks/straight.svg"))
+        );
+        RailwayModel model = new RailwayModel();
+        model.addElement(new Element("DTL-A", 0, 0));
+        model.addElement(new Element("DTL-001", 0, 0));
+        model.addElement(new Element("DTL-B", 0, 0));
+        RouterService svc = new RouterService(tiles, 10, 10, new RouteModel());
+
+        List<int[]> straight = svc.bfsRoute(0, 0, 2, 2);
+        assertThat(straight).isNotNull();
+        List<String> straightKeys = straight.stream().map(p -> p[0] + "," + p[1]).toList();
+        assertThat(straightKeys).contains("1,1");
+        svc.setRouteAspects(straight, model);
+        assertThat(model.getElement("DTL-001").getCurrentAspect()).as("straight diagonal pass").isEqualTo(0);
+
+        List<int[]> diverted = svc.bfsRoute(2, 2, 0, 1);
+        assertThat(diverted).isNotNull();
+        List<String> divertedKeys = diverted.stream().map(p -> p[0] + "," + p[1]).toList();
+        assertThat(divertedKeys).containsSequence("2,2", "1,1", "0,1");
+        svc.setRouteAspects(diverted, model);
+        assertThat(model.getElement("DTL-001").getCurrentAspect()).as("diverted to left edge").isEqualTo(1);
+    }
+
+    @Test
     void getRoutesReturnsEmptyMapWhenNoRoutes() {
         RouterService svc = new RouterService(Map.of(), 10, 10, new RouteModel());
         assertThat(svc.getRoutes()).isEmpty();
