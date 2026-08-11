@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -551,12 +552,12 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                     signalMenu = new JMenu(messages.getString("context.signals"));
                     menu.add(signalMenu);
                 }
-                JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
+                JMenuItem item = new JMenuItem(createElementTypeMenuLabel(type));
                 item.addActionListener(e -> onTileContextAction(col, row, type));
                 signalMenu.add(item);
             }
             else {
-                JMenuItem item = new JMenuItem(type.getPrefix() + " (" + type.name() + ")");
+                JMenuItem item = new JMenuItem(createElementTypeMenuLabel(type));
                 item.addActionListener(e -> onTileContextAction(col, row, type));
                 menu.add(item);
             }
@@ -605,6 +606,17 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             JMenuItem clearItem = new JMenuItem(messages.getString("context.clear"));
             clearItem.addActionListener(e -> onTileContextAction(col, row, null));
             menu.add(clearItem);
+        }
+    }
+
+    private String createElementTypeMenuLabel(ElementType type) {
+        String key = "elementType." + type.name();
+        try {
+            String label = messages.getString(key);
+            return label + " (" + type.getPrefix() + ")";
+        }
+        catch (MissingResourceException ex) {
+            return type.getPrefix() + " (" + type.name() + ")";
         }
     }
 
