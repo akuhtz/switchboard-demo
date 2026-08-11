@@ -1879,7 +1879,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     /**
      * Renders a combined signal (SIGNAL_COMBINED) by composing its main head fragment (own
      * aspect) and its distant plate fragment (mirrored next-main aspect) into a single cached
-     * tile image. Both fragments keep their level aspect ratios; no stretching is applied.
+     * image that spans two tiles: the head sits in the signal's own tile and the distant plate
+     * in the horizontally adjacent tile. Both fragments keep their level aspect ratios; no
+     * stretching is applied.
      */
     private void drawCombinedSignalTile(Graphics2D g2, ElementTile et) {
         String headPath = resolveSvgResource(et);
@@ -1893,16 +1895,24 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         CombinedImageKey key = new CombinedImageKey(headPath, platePath, et.getRotation());
         BufferedImage img = combinedImageCache.get(key);
         if (img == null) {
-            img = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_INT_ARGB);
+            img = new BufferedImage(3 * tileSize, 3 * tileSize, BufferedImage.TYPE_INT_ARGB);
             Graphics2D ig = img.createGraphics();
             try {
                 ig.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 ig.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
                 if (et.getRotation() != 0) {
-                    ig.rotate(Math.toRadians(et.getRotation()), tileSize / 2.0, tileSize / 2.0);
+                    ig.rotate(Math.toRadians(et.getRotation()), 1.5 * tileSize, 1.5 * tileSize);
                 }
-                renderSvgInto(ig, headPath);
-                renderSvgInto(ig, platePath);
+                // head occupies the centre box, the distant plate the left/right neighbour box
+                Graphics2D headCtx = (Graphics2D) ig.create();
+                headCtx.translate(tileSize, tileSize);
+                renderSvgInto(headCtx, headPath);
+                headCtx.dispose();
+                boolean plateRight = headPath.contains("_right.svg");
+                Graphics2D plateCtx = (Graphics2D) ig.create();
+                plateCtx.translate(plateRight ? 2 * tileSize : 0, tileSize);
+                renderSvgInto(plateCtx, platePath);
+                plateCtx.dispose();
             }
             finally {
                 ig.dispose();
@@ -1914,8 +1924,8 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             }
             combinedImageCache.put(key, img);
         }
-        int px = et.getCol() * tileSize;
-        int py = et.getRow() * tileSize;
+        int px = et.getCol() * tileSize - tileSize;
+        int py = et.getRow() * tileSize - tileSize;
         g2.drawImage(img, px, py, null);
     }
 

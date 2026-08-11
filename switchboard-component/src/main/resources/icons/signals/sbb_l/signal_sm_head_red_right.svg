@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-    <g transform="translate(18.32, 16) rotate(90) scale(0.116) translate(10,-90)">
+    <g transform="translate(18.32, 16) rotate(90) scale(0.116) translate(10,-140)">
       <g id="signal" data-bidib="signal_sm_head_red">
         <path d="M 1 20 L 1 180 L 20 199 L 80 199 L 99 180 L 99 20 L 80 1 L 20 1 L 1 20 Z" fill="white" stroke="black" stroke-width="6"/>
         <path d="M 10 25 L 10 175 L 25 190 L 75 190 L 90 175 L 90 25 L 75 10 L 25 10 L 10 25 Z" fill="black"/>

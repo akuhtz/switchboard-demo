@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-    <g transform="translate(17.41, 20) rotate(270) scale(0.085) translate(20, -320)">
+    <g transform="translate(42, 20) rotate(270) scale(0.085) translate(20, -320)">
       <g id="signal" data-bidib="signal_sm_plate_orgreen">
         <path d="M 1 20 L 1 180 L 20 199 L 180 199 L 199 180 L 199 20 L 180 1 L 20 1 L 1 20 Z" fill="white" stroke="black" stroke-width="6"/>
         <path d="M 13 32 L 13 168 L 32 187 L 168 187 L 187 168 L 187 32 L 168 13 L 32 13 L 13 32 Z" fill="black"/>

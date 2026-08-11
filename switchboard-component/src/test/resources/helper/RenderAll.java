@@ -39,17 +39,22 @@ public final class RenderAll {
         String[] heads = {"red", "green", "orange"};
         String[] plates = {"orange", "green", "orgreen"};
 
-        BufferedImage img = new BufferedImage(114, 64, BufferedImage.TYPE_INT_ARGB);
+        String[] sides = {"left", "right"};
+        BufferedImage img = new BufferedImage(76 * heads.length, 64, BufferedImage.TYPE_INT_ARGB);
         Graphics2D bg = img.createGraphics();
         bg.setColor(new Color(45, 45, 50));
-        bg.fillRect(0, 0, 114, 64);
+        bg.fillRect(0, 0, img.getWidth(), img.getHeight());
         bg.dispose();
-        for (String side : new String[] {"left", "right"}) {
+        for (String side : sides) {
             for (int i = 0; i < 3; i++) {
                 Graphics2D t = img.createGraphics();
-                t.translate(i * 38, side.equals("left") ? 0 : 32);
+                t.translate(i * 76 + (side.equals("right") ? 38 : 0), side.equals("left") ? 0 : 32);
                 draw(t, BASE + "signal_sm_head_" + heads[i] + "_" + side + ".svg", 38, 32);
-                draw(t, BASE + "signal_sm_plate_" + plates[i] + "_" + side + ".svg", 38, 32);
+                int plateX = side.equals("right") ? 38 : -38;
+                Graphics2D p = (Graphics2D) t.create();
+                p.translate(plateX, 0);
+                draw(p, BASE + "signal_sm_plate_" + plates[i] + "_" + side + ".svg", 38, 32);
+                p.dispose();
                 t.dispose();
             }
         }
