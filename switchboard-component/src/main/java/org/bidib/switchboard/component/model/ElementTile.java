@@ -7,8 +7,6 @@ public class ElementTile extends Tile {
 
     private final List<String> svgPaths = new ArrayList<>();
     private final ElementType elementType;
-    private String mainSignalId;
-    private int plateAspect = 0;
 
     public ElementTile(int col, int row, String elementId,
                        ElementType elementType, List<String> svgPaths) {
@@ -28,41 +26,12 @@ public class ElementTile extends Tile {
         return svgPaths.size();
     }
 
+    /** Provides mutable access to the SVG aspect paths for subclasses. */
+    protected List<String> getSvgPaths() {
+        return svgPaths;
+    }
+
     public ElementType getElementType() {
         return elementType;
-    }
-
-    public String getMainSignalId() {
-        return mainSignalId;
-    }
-
-    public void setMainSignalId(String mainSignalId) {
-        this.mainSignalId = mainSignalId;
-    }
-
-    public int getPlateAspect() {
-        return plateAspect;
-    }
-
-    public void setPlateAspect(int plateAspect) {
-        this.plateAspect = plateAspect;
-    }
-
-    public void applySignalSide(SignalSide resolvedSide) {
-        boolean useRight = resolvedSide == SignalSide.RIGHT;
-        List<String> updated = new ArrayList<>(svgPaths.size());
-        for (String path : svgPaths) {
-            boolean isRight = path.contains("_right.svg");
-            if (useRight && !isRight) {
-                updated.add(path.replace("_left.svg", "_right.svg"));
-            } else if (!useRight && isRight) {
-                updated.add(path.replace("_right.svg", "_left.svg"));
-            } else {
-                updated.add(path);
-            }
-        }
-        svgPaths.clear();
-        svgPaths.addAll(updated);
-        setSvgResource(svgPaths.get(0));
     }
 }

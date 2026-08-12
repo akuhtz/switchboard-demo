@@ -31,9 +31,9 @@ import org.assertj.swing.fixture.FrameFixture;
 import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.Element;
-import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.RailwayModel;
+import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.util.SvgIconLoader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -73,7 +73,7 @@ class SignalVDemoUiTest {
                 List<String> paths = rows.get(r);
                 for (int c = 0; c < paths.size(); c++) {
                     String elementId = String.format("SV-%03d", id++);
-                    panel.setTile(new ElementTile(c, r, elementId, ElementType.SIGNAL_V, paths));
+                    panel.setTile(new SignalTile(c, r, elementId, ElementType.SIGNAL_V, paths));
                     Element element = new Element(elementId, 0, 0);
                     element.setCurrentAspect(c);
                     model.addElement(element);

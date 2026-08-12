@@ -17,6 +17,7 @@ import org.bidib.switchboard.component.persistence.OccupancySerializer;
 import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
+import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
 import org.bidib.switchboard.demoapp.persistence.SettingsManager;
@@ -64,15 +65,15 @@ public class LayoutService {
             new ElementTile(3, 3, "TR-001", ElementType.TURNOUT_RIGHT, List.of("/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg")));
         tileGrid.setTile(new ElementTile(4, 3, "T3-001", ElementType.TURNOUT_3WAY,
             List.of("/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg")));
-        tileGrid.setTile(new ElementTile(11, 3, "SM3-001", ElementType.SIGNAL_M3,
+        tileGrid.setTile(new SignalTile(11, 3, "SM3-001", ElementType.SIGNAL_M3,
             List.of("/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg")));
-        ElementTile sm001 = new ElementTile(13, 3, "SM-001", ElementType.SIGNAL_COMBINED,
+        SignalTile sm001 = new SignalTile(13, 3, "SM-001", ElementType.SIGNAL_COMBINED,
             List.of("/icons/signals/sbb_l/signal_sm_head_red_left.svg", "/icons/signals/sbb_l/signal_sm_head_green_left.svg", "/icons/signals/sbb_l/signal_sm_head_orange_left.svg"));
         sm001.setMainSignalId("SM3-001");
         tileGrid.setTile(sm001);
         tileGrid.setTile(new ElementTile(10, 3, "P-101", ElementType.STRAIGHT, List.of("/icons/tracks/straight.svg")));
         tileGrid.setTile(new ElementTile(12, 3, "P-102", ElementType.STRAIGHT, List.of("/icons/tracks/straight.svg")));
-        ElementTile sv001 = new ElementTile(9, 3, "SV-001", ElementType.SIGNAL_V,
+        SignalTile sv001 = new SignalTile(9, 3, "SV-001", ElementType.SIGNAL_V,
             List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg"));
         sv001.setMainSignalId("SM3-001");
         tileGrid.setTile(sv001);

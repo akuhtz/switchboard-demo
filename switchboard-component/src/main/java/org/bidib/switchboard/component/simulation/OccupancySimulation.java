@@ -9,6 +9,7 @@ import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
+import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.view.TileGrid;
 import org.slf4j.Logger;
@@ -240,7 +241,7 @@ public class OccupancySimulation {
                 continue;
             }
             if (et.getElementType() == ElementType.SIGNAL_COMBINED) {
-                syncCombinedPlate(i, et);
+                syncCombinedPlate(i, (SignalTile) et);
                 continue;
             }
             if (et.getElementType() != ElementType.SIGNAL_V || et.getElementId() == null) {
@@ -254,7 +255,7 @@ public class OccupancySimulation {
     }
 
     /** Updates the distant plate of the combined signal at path index i to mirror the next main ahead. */
-    private void syncCombinedPlate(int fromIndex, ElementTile combined) {
+    private void syncCombinedPlate(int fromIndex, SignalTile combined) {
         int nextAspect = findNextSignalAspect(fromIndex);
         if (nextAspect >= 0) {
             combined.setPlateAspect(nextAspect);

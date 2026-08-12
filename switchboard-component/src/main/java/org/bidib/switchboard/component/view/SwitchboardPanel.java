@@ -62,6 +62,7 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.SignalSide;
+import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.model.TileDirection;
 import org.bidib.switchboard.component.simulation.OccupancySimulation;
@@ -582,14 +583,15 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 if (et.getElementType() == ElementType.SIGNAL_M3
                     || et.getElementType() == ElementType.SIGNAL_V
                     || et.getElementType() == ElementType.SIGNAL_COMBINED) {
+                    SignalTile st = (SignalTile) et;
                     JMenu sideMenu = new JMenu(messages.getString("context.signalSide"));
-                    SignalSide currentSide = tile.getSignalSide();
+                    SignalSide currentSide = st.getSignalSide();
                     for (SignalSide side : SignalSide.values()) {
                         JCheckBoxMenuItem item = new JCheckBoxMenuItem(side.name(), side == currentSide);
                         item.addActionListener(e -> {
-                            tile.setSignalSide(side);
+                            st.setSignalSide(side);
                             SignalSide effective = side == SignalSide.DEFAULT ? globalSignalSide : side;
-                            et.applySignalSide(effective);
+                            st.applySignalSide(effective);
                             repaint();
                         });
                         sideMenu.add(item);
@@ -598,7 +600,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 }
                 if (et.getElementType() == ElementType.SIGNAL_V
                     || et.getElementType() == ElementType.SIGNAL_COMBINED) {
-                    buildAssignMainSignalSubmenu(menu, et);
+                    buildAssignMainSignalSubmenu(menu, (SignalTile) et);
                 }
                 buildBlockMenuItems(menu, col, row, tile);
                 menu.addSeparator();
@@ -641,7 +643,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
      * placed main signal (SIGNAL_M3) plus "None". When no link is set yet, the main
      * signal suggested by {@link #suggestMainSignalForDistant(ElementTile)} is preselected.
      */
-    private void buildAssignMainSignalSubmenu(JPopupMenu menu, ElementTile distantTile) {
+    private void buildAssignMainSignalSubmenu(JPopupMenu menu, SignalTile distantTile) {
         JMenu assignMenu = new JMenu(messages.getString("context.assignMainSignal"));
         String current = distantTile.getMainSignalId();
         String suggested = suggestMainSignalForDistant(distantTile);
@@ -683,7 +685,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
      * aspect of each tile, until a main signal is found. Returns null when no main signal lies
      * along the connected track ahead.
      */
-    String suggestMainSignalForDistant(ElementTile distantTile) {
+    String suggestMainSignalForDistant(SignalTile distantTile) {
         int rotSteps = (distantTile.getRotation() / 90) % 4;
         int facingPort = (ElementType.PORT_LEFT + rotSteps) % 4;
         int exitPort = (facingPort + 2) % 4;
@@ -1051,27 +1053,29 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
                 }
             }
             sb.append(MessageFormat.format(messages.getString("info.aspects"), et.getAspectCount())).append("\n");
-            if (et.getElementType() == ElementType.SIGNAL_M3
-                || et.getElementType() == ElementType.SIGNAL_V
-                || et.getElementType() == ElementType.SIGNAL_COMBINED) {
-                SignalSide side = tile.getSignalSide();
-                sb.append(MessageFormat.format(messages.getString("info.signalSide"), side));
-                if (side == SignalSide.DEFAULT) {
-                    sb.append(MessageFormat.format(messages.getString("info.signalSideResolves"), globalSignalSide));
+            if (et instanceof SignalTile st) {
+                if (et.getElementType() == ElementType.SIGNAL_M3
+                    || et.getElementType() == ElementType.SIGNAL_V
+                    || et.getElementType() == ElementType.SIGNAL_COMBINED) {
+                    SignalSide side = st.getSignalSide();
+                    sb.append(MessageFormat.format(messages.getString("info.signalSide"), side));
+                    if (side == SignalSide.DEFAULT) {
+                        sb.append(MessageFormat.format(messages.getString("info.signalSideResolves"), globalSignalSide));
+                    }
+                    sb.append("\n");
                 }
-                sb.append("\n");
-            }
-            if ((et.getElementType() == ElementType.SIGNAL_V
-                || et.getElementType() == ElementType.SIGNAL_COMBINED)
-                && et.getMainSignalId() != null) {
-                sb.append(MessageFormat.format(messages.getString("info.mainSignal"), et.getMainSignalId())).append("\n");
-            }
-            if (et.getElementType() == ElementType.SIGNAL_COMBINED) {
-                sb.append(MessageFormat.format(messages.getString("info.combinedPlateAspect"), et.getPlateAspect())).append("\n");
+                if ((et.getElementType() == ElementType.SIGNAL_V
+                    || et.getElementType() == ElementType.SIGNAL_COMBINED)
+                    && st.getMainSignalId() != null) {
+                    sb.append(MessageFormat.format(messages.getString("info.mainSignal"), st.getMainSignalId())).append("\n");
+                }
+                if (et.getElementType() == ElementType.SIGNAL_COMBINED) {
+                    sb.append(MessageFormat.format(messages.getString("info.combinedPlateAspect"), st.getPlateAspect())).append("\n");
+                }
             }
             if (et.getElementType() == ElementType.SIGNAL_M3
                 || et.getElementType() == ElementType.SIGNAL_COMBINED) {
-                List<ElementTile> linked = findDistantSignalsLinkedTo(et.getElementId());
+                List<SignalTile> linked = findDistantSignalsLinkedTo(et.getElementId());
                 if (!linked.isEmpty()) {
                     String ids = linked.stream()
                         .map(ElementTile::getElementId)
@@ -1123,7 +1127,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         if (oldTile instanceof ElementTile et && oldElementId != null
             && (et.getElementType() == ElementType.SIGNAL_M3
                 || et.getElementType() == ElementType.SIGNAL_COMBINED)) {
-            List<ElementTile> linked = findDistantSignalsLinkedTo(oldElementId);
+            List<SignalTile> linked = findDistantSignalsLinkedTo(oldElementId);
             if (!linked.isEmpty()) {
                 switch (confirmRemoveMainSignal(linked)) {
                     case REMOVE_LINKED_OPTION -> linked.forEach(d -> clearTileWithUndo(d.getCol(), d.getRow()));
@@ -1145,10 +1149,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         undoStack.push(new TileCommand(this, model, col, row, tile, elementId, null, null));
     }
 
-    private List<ElementTile> findDistantSignalsLinkedTo(String mainSignalId) {
-        List<ElementTile> linked = new ArrayList<>();
+    private List<SignalTile> findDistantSignalsLinkedTo(String mainSignalId) {
+        List<SignalTile> linked = new ArrayList<>();
         for (Tile t : tiles.values()) {
-            if (t instanceof ElementTile det
+            if (t instanceof SignalTile det
                 && det.getElementType() == ElementType.SIGNAL_V
                 && mainSignalId.equals(det.getMainSignalId())) {
                 linked.add(det);
@@ -1157,7 +1161,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         return linked;
     }
 
-    int confirmRemoveMainSignal(List<ElementTile> linked) {
+    int confirmRemoveMainSignal(List<SignalTile> linked) {
         String ids = linked.stream()
             .map(ElementTile::getElementId)
             .collect(Collectors.joining(", "));
@@ -1192,9 +1196,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             case TURNOUT_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg"));
             case TURNOUT_3WAY -> new ElementTile(col, row, id, type,
                 List.of("/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg"));
-            case SIGNAL_M3 -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg"));
-            case SIGNAL_V -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg"));
-            case SIGNAL_COMBINED -> new ElementTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_sm_head_red_left.svg", "/icons/signals/sbb_l/signal_sm_head_green_left.svg", "/icons/signals/sbb_l/signal_sm_head_orange_left.svg"));
+            case SIGNAL_M3 -> new SignalTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg"));
+            case SIGNAL_V -> new SignalTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg"));
+            case SIGNAL_COMBINED -> new SignalTile(col, row, id, type, List.of("/icons/signals/sbb_l/signal_sm_head_red_left.svg", "/icons/signals/sbb_l/signal_sm_head_green_left.svg", "/icons/signals/sbb_l/signal_sm_head_orange_left.svg"));
             case STRAIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/straight.svg"));
             case CURVE_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/curve_left.svg"));
             case CURVE_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/curve_right.svg"));
@@ -1903,14 +1907,11 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private boolean isSignalTile(Tile tile) {
-        return tile instanceof ElementTile et
-            && (et.getElementType() == ElementType.SIGNAL_M3
-                || et.getElementType() == ElementType.SIGNAL_V
-                || et.getElementType() == ElementType.SIGNAL_COMBINED);
+        return tile instanceof SignalTile;
     }
 
     private void drawTile(Graphics2D g2, Tile tile) {
-        if (tile instanceof ElementTile et && et.getElementType() == ElementType.SIGNAL_COMBINED) {
+        if (tile instanceof SignalTile et && et.getElementType() == ElementType.SIGNAL_COMBINED) {
             drawCombinedSignalTile(g2, et);
             return;
         }
@@ -1928,7 +1929,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
      * in the horizontally adjacent tile. Both fragments keep their level aspect ratios; no
      * stretching is applied.
      */
-    private void drawCombinedSignalTile(Graphics2D g2, ElementTile et) {
+    private void drawCombinedSignalTile(Graphics2D g2, SignalTile et) {
         String headPath = resolveSvgResource(et);
         if (headPath == null) {
             return;
@@ -1985,11 +1986,11 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
      * Resolves the distant plate fragment for a combined signal. When the signal is linked to a
      * main signal ({@code mainSignalId}), the plate live-mirrors that main's current aspect
      * (keeping the {@link OccupancySimulation#distantAspectForMainSignal} mapping, which is the
-     * identity for the plate colour order). Otherwise the stored {@link ElementTile#getPlateAspect()}
+     * identity for the plate colour order). Otherwise the stored {@link SignalTile#getPlateAspect()}
      * (used by the route simulation to follow the next main ahead) is used, defaulting to orange.
      * The plate keeps the same side (left/right) as the head fragment.
      */
-    private String resolvePlateSvgResource(ElementTile et, String headPath) {
+    private String resolvePlateSvgResource(SignalTile et, String headPath) {
         int plateAspect;
         String mainId = et.getMainSignalId();
         if (mainId != null) {
@@ -2117,14 +2118,17 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         if (tile instanceof ElementTile et) {
             String id = et.getElementId();
             int count = et.getAspectCount();
-            boolean linkedDistantSignal = et.getElementType() == ElementType.SIGNAL_V && et.getMainSignalId() != null;
+            boolean linkedDistantSignal = et instanceof SignalTile st
+                && st.getElementType() == ElementType.SIGNAL_V
+                && st.getMainSignalId() != null;
             if (id != null && count > 1 && !linkedDistantSignal) {
                 Command cmd = new CycleElementCommand(model, id, count);
                 cmd.execute();
                 undoStack.push(cmd);
-                if (et.getElementType() == ElementType.SIGNAL_M3
-                    || et.getElementType() == ElementType.SIGNAL_COMBINED) {
-                    mirrorLinkedDistantSignals(et);
+                if (et instanceof SignalTile st
+                    && (st.getElementType() == ElementType.SIGNAL_M3
+                        || st.getElementType() == ElementType.SIGNAL_COMBINED)) {
+                    mirrorLinkedDistantSignals(st);
                 }
             }
         }
@@ -2135,12 +2139,12 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
      * current aspect. Each linked distant signal is switched via a separate undoable command,
      * pushed after the main signal's command so undo restores the distant signal first.
      */
-    private void mirrorLinkedDistantSignals(ElementTile mainSignal) {
+    private void mirrorLinkedDistantSignals(SignalTile mainSignal) {
         ElementType mainType = mainSignal.getElementType();
         String mainId = mainSignal.getElementId();
         int mainAspect = model.getElementAspect(mainId);
         for (Tile t : tiles.values()) {
-            if (!(t instanceof ElementTile det)
+            if (!(t instanceof SignalTile det)
                 || det.getElementType() != ElementType.SIGNAL_V
                 || det.getElementId() == null
                 || !mainId.equals(det.getMainSignalId())) {
@@ -2160,10 +2164,10 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         Tile tile = getTile(selectedCol, selectedRow);
         if (tile != null) {
             tile.setRotation(tile.getRotation() + 90);
-            if (tile instanceof ElementTile et
-                && (et.getElementType() == ElementType.SIGNAL_V
-                    || et.getElementType() == ElementType.SIGNAL_COMBINED)) {
-                autoAssignMainSignalToDistant(et);
+            if (tile instanceof SignalTile st
+                && (st.getElementType() == ElementType.SIGNAL_V
+                    || st.getElementType() == ElementType.SIGNAL_COMBINED)) {
+                autoAssignMainSignalToDistant(st);
             }
             repaint();
         }
@@ -2175,7 +2179,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
      * distant signal was linked to a different main signal, that link is replaced so it always
      * previews the main signal now ahead of it; both changes are logged.
      */
-    private void autoAssignMainSignalToDistant(ElementTile distantTile) {
+    private void autoAssignMainSignalToDistant(SignalTile distantTile) {
         String newMainId = suggestMainSignalForDistant(distantTile);
         if (newMainId == null) {
             return;
@@ -2197,7 +2201,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     /** Switches the distant signal to the preview aspect of the given main signal's current aspect. */
-    private void syncDistantSignalToAspect(ElementTile distantTile, String newMainId) {
+    private void syncDistantSignalToAspect(SignalTile distantTile, String newMainId) {
         ElementTile mainSignal = null;
         for (Tile t : tiles.values()) {
             if (t instanceof ElementTile met

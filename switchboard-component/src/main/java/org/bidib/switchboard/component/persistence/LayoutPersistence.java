@@ -13,6 +13,7 @@ import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.SignalSide;
+import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.view.TileGrid;
 
@@ -132,11 +133,13 @@ public class LayoutPersistence {
         if (tile.getDirection() != org.bidib.switchboard.component.model.TileDirection.BOTH) {
             td.setDirection(tile.getDirection().name());
         }
-        if (tile.getSignalSide() != SignalSide.DEFAULT) {
-            td.setSignalSide(tile.getSignalSide().name());
-        }
-        if (tile instanceof ElementTile et && et.getMainSignalId() != null) {
-            td.setMainSignalId(et.getMainSignalId());
+        if (tile instanceof SignalTile st) {
+            if (st.getSignalSide() != SignalSide.DEFAULT) {
+                td.setSignalSide(st.getSignalSide().name());
+            }
+            if (st.getMainSignalId() != null) {
+                td.setMainSignalId(st.getMainSignalId());
+            }
         }
 
         if (tile instanceof ElementTile et) {
@@ -262,8 +265,12 @@ public class LayoutPersistence {
             if (elementType == null) {
                 return null;
             }
-            tile = new ElementTile(td.getCol(), td.getRow(), td.getElementId(),
-                    elementType, td.getSvgPaths());
+            tile = switch (elementType) {
+                case SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED -> new SignalTile(td.getCol(), td.getRow(),
+                        td.getElementId(), elementType, td.getSvgPaths());
+                default -> new ElementTile(td.getCol(), td.getRow(), td.getElementId(),
+                        elementType, td.getSvgPaths());
+            };
         }
         tile.setRotation(td.getRotation());
         if (td.getDirection() != null) {
@@ -273,14 +280,16 @@ public class LayoutPersistence {
                 // unknown direction value — keep default BOTH
             }
         }
-        if (td.getSignalSide() != null) {
-            try {
-                tile.setSignalSide(SignalSide.valueOf(td.getSignalSide()));
-            } catch (IllegalArgumentException ignored) {
+        if (tile instanceof SignalTile st) {
+            if (td.getSignalSide() != null) {
+                try {
+                    st.setSignalSide(SignalSide.valueOf(td.getSignalSide()));
+                } catch (IllegalArgumentException ignored) {
+                }
             }
-        }
-        if (tile instanceof ElementTile et && td.getMainSignalId() != null) {
-            et.setMainSignalId(td.getMainSignalId());
+            if (td.getMainSignalId() != null) {
+                st.setMainSignalId(td.getMainSignalId());
+            }
         }
         return tile;
     }

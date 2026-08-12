@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.config.TestOccupancyFactory;
-import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.RailwayModel;
+import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.persistence.LayoutData;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
@@ -27,7 +27,7 @@ class SignalLinkTest {
             super(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
         }
         @Override
-        int confirmRemoveMainSignal(List<ElementTile> linked) {
+        int confirmRemoveMainSignal(List<SignalTile> linked) {
             return removeChoice;
         }
     }
@@ -50,7 +50,7 @@ class SignalLinkTest {
         TestablePanel panel = loadSignalLayout();
         Tile sv = panel.getTile(10, 5);
         assertThat(sv).as("Distant signal SV-001 at (10,5) should be loaded").isNotNull();
-        assertThat(((ElementTile) sv).getMainSignalId()).isEqualTo("SM3-003");
+        assertThat(((SignalTile) sv).getMainSignalId()).isEqualTo("SM3-003");
     }
 
     @Test
@@ -64,7 +64,7 @@ class SignalLinkTest {
 
         Tile sv = panel2.getTile(10, 5);
         assertThat(sv).as("Distant signal should be restored").isNotNull();
-        assertThat(((ElementTile) sv).getMainSignalId()).as("Link should survive round-trip").isEqualTo("SM3-003");
+        assertThat(((SignalTile) sv).getMainSignalId()).as("Link should survive round-trip").isEqualTo("SM3-003");
     }
 
     @Test
@@ -144,7 +144,7 @@ class SignalLinkTest {
     @Test
     void suggestMainSignalFindsSignalAhead() throws Exception {
         TestablePanel panel = loadSignalLayout();
-        ElementTile sv = (ElementTile) panel.getTile(10, 5);
+        SignalTile sv = (SignalTile) panel.getTile(10, 5);
         assertThat(panel.suggestMainSignalForDistant(sv)).isEqualTo("SM3-003");
     }
 
@@ -153,7 +153,7 @@ class SignalLinkTest {
         TestablePanel panel = loadLayout("/test-data/switchboard3b.json");
         panel.setEditMode(true);
         panel.testTileContextAction(12, 5, ElementType.SIGNAL_V);
-        ElementTile sv = (ElementTile) panel.getTile(12, 5);
+        SignalTile sv = (SignalTile) panel.getTile(12, 5);
         assertThat(sv).as("SIGNAL_V placed at (12,5)").isNotNull();
         assertThat(panel.suggestMainSignalForDistant(sv))
             .as("No main signal straight ahead at default rotation").isNull();
@@ -179,13 +179,13 @@ class SignalLinkTest {
         // to the straight at (17,7).
         panel.testTileContextAction(17, 8, ElementType.SIGNAL_M3);
         panel.testRotateSelectedTile();
-        ElementTile main = (ElementTile) panel.getTile(17, 8);
+        SignalTile main = (SignalTile) panel.getTile(17, 8);
         assertThat(main).as("SIGNAL_M3 placed at (17,8)").isNotNull();
 
         // Distant signal placed at (14,5) facing east; the track bends around the diagonal
         // curve corner (16,5) CR -> (17,6) CL before reaching the main signal.
         panel.testTileContextAction(14, 5, ElementType.SIGNAL_V);
-        ElementTile sv = (ElementTile) panel.getTile(14, 5);
+        SignalTile sv = (SignalTile) panel.getTile(14, 5);
         assertThat(sv).as("SIGNAL_V placed at (14,5)").isNotNull();
 
         assertThat(panel.suggestMainSignalForDistant(sv))
@@ -198,7 +198,7 @@ class SignalLinkTest {
         TestablePanel panel = loadLayout("/test-data/switchboard3b.json");
         panel.setEditMode(true);
         panel.testTileContextAction(12, 5, ElementType.SIGNAL_V);
-        ElementTile sv = (ElementTile) panel.getTile(12, 5);
+        SignalTile sv = (SignalTile) panel.getTile(12, 5);
         sv.setMainSignalId("SM3-002");
         assertThat(sv.getMainSignalId()).as("Pre-existing link").isEqualTo("SM3-002");
         panel.getModel().setElementAspect("SM3-003", 2);
@@ -231,7 +231,7 @@ class SignalLinkTest {
         assertThat(panel.getTile(7, 5)).as("Undo restores main signal").isNotNull();
         panel.undoLast();
         assertThat(panel.getTile(10, 5)).as("Undo restores distant signal").isNotNull();
-        assertThat(((ElementTile) panel.getTile(10, 5)).getMainSignalId())
+        assertThat(((SignalTile) panel.getTile(10, 5)).getMainSignalId())
             .as("Undo restores the link").isEqualTo("SM3-003");
     }
 
@@ -243,7 +243,7 @@ class SignalLinkTest {
 
         assertThat(panel.getTile(7, 5)).as("Main signal removed").isNull();
         assertThat(panel.getTile(10, 5)).as("Distant signal kept").isNotNull();
-        assertThat(((ElementTile) panel.getTile(10, 5)).getMainSignalId()).isNull();
+        assertThat(((SignalTile) panel.getTile(10, 5)).getMainSignalId()).isNull();
     }
 
     @Test

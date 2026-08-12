@@ -27,6 +27,7 @@ import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
+import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.util.ScreenRecorder;
 import org.junit.jupiter.api.AfterEach;
@@ -74,6 +75,13 @@ class OccupancyElementUiTest {
         return map;
     }
 
+    private static ElementTile createTile(int col, int row, String elementId, ElementType type, List<String> svgPaths) {
+        return switch (type) {
+            case SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED -> new SignalTile(col, row, elementId, type, svgPaths);
+            default -> new ElementTile(col, row, elementId, type, svgPaths);
+        };
+    }
+
     @BeforeEach
     void setUp() throws Exception {
         ScreenRecorder.setEnabled(Boolean.getBoolean("screen.recording"));
@@ -98,7 +106,7 @@ class OccupancyElementUiTest {
                 for (int aspect = 0; aspect < aspectCount; aspect++) {
                     for (int i = 0; i < 4; i++) {
                         String elementId = prefix + "-" + String.format("%03d", elementCounter++);
-                        ElementTile tile = new ElementTile(cols[i], row, elementId, type, svgPaths);
+                        ElementTile tile = createTile(cols[i], row, elementId, type, svgPaths);
                         tile.setRotation(rotations[i]);
                         panel.setTile(tile);
                         Element element = new Element(elementId, 0, 0);
@@ -117,7 +125,7 @@ class OccupancyElementUiTest {
                 for (int aspect = 0; aspect < aspectCount; aspect++) {
                     for (int i = 0; i < 4; i++) {
                         String elementId = prefix + "-" + String.format("%03d", elementCounter++);
-                        ElementTile tile = new ElementTile(cols[i], row, elementId, type, svgPaths);
+                        ElementTile tile = createTile(cols[i], row, elementId, type, svgPaths);
                         tile.setRotation(rotations[i]);
                         panel.setTile(tile);
                         Element element = new Element(elementId, 0, 0);

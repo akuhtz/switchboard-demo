@@ -98,6 +98,23 @@ class RouteFindingTest {
     }
 
     @Test
+    void clickingTurnoutCyclesItsAspect() throws Exception {
+        var f = setup();
+
+        Tile turnout = f.panel().getTile(7, 0);
+        assertThat(turnout).as("Turnout TR-003 at (7,0)").isNotNull();
+        assertThat(f.model().getElementAspect("TR-003")).isEqualTo(0);
+
+        f.panel().onTileClicked(turnout);
+        assertThat(f.model().getElementAspect("TR-003"))
+            .as("Clicking a turnout cycles it to the diverted aspect").isEqualTo(1);
+
+        f.panel().onTileClicked(turnout);
+        assertThat(f.model().getElementAspect("TR-003"))
+            .as("Clicking a turnout again cycles back to the straight aspect").isEqualTo(0);
+    }
+
+    @Test
     void routeFromRow3Col2ToRow5Col10() throws Exception {
         var f = setup();
 
