@@ -672,6 +672,12 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 
 ### v1.0-SNAPSHOT
 
+**2026-08-12 — SignalTile refactor**
+
+- Extracted a dedicated `SignalTile extends ElementTile` class that carries the signal-only state (`mainSignalId`, `plateAspect`, `signalSide`) instead of keeping those members on the generic `ElementTile`.
+- `Tile` no longer exposes a signal side; `LayoutPersistence`, `OccupancySimulation.syncCombinedPlate` and the demo app's `LayoutService` now handle `SignalTile` explicitly. The persisted JSON format is unchanged.
+- Fixed clicking turnouts after the refactor (`onTileClicked` keeps its `ElementTile` guard) and added UI coverage that clicks each turnout type (`TURNOUT_LEFT`, `TURNOUT_RIGHT`, `TURNOUT_3WAY`, `DIAGONAL_TURNOUT_RIGHT`, `DIAGONAL_TURNOUT_LEFT`) and verifies aspect cycling via the real UI (`TurnoutClickUiTest`).
+
 **2026-08-11 — diagonal turnout right and left**
 
 - Added the `DIAGONAL_TURNOUT_RIGHT` element (`DTR`, 2 aspects). Its heel is the lower-left corner: the straight aspect continues diagonally to the upper-right corner, the diverted aspect exits through the right edge port. New `diag_turnout_straight_right.svg` / `diag_turnout_diverted_right.svg` icons, context-menu entry, occupancy rendering, and locale labels.
