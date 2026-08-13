@@ -102,8 +102,6 @@ public class SwitchboardApp {
         messages = ResourceBundle.getBundle("i18n.app-messages");
 
         model = new RailwayModel();
-        panel = new SwitchboardPanel(occupancyFactory, new DemoAssignOccupancyDialogFactory(), model);
-        panel.setLocale(locale);
 
         if (LookAndFeel.DARK == settings.getLookAndFeel()) {
             FlatDarkLaf.setup();
@@ -111,6 +109,9 @@ public class SwitchboardApp {
         else {
             FlatLightLaf.setup();
         }
+
+        panel = new SwitchboardPanel(occupancyFactory, new DemoAssignOccupancyDialogFactory(), model);
+        panel.setLocale(locale);
 
         frame = new JFrame(messages.getString("frame.title"));
         layoutService = new LayoutService(new DemoOccupancySerializer(), panel, settings, frame);
