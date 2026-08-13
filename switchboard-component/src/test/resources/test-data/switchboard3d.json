@@ -847,16 +847,6 @@
   }, {
     "col" : 11,
     "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 11,
-    "direction" : null,
     "elementId" : "SM-001",
     "mainSignalId" : "SM3-009",
     "rotation" : 0,
@@ -877,16 +867,6 @@
   }, {
     "col" : 12,
     "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 12,
-    "direction" : null,
     "elementId" : "P-032",
     "mainSignalId" : null,
     "rotation" : 0,
@@ -904,16 +884,6 @@
     "signalSide" : null,
     "svgPaths" : [ "/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg" ],
     "type" : "SV4"
-  }, {
-    "col" : 13,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
   }, {
     "col" : 13,
     "direction" : null,

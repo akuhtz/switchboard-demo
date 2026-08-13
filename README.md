@@ -672,6 +672,12 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 
 ### v1.0-SNAPSHOT
 
+**2026-08-12 — theme-aware tile background**
+
+- The switchboard panel background now follows the selected look and feel: it reads `UIManager` colors (`Panel.background`, `Component.borderColor`) and re-applies them when the LAF changes (`SwitchboardPanel.updateUI`).
+- Removed the hardcoded dark background rectangle from all track SVGs and `empty.svg`, so tiles render transparent over the LAF background — light in the light LAF, dark in the dark LAF.
+- Added `LookAndFeelSwitchUiTest`, which loads `switchboard3d.json`, switches between Light and Dark LAF via the `Settings` menu and asserts the panel background follows each theme.
+
 **2026-08-12 — SignalTile refactor**
 
 - Extracted a dedicated `SignalTile extends ElementTile` class that carries the signal-only state (`mainSignalId`, `plateAspect`, `signalSide`) instead of keeping those members on the generic `ElementTile`.

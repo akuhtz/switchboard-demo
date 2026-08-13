@@ -90,8 +90,6 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
 
     static final int KEEP_DISTANT_OPTION = 1;
 
-    private static final Color COLOR_BACKGROUND = new Color(45, 45, 50);
-
     private static final Color COLOR_GRID_LINE = new Color(60, 60, 65);
 
     private static final Color COLOR_SELECTION = new Color(0, 200, 200);
@@ -239,7 +237,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         this.tileSize = tileSize;
         this.routerService = new RouterService(tiles, cols, rows, routeModel);
         model.addPropertyChangeListener(this);
-        setBackground(COLOR_BACKGROUND);
+        setBackground(background());
         setPreferredSize(new Dimension(cols * tileSize, rows * tileSize));
         setFocusable(true);
         ToolTipManager.sharedInstance().registerComponent(this);
@@ -1212,6 +1210,22 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     // --- Rendering ---
 
     @Override
+    public void updateUI() {
+        super.updateUI();
+        setBackground(background());
+    }
+
+    private static Color background() {
+        Color c = javax.swing.UIManager.getColor("Panel.background");
+        return c != null ? c : new Color(45, 45, 50);
+    }
+
+    private static Color gridColor() {
+        Color c = javax.swing.UIManager.getColor("Component.borderColor");
+        return c != null ? c : COLOR_GRID_LINE;
+    }
+
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
@@ -1467,7 +1481,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     }
 
     private void drawGrid(Graphics2D g2) {
-        g2.setColor(COLOR_GRID_LINE);
+        g2.setColor(gridColor());
         int width = cols * tileSize;
         int height = rows * tileSize;
         for (int x = 0; x <= cols; x++) {
