@@ -117,6 +117,12 @@ public class LayoutPersistence {
                 tileKeys.add(List.of(p[0], p[1]));
             }
             bd.setTiles(tileKeys);
+            if (!b.getPredecessorIds().isEmpty()) {
+                bd.setPredecessors(new ArrayList<>(b.getPredecessorIds()));
+            }
+            if (!b.getSuccessorIds().isEmpty()) {
+                bd.setSuccessors(new ArrayList<>(b.getSuccessorIds()));
+            }
             blockList.add(bd);
         }
         data.setBlocks(blockList);
@@ -223,6 +229,23 @@ public class LayoutPersistence {
                 }
                 Block block = new Block(bd.getId(), bd.getName() != null ? bd.getName() : bd.getId(), path);
                 grid.getBlockModel().addBlock(block);
+            }
+            // Restore block links after all blocks are loaded.
+            for (LayoutData.BlockData bd : data.getBlocks()) {
+                Block block = grid.getBlockModel().getBlock(bd.getId());
+                if (block == null) {
+                    continue;
+                }
+                if (bd.getPredecessors() != null) {
+                    for (String predId : bd.getPredecessors()) {
+                        block.addPredecessor(predId);
+                    }
+                }
+                if (bd.getSuccessors() != null) {
+                    for (String succId : bd.getSuccessors()) {
+                        block.addSuccessor(succId);
+                    }
+                }
             }
         }
     }

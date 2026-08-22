@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import org.bidib.switchboard.component.model.Block;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.RailwayModel;
@@ -123,6 +124,78 @@ public class RouterService {
 
     private static boolean isTurnout(ElementType type) {
         return type == ElementType.TURNOUT_LEFT || type == ElementType.TURNOUT_RIGHT || type == ElementType.TURNOUT_3WAY;
+    }
+
+    private static boolean isTurnoutOrDiagonalTurnout(ElementType type) {
+        return isTurnout(type)
+            || type == ElementType.DIAGONAL_TURNOUT_RIGHT
+            || type == ElementType.DIAGONAL_TURNOUT_LEFT;
+    }
+
+    /**
+     * Returns {@code true} if block A and block B are physically adjacent,
+     * i.e. an endpoint of A connects to an endpoint of B through zero or more
+     * turnout tiles.
+     */
+    public boolean areBlocksAdjacent(Block a, Block b) {
+        Set<String> bEndpoints = new HashSet<>();
+        List<int[]> bPath = b.getPath();
+        bEndpoints.add(Tile.key(bPath.get(0)[0], bPath.get(0)[1]));
+        bEndpoints.add(Tile.key(bPath.get(bPath.size() - 1)[0], bPath.get(bPath.size() - 1)[1]));
+
+        List<int[]> aPath = a.getPath();
+        int[][] aEndpoints = { aPath.get(0), aPath.get(aPath.size() - 1) };
+
+        for (int[] endpoint : aEndpoints) {
+            if (bfsThroughTurnouts(endpoint[0], endpoint[1], bEndpoints)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * BFS from the neighbors of (startCol, startRow) through turnout-only tiles.
+     * Returns true if any visited turnout tile is adjacent to a tile in the target set.
+     */
+    private boolean bfsThroughTurnouts(int startCol, int startRow, Set<String> targets) {
+        Deque<int[]> queue = new ArrayDeque<>();
+        Set<String> visited = new HashSet<>();
+        visited.add(Tile.key(startCol, startRow)); // don't revisit start
+
+        // Seed BFS with neighbors of the start tile that are turnouts
+        for (int[] neighbor : getConnectedNeighbors(startCol, startRow)) {
+            String key = Tile.key(neighbor[0], neighbor[1]);
+            if (targets.contains(key)) {
+                return true; // directly adjacent (no turnout in between)
+            }
+            Tile t = getTile(neighbor[0], neighbor[1]);
+            if (t instanceof ElementTile et && isTurnoutOrDiagonalTurnout(et.getElementType())) {
+                if (visited.add(key)) {
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        // BFS through turnout tiles
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            for (int[] neighbor : getConnectedNeighbors(current[0], current[1])) {
+                String key = Tile.key(neighbor[0], neighbor[1]);
+                if (targets.contains(key)) {
+                    return true;
+                }
+                if (visited.contains(key)) {
+                    continue;
+                }
+                Tile t = getTile(neighbor[0], neighbor[1]);
+                if (t instanceof ElementTile et && isTurnoutOrDiagonalTurnout(et.getElementType())) {
+                    visited.add(key);
+                    queue.add(neighbor);
+                }
+            }
+        }
+        return false;
     }
 
     public List<List<int[]>> bfsAlternativeRoutes(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath) {

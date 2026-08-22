@@ -157,6 +157,8 @@ public class LayoutData {
         private String id;
         private String name;
         private List<List<Integer>> tiles = new ArrayList<>();
+        private List<String> predecessors;
+        private List<String> successors;
 
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
@@ -166,5 +168,11 @@ public class LayoutData {
 
         public List<List<Integer>> getTiles() { return tiles; }
         public void setTiles(List<List<Integer>> tiles) { this.tiles = tiles; }
+
+        public List<String> getPredecessors() { return predecessors; }
+        public void setPredecessors(List<String> predecessors) { this.predecessors = predecessors; }
+
+        public List<String> getSuccessors() { return successors; }
+        public void setSuccessors(List<String> successors) { this.successors = successors; }
     }
 }

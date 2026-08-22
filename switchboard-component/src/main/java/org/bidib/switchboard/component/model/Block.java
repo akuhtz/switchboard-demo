@@ -19,6 +19,10 @@ public class Block {
 
     private final List<int[]> path;
 
+    private final List<String> predecessorIds = new ArrayList<>();
+
+    private final List<String> successorIds = new ArrayList<>();
+
     public Block(String id, String name, List<int[]> path) {
         this.id = id;
         this.name = name;
@@ -40,6 +44,36 @@ public class Block {
     /** Returns the ordered path of [col, row] tile coordinates. */
     public List<int[]> getPath() {
         return Collections.unmodifiableList(path);
+    }
+
+    /** Returns the IDs of blocks that precede this block. */
+    public List<String> getPredecessorIds() {
+        return Collections.unmodifiableList(predecessorIds);
+    }
+
+    /** Returns the IDs of blocks that follow this block. */
+    public List<String> getSuccessorIds() {
+        return Collections.unmodifiableList(successorIds);
+    }
+
+    public void addPredecessor(String id) {
+        if (!predecessorIds.contains(id)) {
+            predecessorIds.add(id);
+        }
+    }
+
+    public void addSuccessor(String id) {
+        if (!successorIds.contains(id)) {
+            successorIds.add(id);
+        }
+    }
+
+    public void removePredecessor(String id) {
+        predecessorIds.remove(id);
+    }
+
+    public void removeSuccessor(String id) {
+        successorIds.remove(id);
     }
 
     public boolean containsTile(int col, int row) {

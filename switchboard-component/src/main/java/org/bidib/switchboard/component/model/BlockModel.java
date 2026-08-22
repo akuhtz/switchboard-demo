@@ -2,9 +2,11 @@ package org.bidib.switchboard.component.model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,6 +49,19 @@ public class BlockModel {
             for (int[] p : removed.getPath()) {
                 tileToBlock.remove(Tile.key(p[0], p[1]));
             }
+            // Clean up links from/to the removed block.
+            for (String predId : removed.getPredecessorIds()) {
+                Block pred = blocks.get(predId);
+                if (pred != null) {
+                    pred.removeSuccessor(id);
+                }
+            }
+            for (String succId : removed.getSuccessorIds()) {
+                Block succ = blocks.get(succId);
+                if (succ != null) {
+                    succ.removePredecessor(id);
+                }
+            }
             pcs.firePropertyChange(PROP_BLOCKS, removed, null);
         }
         return removed;
@@ -77,6 +92,64 @@ public class BlockModel {
     public Block getBlockForTile(int col, int row) {
         String id = blockIdForTile(col, row);
         return id != null ? blocks.get(id) : null;
+    }
+
+    /**
+     * Links two blocks as predecessor → successor.
+     *
+     * @throws IllegalArgumentException if either block does not exist or if the IDs are the same.
+     */
+    public void linkBlocks(String predecessorId, String successorId) {
+        if (predecessorId.equals(successorId)) {
+            throw new IllegalArgumentException("A block cannot be linked to itself");
+        }
+        Block pred = blocks.get(predecessorId);
+        Block succ = blocks.get(successorId);
+        if (pred == null || succ == null) {
+            throw new IllegalArgumentException("Block not found");
+        }
+        pred.addSuccessor(successorId);
+        succ.addPredecessor(predecessorId);
+        pcs.firePropertyChange(PROP_BLOCKS, null, pred);
+    }
+
+    /**
+     * Removes the predecessor → successor link between two blocks.
+     */
+    public void unlinkBlocks(String predecessorId, String successorId) {
+        Block pred = blocks.get(predecessorId);
+        Block succ = blocks.get(successorId);
+        if (pred != null) {
+            pred.removeSuccessor(successorId);
+        }
+        if (succ != null) {
+            succ.removePredecessor(predecessorId);
+        }
+        pcs.firePropertyChange(PROP_BLOCKS, null, pred);
+    }
+
+    /** Returns the predecessor blocks of the given block. */
+    public List<Block> getPredecessors(Block block) {
+        List<Block> result = new ArrayList<>();
+        for (String id : block.getPredecessorIds()) {
+            Block b = blocks.get(id);
+            if (b != null) {
+                result.add(b);
+            }
+        }
+        return result;
+    }
+
+    /** Returns the successor blocks of the given block. */
+    public List<Block> getSuccessors(Block block) {
+        List<Block> result = new ArrayList<>();
+        for (String id : block.getSuccessorIds()) {
+            Block b = blocks.get(id);
+            if (b != null) {
+                result.add(b);
+            }
+        }
+        return result;
     }
 
     public void clear() {
