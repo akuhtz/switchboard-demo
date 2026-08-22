@@ -14,6 +14,7 @@ public enum ElementType {
     DIAGONAL("DG", true),
     DIAGONAL_TURNOUT_RIGHT("DTR", true),
     DIAGONAL_TURNOUT_LEFT("DTL", true),
+    BLOCK_MARKER("BM", true),
     BUMPER("BS", true);
 
     public static final int PORT_LEFT = 0;
@@ -65,7 +66,7 @@ public enum ElementType {
             case TURNOUT_LEFT -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_TOP };
             case TURNOUT_RIGHT -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_BOTTOM };
             case TURNOUT_3WAY -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_TOP, PORT_BOTTOM };
-            case SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED, BLOCK_MARKER -> new int[] { PORT_LEFT, PORT_RIGHT };
             case BUMPER -> new int[] { PORT_LEFT };
         };
         return rotatePorts(base, rotation);
@@ -149,7 +150,7 @@ public enum ElementType {
 
     private int[] getBaseThroughPaths() {
         return switch (this) {
-            case STRAIGHT, SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case STRAIGHT, SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED, BLOCK_MARKER -> new int[] { PORT_LEFT, PORT_RIGHT };
             case DIAGONAL, DIAGONAL_TURNOUT_RIGHT -> new int[] { PORT_LEFT, PORT_TOP, PORT_LEFT, PORT_RIGHT, PORT_TOP, PORT_BOTTOM, PORT_RIGHT, PORT_BOTTOM };
             case DIAGONAL_TURNOUT_LEFT -> new int[] { PORT_LEFT, PORT_RIGHT, PORT_TOP, PORT_RIGHT, PORT_LEFT, PORT_BOTTOM, PORT_TOP, PORT_BOTTOM };
             case CURVE_LEFT -> new int[] { PORT_LEFT, PORT_TOP };
@@ -163,7 +164,7 @@ public enum ElementType {
 
     public int getAspectCount() {
         return switch (this) {
-            case STRAIGHT, DIAGONAL, CURVE_LEFT, CURVE_RIGHT, BUMPER -> 1;
+            case STRAIGHT, DIAGONAL, CURVE_LEFT, CURVE_RIGHT, BUMPER, BLOCK_MARKER -> 1;
             case TURNOUT_LEFT, TURNOUT_RIGHT, DIAGONAL_TURNOUT_RIGHT, DIAGONAL_TURNOUT_LEFT -> 2;
             case TURNOUT_3WAY, SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED -> 3;
         };
@@ -171,7 +172,7 @@ public enum ElementType {
 
     private int[] getBasePorts(int aspect) {
         return switch (this) {
-            case STRAIGHT -> new int[] { PORT_LEFT, PORT_RIGHT };
+            case STRAIGHT, BLOCK_MARKER -> new int[] { PORT_LEFT, PORT_RIGHT };
             case DIAGONAL -> new int[] { PORT_BOTTOM, PORT_TOP };
             case CURVE_LEFT -> new int[] { PORT_LEFT, PORT_TOP };
             case CURVE_RIGHT -> new int[] { PORT_LEFT, PORT_BOTTOM };

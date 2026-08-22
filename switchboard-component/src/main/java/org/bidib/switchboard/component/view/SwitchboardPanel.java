@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -1214,6 +1215,7 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             case DIAGONAL -> new ElementTile(col, row, id, type, List.of("/icons/tracks/diagonal.svg"));
             case DIAGONAL_TURNOUT_RIGHT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/diag_turnout_straight_right.svg", "/icons/tracks/diag_turnout_diverted_right.svg"));
             case DIAGONAL_TURNOUT_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/diag_turnout_straight_left.svg", "/icons/tracks/diag_turnout_diverted_left.svg"));
+            case BLOCK_MARKER -> new ElementTile(col, row, id, type, List.of("/icons/tracks/block_marker.svg"));
             case BUMPER -> new ElementTile(col, row, id, type, List.of("/icons/tracks/bumper_stop.svg"));
         };
     }
@@ -1253,6 +1255,33 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
         drawAlternatives(g2);
         drawSignals(g2);
         drawSignalDirectionMarkers(g2);
+        drawBlockMarkerLabels(g2);
+    }
+
+    private void drawBlockMarkerLabels(Graphics2D g2) {
+        Font labelFont = g2.getFont().deriveFont(Font.PLAIN, Math.max(8, tileSize / 4f));
+        g2.setFont(labelFont);
+        for (Tile tile : tiles.values()) {
+            if (!(tile instanceof ElementTile et) || et.getElementType() != ElementType.BLOCK_MARKER) {
+                continue;
+            }
+            String blockId = blockModel.blockIdForTile(tile.getCol(), tile.getRow());
+            if (blockId == null) {
+                continue;
+            }
+            Block block = blockModel.getBlock(blockId);
+            if (block == null) {
+                continue;
+            }
+            int px = tile.getCol() * tileSize;
+            int py = tile.getRow() * tileSize;
+            g2.setColor(getForeground());
+            FontMetrics fm = g2.getFontMetrics();
+            String name = block.getName();
+            int textX = px + tileSize / 2 - fm.stringWidth(name) / 2;
+            int textY = py + tileSize - fm.getDescent() - 1;
+            g2.drawString(name, textX, textY);
+        }
     }
 
     private void drawBlocks(Graphics2D g2) {

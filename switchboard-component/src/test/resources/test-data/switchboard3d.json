@@ -2,7 +2,7 @@
   "blocks" : [ {
     "id" : "blk001",
     "name" : "blk001",
-    "predecessors" : null,
+    "predecessors" : [ "blk003" ],
     "successors" : [ "blk002" ],
     "tiles" : [ [ 7, 4 ], [ 8, 4 ], [ 9, 4 ], [ 10, 4 ], [ 11, 4 ], [ 12, 4 ], [ 13, 4 ], [ 14, 4 ], [ 15, 4 ], [ 16, 4 ], [ 17, 4 ] ]
   }, {
@@ -15,7 +15,7 @@
     "id" : "blk003",
     "name" : "blk003",
     "predecessors" : null,
-    "successors" : null,
+    "successors" : [ "blk001" ],
     "tiles" : [ [ 3, 3 ], [ 2, 3 ], [ 1, 3 ], [ 0, 4 ], [ 0, 5 ], [ 0, 6 ], [ 0, 7 ] ]
   } ],
   "cols" : 60,
@@ -90,12 +90,6 @@
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-008",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-009",
       "nodeId" : 0,
       "occupancyId" : null
     }, {
@@ -389,12 +383,6 @@
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "P-040",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
       "id" : "P-041",
       "nodeId" : 0,
       "occupancyId" : null
@@ -437,12 +425,6 @@
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "P-046",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
       "id" : "P-047",
       "nodeId" : 0,
       "occupancyId" : null
@@ -467,12 +449,6 @@
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
-      "id" : "P-048",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
       "id" : "SV-003",
       "nodeId" : 0,
       "occupancyId" : null
@@ -486,6 +462,30 @@
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "TL-003",
+      "nodeId" : 0,
+      "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "BM-001",
+      "nodeId" : 0,
+      "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "BM-002",
+      "nodeId" : 0,
+      "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "BM-003",
+      "nodeId" : 0,
+      "occupancyId" : null
+    }, {
+      "accessoryId" : 0,
+      "aspect" : 0,
+      "id" : "P-050",
       "nodeId" : 0,
       "occupancyId" : null
     } ],
@@ -577,13 +577,13 @@
   }, {
     "col" : 0,
     "direction" : null,
-    "elementId" : "P-048",
+    "elementId" : "BM-003",
     "mainSignalId" : null,
     "rotation" : 90,
     "row" : 5,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
+    "svgPaths" : [ "/icons/tracks/block_marker.svg" ],
+    "type" : "BM1"
   }, {
     "col" : 0,
     "direction" : null,
@@ -717,7 +717,7 @@
   }, {
     "col" : 5,
     "direction" : null,
-    "elementId" : "P-009",
+    "elementId" : "P-050",
     "mainSignalId" : null,
     "rotation" : 0,
     "row" : 3,
@@ -1057,13 +1057,13 @@
   }, {
     "col" : 12,
     "direction" : null,
-    "elementId" : "P-040",
+    "elementId" : "BM-001",
     "mainSignalId" : null,
     "rotation" : 0,
     "row" : 4,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
+    "svgPaths" : [ "/icons/tracks/block_marker.svg" ],
+    "type" : "BM1"
   }, {
     "col" : 12,
     "direction" : null,
@@ -1377,13 +1377,13 @@
   }, {
     "col" : 20,
     "direction" : null,
-    "elementId" : "P-046",
+    "elementId" : "BM-002",
     "mainSignalId" : null,
     "rotation" : 0,
     "row" : 3,
     "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
+    "svgPaths" : [ "/icons/tracks/block_marker.svg" ],
+    "type" : "BM1"
   }, {
     "col" : 21,
     "direction" : null,
