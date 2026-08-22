@@ -844,6 +844,9 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             JMenuItem renameItem = new JMenuItem(messages.getString("context.blockRename"));
             renameItem.addActionListener(e -> renameBlock(existingBlockId));
             blockMenu.add(renameItem);
+            JMenuItem linkItem = new JMenuItem(messages.getString("context.blockLinks"));
+            linkItem.addActionListener(e -> editBlockLinks(existingBlockId));
+            blockMenu.add(linkItem);
             JMenuItem removeItem = new JMenuItem(messages.getString("context.blockRemove"));
             removeItem.addActionListener(e -> removeBlock(existingBlockId));
             blockMenu.add(removeItem);
@@ -922,6 +925,14 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
             blockModel.renameBlock(blockId, newName.trim());
             repaint();
         }
+    }
+
+    private void editBlockLinks(String blockId) {
+        Block block = blockModel.getBlock(blockId);
+        if (block == null) {
+            return;
+        }
+        new BlockLinkDialog(blockModel, routerService, messages).show(this, block);
     }
 
     private String generateBlockId() {
