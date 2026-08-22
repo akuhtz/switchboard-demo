@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.bidib.switchboard.component.model.Block;
+import org.bidib.switchboard.component.model.BlockModel;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.RailwayModel;
@@ -134,10 +135,22 @@ public class RouterService {
 
     /**
      * Returns {@code true} if block A and block B are physically adjacent,
-     * i.e. an endpoint of A connects to an endpoint of B through zero or more
-     * turnout tiles.
+     * i.e. an endpoint of A connects to an endpoint of B through tiles that
+     * do not belong to any block.
      */
     public boolean areBlocksAdjacent(Block a, Block b) {
+        return areBlocksAdjacent(a, b, null);
+    }
+
+    /**
+     * Returns {@code true} if block A and block B are physically adjacent,
+     * i.e. an endpoint of A connects to an endpoint of B through tiles that
+     * do not belong to any block. When a {@code blockModel} is provided, the
+     * BFS traverses any tile not assigned to a block (turnouts, short gaps of
+     * straight track, etc.). Without a block model, only turnout tiles are
+     * traversed.
+     */
+    public boolean areBlocksAdjacent(Block a, Block b, BlockModel blockModel) {
         Set<String> bEndpoints = new HashSet<>();
         List<int[]> bPath = b.getPath();
         bEndpoints.add(Tile.key(bPath.get(0)[0], bPath.get(0)[1]));
@@ -147,7 +160,7 @@ public class RouterService {
         int[][] aEndpoints = { aPath.get(0), aPath.get(aPath.size() - 1) };
 
         for (int[] endpoint : aEndpoints) {
-            if (bfsThroughTurnouts(endpoint[0], endpoint[1], bEndpoints)) {
+            if (bfsToBlock(endpoint[0], endpoint[1], bEndpoints, blockModel)) {
                 return true;
             }
         }
@@ -155,29 +168,26 @@ public class RouterService {
     }
 
     /**
-     * BFS from the neighbors of (startCol, startRow) through turnout-only tiles.
-     * Returns true if any visited turnout tile is adjacent to a tile in the target set.
+     * BFS from the neighbors of (startCol, startRow) through tiles not belonging
+     * to any block. Returns true if a target endpoint tile is reached.
      */
-    private boolean bfsThroughTurnouts(int startCol, int startRow, Set<String> targets) {
+    private boolean bfsToBlock(int startCol, int startRow, Set<String> targets, BlockModel blockModel) {
         Deque<int[]> queue = new ArrayDeque<>();
         Set<String> visited = new HashSet<>();
         visited.add(Tile.key(startCol, startRow)); // don't revisit start
 
-        // Seed BFS with neighbors of the start tile that are turnouts
         for (int[] neighbor : getConnectedNeighbors(startCol, startRow)) {
             String key = Tile.key(neighbor[0], neighbor[1]);
             if (targets.contains(key)) {
-                return true; // directly adjacent (no turnout in between)
+                return true;
             }
-            Tile t = getTile(neighbor[0], neighbor[1]);
-            if (t instanceof ElementTile et && isTurnoutOrDiagonalTurnout(et.getElementType())) {
+            if (canTraverse(neighbor[0], neighbor[1], blockModel)) {
                 if (visited.add(key)) {
                     queue.add(neighbor);
                 }
             }
         }
 
-        // BFS through turnout tiles
         while (!queue.isEmpty()) {
             int[] current = queue.poll();
             for (int[] neighbor : getConnectedNeighbors(current[0], current[1])) {
@@ -188,14 +198,27 @@ public class RouterService {
                 if (visited.contains(key)) {
                     continue;
                 }
-                Tile t = getTile(neighbor[0], neighbor[1]);
-                if (t instanceof ElementTile et && isTurnoutOrDiagonalTurnout(et.getElementType())) {
+                if (canTraverse(neighbor[0], neighbor[1], blockModel)) {
                     visited.add(key);
                     queue.add(neighbor);
                 }
             }
         }
         return false;
+    }
+
+    /**
+     * A tile can be traversed during block adjacency BFS if it does not belong
+     * to any block. When no block model is available, falls back to turnout-only
+     * traversal.
+     */
+    private boolean canTraverse(int col, int row, BlockModel blockModel) {
+        if (blockModel != null) {
+            return blockModel.blockIdForTile(col, row) == null;
+        }
+        // Fallback: only traverse turnout tiles
+        Tile t = getTile(col, row);
+        return t instanceof ElementTile et && isTurnoutOrDiagonalTurnout(et.getElementType());
     }
 
     public List<List<int[]>> bfsAlternativeRoutes(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath) {

@@ -120,7 +120,7 @@ public class BlockLinkDialog {
             if (alreadyLinked.contains(other.getId())) {
                 continue;
             }
-            if (routerService.areBlocksAdjacent(block, other)) {
+            if (routerService.areBlocksAdjacent(block, other, blockModel)) {
                 candidates.add(other);
             }
         }

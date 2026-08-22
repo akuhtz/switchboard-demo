@@ -185,4 +185,25 @@ class BlockLinkTest {
         // Also verify symmetry
         assertThat(router.areBlocksAdjacent(b, a)).isTrue();
     }
+
+    @Test
+    void adjacencyTraversesNonBlockTilesBetweenTurnouts() throws Exception {
+        // switchboard3d.json has blk001 at (7,4)-(17,4) and blk003 at (3,3)-(0,7).
+        // Between them: T3-001 (4,3) → P-050 (5,3) → T3-002 (6,3) → ...
+        // P-050 is a straight tile NOT in any block — the BFS must traverse it.
+        var panel = new SwitchboardPanel(occupancyFactory,
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), new RailwayModel());
+        var url = BlockLinkTest.class.getResource("/test-data/switchboard3d.json");
+        new LayoutPersistence().load(panel, java.nio.file.Paths.get(url.toURI()));
+
+        RouterService router = routerService(panel);
+        BlockModel blockModel = panel.getBlockModel();
+        Block blk001 = blockModel.getBlock("blk001");
+        Block blk003 = blockModel.getBlock("blk003");
+
+        assertThat(blk001).isNotNull();
+        assertThat(blk003).isNotNull();
+        assertThat(router.areBlocksAdjacent(blk001, blk003, blockModel)).isTrue();
+        assertThat(router.areBlocksAdjacent(blk003, blk001, blockModel)).isTrue();
+    }
 }
