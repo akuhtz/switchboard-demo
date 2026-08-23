@@ -49,6 +49,7 @@ SVG icon loaded via [jsvg](https://github.com/weisJ/jsvg) (`com.github.weisj:jsv
 | `com.github.weisj:jsvg` | 2.1.0 | SVG rendering |
 | `tools.jackson.core:jackson-databind` | 3.1.4 | JSON serialization (via jackson-bom) |
 | `com.formdev:flatlaf` | 3.7.2 | Look and Feel (Light/Dark) |
+| `org.bidib.jbidib.com.vldocking:vldocking` | 3.0.12 | Dockable panel framework (VLDocking) |
 | `org.slf4j:slf4j-api` | 2.0.18 | Logging facade |
 | `ch.qos.logback:logback-classic` | 1.5.34 | Logging implementation |
 | `tokyo.northside:assertj-swing-junit-jupiter` | 4.0.0-beta-3 | GUI testing (test scope) |
@@ -424,7 +425,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### Dockable panels (VLDocking)
 
-The application uses the [VLDocking](https://github.com/nicola-spb/vldocking) framework for dockable panel management:
+The application uses the [VLDocking](https://github.com/akuhtz/vldocking) framework for dockable panel management:
 
 - **SwitchboardPanel** (right side): the main switchboard grid, implements `Dockable`.
 - **TrainListPanel** (left side, 20% width): train list with drag-and-drop support, implements `Dockable`.
@@ -710,6 +711,19 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 ## Changelog
 
 ### v1.0-SNAPSHOT
+
+**2026-08-23 — VLDocking integration, train list panel, and block marker drag-and-drop**
+
+- Integrated [VLDocking](https://github.com/nicola-spb/vldocking) framework for dockable panel management. `SwitchboardPanel` and `TrainListPanel` implement `Dockable` and are split side-by-side using `DockingDesktop.split()`.
+- Added `BLOCK_MARKER` element type (`BM`): a straight-through tile displaying the block name (or assigned train name) as a centered text label.
+- Added train list panel (left side, 20% width) with drag-and-drop support. Trains are loaded from `trains.json` referenced by the layout file via `LayoutData.trainsFile`.
+- Train assignment: drag a train from the list onto a block marker to assign it. The marker then shows the train name. Each train can only be assigned to one block at a time.
+- Block adjacency BFS now traverses non-block tiles between turnouts, allowing blocks separated by non-block tiles to be recognized as adjacent.
+- Block marker label shows train name when assigned, block name otherwise.
+- "Clear Train" context menu visible in both edit and non-edit mode for block markers with assigned trains.
+- Drop cursor only appears when hovering over block marker tiles (uses `dragOver` instead of `dragEnter`).
+- `RailwayModel` holds `TrainListModel` with `getTrain(id)` lookup.
+- Updated README.md and USAGE.md/USAGE-de.md with new features and tile types.
 
 **2026-08-12 — theme-aware tile background**
 
