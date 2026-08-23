@@ -538,6 +538,12 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             selectedCol = -1;
             selectedRow = -1;
             clearMultiSelection();
+            trainRouteStops.clear();
+        } else if (selectedTrainRoute != null) {
+            trainRouteStops.clear();
+            for (TrainRoute.StationStop stop : selectedTrainRoute.getStops()) {
+                trainRouteStops.add(stop.getPathIndex());
+            }
         }
         repaint();
     }
@@ -581,19 +587,37 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     }
 
     private boolean isTileInTrainRoutePath(int col, int row) {
-        for (int[] p : trainRoutePath) {
-            if (p[0] == col && p[1] == row) {
-                return true;
+        if (trainRouteMode) {
+            for (int[] p : trainRoutePath) {
+                if (p[0] == col && p[1] == row) {
+                    return true;
+                }
+            }
+        } else if (selectedTrainRoute != null) {
+            for (int[] p : selectedTrainRoute.getPath()) {
+                if (p[0] == col && p[1] == row) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
     private int trainRoutePathIndex(int col, int row) {
-        for (int i = 0; i < trainRoutePath.size(); i++) {
-            int[] p = trainRoutePath.get(i);
-            if (p[0] == col && p[1] == row) {
-                return i;
+        if (trainRouteMode) {
+            for (int i = 0; i < trainRoutePath.size(); i++) {
+                int[] p = trainRoutePath.get(i);
+                if (p[0] == col && p[1] == row) {
+                    return i;
+                }
+            }
+        } else if (selectedTrainRoute != null) {
+            List<int[]> path = selectedTrainRoute.getPath();
+            for (int i = 0; i < path.size(); i++) {
+                int[] p = path.get(i);
+                if (p[0] == col && p[1] == row) {
+                    return i;
+                }
             }
         }
         return -1;
@@ -961,16 +985,22 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                 }
             }
 
-            if (trainRouteMode && isTileInTrainRoutePath(col, row)) {
+            if ((trainRouteMode || (editMode && selectedTrainRoute != null)) && isTileInTrainRoutePath(col, row)) {
                 boolean isStop = trainRouteStops.contains(trainRoutePathIndex(col, row));
-                JMenuItem stopItem = new JMenuItem(isStop ? "Remove Station Stop" : "Add Station Stop");
+                JMenuItem stopItem = new JMenuItem(isStop ? messages.getString("context.removeStationStop") : messages.getString("context.addStationStop"));
                 stopItem.addActionListener(e -> {
                     int idx = trainRoutePathIndex(col, row);
                     if (idx >= 0) {
                         if (isStop) {
                             trainRouteStops.remove(idx);
+                            if (selectedTrainRoute != null) {
+                                selectedTrainRoute.removeStop(idx);
+                            }
                         } else {
                             trainRouteStops.add(idx);
+                            if (selectedTrainRoute != null) {
+                                selectedTrainRoute.addStop(idx, 5000);
+                            }
                         }
                         repaint();
                     }
@@ -3116,6 +3146,12 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     public void setSelectedTrainRoute(TrainRoute route) {
         this.selectedTrainRoute = route;
+        if (editMode && route != null) {
+            trainRouteStops.clear();
+            for (TrainRoute.StationStop stop : route.getStops()) {
+                trainRouteStops.add(stop.getPathIndex());
+            }
+        }
         repaint();
     }
 
