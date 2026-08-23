@@ -35,6 +35,8 @@ public class LayoutService {
 
     private Path currentFilePath;
 
+    private String trainsFile;
+
     private final LayoutPersistence layoutPersistence;
 
     public LayoutService(final OccupancySerializer occupancySerializer, TileGrid tileGrid, SettingsManager settings, Component parentComponent) {
@@ -46,6 +48,14 @@ public class LayoutService {
 
     public Path getCurrentFilePath() {
         return currentFilePath;
+    }
+
+    public String getTrainsFile() {
+        return trainsFile;
+    }
+
+    public void setTrainsFile(String trainsFile) {
+        this.trainsFile = trainsFile;
     }
 
     public void buildDefaultLayout() {
@@ -98,8 +108,9 @@ public class LayoutService {
         log.info("Auto-loading layout from: {}", path);
         if (path.toFile().exists()) {
             try {
-                layoutPersistence.load(tileGrid, path);
+                org.bidib.switchboard.component.persistence.LayoutData data = layoutPersistence.load(tileGrid, path);
                 currentFilePath = path;
+                trainsFile = data.getTrainsFile();
                 log.info("Layout loaded from {}", path);
             }
             catch (Exception e) {
@@ -115,6 +126,7 @@ public class LayoutService {
         tileGrid.clearTiles();
         tileGrid.getModel().clear();
         currentFilePath = null;
+        trainsFile = null;
         buildDefaultLayout();
     }
 
@@ -124,8 +136,9 @@ public class LayoutService {
         if (chooser.showOpenDialog(parentComponent) == JFileChooser.APPROVE_OPTION) {
             Path path = chooser.getSelectedFile().toPath();
             try {
-                layoutPersistence.load(tileGrid, path);
+                org.bidib.switchboard.component.persistence.LayoutData data = layoutPersistence.load(tileGrid, path);
                 currentFilePath = path;
+                trainsFile = data.getTrainsFile();
                 settings.setLastLayoutFile(path);
                 log.info("Loaded layout from {}", path);
             }
@@ -142,7 +155,7 @@ public class LayoutService {
             return;
         }
         try {
-            layoutPersistence.save(tileGrid, currentFilePath);
+            layoutPersistence.save(tileGrid, currentFilePath, trainsFile);
             settings.setLastLayoutFile(currentFilePath);
             log.info("Saved layout to {}", currentFilePath);
         }
@@ -165,7 +178,7 @@ public class LayoutService {
                 path = Paths.get(path + ".json");
             }
             try {
-                layoutPersistence.save(tileGrid, path);
+                layoutPersistence.save(tileGrid, path, trainsFile);
                 currentFilePath = path;
                 settings.setLastLayoutFile(path);
                 log.info("Saved layout to {}", path);

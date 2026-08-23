@@ -42,7 +42,12 @@ public class LayoutPersistence {
     // --- Save ---
 
     public void save(TileGrid grid, Path path) throws IOException {
+        save(grid, path, null);
+    }
+
+    public void save(TileGrid grid, Path path, String trainsFile) throws IOException {
         LayoutData data = capture(grid);
+        data.setTrainsFile(trainsFile);
         MAPPER.writeValue(path.toFile(), data);
     }
 
@@ -163,9 +168,10 @@ public class LayoutPersistence {
 
     // --- Load ---
 
-    public void load(TileGrid grid, Path path) throws IOException {
+    public LayoutData load(TileGrid grid, Path path) throws IOException {
         LayoutData data = MAPPER.readValue(path.toFile(), LayoutData.class);
         apply(grid, data);
+        return data;
     }
 
     public void apply(TileGrid grid, LayoutData data) {

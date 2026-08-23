@@ -12,6 +12,7 @@ public class LayoutData {
     private ModelStateData modelState;
     private List<RouteData> routes = new ArrayList<>();
     private List<BlockData> blocks = new ArrayList<>();
+    private String trainsFile;
 
     public int getCols() { return cols; }
     public void setCols(int cols) { this.cols = cols; }
@@ -33,6 +34,9 @@ public class LayoutData {
 
     public List<BlockData> getBlocks() { return blocks; }
     public void setBlocks(List<BlockData> blocks) { this.blocks = blocks; }
+
+    public String getTrainsFile() { return trainsFile; }
+    public void setTrainsFile(String trainsFile) { this.trainsFile = trainsFile; }
 
     // --- Tile data ---
 

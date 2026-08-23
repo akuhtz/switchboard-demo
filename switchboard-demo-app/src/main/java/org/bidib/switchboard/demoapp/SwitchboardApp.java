@@ -32,13 +32,17 @@ import javax.swing.table.AbstractTableModel;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.SignalSide;
+import org.bidib.switchboard.component.model.Train;
+import org.bidib.switchboard.component.model.TrainListModel;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
+import org.bidib.switchboard.component.view.TrainListPanel;
 import org.bidib.switchboard.demoapp.config.DemoOccupancy;
 import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
 import org.bidib.switchboard.demoapp.persistence.DefaultSettingsManager;
 import org.bidib.switchboard.demoapp.persistence.DemoOccupancySerializer;
 import org.bidib.switchboard.demoapp.persistence.SettingsData.LookAndFeel;
 import org.bidib.switchboard.demoapp.persistence.SettingsManager;
+import org.bidib.switchboard.demoapp.persistence.TrainSerializer;
 import org.bidib.switchboard.demoapp.service.LayoutService;
 import org.bidib.switchboard.demoapp.view.DemoAssignOccupancyDialogFactory;
 import org.slf4j.Logger;
@@ -85,6 +89,12 @@ public class SwitchboardApp {
 
     private final DockingDesktop desktop = new DockingDesktop();
 
+    private final TrainListModel trainListModel = new TrainListModel();
+
+    private TrainListPanel trainListPanel;
+
+    private final TrainSerializer trainSerializer = new TrainSerializer();
+
     SwitchboardApp() {
         this(new DefaultSettingsManager(), true);
     }
@@ -120,10 +130,39 @@ public class SwitchboardApp {
         layoutService = new LayoutService(new DemoOccupancySerializer(), panel, settings, frame);
         if (autoLoad) {
             layoutService.tryAutoLoad();
+            loadTrainsForCurrentLayout();
             updateTitle();
         }
+        trainListPanel = new TrainListPanel(trainListModel, messages);
+
         buildMenu();
         buildFrame();
+    }
+
+    /**
+     * Loads the trains file referenced by the current layout, or creates demo trains
+     * if no layout is loaded or the referenced file doesn't exist.
+     */
+    private void loadTrainsForCurrentLayout() {
+        Path layoutPath = layoutService.getCurrentFilePath();
+        String trainsFile = layoutService.getTrainsFile();
+        if (layoutPath != null) {
+            Path trainsPath = TrainSerializer.resolveTrainsPath(layoutPath, trainsFile);
+            trainSerializer.loadInto(trainListModel, trainsPath);
+        }
+        if (trainListModel.getTrains().isEmpty()) {
+            addDemoTrains();
+            if (layoutPath != null) {
+                Path trainsPath = TrainSerializer.resolveTrainsPath(layoutPath, "trains.json");
+                trainSerializer.saveFrom(trainListModel, trainsPath);
+                layoutService.setTrainsFile("trains.json");
+            }
+        }
+    }
+
+    private void addDemoTrains() {
+        trainListModel.addTrain(new Train("T001", "Re 460 023", null));
+        trainListModel.addTrain(new Train("T002", "IC 2000", null));
     }
 
     /** Maps the stored language code ("en", "de", or null) to a Ui locale, defaulting to the system locale. */
@@ -340,7 +379,9 @@ public class SwitchboardApp {
         frame.add(toolbar, BorderLayout.PAGE_START);
         frame.add(desktop, BorderLayout.CENTER);
 
+        desktop.addDockable(trainListPanel);
         desktop.addDockable(panel);
+        desktop.split(trainListPanel, panel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
 
         frame.setSize(1024, 768);
         frame.setLocationRelativeTo(null);
