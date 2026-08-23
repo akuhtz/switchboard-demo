@@ -75,6 +75,7 @@ import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.model.TileDirection;
 import org.bidib.switchboard.component.model.Train;
+import org.bidib.switchboard.component.model.TrainRoute;
 import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.simulation.OccupancySimulation;
 import org.bidib.switchboard.component.util.SvgIconLoader;
@@ -252,6 +253,8 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     private boolean trainRouteMode = false;
 
     private final java.util.List<int[]> trainRoutePath = new java.util.ArrayList<>();
+
+    private TrainRoute selectedTrainRoute = null;
 
     private final java.util.Set<Integer> trainRouteStops = new java.util.LinkedHashSet<>();
 
@@ -2325,57 +2328,111 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private static final Color COLOR_TRAIN_ROUTE = new Color(0, 180, 0, 160);
     private static final Color COLOR_TRAIN_ROUTE_STOP = new Color(255, 165, 0, 200);
+    private static final Color COLOR_SELECTED_ROUTE = new Color(0, 120, 255, 180);
+    private static final Color COLOR_SELECTED_ROUTE_STOP = new Color(255, 100, 200, 200);
 
     private void drawTrainRoutePath(Graphics2D g2) {
-        if (!trainRouteMode) {
-            return;
-        }
         int half = tileSize / 2;
 
-        // Draw accumulated path
-        if (!trainRoutePath.isEmpty()) {
-            int n = trainRoutePath.size();
-            int[] xPoints = new int[n];
-            int[] yPoints = new int[n];
-            for (int i = 0; i < n; i++) {
-                int[] p = trainRoutePath.get(i);
-                xPoints[i] = p[0] * tileSize + half;
-                yPoints[i] = p[1] * tileSize + half;
+        // Draw selected train route (from list selection)
+        if (selectedTrainRoute != null && !selectedTrainRoute.getPath().isEmpty()) {
+            boolean drawSourceMarker = editMode;
+            drawTrainRoute(g2, selectedTrainRoute.getPath(), selectedTrainRoute.getStops(),
+                COLOR_SELECTED_ROUTE, COLOR_SELECTED_ROUTE_STOP, drawSourceMarker);
+        }
+
+        // Draw creation mode path
+        if (trainRouteMode) {
+            if (!trainRoutePath.isEmpty()) {
+                drawTrainRoute(g2, trainRoutePath, trainRouteStops,
+                    COLOR_TRAIN_ROUTE, COLOR_TRAIN_ROUTE_STOP, true);
             }
 
-            g2.setColor(COLOR_TRAIN_ROUTE);
-            g2.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.drawPolyline(xPoints, yPoints, n);
-
-            // Draw station stops as orange diamonds
-            for (int stopIdx : trainRouteStops) {
-                if (stopIdx >= 0 && stopIdx < n) {
-                    int[] p = trainRoutePath.get(stopIdx);
-                    int cx = p[0] * tileSize + half;
-                    int cy = p[1] * tileSize + half;
-                    g2.setColor(COLOR_TRAIN_ROUTE_STOP);
-                    int size = 10;
-                    int[] dx = {cx, cx + size, cx, cx - size};
-                    int[] dy = {cy - size, cy, cy + size, cy};
-                    g2.fillPolygon(dx, dy, 4);
+            // Draw pending primary and alternatives
+            if (trainRoutePendingPrimary != null) {
+                for (int i = 0; i < trainRoutePendingAlternatives.size(); i++) {
+                    List<int[]> altPath = trainRoutePendingAlternatives.get(i);
+                    drawPendingAltPath(g2, altPath, altPaletteColor(i));
                 }
+                drawPendingAltPath(g2, trainRoutePendingPrimary, COLOR_TRAIN_ROUTE);
             }
+        }
+    }
 
-            // Draw source marker
-            int[] first = trainRoutePath.get(0);
+    private void drawTrainRoute(Graphics2D g2, List<int[]> path, java.util.Collection<TrainRoute.StationStop> stops,
+                                Color routeColor, Color stopColor, boolean drawSourceMarker) {
+        int half = tileSize / 2;
+        int n = path.size();
+        int[] xPoints = new int[n];
+        int[] yPoints = new int[n];
+        for (int i = 0; i < n; i++) {
+            int[] p = path.get(i);
+            xPoints[i] = p[0] * tileSize + half;
+            yPoints[i] = p[1] * tileSize + half;
+        }
+
+        g2.setColor(routeColor);
+        g2.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2.drawPolyline(xPoints, yPoints, n);
+
+        // Draw station stops
+        for (TrainRoute.StationStop stop : stops) {
+            int stopIdx = stop.getPathIndex();
+            if (stopIdx >= 0 && stopIdx < n) {
+                int[] p = path.get(stopIdx);
+                int cx = p[0] * tileSize + half;
+                int cy = p[1] * tileSize + half;
+                g2.setColor(stopColor);
+                int size = 10;
+                int[] dx = {cx, cx + size, cx, cx - size};
+                int[] dy = {cy - size, cy, cy + size, cy};
+                g2.fillPolygon(dx, dy, 4);
+            }
+        }
+
+        // Draw source marker (only for creation mode)
+        if (drawSourceMarker && n > 0) {
+            int[] first = path.get(0);
             g2.setColor(Color.GREEN.darker());
             g2.fillOval(first[0] * tileSize + half - 6, first[1] * tileSize + half - 6, 12, 12);
         }
+    }
 
-        // Draw pending primary and alternatives
-        if (trainRoutePendingPrimary != null) {
-            // Draw alternatives as dashed colored lines
-            for (int i = 0; i < trainRoutePendingAlternatives.size(); i++) {
-                List<int[]> altPath = trainRoutePendingAlternatives.get(i);
-                drawPendingAltPath(g2, altPath, altPaletteColor(i));
+    private void drawTrainRoute(Graphics2D g2, List<int[]> path, java.util.Set<Integer> stopIndices,
+                                Color routeColor, Color stopColor, boolean drawSourceMarker) {
+        int half = tileSize / 2;
+        int n = path.size();
+        int[] xPoints = new int[n];
+        int[] yPoints = new int[n];
+        for (int i = 0; i < n; i++) {
+            int[] p = path.get(i);
+            xPoints[i] = p[0] * tileSize + half;
+            yPoints[i] = p[1] * tileSize + half;
+        }
+
+        g2.setColor(routeColor);
+        g2.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2.drawPolyline(xPoints, yPoints, n);
+
+        // Draw station stops
+        for (int stopIdx : stopIndices) {
+            if (stopIdx >= 0 && stopIdx < n) {
+                int[] p = path.get(stopIdx);
+                int cx = p[0] * tileSize + half;
+                int cy = p[1] * tileSize + half;
+                g2.setColor(stopColor);
+                int size = 10;
+                int[] dx = {cx, cx + size, cx, cx - size};
+                int[] dy = {cy - size, cy, cy + size, cy};
+                g2.fillPolygon(dx, dy, 4);
             }
-            // Draw primary as solid line (on top)
-            drawPendingAltPath(g2, trainRoutePendingPrimary, COLOR_TRAIN_ROUTE);
+        }
+
+        // Draw source marker (only for creation mode)
+        if (drawSourceMarker && n > 0) {
+            int[] first = path.get(0);
+            g2.setColor(Color.GREEN.darker());
+            g2.fillOval(first[0] * tileSize + half - 6, first[1] * tileSize + half - 6, 12, 12);
         }
     }
 
@@ -3055,6 +3112,15 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     int routeTileCount() {
         return routeModel.getRoutes().values().stream().mapToInt(r -> r.getPath().size()).sum();
+    }
+
+    public void setSelectedTrainRoute(TrainRoute route) {
+        this.selectedTrainRoute = route;
+        repaint();
+    }
+
+    public TrainRoute getSelectedTrainRoute() {
+        return selectedTrainRoute;
     }
 
     public void testSetRouteSource(int col, int row) {

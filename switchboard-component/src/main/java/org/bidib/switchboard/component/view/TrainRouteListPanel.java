@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -14,6 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.bidib.switchboard.component.model.TrainRoute;
 import org.bidib.switchboard.component.model.TrainRouteListModel;
@@ -33,6 +36,8 @@ public class TrainRouteListPanel extends JPanel implements Dockable, PropertyCha
 
     private final JList<TrainRoute> routeList;
 
+    private Consumer<TrainRoute> selectionListener;
+
     public TrainRouteListPanel(TrainRouteListModel trainRouteListModel, ResourceBundle messages) {
         this.trainRouteListModel = trainRouteListModel;
         trainRouteListModel.addPropertyChangeListener(this);
@@ -46,11 +51,26 @@ public class TrainRouteListPanel extends JPanel implements Dockable, PropertyCha
         routeList = new JList<>(listModel);
         routeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         routeList.setCellRenderer(new TrainRouteCellRenderer());
+        routeList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    TrainRoute selected = routeList.getSelectedValue();
+                    if (selectionListener != null) {
+                        selectionListener.accept(selected);
+                    }
+                }
+            }
+        });
 
         JScrollPane scrollPane = new JScrollPane(routeList);
         add(scrollPane, BorderLayout.CENTER);
 
         syncFromModel();
+    }
+
+    public void setSelectionListener(Consumer<TrainRoute> listener) {
+        this.selectionListener = listener;
     }
 
     @Override
@@ -73,9 +93,19 @@ public class TrainRouteListPanel extends JPanel implements Dockable, PropertyCha
     }
 
     private void syncFromModel() {
+        TrainRoute oldSelection = routeList.getSelectedValue();
         listModel.clear();
         for (TrainRoute route : trainRouteListModel.getTrainRoutes()) {
             listModel.addElement(route);
+        }
+        // Try to restore selection
+        if (oldSelection != null) {
+            for (int i = 0; i < listModel.size(); i++) {
+                if (listModel.get(i).getId().equals(oldSelection.getId())) {
+                    routeList.setSelectedIndex(i);
+                    break;
+                }
+            }
         }
     }
 
