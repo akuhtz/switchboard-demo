@@ -9,10 +9,15 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
@@ -26,16 +31,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.InputMap;
-import javax.swing.JComponent;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -66,16 +71,17 @@ import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.model.TileDirection;
-import org.bidib.switchboard.component.simulation.OccupancySimulation;
+import org.bidib.switchboard.component.model.Train;
 import org.bidib.switchboard.component.service.RouterService;
+import org.bidib.switchboard.component.simulation.OccupancySimulation;
 import org.bidib.switchboard.component.util.SvgIconLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.view.ViewBox;
-import com.vlsolutions.swing.docking.Dockable;
 import com.vlsolutions.swing.docking.DockKey;
+import com.vlsolutions.swing.docking.Dockable;
 
 public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, PropertyChangeListener {
     private final DockKey dockKey = new DockKey("switchboard");
@@ -277,6 +283,48 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                 rotateSelectedTile();
             }
         });
+
+        // Enable drop of Train objects onto block marker tiles
+        new DropTarget(this, DnDConstants.ACTION_COPY, new DropTargetAdapter() {
+            @Override
+            public void dragOver(DropTargetDragEvent dtde) {
+                int col = dtde.getLocation().x / tileSize;
+                int row = dtde.getLocation().y / tileSize;
+                if (isBlockMarkerAt(col, row)) {
+                    dtde.acceptDrag(DnDConstants.ACTION_COPY);
+                } else {
+                    dtde.rejectDrag();
+                }
+            }
+
+            @Override
+            public void drop(DropTargetDropEvent dtde) {
+                int col = dtde.getLocation().x / tileSize;
+                int row = dtde.getLocation().y / tileSize;
+                if (!isBlockMarkerAt(col, row)) {
+                    dtde.rejectDrop();
+                    return;
+                }
+                if (dtde.isDataFlavorSupported(TrainListPanel.TRAIN_FLAVOR)) {
+                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
+                    try {
+                        Train train = (Train) dtde.getTransferable().getTransferData(TrainListPanel.TRAIN_FLAVOR);
+                        handleTrainDrop(col, row, train);
+                        dtde.dropComplete(true);
+                    } catch (Exception ex) {
+                        LOGGER.warn("Failed to drop train", ex);
+                        dtde.dropComplete(false);
+                    }
+                } else {
+                    dtde.rejectDrop();
+                }
+            }
+        });
+    }
+
+    private boolean isBlockMarkerAt(int col, int row) {
+        Tile tile = getTile(col, row);
+        return tile instanceof ElementTile et && et.getElementType() == ElementType.BLOCK_MARKER;
     }
 
     // --- Tile management ---
@@ -512,6 +560,22 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             JMenuItem infoItem = new JMenuItem(messages.getString("context.info"));
             infoItem.addActionListener(e -> showTileInfo(tile));
             menu.add(infoItem);
+
+            if (!editMode && tile instanceof ElementTile et && et.getElementType() == ElementType.BLOCK_MARKER) {
+                String blockId = blockModel.blockIdForTile(col, row);
+                if (blockId != null) {
+                    Block block = blockModel.getBlock(blockId);
+                    if (block != null && block.getAssignedTrainId() != null) {
+                        JMenuItem clearTrainItem = new JMenuItem(messages.getString("context.blockClearTrain"));
+                        clearTrainItem.addActionListener(e -> {
+                            block.clearAssignedTrain();
+                            LOGGER.info("Cleared train from block {} ({})", blockId, block.getName());
+                            repaint();
+                        });
+                        menu.add(clearTrainItem);
+                    }
+                }
+            }
         }
 
         if (editMode) {
@@ -851,6 +915,16 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             JMenuItem linkItem = new JMenuItem(messages.getString("context.blockLinks"));
             linkItem.addActionListener(e -> editBlockLinks(existingBlockId));
             blockMenu.add(linkItem);
+            // Show "Clear Train" if a train is assigned to this block
+            if (block.getAssignedTrainId() != null) {
+                JMenuItem clearTrainItem = new JMenuItem(messages.getString("context.blockClearTrain"));
+                clearTrainItem.addActionListener(e -> {
+                    block.clearAssignedTrain();
+                    LOGGER.info("Cleared train from block {} ({})", existingBlockId, block.getName());
+                    repaint();
+                });
+                blockMenu.add(clearTrainItem);
+            }
             JMenuItem removeItem = new JMenuItem(messages.getString("context.blockRemove"));
             removeItem.addActionListener(e -> removeBlock(existingBlockId));
             blockMenu.add(removeItem);
@@ -937,6 +1011,34 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             return;
         }
         new BlockLinkDialog(blockModel, routerService, messages).show(this, block);
+    }
+
+    private void handleTrainDrop(int col, int row, Train train) {
+        // Find the block marker tile at this position
+        Tile tile = getTile(col, row);
+        if (!(tile instanceof ElementTile et) || et.getElementType() != ElementType.BLOCK_MARKER) {
+            LOGGER.info("Drop target at ({}, {}) is not a block marker tile", col, row);
+            return;
+        }
+        String blockId = blockModel.blockIdForTile(col, row);
+        if (blockId == null) {
+            LOGGER.info("No block at ({}, {})", col, row);
+            return;
+        }
+        Block block = blockModel.getBlock(blockId);
+        if (block == null) {
+            return;
+        }
+        // Remove train from any previously assigned block
+        for (Block b : blockModel.getBlocks().values()) {
+            if (train.getId().equals(b.getAssignedTrainId())) {
+                b.clearAssignedTrain();
+                LOGGER.info("Removed train {} from block {} ({})", train.getId(), b.getId(), b.getName());
+            }
+        }
+        block.setAssignedTrainId(train.getId());
+        LOGGER.info("Assigned train {} ({}) to block {} ({})", train.getId(), train.getName(), blockId, block.getName());
+        repaint();
     }
 
     private String generateBlockId() {
@@ -1290,10 +1392,17 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             int py = tile.getRow() * tileSize;
             g2.setColor(getForeground());
             FontMetrics fm = g2.getFontMetrics();
-            String name = block.getName();
-            int textX = px + tileSize / 2 - fm.stringWidth(name) / 2;
+            // Show train name if assigned, otherwise show block name
+            String label = block.getName();
+            if (block.getAssignedTrainId() != null) {
+                Train train = model.getTrain(block.getAssignedTrainId());
+                if (train != null) {
+                    label = train.getName();
+                }
+            }
+            int textX = px + tileSize / 2 - fm.stringWidth(label) / 2;
             int textY = py + tileSize - fm.getDescent() - 1;
-            g2.drawString(name, textX, textY);
+            g2.drawString(label, textX, textY);
         }
     }
 

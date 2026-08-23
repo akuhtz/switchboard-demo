@@ -128,6 +128,9 @@ public class LayoutPersistence {
             if (!b.getSuccessorIds().isEmpty()) {
                 bd.setSuccessors(new ArrayList<>(b.getSuccessorIds()));
             }
+            if (b.getAssignedTrainId() != null) {
+                bd.setAssignedTrainId(b.getAssignedTrainId());
+            }
             blockList.add(bd);
         }
         data.setBlocks(blockList);
@@ -251,6 +254,9 @@ public class LayoutPersistence {
                     for (String succId : bd.getSuccessors()) {
                         block.addSuccessor(succId);
                     }
+                }
+                if (bd.getAssignedTrainId() != null) {
+                    block.setAssignedTrainId(bd.getAssignedTrainId());
                 }
             }
         }

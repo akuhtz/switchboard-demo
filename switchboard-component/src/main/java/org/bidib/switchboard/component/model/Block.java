@@ -23,6 +23,8 @@ public class Block {
 
     private final List<String> successorIds = new ArrayList<>();
 
+    private String assignedTrainId;
+
     public Block(String id, String name, List<int[]> path) {
         this.id = id;
         this.name = name;
@@ -74,6 +76,21 @@ public class Block {
 
     public void removeSuccessor(String id) {
         successorIds.remove(id);
+    }
+
+    /** Returns the ID of the train assigned to this block, or null. */
+    public String getAssignedTrainId() {
+        return assignedTrainId;
+    }
+
+    /** Assigns a train to this block. */
+    public void setAssignedTrainId(String trainId) {
+        this.assignedTrainId = trainId;
+    }
+
+    /** Clears the assigned train from this block. */
+    public void clearAssignedTrain() {
+        this.assignedTrainId = null;
     }
 
     public boolean containsTile(int col, int row) {

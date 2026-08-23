@@ -163,6 +163,7 @@ public class LayoutData {
         private List<List<Integer>> tiles = new ArrayList<>();
         private List<String> predecessors;
         private List<String> successors;
+        private String assignedTrainId;
 
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
@@ -178,5 +179,8 @@ public class LayoutData {
 
         public List<String> getSuccessors() { return successors; }
         public void setSuccessors(List<String> successors) { this.successors = successors; }
+
+        public String getAssignedTrainId() { return assignedTrainId; }
+        public void setAssignedTrainId(String assignedTrainId) { this.assignedTrainId = assignedTrainId; }
     }
 }

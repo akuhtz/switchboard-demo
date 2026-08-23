@@ -3,10 +3,20 @@ package org.bidib.switchboard.component.view;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragSource;
+import java.awt.dnd.DragSourceAdapter;
+import java.awt.dnd.DragSourceDropEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -31,6 +41,9 @@ import com.vlsolutions.swing.docking.DockKey;
 public class TrainListPanel extends JPanel implements Dockable, PropertyChangeListener {
 
     private static final long serialVersionUID = 1L;
+
+    /** Data flavor for dragging a Train object. */
+    public static final DataFlavor TRAIN_FLAVOR = new DataFlavor(Train.class, "Train");
 
     private final DockKey dockKey = new DockKey("trainList");
 
@@ -61,6 +74,9 @@ public class TrainListPanel extends JPanel implements Dockable, PropertyChangeLi
                 }
             }
         });
+
+        // Enable drag-and-drop from the train list
+        enableDrag();
 
         JScrollPane scrollPane = new JScrollPane(trainList);
         add(scrollPane, BorderLayout.CENTER);
@@ -109,6 +125,21 @@ public class TrainListPanel extends JPanel implements Dockable, PropertyChangeLi
         // Placeholder for future edit dialog
     }
 
+    /** Enables drag-and-drop from the JList. */
+    private void enableDrag() {
+        DragSource dragSource = new DragSource();
+        dragSource.createDefaultDragGestureRecognizer(trainList, DnDConstants.ACTION_COPY, new DragGestureListener() {
+            @Override
+            public void dragGestureRecognized(DragGestureEvent dge) {
+                Train selected = trainList.getSelectedValue();
+                if (selected == null) {
+                    return;
+                }
+                dge.startDrag(null, new TrainTransferable(selected));
+            }
+        });
+    }
+
     /** Custom renderer showing train image, address and name. */
     private static class TrainCellRenderer extends DefaultListCellRenderer {
 
@@ -126,6 +157,38 @@ public class TrainListPanel extends JPanel implements Dockable, PropertyChangeLi
                 setText(label);
             }
             return this;
+        }
+    }
+
+    /** Transferable wrapper for a Train object. */
+    public static class TrainTransferable implements Transferable {
+
+        private final Train train;
+
+        public TrainTransferable(Train train) {
+            this.train = train;
+        }
+
+        public Train getTrain() {
+            return train;
+        }
+
+        @Override
+        public DataFlavor[] getTransferDataFlavors() {
+            return new DataFlavor[] { TRAIN_FLAVOR };
+        }
+
+        @Override
+        public boolean isDataFlavorSupported(DataFlavor flavor) {
+            return TRAIN_FLAVOR.equals(flavor);
+        }
+
+        @Override
+        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+            if (!isDataFlavorSupported(flavor)) {
+                throw new UnsupportedFlavorException(flavor);
+            }
+            return train;
         }
     }
 }

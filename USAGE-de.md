@@ -37,6 +37,7 @@ Folgende Kacheltypen sind verfügbar:
 | SIGNAL_V       | SV | Vorsignal (orange/grün/orange+grün/Stellung 3) | 0 / 90 / 180 / 270 |
 | SIGNAL_COMBINED | SM | Kombinationssignal (Hauptsignal + Vorsignalplatte auf einem Mast) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Prellbock (Gleisende)                | 0 / 90 / 180 / 270 |
+| BLOCK_MARKER   | BM | Blockmarkierung (gerades Gleis, zeigt Blockname) | 0 / 90 |
 
 ## 4. Elemente klicken, um Stellungen zu wechseln
 
@@ -114,10 +115,45 @@ nützlich, um Belegungsabschnitte zu modellieren.
 - Zum Entfernen eines Blocks Rechtsklick auf eine Kachel des Blocks → **Block → Block entfernen**.
 - Blöcke werden als 2 px breite gelbe Linie unterhalb des Gleises entlang des Pfads gezeichnet,
   mit einem kurzen vertikalen Strich an der Außenkante der Start- und Endkachel. Der ausstehende
-  Blockanfang wird als orangefarbene quadratische Markierung angezeigt.
+  Blockanfang wird als   orangefarbene quadratische Markierung angezeigt.
 - Blöcke werden mit dem Layout gespeichert und beim Laden wiederhergestellt.
 
-## 10. Belegung simulieren
+## 10. Blockmarkierungen
+
+Blockmarkierungen (`BLOCK_MARKER` / `BM`) sind gerade Gleiskacheln, die den Blocknamen als zentrierte Textbeschriftung anzeigen. Sie helfen bei der visuellen Identifizierung von Blockgrenzen auf dem Schaltpult.
+
+- Blockmarkierung platzieren: Rechtsklick auf eine Zelle im Bearbeitungsmodus → **BM (BLOCK_MARKER)**.
+- Die Markierung zeigt den Blocknamen in Gelb (`(255,220,80)`) an, wenn der Block nicht belegt ist, oder in Rot wenn belegt.
+- Blockmarkierungen können wie gerade Gleiskacheln gedreht werden (0° oder 90°).
+- Eine Blockmarkierung kann einen **Zug** zugewiesen bekommen per Drag-and-Drop (siehe [Abschnitt 11](#11-züge-und-draganddrop)). Wenn ein Zug zugewiesen ist, zeigt die Markierung den Zugnamen statt des Blocknamens an.
+
+## 11. Züge und Drag-and-Drop
+
+Die Anwendung zeigt eine Zugliste links im Fenster an, die alle definierten Züge anzeigt.
+
+### Züge hinzufügen
+
+Züge werden in einer `trains.json`-Datei definiert, die vom aktuellen Layout referenziert wird. Wenn Sie ein Layout laden, das eine Zugsdatei referenziert, wird die Zugliste automatisch gefüllt. Um einen neuen Zug hinzuzufügen, bearbeiten Sie die `train.json`-Datei und laden Sie das Layout neu.
+
+Jeder Zug hat:
+- **id** (erforderlich): eindeutige Kennung, z.B. `"train-1"`
+- **name** (erforderlich): Anzeigename, z.B. `"ICE 701"`
+- **address** (optional): DCC/NMRA-Adresse als Ganzzahl
+- **image** (optional): Pfad zu einer Bilddatei
+
+### Züge Blöcken zuweisen
+
+1. Im **Normalmodus** einen Zug aus der Zugliste ziehen und auf eine **Blockmarkierung** loslassen.
+2. Die Blockmarkierung zeigt dann den **Zugnamen** statt des Blocknamens an.
+3. Jeder Zug kann nur einem Block zugewiesen sein — das Ablegen eines Zugs auf einem anderen Block entfernt ihn automatisch aus dem vorherigen Block.
+4. Um eine Zugzuordnung aufzuheben, Rechtsklick auf die Blockmarkierung und **Zug entfernen** wählen. Diese Option ist sowohl im Bearbeitungsmodus als auch im Normalmodus für Blockmarkierungen mit einem zugewiesenen Zug verfügbar.
+
+### Drag-and-Drop-Details
+
+- Der **Drop-Cursor** (Pfeil + Pluszeichen) erscheint nur beim Überfahren einer Blockmarkierungskachel, nicht über regulären Gleiskacheln.
+- Das Ziehen eines Zugs auf eine nicht-Blockmarkierungskachel hat keine Auswirkung.
+
+## 12. Belegung simulieren
 
 Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert werden:
 
@@ -138,7 +174,7 @@ Simulation zurücksetzen:
 - Setzt alle Belegungszustände entlang der Fahrstraße auf FREE zurück.
 - **Simulierte Belegung löschen** ist deaktiviert, solange eine Simulation läuft.
 
-## 11. Sprache / Internationalisierung
+## 13. Sprache / Internationalisierung
 
 Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Sprache wird beim Start ermittelt: Falls eine Sprache unter **Datei → Einstellungen → Sprache** gespeichert ist, wird diese verwendet, sonst die Systemsprache. Die gewählte Sprache wird gespeichert und beim nächsten Start wieder angewendet.
 
@@ -150,14 +186,14 @@ Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Spr
 
 Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und `i18n/app-messages.properties` (Demo-Anwendung), jeweils mit einer `_de`-Variante.
 
-## 12. Speichern & Laden
+## 14. Speichern & Laden
 
 - **Strg+S** — in die aktuelle Datei speichern (oder Speichern-Dialog öffnen, falls keine vorhanden).
 - **Strg+L** — ein zuvor gespeichertes `.json`-Layout laden.
 - Beim Start merkt sich die Anwendung die zuletzt geladene Datei und stellt sie automatisch wieder her.
 - Einstellungen werden in `~/switchboard-demo-1/settings.json` gespeichert.
 
-## 13. Protokollierung
+## 15. Protokollierung
 
 Die Anwendung schreibt Log-Ausgaben sowohl auf die Konsole als auch in eine Protokolldatei:
 

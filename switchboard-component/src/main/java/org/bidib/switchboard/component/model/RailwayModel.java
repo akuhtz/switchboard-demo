@@ -15,6 +15,7 @@ public class RailwayModel {
 
     private final Map<String, Element> elements = new LinkedHashMap<>();
     private final Map<String, Occupancy> occupancies = new LinkedHashMap<>();
+    private final TrainListModel trainListModel = new TrainListModel();
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -77,6 +78,14 @@ public class RailwayModel {
 
     public Map<String, Occupancy> getOccupancies() {
         return Collections.unmodifiableMap(occupancies);
+    }
+
+    public TrainListModel getTrainListModel() {
+        return trainListModel;
+    }
+
+    public Train getTrain(String trainId) {
+        return trainListModel.getTrainById(trainId);
     }
 
     public void addPropertyChangeListener(PropertyChangeListener l) {

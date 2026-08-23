@@ -37,6 +37,7 @@ The following tile types are available:
 | SIGNAL_V       | SV | Distant signal / Vorsignal (orange/green/orange+green/aspect 3) | 0 / 90 / 180 / 270 |
 | SIGNAL_COMBINED | SM | Combined signal (main head + distant plate on one mast) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Bumper stop (dead end)             | 0 / 90 / 180 / 270 |
+| BLOCK_MARKER   | BM | Block marker (straight, shows block name) | 0 / 90 |
 
 ## 4. Click elements to cycle aspects
 
@@ -116,7 +117,42 @@ modelling track occupancy sections.
   orange square marker.
 - Blocks are saved with the layout and restored when it is loaded.
 
-## 10. Simulate occupancy
+## 10. Block markers
+
+Block markers (`BLOCK_MARKER` / `BM`) are straight-through tiles that display the block name as a centered text label. They help visually identify block boundaries on the switchboard.
+
+- Place a block marker by right-clicking a cell in edit mode → **BM (BLOCK_MARKER)**.
+- The marker label shows the block name in yellow (`(255,220,80)`) when the block is not occupied, or red when occupied.
+- Block markers can be rotated (0° or 90°) like straight track tiles.
+- A block marker can have a **train assigned** to it via drag-and-drop (see [section 11](#11-trains-and-draganddrop)). When a train is assigned, the marker displays the train name instead of the block name.
+
+## 11. Trains and drag-and-drop
+
+The application includes a train list panel on the left side of the window, showing all defined trains.
+
+### Adding trains
+
+Trains are defined in a `trains.json` file referenced by the current layout. When you load a layout that references a trains file, the train list panel is populated automatically. To add a new train, edit the `trains.json` file and reload the layout.
+
+Each train has:
+- **id** (required): unique identifier, e.g. `"train-1"`
+- **name** (required): display name, e.g. `"ICE 701"`
+- **address** (optional): DCC/NMRA address as an integer
+- **image** (optional): path to an image file
+
+### Assigning trains to blocks
+
+1. In **normal mode**, drag a train from the train list panel and drop it on a **block marker** tile.
+2. The block marker then displays the **train name** instead of the block name.
+3. Each train can only be assigned to one block at a time — dropping a train on a different block automatically removes it from the previous block.
+4. To clear a train assignment, right-click the block marker and choose **Clear Train**. This option is available in both edit and normal mode for block markers with an assigned train.
+
+### Drag-and-drop details
+
+- The **drop cursor** (arrow + plus sign) only appears when hovering over a block marker tile, not over regular track tiles.
+- Dragging a train to a non-block-marker tile has no effect.
+
+## 12. Simulate occupancy
 
 After a route is created, you can animate a train moving along it:
 
@@ -137,7 +173,7 @@ To reset the simulation:
 - Sets all occupancy states along the route back to FREE.
 - **Clear simulated occupancy** is disabled while a simulation is in progress.
 
-## 11. Language / Internationalization
+## 13. Language / Internationalization
 
 The application supports **English** and **German** locales. The UI language is determined at startup: it uses the language saved in **File → Settings → Language** when one is stored, otherwise the system locale. The selected language is persisted so it is applied again on the next start.
 
@@ -148,14 +184,14 @@ The application supports **English** and **German** locales. The UI language is 
 
 Translations are maintained in `i18n/messages.properties` (component) and `i18n/app-messages.properties` (demo app), each with a `_de` variant.
 
-## 12. Save & load
+## 14. Save & load
 
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.
 - On startup, the app remembers the last loaded file and restores it automatically.
 - Settings are stored in `~/switchboard-demo-1/settings.json`.
 
-## 13. Logging
+## 15. Logging
 
 The application writes log output both to the console and to a log file:
 

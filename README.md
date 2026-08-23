@@ -80,6 +80,7 @@ type-specific enums — just element types distinguished by prefix.
 | `DIAGONAL_TURNOUT_RIGHT` | `DTR` | yes | 2 (straight, diverted right) | yes |
 | `DIAGONAL_TURNOUT_LEFT` | `DTL` | yes | 2 (straight, diverted left) | yes |
 | `BUMPER` | `BS` | yes | 1 | no |
+| `BLOCK_MARKER` | `BM` | yes | 1 | no |
 
 Route finding uses `isValidThroughPath(port1, port2, rotation)` which validates that
 a train can traverse the tile from an entry port to an exit port. Turnouts only allow
@@ -107,10 +108,11 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Extends `com.jgoodies.binding.beans.Model` — `setOccupancy()` fires `"occupancy"` property change.
 
 ### `RailwayModel`
-- Single unified model holding all elements and occupancies.
+- Single unified model holding all elements, occupancies, and trains.
 - Uses `PropertyChangeSupport` (idiomatic Java Observer).
 - **State**: `Map<String, Element> elements` — elementId → Element object.
   `Map<String, Occupancy> occupancies` — occupancy id → Occupancy object.
+  `TrainListModel trainListModel` — list of trains.
 - Aspect counts live on the tile (`ElementTile.getAspectCount()`) rather than in the model.
 - Fires `PropertyChangeEvent` on every state mutation.
 - `addElement()` bridges the Element's property changes to the model's `PropertyChangeSupport`.
@@ -122,6 +124,8 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `getElements()` — unmodifiable snapshot `Map<String, Element>`
   - `addOccupancy(Occupancy occupancy)` / `removeOccupancy(String id)`
   - `getOccupancy(String id)` / `getOccupancies()` — unmodifiable `Map<String, Occupancy>`
+  - `getTrainListModel()` — returns the `TrainListModel`
+  - `getTrain(String trainId)` — returns the `Train` with the given ID, or null
   - `clear()` / `removeElement(String id)` / `containsElement(String id)`
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
@@ -153,10 +157,11 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `Block`
 - A connected path of tiles forming a railway block section.
-- Fields: `id` (String, unique), `name` (String, user-editable), `path` (ordered `List<int[]>` of `[col, row]`).
+- Fields: `id` (String, unique), `name` (String, user-editable), `path` (ordered `List<int[]>` of `[col, row]`), `assignedTrainId` (String, nullable).
 - Default name equals the id (`blk001`, `blk002`, ... zero-padded).
 - A block never contains turnout tiles (TURNOUT_LEFT/RIGHT/3WAY are excluded during path finding).
 - `containsTile(col, row)` — checks if a grid tile is part of the block.
+- `setAssignedTrainId(String)` / `getAssignedTrainId()` / `clearAssignedTrain()` — manage the train assigned to this block. A train can only be assigned to one block at a time.
 
 ### `BlockModel`
 - Manages all blocks on the switchboard.
@@ -170,6 +175,19 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `getBlock(String id)` / `getBlocks()` — access blocks.
   - `blockIdForTile(col, row)` / `getBlockForTile(col, row)` — tile → block lookup.
   - `clear()` / `size()` / `isEmpty()`
+  - `addPropertyChangeListener` / `removePropertyChangeListener`
+
+### `Train`
+- Represents a locomotive or trainset that can be assigned to blocks.
+- Fields: `id` (String, unique), `address` (Integer, optional DCC/NMRA address), `name` (String), `image` (String, optional).
+- Used by `TrainListModel` and referenced by `Block.assignedTrainId`.
+
+### `TrainListModel`
+- Manages the list of all trains with `PropertyChangeSupport`.
+- Methods:
+  - `addTrain(Train)` / `removeTrain(String id)` / `updateTrain(Train)`
+  - `getTrain(String id)` / `getTrains()` / `size()` / `isEmpty()`
+  - `getTrainForBlock(String blockId)` — returns the train assigned to a given block, or null.
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
 ### `Occupancy`
@@ -263,6 +281,10 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Distant signal linking**: A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_M3 or SIGNAL_COMBINED) it previews via `ElementTile.mainSignalId`. In edit mode the context menu shows an **Assign Main Signal** submenu listing every placed main signal plus **None**; when no link is set, the main signal ahead in the travel direction along the connected physical track (following curves and the current turnout aspect, no gap bridging) is preselected (marked "(auto)") via `suggestMainSignalForDistant()`. Once linked, clicking the main signal in normal mode switches every linked distant signal to the matching preview aspect (`SetElementAspectCommand`, pushed onto the undo stack so undo restores distant signals first). Combined signals also use this link to drive their distant plate. Clearing a main signal with linked distant signals asks whether to **Remove linked** (also removed, undoable), **Keep** (the link is removed), or **Cancel**. The link is persisted in the layout file and shown in the **Tile Info** dialog (Main signal / Distant signals). Rotating a distant or combined signal (Ctrl+R in edit mode) re-evaluates the main signal ahead along the track and auto-assigns it; when it was linked to a different main signal, the old link is replaced and the signal is switched to the new main signal's current aspect. Both actions are logged.
 - **Blocks**: A connected, turnout-free path of tiles defining a track section. In edit mode the context menu shows a **Block** submenu to set a block start tile (orange square marker), then a block end tile. The connected path (via `RouterService.bfsBlockPath`) is found automatically, excluding turnouts and tiles of other blocks. Each block gets a unique id and a default name `blkNNN`; names are editable via **Rename Block...** dialog. Blocks render as a 2px yellow line (`(255,220,80)`) offset 4px below the track center, with a short vertical tick at the outer edge of the start and end tiles. Removal asks for confirmation. Blocks are persisted in the layout file.
    - **Curve-aware block lines**: On curve tiles the yellow block line bends around the corner, staying on the block side of the track. `curveCorner` locates the curve's corner pixel from its rotation (`center + rotateDelta(±half, ±half, rotSteps)`). The tile's center offset follows the straight-side neighbour (`straightSideDirection`, so a vertically-entered curve keeps the incoming straight run aligned), and `exitsThroughCorner` decides whether the elbow point comes before or after the center. The line follows the offset diagonal via `blockGuidePoint`/`curveGuidePoint` instead of crossing the track. Block lines that **end** on a curve terminate a few pixels *before* the corner pixel (`curveEndpoint`, pulled back `CORNER_PULL=5` along the offset track diagonal) so they never merge with or collide into the main track line. Blocks that start or end on a **diagonal** tile keep running parallel to the track diagonal (`diagonalEndpoint`) and stop at the tile edge the track exits through (e.g. upper-right) instead of cutting straight across to the side.
+- **Block markers**: A straight-through tile (PORT_LEFT + PORT_RIGHT, 1 aspect) displaying the block name as a centered text label. A block marker can also display an assigned train's name instead of the block name. The marker label is drawn in yellow (`(255,220,80)`) when the block is not occupied, or in red when occupied. Use case: insert block markers at the start/end of a block for clear visual identification of block boundaries.
+- **Block adjacency**: Blocks are considered adjacent when there is a connected path between them that passes only through non-block tiles (turnouts, straight, curve, diagonal). The BFS traversal from `RouterService.areBlocksAdjacent(blockA, blockB, blockModel)` supports this, allowing blocks separated by one or more non-block tiles to be recognized as adjacent. Adjacency is used for block link dialog suggestions.
+- **Train assignment via drag-and-drop**: Trains from the train list panel (left side) can be dragged onto block marker tiles to assign a train to a block. The block marker then displays the train name instead of the block name. Each train can only be assigned to one block at a time — dropping a train on a different block automatically removes it from the previous block. To clear a train assignment, right-click the block marker and choose **Clear Train** (available in both edit and normal mode for block markers with an assigned train).
+   - **Drop cursor**: The drop cursor (arrow + plus sign) only appears when hovering over a block marker tile, not over regular tiles.
 - - `getPhysicalPorts(rotation)` returns all physical port indices for a tile.
    `getActivePorts(aspect, rotation)` returns only the ports active for a given aspect (1 port for straight/curve/diagonal, 2 for turnouts, 4 for crossings).
 - **Rendering** (`paintComponent`):
@@ -400,6 +422,21 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 ### Toolbar
 - `wrench.png` / `wrench_selected.png` toggle button with tooltip "Toggle Edit Mode", synced with the Edit menu item.
 
+### Dockable panels (VLDocking)
+
+The application uses the [VLDocking](https://github.com/nicola-spb/vldocking) framework for dockable panel management:
+
+- **SwitchboardPanel** (right side): the main switchboard grid, implements `Dockable`.
+- **TrainListPanel** (left side, 20% width): train list with drag-and-drop support, implements `Dockable`.
+- Both panels are split side-by-side using `DockingDesktop.split()`.
+- Panels can be detached, re-docked, or rearranged via the VLDocking UI (drag tab headers).
+
+### Train list panel
+
+- Displays all trains from the loaded `trains.json` file.
+- Each train entry shows: name, optional DCC address, and optional image.
+- **Drag-and-drop**: trains can be dragged from the list onto block marker tiles on the switchboard (see [section 11](#11-trains-and-drag-and-drop) in USAGE.md).
+
 ### Internationalization
 
 All UI strings (menu bar, toolbar, context menu, tile info dialog) are loaded from
@@ -417,7 +454,8 @@ strings use `java.text.MessageFormat` (e.g., `"Clear route ({0})"`, `"Position: 
 1. Load `settings.json` from project root
 2. Apply saved Look and Feel (Light or Dark)
 3. Read the `lastLayoutFile` path → load layout from that file (if it exists)
-4. Fall back to the hardcoded default layout if no settings or file is found
+4. If the layout references a `trainsFile`, load trains from that file
+5. Fall back to the hardcoded default layout if no settings or file is found
 
 ### Default layout
 - `"TL-001"` (2-way left turnout at 2,3)
@@ -460,6 +498,7 @@ Logging configuration lives in `switchboard-demo-app/src/main/resources/logback.
 | `curve_right.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/curve_right.svg" width="32" height="32"> | Horizontal to center then diagonal to bottom-right |
 | `diagonal.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/diagonal.svg" width="32" height="32"> | Diagonal from lower-left to upper-right corner |
 | `bumper_stop.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/bumper_stop.svg" width="32" height="32"> | Bumper stop (red/white) at a dead end |
+| `block_marker.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/block_marker.svg" width="32" height="32"> | Block marker: straight track with yellow square for block identification |
 | `signal_m3_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_m3_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, orange+green dim |
 | `signal_m3_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_m3_yellow_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — orange active, red+green dim |
 | `signal_m3_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_m3_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red+orange dim |

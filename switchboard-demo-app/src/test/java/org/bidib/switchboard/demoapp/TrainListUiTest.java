@@ -37,7 +37,7 @@ class TrainListUiTest {
         GuiActionRunner.execute(() -> FlatLightLaf.setup());
 
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = GuiActionRunner.execute(() -> new SwitchboardPanel(
+        SwitchboardPanel switchboardPanel = GuiActionRunner.execute(() -> new SwitchboardPanel(
             new TestOccupancyFactory(),
             (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el),
             model));
@@ -46,7 +46,7 @@ class TrainListUiTest {
         URL url = getClass().getResource("/test-data/switchboard3d.json");
         GuiActionRunner.execute(() -> {
             try {
-                new LayoutPersistence().load(panel, Paths.get(url.toURI()));
+                new LayoutPersistence().load(switchboardPanel, Paths.get(url.toURI()));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -71,8 +71,8 @@ class TrainListUiTest {
             f.getContentPane().add(desktop);
 
             desktop.addDockable(trainListPanel);
-            desktop.addDockable(panel);
-            desktop.split(trainListPanel, panel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
+            desktop.split(trainListPanel, switchboardPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
+            desktop.setDockableWidth(trainListPanel, 0.2d);
 
             f.setSize(1024, 768);
             return f;

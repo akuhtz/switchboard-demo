@@ -33,7 +33,6 @@ import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.component.model.Train;
-import org.bidib.switchboard.component.model.TrainListModel;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.component.view.TrainListPanel;
 import org.bidib.switchboard.demoapp.config.DemoOccupancy;
@@ -77,7 +76,7 @@ public class SwitchboardApp {
 
     private final RailwayModel model;
 
-    private final SwitchboardPanel panel;
+    private final SwitchboardPanel switchboardPanel;
 
     private final JFrame frame;
 
@@ -87,9 +86,7 @@ public class SwitchboardApp {
 
 	private final DemoOccupancyFactory occupancyFactory = new DemoOccupancyFactory();
 
-    private final DockingDesktop desktop = new DockingDesktop();
-
-    private final TrainListModel trainListModel = new TrainListModel();
+    private final DockingDesktop desktop;
 
     private TrainListPanel trainListPanel;
 
@@ -122,18 +119,20 @@ public class SwitchboardApp {
         else {
             FlatLightLaf.setup();
         }
+        
+        desktop = new DockingDesktop();
 
-        panel = new SwitchboardPanel(occupancyFactory, new DemoAssignOccupancyDialogFactory(), model);
-        panel.setLocale(locale);
+        switchboardPanel = new SwitchboardPanel(occupancyFactory, new DemoAssignOccupancyDialogFactory(), model);
+        switchboardPanel.setLocale(locale);
 
         frame = new JFrame(messages.getString("frame.title"));
-        layoutService = new LayoutService(new DemoOccupancySerializer(), panel, settings, frame);
+        layoutService = new LayoutService(new DemoOccupancySerializer(), switchboardPanel, settings, frame);
         if (autoLoad) {
             layoutService.tryAutoLoad();
             loadTrainsForCurrentLayout();
             updateTitle();
         }
-        trainListPanel = new TrainListPanel(trainListModel, messages);
+        trainListPanel = new TrainListPanel(model.getTrainListModel(), messages);
 
         buildMenu();
         buildFrame();
@@ -148,21 +147,21 @@ public class SwitchboardApp {
         String trainsFile = layoutService.getTrainsFile();
         if (layoutPath != null) {
             Path trainsPath = TrainSerializer.resolveTrainsPath(layoutPath, trainsFile);
-            trainSerializer.loadInto(trainListModel, trainsPath);
+            trainSerializer.loadInto(model.getTrainListModel(), trainsPath);
         }
-        if (trainListModel.getTrains().isEmpty()) {
+        if (model.getTrainListModel().getTrains().isEmpty()) {
             addDemoTrains();
             if (layoutPath != null) {
                 Path trainsPath = TrainSerializer.resolveTrainsPath(layoutPath, "trains.json");
-                trainSerializer.saveFrom(trainListModel, trainsPath);
+                trainSerializer.saveFrom(model.getTrainListModel(), trainsPath);
                 layoutService.setTrainsFile("trains.json");
             }
         }
     }
 
     private void addDemoTrains() {
-        trainListModel.addTrain(new Train("T001", "Re 460 023", null));
-        trainListModel.addTrain(new Train("T002", "IC 2000", null));
+        model.getTrainListModel().addTrain(new Train("T001", "Re 460 023", null));
+        model.getTrainListModel().addTrain(new Train("T002", "IC 2000", null));
     }
 
     /** Maps the stored language code ("en", "de", or null) to a Ui locale, defaulting to the system locale. */
@@ -184,7 +183,7 @@ public class SwitchboardApp {
         Locale.setDefault(locale);
         ResourceBundle.clearCache();
         messages = ResourceBundle.getBundle("i18n.app-messages");
-        panel.setLocale(locale);
+        switchboardPanel.setLocale(locale);
         buildMenu();
         if (editToggle != null) {
             editToggle.setToolTipText(messages.getString("toolbar.editMode.tooltip"));
@@ -254,24 +253,24 @@ public class SwitchboardApp {
         exhaustiveItem.setSelected(settings.isExhaustiveRouting());
         exhaustiveItem.addActionListener(e -> {
             boolean selected = exhaustiveItem.isSelected();
-            panel.setExhaustiveRouting(selected);
+            switchboardPanel.setExhaustiveRouting(selected);
             settings.setExhaustiveRouting(selected);
         });
         settingsMenu.add(exhaustiveItem);
-        panel.setExhaustiveRouting(settings.isExhaustiveRouting());
+        switchboardPanel.setExhaustiveRouting(settings.isExhaustiveRouting());
 
         settingsMenu.addSeparator();
         JCheckBoxMenuItem signalLeftItem = new JCheckBoxMenuItem(messages.getString("menu.file.settings.signalSideLeft"), settings.getSignalSide() == SignalSide.LEFT);
         JCheckBoxMenuItem signalRightItem = new JCheckBoxMenuItem(messages.getString("menu.file.settings.signalSideRight"), settings.getSignalSide() == SignalSide.RIGHT);
         signalLeftItem.addActionListener(e -> {
             settings.setSignalSide(SignalSide.LEFT);
-            panel.setGlobalSignalSide(SignalSide.LEFT);
+            switchboardPanel.setGlobalSignalSide(SignalSide.LEFT);
             signalLeftItem.setSelected(true);
             signalRightItem.setSelected(false);
         });
         signalRightItem.addActionListener(e -> {
             settings.setSignalSide(SignalSide.RIGHT);
-            panel.setGlobalSignalSide(SignalSide.RIGHT);
+            switchboardPanel.setGlobalSignalSide(SignalSide.RIGHT);
             signalRightItem.setSelected(true);
             signalLeftItem.setSelected(false);
         });
@@ -294,7 +293,7 @@ public class SwitchboardApp {
         languageMenu.add(deItem);
         settingsMenu.add(languageMenu);
 
-        panel.setGlobalSignalSide(settings.getSignalSide());
+        switchboardPanel.setGlobalSignalSide(settings.getSignalSide());
 
         fileMenu.add(settingsMenu);
 
@@ -311,13 +310,13 @@ public class SwitchboardApp {
         editMenu.setMnemonic('E');
         JMenuItem undoItem = new JMenuItem(messages.getString("menu.edit.undo"));
         undoItem.setAccelerator(KeyStroke.getKeyStroke("control Z"));
-        undoItem.addActionListener(e -> panel.undoLast());
+        undoItem.addActionListener(e -> switchboardPanel.undoLast());
         editMenu.add(undoItem);
         editMenu.addSeparator();
         editModeItem = new JCheckBoxMenuItem(messages.getString("menu.edit.editMode"));
         editModeItem.setMnemonic('M');
         editModeItem.setAccelerator(KeyStroke.getKeyStroke("control E"));
-        editModeItem.setSelected(panel.isEditMode());
+        editModeItem.setSelected(switchboardPanel.isEditMode());
         editModeItem.addActionListener(e -> setEditMode(editModeItem.isSelected()));
         editMenu.add(editModeItem);
 
@@ -335,7 +334,7 @@ public class SwitchboardApp {
         editMenu.add(occupanciesItem);
 
         JCheckBoxMenuItem autoChangeSignalItem = new JCheckBoxMenuItem(messages.getString("menu.edit.autoChangeSignal"));
-        autoChangeSignalItem.addActionListener(e -> panel.setAutoChangeSignal(autoChangeSignalItem.isSelected()));
+        autoChangeSignalItem.addActionListener(e -> switchboardPanel.setAutoChangeSignal(autoChangeSignalItem.isSelected()));
         editMenu.add(autoChangeSignalItem);
 
         menuBar.add(editMenu);
@@ -344,7 +343,7 @@ public class SwitchboardApp {
     }
 
     private void setEditMode(boolean enabled) {
-        panel.setEditMode(enabled);
+        switchboardPanel.setEditMode(enabled);
         editModeItem.setSelected(enabled);
         editToggle.setSelected(enabled);
     }
@@ -379,16 +378,16 @@ public class SwitchboardApp {
         frame.add(toolbar, BorderLayout.PAGE_START);
         frame.add(desktop, BorderLayout.CENTER);
 
+        // prepare the dockables
         desktop.addDockable(trainListPanel);
-        desktop.addDockable(panel);
-        desktop.split(trainListPanel, panel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
+        desktop.split(trainListPanel, switchboardPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
+        desktop.setDockableWidth(this.trainListPanel, 0.2d);
 
         frame.setSize(1024, 768);
         frame.setLocationRelativeTo(null);
         updateTitle();
 
         frame.setVisible(true);
-        SwingUtilities.updateComponentTreeUI(frame);
     }
 
     JFrame getFrame() {
@@ -396,7 +395,7 @@ public class SwitchboardApp {
     }
 
     SwitchboardPanel getPanel() {
-        return panel;
+        return switchboardPanel;
     }
 
     private void updateTitle() {
