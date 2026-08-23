@@ -365,6 +365,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         });
 
         inputMap.put(KeyStroke.getKeyStroke("pressed ESCAPE"), "clearSelection");
+        inputMap.put(KeyStroke.getKeyStroke("pressed ENTER"), "clearSelection");
         getActionMap().put("clearSelection", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -2700,6 +2701,23 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     public boolean isAnySimulationRunning() {
         return simulations.values().stream().anyMatch(SimulationEntry::isRunning);
+    }
+
+    public Set<String> testGetSelectedTiles() {
+        return Set.copyOf(selectedTiles);
+    }
+
+    public void testSelectRegion(int startCol, int startRow, int endCol, int endRow) {
+        selectionDragStartCol = startCol;
+        selectionDragStartRow = startRow;
+        selectionDragEndCol = endCol;
+        selectionDragEndRow = endRow;
+        updateSelectedTilesFromDrag();
+        repaint();
+    }
+
+    public void testMoveSelectedTiles(int dCol, int dRow) {
+        moveSelectedTiles(dCol, dRow);
     }
 
     // --- Observer ---

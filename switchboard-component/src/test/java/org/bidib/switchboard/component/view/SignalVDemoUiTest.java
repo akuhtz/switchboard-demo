@@ -101,7 +101,7 @@ class SignalVDemoUiTest {
             JFrame f = new JFrame("SBB distant signal (SIGNAL_V) - visual check");
             f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             JPanel content = new JPanel(new BorderLayout());
-            content.add(new JLabel("This window closes automatically in 5 seconds."), BorderLayout.NORTH);
+            content.add(new JLabel("This window closes automatically in 3 seconds."), BorderLayout.NORTH);
             JPanel center = new JPanel();
             center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
             center.add(new JLabel("Switchboard context (32px tiles):"));
@@ -124,7 +124,7 @@ class SignalVDemoUiTest {
         window.robot().showWindow(window.target(), new Dimension(frame.getWidth() + 40, frame.getHeight() + 40));
         window.robot().waitForIdle();
 
-        closed.await(5, TimeUnit.SECONDS);
+        closed.await(3, TimeUnit.SECONDS);
         GuiActionRunner.execute(() -> frame.dispose());
     }
 
