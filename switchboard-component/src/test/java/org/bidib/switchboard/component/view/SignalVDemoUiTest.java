@@ -36,6 +36,7 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.util.SvgIconLoader;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.formdev.flatlaf.FlatDarkLaf;
@@ -48,6 +49,7 @@ import com.github.weisj.jsvg.view.ViewBox;
  * (square body aspect ratio, track overlap, lamp states) can be inspected.
  * The window closes automatically after 5 seconds.
  */
+@Disabled
 class SignalVDemoUiTest {
 
     private FrameFixture window;

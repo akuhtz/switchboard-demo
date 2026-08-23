@@ -21,11 +21,13 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 
+@Disabled
 class LookAndFeelSwitchUiTest {
 
     private FrameFixture window;

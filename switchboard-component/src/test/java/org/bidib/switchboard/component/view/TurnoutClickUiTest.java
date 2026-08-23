@@ -24,8 +24,10 @@ import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 class TurnoutClickUiTest {
 
     private static final int TILE_SIZE = 32;

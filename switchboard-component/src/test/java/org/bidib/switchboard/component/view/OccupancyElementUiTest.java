@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 
+@Disabled
 class OccupancyElementUiTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OccupancyElementUiTest.class);

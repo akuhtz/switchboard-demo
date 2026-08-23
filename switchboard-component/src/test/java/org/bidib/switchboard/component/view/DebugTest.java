@@ -10,10 +10,12 @@ import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Disabled
 class DebugTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugTest.class);

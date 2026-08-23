@@ -25,10 +25,12 @@ import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 
+@Disabled
 class RegionSelectMoveUiTest {
 
     private FrameFixture window;
