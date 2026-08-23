@@ -383,7 +383,7 @@ public class SwitchboardApp {
         desktop.split(trainListPanel, switchboardPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
         desktop.setDockableWidth(this.trainListPanel, 0.2d);
 
-        frame.setSize(1024, 768);
+        frame.setSize(1280, 768);
         frame.setLocationRelativeTo(null);
         updateTitle();
 

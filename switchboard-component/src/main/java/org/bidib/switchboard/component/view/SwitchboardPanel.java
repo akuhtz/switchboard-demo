@@ -17,6 +17,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -55,6 +57,7 @@ import org.bidib.switchboard.component.command.Command;
 import org.bidib.switchboard.component.command.CreateRouteCommand;
 import org.bidib.switchboard.component.command.CycleElementCommand;
 import org.bidib.switchboard.component.command.DirectionCommand;
+import org.bidib.switchboard.component.command.MoveTilesCommand;
 import org.bidib.switchboard.component.command.SetElementAspectCommand;
 import org.bidib.switchboard.component.command.TileCommand;
 import org.bidib.switchboard.component.config.OccupancyFactory;
@@ -201,6 +204,18 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private int selectedRow = -1;
 
+    private final Set<String> selectedTiles = new LinkedHashSet<>();
+
+    private int selectionDragStartCol = -1;
+
+    private int selectionDragStartRow = -1;
+
+    private int selectionDragEndCol = -1;
+
+    private int selectionDragEndRow = -1;
+
+    private boolean isDraggingSelection;
+
     private boolean editMode;
 
     private ResourceBundle messages = ResourceBundle.getBundle("i18n.messages");
@@ -265,12 +280,45 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                 if (e.isPopupTrigger()) {
                     showContextMenu(e.getX(), e.getY());
                 }
+                else if (e.getButton() == MouseEvent.BUTTON1 && editMode) {
+                    int col = e.getX() / tileSize;
+                    int row = e.getY() / tileSize;
+                    if (col >= 0 && col < cols && row >= 0 && row < rows) {
+                        selectionDragStartCol = col;
+                        selectionDragStartRow = row;
+                        selectionDragEndCol = col;
+                        selectionDragEndRow = row;
+                        requestFocusInWindow();
+                    }
+                }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     showContextMenu(e.getX(), e.getY());
+                }
+                else if (isDraggingSelection && editMode) {
+                    isDraggingSelection = false;
+                    updateSelectedTilesFromDrag();
+                    repaint();
+                }
+            }
+        });
+
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (!editMode || selectionDragStartCol < 0) {
+                    return;
+                }
+                int col = Math.max(0, Math.min(e.getX() / tileSize, cols - 1));
+                int row = Math.max(0, Math.min(e.getY() / tileSize, rows - 1));
+                if (col != selectionDragEndCol || row != selectionDragEndRow) {
+                    isDraggingSelection = true;
+                    selectionDragEndCol = col;
+                    selectionDragEndRow = row;
+                    repaint();
                 }
             }
         });
@@ -281,6 +329,49 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             @Override
             public void actionPerformed(ActionEvent e) {
                 rotateSelectedTile();
+            }
+        });
+
+        inputMap.put(KeyStroke.getKeyStroke("pressed UP"), "moveUp");
+        getActionMap().put("moveUp", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                moveSelectedTiles(0, -1);
+            }
+        });
+
+        inputMap.put(KeyStroke.getKeyStroke("pressed DOWN"), "moveDown");
+        getActionMap().put("moveDown", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                moveSelectedTiles(0, 1);
+            }
+        });
+
+        inputMap.put(KeyStroke.getKeyStroke("pressed LEFT"), "moveLeft");
+        getActionMap().put("moveLeft", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                moveSelectedTiles(-1, 0);
+            }
+        });
+
+        inputMap.put(KeyStroke.getKeyStroke("pressed RIGHT"), "moveRight");
+        getActionMap().put("moveRight", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                moveSelectedTiles(1, 0);
+            }
+        });
+
+        inputMap.put(KeyStroke.getKeyStroke("pressed ESCAPE"), "clearSelection");
+        getActionMap().put("clearSelection", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clearMultiSelection();
+                selectedCol = -1;
+                selectedRow = -1;
+                repaint();
             }
         });
 
@@ -390,6 +481,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         blockStartRow = -1;
         routeSourceCol = -1;
         routeSourceRow = -1;
+        clearMultiSelection();
         clearTileImageCache();
         repaint();
     }
@@ -401,6 +493,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             selectedCol = -1;
             selectedRow = -1;
         }
+        selectedTiles.remove(Tile.key(col, row));
         if (routeSourceCol == col && routeSourceRow == row) {
             routeSourceCol = -1;
             routeSourceRow = -1;
@@ -426,6 +519,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         if (!editMode) {
             selectedCol = -1;
             selectedRow = -1;
+            clearMultiSelection();
         }
         repaint();
     }
@@ -584,7 +678,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
         buildRouteMenuItems(menu, col, row, tile);
 
-        if (editMode && tile != null && selectedCol >= 0 && selectedRow >= 0) {
+        if (editMode && (tile != null || !selectedTiles.isEmpty()) && (selectedCol >= 0 || !selectedTiles.isEmpty())) {
             if (menu.getComponentCount() > 0) {
                 menu.addSeparator();
             }
@@ -592,6 +686,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             clearSelectionItem.addActionListener(e -> {
                 selectedCol = -1;
                 selectedRow = -1;
+                clearMultiSelection();
                 repaint();
             });
             menu.add(clearSelectionItem);
@@ -1365,9 +1460,11 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         drawDirectionMarkers(g2);
         drawBlocks(g2);
         drawSelection(g2);
-        drawRoute(g2);
-        drawOccupancy(g2);
-        drawAlternatives(g2);
+        if (selectedTiles.isEmpty()) {
+            drawRoute(g2);
+            drawOccupancy(g2);
+            drawAlternatives(g2);
+        }
         drawSignals(g2);
         drawSignalDirectionMarkers(g2);
         drawBlockMarkerLabels(g2);
@@ -1750,15 +1847,79 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         g2.fillPolygon(xp, yp, 3);
     }
 
-    private void drawSelection(Graphics2D g2) {
-        if (!editMode || selectedCol < 0 || selectedRow < 0) {
+    private void updateSelectedTilesFromDrag() {
+        selectedTiles.clear();
+        if (selectionDragStartCol < 0 || selectionDragStartRow < 0) {
             return;
         }
-        int px = selectedCol * tileSize;
-        int py = selectedRow * tileSize;
+        int minCol = Math.min(selectionDragStartCol, selectionDragEndCol);
+        int maxCol = Math.max(selectionDragStartCol, selectionDragEndCol);
+        int minRow = Math.min(selectionDragStartRow, selectionDragEndRow);
+        int maxRow = Math.max(selectionDragStartRow, selectionDragEndRow);
+        for (int r = minRow; r <= maxRow; r++) {
+            for (int c = minCol; c <= maxCol; c++) {
+                if (getTile(c, r) != null) {
+                    selectedTiles.add(Tile.key(c, r));
+                }
+            }
+        }
+        if (!selectedTiles.isEmpty()) {
+            selectedCol = -1;
+            selectedRow = -1;
+        }
+    }
+
+    private void clearMultiSelection() {
+        selectedTiles.clear();
+        selectionDragStartCol = -1;
+        selectionDragStartRow = -1;
+        selectionDragEndCol = -1;
+        selectionDragEndRow = -1;
+        isDraggingSelection = false;
+    }
+
+    private void drawSelection(Graphics2D g2) {
+        if (!editMode) {
+            return;
+        }
         g2.setColor(COLOR_SELECTION);
         g2.setStroke(new BasicStroke(2));
-        g2.drawRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
+        // Draw single-tile selection
+        if (selectedCol >= 0 && selectedRow >= 0) {
+            int px = selectedCol * tileSize;
+            int py = selectedRow * tileSize;
+            g2.drawRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
+        }
+        // Draw multi-selection highlight
+        if (!selectedTiles.isEmpty()) {
+            for (String key : selectedTiles) {
+                String[] parts = key.split(",");
+                int c = Integer.parseInt(parts[0]);
+                int r = Integer.parseInt(parts[1]);
+                int px = c * tileSize;
+                int py = r * tileSize;
+                g2.setColor(new Color(0, 200, 200, 40));
+                g2.fillRect(px, py, tileSize, tileSize);
+                g2.setColor(COLOR_SELECTION);
+                g2.drawRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
+            }
+        }
+        // Draw rubber-band rectangle during drag
+        if (isDraggingSelection && selectionDragStartCol >= 0 && selectionDragStartRow >= 0) {
+            int minCol = Math.min(selectionDragStartCol, selectionDragEndCol);
+            int maxCol = Math.max(selectionDragStartCol, selectionDragEndCol);
+            int minRow = Math.min(selectionDragStartRow, selectionDragEndRow);
+            int maxRow = Math.max(selectionDragStartRow, selectionDragEndRow);
+            int px = minCol * tileSize;
+            int py = minRow * tileSize;
+            int w = (maxCol - minCol + 1) * tileSize;
+            int h = (maxRow - minRow + 1) * tileSize;
+            g2.setColor(new Color(0, 200, 200, 30));
+            g2.fillRect(px, py, w, h);
+            g2.setColor(COLOR_SELECTION);
+            g2.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, new float[]{4, 4}, 0));
+            g2.drawRect(px, py, w, h);
+        }
     }
 
     private void drawRoute(Graphics2D g2) {
@@ -2263,6 +2424,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             return;
         }
 
+        clearMultiSelection();
         selectedCol = col;
         selectedRow = row;
         requestFocusInWindow();
@@ -2347,6 +2509,50 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             }
             repaint();
         }
+    }
+
+    private void moveSelectedTiles(int dCol, int dRow) {
+        if (!editMode) {
+            return;
+        }
+        List<String> keysToMove;
+        if (!selectedTiles.isEmpty()) {
+            keysToMove = new ArrayList<>(selectedTiles);
+        }
+        else if (selectedCol >= 0 && selectedRow >= 0) {
+            keysToMove = List.of(Tile.key(selectedCol, selectedRow));
+        }
+        else {
+            return;
+        }
+        // Validate all tiles can move to new positions
+        for (String key : keysToMove) {
+            String[] parts = key.split(",");
+            int col = Integer.parseInt(parts[0]);
+            int row = Integer.parseInt(parts[1]);
+            int newCol = col + dCol;
+            int newRow = row + dRow;
+            if (newCol < 0 || newCol >= cols || newRow < 0 || newRow >= rows) {
+                return;
+            }
+            String newKey = Tile.key(newCol, newRow);
+            if (!keysToMove.contains(newKey) && getTile(newCol, newRow) != null) {
+                return;
+            }
+        }
+        MoveTilesCommand cmd = new MoveTilesCommand(this, keysToMove, dCol, dRow);
+        cmd.execute();
+        undoStack.push(cmd);
+        // Update selection to follow moved tiles
+        clearMultiSelection();
+        for (String key : keysToMove) {
+            String[] parts = key.split(",");
+            int col = Integer.parseInt(parts[0]);
+            int row = Integer.parseInt(parts[1]);
+            selectedTiles.add(Tile.key(col + dCol, row + dRow));
+        }
+        clearTileImageCache();
+        repaint();
     }
 
     /**

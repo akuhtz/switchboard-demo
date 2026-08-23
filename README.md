@@ -296,6 +296,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - For `ElementTile` tiles, resolves the SVG path from the model's current aspect.
 - **Interaction**:
   - Left-click: selects position + cycles aspect (normal) or selects only (edit).
+  - Mouse drag in edit mode: rubber-band region selection — all tiles within the rectangle are selected (translucent cyan highlight). Routes are hidden while selection is active.
+  - Arrow keys in edit mode: move all selected tiles by one cell. Rotation and tile properties are preserved. Route paths are shifted accordingly. Ctrl+Z to undo.
+  - Escape: clears selection.
      - Right-click: context menu with Info (element data dialog), ElementTypes + Signals submenu,
        Assign Occupancy / Remove Occupancy (edit mode only), Assign Main Signal (distant signals,
        edit mode only), Clear route on route tiles,
@@ -724,6 +727,16 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 - Drop cursor only appears when hovering over block marker tiles (uses `dragOver` instead of `dragEnter`).
 - `RailwayModel` holds `TrainListModel` with `getTrain(id)` lookup.
 - Updated README.md and USAGE.md/USAGE-de.md with new features and tile types.
+
+**2026-08-23 — Region selection and tile movement**
+
+- Added region selection in edit mode: click and drag to draw a selection rectangle over multiple tiles. All tiles within the rectangle are selected with a translucent cyan highlight.
+- Arrow keys (Up/Down/Left/Right) move all selected tiles by one cell. Rotation, direction, element type, SVG paths, and signal state are preserved.
+- Route paths are shifted when tiles are moved. Routes are hidden while selection is active.
+- `MoveTilesCommand` provides undo support for tile movement.
+- `Route.shiftPath()` and `Route.replacePath()` support route path updates.
+- `Escape` key clears selection. Clicking also clears multi-selection.
+- Focus is automatically set to the switchboard panel when a drag starts, ensuring key presses are directed correctly.
 
 **2026-08-12 — theme-aware tile background**
 

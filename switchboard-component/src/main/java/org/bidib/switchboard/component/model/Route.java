@@ -3,6 +3,7 @@ package org.bidib.switchboard.component.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class Route {
 
@@ -48,5 +49,34 @@ public class Route {
             }
         }
         return false;
+    }
+
+    /**
+     * Shifts path coordinates that match keys in the given map by (dCol, dRow).
+     * Used when tiles are moved to update route paths accordingly.
+     *
+     * @param coordMap map of "oldCol,oldRow" -> "newCol,newRow" for moved tiles
+     * @param dCol column delta
+     * @param dRow row delta
+     */
+    public void shiftPath(Map<String, String> coordMap, int dCol, int dRow) {
+        for (int i = 0; i < path.size(); i++) {
+            int[] p = path.get(i);
+            String key = p[0] + "," + p[1];
+            if (coordMap.containsKey(key)) {
+                path.set(i, new int[] { p[0] + dCol, p[1] + dRow });
+            }
+        }
+    }
+
+    /**
+     * Replaces the entire path with the given coordinates.
+     * Used by MoveTilesCommand.undo() to restore original route paths.
+     */
+    public void replacePath(List<int[]> newPath) {
+        path.clear();
+        for (int[] p : newPath) {
+            path.add(new int[] { p[0], p[1] });
+        }
     }
 }

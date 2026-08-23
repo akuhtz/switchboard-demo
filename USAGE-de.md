@@ -39,15 +39,25 @@ Folgende Kacheltypen sind verfügbar:
 | BUMPER         | BS | Prellbock (Gleisende)                | 0 / 90 / 180 / 270 |
 | BLOCK_MARKER   | BM | Blockmarkierung (gerades Gleis, zeigt Blockname) | 0 / 90 |
 
-## 4. Elemente klicken, um Stellungen zu wechseln
+## 4. Kacheln auswählen und verschieben
+
+Im **Bearbeitungsmodus** (Strg+E) können Kacheln ausgewählt und verschoben werden:
+
+- **Einzelne Kachel**: Linksklick auf eine Kachel zur Auswahl (cyan Rahmen).
+- **Bereichsauswahl**: Klicken und Ziehen, um ein Auswahlrechteck über mehrere Kacheln zu zeichnen. Alle Kacheln im Rechteck werden ausgewählt (transluzenter cyan-Hervorhebung).
+- **Verschieben mit Pfeiltasten**: **Aufwärts** / **Abwärts** / **Links** / **Rechts** drücken, um alle ausgewachten Kacheln um eine Zelle zu verschieben. Drehung und alle Kachel-Eigenschaften werden beibehaltet. Fahrstraßen, die durch verschobene Kacheln verlaufen, werden entsprechend aktualisiert.
+- **Rückgängig**: **Strg+Z** drücken, um die letzte Verschiebung rückgängig zu machen.
+- **Auswahl aufheben**: **Esc** drücken, woanders klicken, oder Rechtsklick → **Auswahl aufheben**.
+
+## 5. Elemente klicken, um Stellungen zu wechseln
 
 Im **Normalmodus** (Strg+E zum Umschalten):
 - Auf eine Weiche oder ein Signal klicken, um die Stellung zu wechseln (gerade ↔ abzweigend, rot ↔ grün, orange ↔ grün ↔ orange+grün ↔ Stellung 3 beim Vorsignal usw.).
-- Ein Klick auf ein **Hauptsignal** schaltet auch jedes **verknüpfte Vorsignal** auf die passende Vorankündigung (siehe [Abschnitt 8](#8-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)). Ein verknüpftes Vorsignal selbst lässt sich nicht anklicken, um seine Stellung zu ändern.
+- Ein Klick auf ein **Hauptsignal** schaltet auch jedes **verknüpfte Vorsignal** auf die passende Vorankündigung (siehe [Abschnitt 9](#9-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)). Ein verknüpftes Vorsignal selbst lässt sich nicht anklicken, um seine Stellung zu ändern.
 - Ein **Kombinationssignal** verhält sich wie ein Hauptsignal: Durch Klicken wird die Stellung seines eigenen Hauptsignalkopfes gewechselt (rot/grün/orange). Seine Vorsignalplatte wird über das verknüpfte Hauptsignal gesteuert und lässt sich nicht anklicken.
 - Weichen werden automatisch auf die korrekte Stellung gesetzt, wenn eine Fahrstraße gefunden wird.
 
-## 5. Fahrstraße erstellen
+## 6. Fahrstraße erstellen
 
 - Sicherstellen, dass der **Normalmodus** aktiv ist (Strg+E zum Deaktivieren des Bearbeitungsmodus).
 - **Strg+Klick** auf eine Startkachel — eine grüne Markierung erscheint.
@@ -66,7 +76,7 @@ Im **Normalmodus** (Strg+E zum Umschalten):
 - **Alle Fahrstraßen löschen**: **Clear selection** im Kontextmenü (nur im Bearbeitungsmodus) oder programmatisch über das Modell.
 - Mehrere nicht-überlappende Fahrstraßen können gleichzeitig existieren — BFS findet einen Weg um bestehende Fahrstraßenkacheln.
 
-## 6. Kachelrichtung
+## 7. Kachelrichtung
 
 Gerade und diagonale Kacheln können eine **Richtungsbeschränkung** haben (FORWARD, BACKWARD oder BOTH).
 
@@ -75,7 +85,7 @@ Gerade und diagonale Kacheln können eine **Richtungsbeschränkung** haben (FORW
 - Die Fahrstraßensuche berücksichtigt die Richtung: BFS wird eine Kachel nicht gegen ihre Richtung durchfahren.
 - Standard ist **Both** (keine Beschränkung) — abwärtskompatibel mit bestehenden Layouts.
 
-## 7. Signalseite
+## 8. Signalseite
 
 Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unterhalb (deutsche Norm, `_right`) des Gleises anzeigen. Dies gilt für alle Signaltypen (SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED).
 
@@ -84,7 +94,7 @@ Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unter
 - Bei Änderung der Signalseite wird das Kachelbild sofort aktualisiert.
 - Der **Kachel-Info**-Dialog (Linksklick auf ein Signal im Normalmodus) zeigt die aufgelöste Signalseite an.
 
-## 8. Vorsignal mit Hauptsignal verknüpfen
+## 9. Vorsignal mit Hauptsignal verknüpfen
 
 Ein Vorsignal (SIGNAL_V) kann mit dem Hauptsignal (SIGNAL_M3 oder SIGNAL_COMBINED) verknüpft werden, das es ankündigt. Die Vorsignalplatte eines Kombinationssignals (SIGNAL_COMBINED) verwendet dieselbe Verknüpfung. Nach der Verknüpfung gilt:
 
@@ -96,7 +106,7 @@ Ein Vorsignal (SIGNAL_V) kann mit dem Hauptsignal (SIGNAL_M3 oder SIGNAL_COMBINE
 - Die Verknüpfung wird mit dem Layout gespeichert und beim Laden wiederhergestellt.
 - Der **Kachel-Info**-Dialog zeigt die Verknüpfung an (Hauptsignal / Vorsignale) und bei Kombinationssignalen die aktuelle Stellung der Vorsignalplatte.
 
-## 9. Blöcke definieren
+## 10. Blöcke definieren
 
 Ein **Block** ist ein verbundener Pfad aus Kacheln, der einen Gleisabschnitt bildet. Blöcke sind
 nützlich, um Belegungsabschnitte zu modellieren.
@@ -118,7 +128,7 @@ nützlich, um Belegungsabschnitte zu modellieren.
   Blockanfang wird als   orangefarbene quadratische Markierung angezeigt.
 - Blöcke werden mit dem Layout gespeichert und beim Laden wiederhergestellt.
 
-## 10. Blockmarkierungen
+## 11. Blockmarkierungen
 
 Blockmarkierungen (`BLOCK_MARKER` / `BM`) sind gerade Gleiskacheln, die den Blocknamen als zentrierte Textbeschriftung anzeigen. Sie helfen bei der visuellen Identifizierung von Blockgrenzen auf dem Schaltpult.
 
@@ -127,7 +137,7 @@ Blockmarkierungen (`BLOCK_MARKER` / `BM`) sind gerade Gleiskacheln, die den Bloc
 - Blockmarkierungen können wie gerade Gleiskacheln gedreht werden (0° oder 90°).
 - Eine Blockmarkierung kann einen **Zug** zugewiesen bekommen per Drag-and-Drop (siehe [Abschnitt 11](#11-züge-und-draganddrop)). Wenn ein Zug zugewiesen ist, zeigt die Markierung den Zugnamen statt des Blocknamens an.
 
-## 11. Züge und Drag-and-Drop
+## 12. Züge und Drag-and-Drop
 
 Die Anwendung zeigt eine Zugliste links im Fenster an, die alle definierten Züge anzeigt.
 
@@ -153,7 +163,7 @@ Jeder Zug hat:
 - Der **Drop-Cursor** (Pfeil + Pluszeichen) erscheint nur beim Überfahren einer Blockmarkierungskachel, nicht über regulären Gleiskacheln.
 - Das Ziehen eines Zugs auf eine nicht-Blockmarkierungskachel hat keine Auswirkung.
 
-## 12. Belegung simulieren
+## 13. Belegung simulieren
 
 Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert werden:
 
@@ -161,7 +171,7 @@ Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert w
 - Die Simulation erzeugt Belegungsmarkierungen auf jeder Kachel der Fahrstraße und schiebt den **OCCUPIED**-Zustand vom Start zum Ende, eine Kachel pro Schritt (200ms pro Schritt).
 - Weichen entlang der Fahrstraße werden automatisch auf die korrekte Position für den simulierten Weg gesetzt.
 - **Signalhalt**: Wenn ein Zug ein Hauptsignal (SIGNAL_M3 oder SIGNAL_COMBINED) mit Stellung 0 (rot) erreicht, hält er an und wartet. Signale blockieren nur Züge, die sich von vorne nähern (die Richtung, in die das Signal basierend auf seiner Rotation zeigt). Züge, die sich einem Signal von hinten nähern, ignorieren es.
-- **Vorsignale (SIGNAL_V)**: Das Vorsignal hält den Zug nie an. Es spiegelt die Stellung des nächsten Hauptsignals im Pfad wider und kündigt so die kommende Stellung an: orange „Halt erwarten", grün „Frei erwarten", orange+grün „Langsamfahrt erwarten". Ein mit einem Hauptsignal verknüpftes Vorsignal (siehe [Abschnitt 8](#8-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)) spiegelt dessen Stellung auch beim manuellen Klicken außerhalb der Simulation.
+- **Vorsignale (SIGNAL_V)**: Das Vorsignal hält den Zug nie an. Es spiegelt die Stellung des nächsten Hauptsignals im Pfad wider und kündigt so die kommende Stellung an: orange „Halt erwarten", grün „Frei erwarten", orange+grün „Langsamfahrt erwarten". Ein mit einem Hauptsignal verknüpftes Vorsignal (siehe [Abschnitt 9](#9-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)) spiegelt dessen Stellung auch beim manuellen Klicken außerhalb der Simulation.
 - **Kombinationssignale**: Der Hauptsignalkopf hält den Zug wie ein Hauptsignal an. Während der Simulation spiegelt die Vorsignalplatte des Kombinationssignals das nächste Hauptsignal im Pfad (`syncCombinedPlate`); außerhalb einer Simulation spiegelt sie das verknüpfte Hauptsignal.
 - **Automatischer Signalwechsel**: Aktivieren über **Bearbeiten → Automatischer Signalwechsel**. Wenn aktiv, schaltet ein Hauptsignal, das einen Zug blockiert, nach 2 Sekunden automatisch auf Stellung 1 (grün) um, sodass der Zug weiterfahren kann. Das Umschalten dieser Option wirkt sich sofort auf alle laufenden Simulationen aus.
 - **Mehrere Simulationen**: Jede Fahrstraße kann ihre eigene unabhängige Simulation gleichzeitig ausführen.
@@ -174,7 +184,7 @@ Simulation zurücksetzen:
 - Setzt alle Belegungszustände entlang der Fahrstraße auf FREE zurück.
 - **Simulierte Belegung löschen** ist deaktiviert, solange eine Simulation läuft.
 
-## 13. Sprache / Internationalisierung
+## 14. Sprache / Internationalisierung
 
 Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Sprache wird beim Start ermittelt: Falls eine Sprache unter **Datei → Einstellungen → Sprache** gespeichert ist, wird diese verwendet, sonst die Systemsprache. Die gewählte Sprache wird gespeichert und beim nächsten Start wieder angewendet.
 
@@ -186,14 +196,14 @@ Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Spr
 
 Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und `i18n/app-messages.properties` (Demo-Anwendung), jeweils mit einer `_de`-Variante.
 
-## 14. Speichern & Laden
+## 15. Speichern & Laden
 
 - **Strg+S** — in die aktuelle Datei speichern (oder Speichern-Dialog öffnen, falls keine vorhanden).
 - **Strg+L** — ein zuvor gespeichertes `.json`-Layout laden.
 - Beim Start merkt sich die Anwendung die zuletzt geladene Datei und stellt sie automatisch wieder her.
 - Einstellungen werden in `~/switchboard-demo-1/settings.json` gespeichert.
 
-## 15. Protokollierung
+## 16. Protokollierung
 
 Die Anwendung schreibt Log-Ausgaben sowohl auf die Konsole als auch in eine Protokolldatei:
 

@@ -39,15 +39,25 @@ The following tile types are available:
 | BUMPER         | BS | Bumper stop (dead end)             | 0 / 90 / 180 / 270 |
 | BLOCK_MARKER   | BM | Block marker (straight, shows block name) | 0 / 90 |
 
-## 4. Click elements to cycle aspects
+## 4. Select and move tiles
+
+In **edit mode** (Ctrl+E), you can select and move tiles:
+
+- **Single tile**: left-click a tile to select it (cyan border).
+- **Region selection**: click and drag to draw a selection rectangle over multiple tiles. All tiles within the rectangle are selected (translucent cyan highlight).
+- **Move with arrow keys**: press **Up** / **Down** / **Left** / **Right** to move all selected tiles by one cell. Rotation and all tile properties are preserved. Routes passing through moved tiles are updated accordingly.
+- **Undo**: press **Ctrl+Z** to undo the last move.
+- **Clear selection**: press **Escape**, click elsewhere, or right-click → **Clear Selection**.
+
+## 5. Click elements to cycle aspects
 
 In **normal mode** (Ctrl+E to toggle):
 - Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, orange ↔ green ↔ orange+green ↔ aspect 3 for the distant signal, etc.).
-- Clicking a **main signal** also switches every **linked distant signal** to the matching preview aspect (see [section 8](#8-link-a-distant-signal-to-a-main-signal)). A linked distant signal itself cannot be clicked to change its aspect.
+- Clicking a **main signal** also switches every **linked distant signal** to the matching preview aspect (see [section 9](#9-link-a-distant-signal-to-a-main-signal)). A linked distant signal itself cannot be clicked to change its aspect.
 - A **combined signal** behaves like a main signal: clicking cycles its own head aspect (red/green/orange). Its distant plate is controlled by the linked main signal and cannot be clicked.
 - Turnouts auto-switch to the correct aspect when a route is found.
 
-## 5. Create a route
+## 6. Create a route
 
 - Make sure you are in **normal mode** (Ctrl+E to toggle off edit mode).
 - **Ctrl+click** a source tile — a green marker appears.
@@ -66,7 +76,7 @@ In **normal mode** (Ctrl+E to toggle):
 - **Clear all routes**: click **Clear selection** from the context menu (edit mode only, deselects all) or programmatically via the model.
 - Multiple non-overlapping routes can coexist — the BFS will find a path around existing route tiles.
 
-## 6. Tile direction
+## 7. Tile direction
 
 Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWARD, or BOTH).
 
@@ -75,7 +85,7 @@ Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWA
 - Route finding respects the direction: BFS will not traverse a tile against its direction.
 - Default is **Both** (no constraint) — backward-compatible with existing layouts.
 
-## 7. Signal side
+## 8. Signal side
 
 Signal tiles can display their body above (Swiss, `_left`) or below (German, `_right`) the track. This applies to all signal types (SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED).
 
@@ -84,7 +94,7 @@ Signal tiles can display their body above (Swiss, `_left`) or below (German, `_r
 - When you change the signal side, the tile image updates immediately.
 - The **Tile Info** dialog (left‑click a signal in normal mode) shows the resolved signal side.
 
-## 8. Link a distant signal to a main signal
+## 9. Link a distant signal to a main signal
 
 A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_M3 or SIGNAL_COMBINED) it previews. A combined signal's (SIGNAL_COMBINED) distant plate uses the same link. Once linked:
 
@@ -96,7 +106,7 @@ A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_M3 or SIGNA
 - The link is saved with the layout and restored on load.
 - The **Tile Info** dialog shows the link (Main signal / Distant signals) and, for combined signals, the current distant plate aspect.
 
-## 9. Define blocks
+## 10. Define blocks
 
 A **block** is a connected path of tiles that forms a section of track. Blocks are useful for
 modelling track occupancy sections.
@@ -117,7 +127,7 @@ modelling track occupancy sections.
   orange square marker.
 - Blocks are saved with the layout and restored when it is loaded.
 
-## 10. Block markers
+## 11. Block markers
 
 Block markers (`BLOCK_MARKER` / `BM`) are straight-through tiles that display the block name as a centered text label. They help visually identify block boundaries on the switchboard.
 
@@ -126,7 +136,7 @@ Block markers (`BLOCK_MARKER` / `BM`) are straight-through tiles that display th
 - Block markers can be rotated (0° or 90°) like straight track tiles.
 - A block marker can have a **train assigned** to it via drag-and-drop (see [section 11](#11-trains-and-draganddrop)). When a train is assigned, the marker displays the train name instead of the block name.
 
-## 11. Trains and drag-and-drop
+## 12. Trains and drag-and-drop
 
 The application includes a train list panel on the left side of the window, showing all defined trains.
 
@@ -152,7 +162,7 @@ Each train has:
 - The **drop cursor** (arrow + plus sign) only appears when hovering over a block marker tile, not over regular track tiles.
 - Dragging a train to a non-block-marker tile has no effect.
 
-## 12. Simulate occupancy
+## 13. Simulate occupancy
 
 After a route is created, you can animate a train moving along it:
 
@@ -160,7 +170,7 @@ After a route is created, you can animate a train moving along it:
 - The simulation creates occupancy markers on every tile along the route and slides the **OCCUPIED** state from the start to the end, one tile at a time (200ms per step).
 - Turnouts along the route are automatically set to the correct position for the simulated path.
 - **Signal stops**: When a train reaches a main signal (SIGNAL_M3 or SIGNAL_COMBINED) at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it.
-- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of the next main signal ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". A distant signal linked to a main signal (see [section 8](#8-link-a-distant-signal-to-a-main-signal)) also mirrors the main signal's aspect when you click it manually, outside the simulation.
+- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of the next main signal ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". A distant signal linked to a main signal (see [section 9](#9-link-a-distant-signal-to-a-main-signal)) also mirrors the main signal's aspect when you click it manually, outside the simulation.
 - **Combined signals**: The main head stops the train like a main signal. During simulation the combined signal's distant plate mirrors the next main signal ahead in the path (`syncCombinedPlate`); outside a simulation it mirrors its linked main signal.
 - **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a main signal that blocks a train auto-switches to aspect 1 (green) after 2 seconds, allowing the train to resume. Toggling this option immediately affects all running simulations.
 - **Multiple simulations**: Each route can have its own independent simulation running concurrently.
@@ -173,7 +183,7 @@ To reset the simulation:
 - Sets all occupancy states along the route back to FREE.
 - **Clear simulated occupancy** is disabled while a simulation is in progress.
 
-## 13. Language / Internationalization
+## 14. Language / Internationalization
 
 The application supports **English** and **German** locales. The UI language is determined at startup: it uses the language saved in **File → Settings → Language** when one is stored, otherwise the system locale. The selected language is persisted so it is applied again on the next start.
 
@@ -184,14 +194,14 @@ The application supports **English** and **German** locales. The UI language is 
 
 Translations are maintained in `i18n/messages.properties` (component) and `i18n/app-messages.properties` (demo app), each with a `_de` variant.
 
-## 14. Save & load
+## 15. Save & load
 
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.
 - On startup, the app remembers the last loaded file and restores it automatically.
 - Settings are stored in `~/switchboard-demo-1/settings.json`.
 
-## 15. Logging
+## 16. Logging
 
 The application writes log output both to the console and to a log file:
 
