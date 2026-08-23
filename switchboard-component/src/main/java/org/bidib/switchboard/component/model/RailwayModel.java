@@ -16,6 +16,7 @@ public class RailwayModel {
     private final Map<String, Element> elements = new LinkedHashMap<>();
     private final Map<String, Occupancy> occupancies = new LinkedHashMap<>();
     private final TrainListModel trainListModel = new TrainListModel();
+    private final TrainRouteListModel trainRouteListModel = new TrainRouteListModel();
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -52,6 +53,7 @@ public class RailwayModel {
     public void clear() {
         elements.clear();
         occupancies.clear();
+        trainRouteListModel.setTrainRoutes(java.util.Collections.emptyList());
     }
 
     public void removeElement(String id) {
@@ -82,6 +84,10 @@ public class RailwayModel {
 
     public TrainListModel getTrainListModel() {
         return trainListModel;
+    }
+
+    public TrainRouteListModel getTrainRouteListModel() {
+        return trainRouteListModel;
     }
 
     public Train getTrain(String trainId) {

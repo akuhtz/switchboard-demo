@@ -35,6 +35,7 @@ import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.component.model.Train;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.component.view.TrainListPanel;
+import org.bidib.switchboard.component.view.TrainRouteListPanel;
 import org.bidib.switchboard.demoapp.config.DemoOccupancy;
 import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
 import org.bidib.switchboard.demoapp.persistence.DefaultSettingsManager;
@@ -90,6 +91,8 @@ public class SwitchboardApp {
 
     private TrainListPanel trainListPanel;
 
+    private TrainRouteListPanel trainRouteListPanel;
+
     private final TrainSerializer trainSerializer = new TrainSerializer();
 
     SwitchboardApp() {
@@ -133,6 +136,7 @@ public class SwitchboardApp {
             updateTitle();
         }
         trainListPanel = new TrainListPanel(model.getTrainListModel(), messages);
+        trainRouteListPanel = new TrainRouteListPanel(model.getTrainRouteListModel(), messages);
 
         buildMenu();
         buildFrame();
@@ -199,6 +203,8 @@ public class SwitchboardApp {
     // --- Menu ---
 
     private JCheckBoxMenuItem editModeItem;
+
+    private JCheckBoxMenuItem trainRouteMenuItem;
 
     private JToggleButton editToggle;
 
@@ -337,6 +343,20 @@ public class SwitchboardApp {
         autoChangeSignalItem.addActionListener(e -> switchboardPanel.setAutoChangeSignal(autoChangeSignalItem.isSelected()));
         editMenu.add(autoChangeSignalItem);
 
+        editMenu.addSeparator();
+        JCheckBoxMenuItem trainRouteItem = new JCheckBoxMenuItem(messages.getString("menu.edit.defineTrainRoute"));
+        trainRouteItem.setMnemonic('T');
+        trainRouteItem.setAccelerator(KeyStroke.getKeyStroke("control T"));
+        trainRouteItem.addActionListener(e -> {
+            if (trainRouteItem.isSelected()) {
+                switchboardPanel.enterTrainRouteMode();
+            } else {
+                saveTrainRouteFromPanel();
+            }
+        });
+        editMenu.add(trainRouteItem);
+        this.trainRouteMenuItem = trainRouteItem;
+
         menuBar.add(editMenu);
 
         frame.setJMenuBar(menuBar);
@@ -346,6 +366,31 @@ public class SwitchboardApp {
         switchboardPanel.setEditMode(enabled);
         editModeItem.setSelected(enabled);
         editToggle.setSelected(enabled);
+    }
+
+    private void saveTrainRouteFromPanel() {
+        java.util.List<int[]> path = switchboardPanel.exitTrainRouteMode();
+        if (path.isEmpty()) {
+            trainRouteMenuItem.setSelected(false);
+            return;
+        }
+        java.util.Set<Integer> stops = switchboardPanel.getTrainRouteStops();
+        String name = javax.swing.JOptionPane.showInputDialog(frame,
+            messages.getString("dialog.trainRoute.name"),
+            messages.getString("dialog.trainRoute.title"),
+            javax.swing.JOptionPane.QUESTION_MESSAGE);
+        if (name == null || name.trim().isEmpty()) {
+            trainRouteMenuItem.setSelected(false);
+            return;
+        }
+        String id = "TR-" + String.format("%03d", model.getTrainRouteListModel().size() + 1);
+        org.bidib.switchboard.component.model.TrainRoute route =
+            new org.bidib.switchboard.component.model.TrainRoute(id, name.trim(), path);
+        for (int stopIdx : stops) {
+            route.addStop(stopIdx, 5000);
+        }
+        model.getTrainRouteListModel().addTrainRoute(route);
+        trainRouteMenuItem.setSelected(false);
     }
 
     private void applyLookAndFeel(LookAndFeel laf) {
@@ -380,8 +425,10 @@ public class SwitchboardApp {
 
         // prepare the dockables
         desktop.addDockable(trainListPanel);
+        desktop.addDockable(trainRouteListPanel);
         desktop.split(trainListPanel, switchboardPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
         desktop.setDockableWidth(this.trainListPanel, 0.2d);
+        desktop.split(trainListPanel, trainRouteListPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_BOTTOM);
 
         frame.setSize(1280, 768);
         frame.setLocationRelativeTo(null);
