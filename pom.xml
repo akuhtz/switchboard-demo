@@ -36,6 +36,7 @@
         <jgoodies-binding.version>2.13.0</jgoodies-binding.version>
         <junit6.version>6.0.3</junit6.version>
         <mockito.version>5.20.0</mockito.version>
+        <vldocking.version>3.0.12</vldocking.version>
         
         <project.organization.name>bidib.org</project.organization.name>
         <project.inceptionYear>2026</project.inceptionYear>
@@ -126,6 +127,12 @@
                     </exclusion>
                 </exclusions>
 	        </dependency>
+            
+            <dependency>
+                <groupId>org.bidib.jbidib.com.vldocking</groupId>
+                <artifactId>vldocking</artifactId>
+	            <version>${vldocking.version}</version>
+            </dependency>
 				        
             <dependency>
                 <groupId>org.slf4j</groupId>

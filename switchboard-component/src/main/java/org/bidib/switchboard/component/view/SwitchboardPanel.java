@@ -74,8 +74,11 @@ import org.slf4j.LoggerFactory;
 
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.view.ViewBox;
+import com.vlsolutions.swing.docking.Dockable;
+import com.vlsolutions.swing.docking.DockKey;
 
-public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChangeListener {
+public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, PropertyChangeListener {
+    private final DockKey dockKey = new DockKey("switchboard");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SwitchboardPanel.class);
 
@@ -1226,6 +1229,16 @@ public class SwitchboardPanel extends JPanel implements TileGrid, PropertyChange
     public void updateUI() {
         super.updateUI();
         setBackground(background());
+    }
+
+    @Override
+    public DockKey getDockKey() {
+        return dockKey;
+    }
+
+    @Override
+    public Component getComponent() {
+        return this;
     }
 
     private static Color background() {

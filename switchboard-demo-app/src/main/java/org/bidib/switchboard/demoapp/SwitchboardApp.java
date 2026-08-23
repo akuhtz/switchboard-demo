@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.vlsolutions.swing.docking.DockingDesktop;
 
 public class SwitchboardApp {
 
@@ -81,6 +82,8 @@ public class SwitchboardApp {
     private final LayoutService layoutService;
 
 	private final DemoOccupancyFactory occupancyFactory = new DemoOccupancyFactory();
+
+    private final DockingDesktop desktop = new DockingDesktop();
 
     SwitchboardApp() {
         this(new DefaultSettingsManager(), true);
@@ -332,19 +335,19 @@ public class SwitchboardApp {
         toolbar.setFloatable(false);
         toolbar.add(editToggle);
 
-        JScrollPane scrollPane = new JScrollPane(panel);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(32);
-        scrollPane.getHorizontalScrollBar().setUnitIncrement(32);
-
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.add(toolbar, BorderLayout.PAGE_START);
-        frame.add(scrollPane, BorderLayout.CENTER);
+        frame.add(desktop, BorderLayout.CENTER);
+
+        desktop.addDockable(panel);
+
         frame.setSize(1024, 768);
         frame.setLocationRelativeTo(null);
         updateTitle();
 
         frame.setVisible(true);
+        SwingUtilities.updateComponentTreeUI(frame);
     }
 
     JFrame getFrame() {
