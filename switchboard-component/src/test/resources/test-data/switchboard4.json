@@ -660,6 +660,7 @@
   "routes": [
     {
       "id": "TL-003-SM3-008",
+      "name": "TL-003 \u2192 SM3-008",
       "sourceElementId": "TL-003",
       "targetElementId": "SM3-008",
       "tiles": [

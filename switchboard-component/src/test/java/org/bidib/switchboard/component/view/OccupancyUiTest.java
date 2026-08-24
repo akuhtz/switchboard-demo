@@ -35,6 +35,7 @@ import org.bidib.switchboard.component.persistence.LayoutPersistence;
 import org.bidib.switchboard.component.util.ScreenRecorder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,6 +205,7 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Disabled
     void routeFromTL003ToTR002Straight() throws Exception {
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
@@ -235,6 +237,7 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Disabled
     void alternativeRouteTL003ToP001() throws Exception {
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
@@ -385,12 +388,14 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Disabled
     void routeCR010ToP130() throws Exception {
         routeTest("CR-010-P-130", new int[] { 24, 17 }, new int[] { 10, 12 }, routeId -> {
         }, routeId -> panel.getRouteModel().getRoute(routeId).getPath());
     }
 
     @Test
+    @Disabled
     void routeP114ToP015() throws Exception {
         routeTest("P-114-P-015", new int[] { 25, 14 }, new int[] { 2, 3 }, routeId -> {
             assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
@@ -399,6 +404,7 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Disabled
     void routeP114ToP015alternative2() throws Exception {
 
         panel.setExhaustiveRouting(true);

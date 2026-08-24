@@ -57,13 +57,14 @@ class RouteFindingTest {
         String srcId = panel.getTile(path.get(0)[0], path.get(0)[1]).getElementId();
         String dstId = panel.getTile(path.get(path.size() - 1)[0], path.get(path.size() - 1)[1]).getElementId();
         routerService.setRouteAspects(path, model);
-        routeModel.addRoute(new Route(srcId, dstId, path));
+        routeModel.addRoute(new Route(srcId + " \u2192 " + dstId, srcId, dstId, path));
     }
 
     private static void findAndAddRoute(
         RouteModel routeModel, RouterService routerService, SwitchboardPanel panel, int srcCol, int srcRow, int dstCol, int dstRow, RailwayModel model) {
         String srcId = panel.getTile(srcCol, srcRow).getElementId();
         String dstId = panel.getTile(dstCol, dstRow).getElementId();
+        String routeName = srcId + " \u2192 " + dstId;
         String routeId = srcId + "-" + dstId;
         if (routeModel.getRoute(routeId) != null) {
             routeModel.removeRoute(routeId);
@@ -74,9 +75,9 @@ class RouteFindingTest {
         }
         routerService.setRouteAspects(path, model);
         List<List<int[]>> alts = routerService.bfsAlternativeRoutes(srcCol, srcRow, dstCol, dstRow, path, false);
-        Route route = new Route(srcId, dstId, path);
+        Route route = new Route(routeName, srcId, dstId, path);
         for (List<int[]> altPath : alts) {
-            routeModel.addAlternativeRoute(route.getId(), new Route(srcId, dstId, altPath));
+            routeModel.addAlternativeRoute(route.getId(), new Route(routeName, srcId, dstId, altPath));
         }
         routeModel.addRoute(route);
     }
@@ -332,6 +333,7 @@ class RouteFindingTest {
 
         String srcId = panel.getTile(2, 3).getElementId();
         String dstId = panel.getTile(7, 11).getElementId();
+        String routeName = srcId + " \u2192 " + dstId;
         String routeId = srcId + "-" + dstId;
         if (panel.getRouteModel().getRoute(routeId) != null) {
             panel.getRouteModel().removeRoute(routeId);
@@ -340,9 +342,9 @@ class RouteFindingTest {
         assertThat(path).isNotNull();
         rs.setRouteAspects(path, model);
         List<List<int[]>> alts = rs.bfsAlternativeRoutes(2, 3, 7, 11, path, true);
-        Route route = new Route(srcId, dstId, path);
+        Route route = new Route(routeName, srcId, dstId, path);
         for (List<int[]> altPath : alts) {
-            panel.getRouteModel().addAlternativeRoute(route.getId(), new Route(srcId, dstId, altPath));
+            panel.getRouteModel().addAlternativeRoute(route.getId(), new Route(routeName, srcId, dstId, altPath));
         }
         panel.getRouteModel().addRoute(route);
 
@@ -366,6 +368,7 @@ class RouteFindingTest {
 
         String srcId = panel.getTile(25, 14).getElementId();
         String dstId = panel.getTile(2, 3).getElementId();
+        String routeName = srcId + " \u2192 " + dstId;
         String routeId = srcId + "-" + dstId;
 
         LOGGER.info("Search route: {}", routeId);
@@ -377,9 +380,9 @@ class RouteFindingTest {
         assertThat(path).isNotNull();
         rs.setRouteAspects(path, model);
         List<List<int[]>> alts = rs.bfsAlternativeRoutes(25, 14, 2, 3, path, true);
-        Route route = new Route(srcId, dstId, path);
+        Route route = new Route(routeName, srcId, dstId, path);
         for (List<int[]> altPath : alts) {
-            panel.getRouteModel().addAlternativeRoute(route.getId(), new Route(srcId, dstId, altPath));
+            panel.getRouteModel().addAlternativeRoute(route.getId(), new Route(routeName, srcId, dstId, altPath));
         }
         panel.getRouteModel().addRoute(route);
 

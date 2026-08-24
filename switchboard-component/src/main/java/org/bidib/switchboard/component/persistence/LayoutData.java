@@ -12,7 +12,6 @@ public class LayoutData {
     private ModelStateData modelState;
     private List<RouteData> routes = new ArrayList<>();
     private List<BlockData> blocks = new ArrayList<>();
-    private List<TrainRouteData> trainRoutes = new ArrayList<>();
     private String trainsFile;
 
     public int getCols() { return cols; }
@@ -35,9 +34,6 @@ public class LayoutData {
 
     public List<BlockData> getBlocks() { return blocks; }
     public void setBlocks(List<BlockData> blocks) { this.blocks = blocks; }
-
-    public List<TrainRouteData> getTrainRoutes() { return trainRoutes; }
-    public void setTrainRoutes(List<TrainRouteData> trainRoutes) { this.trainRoutes = trainRoutes; }
 
     public String getTrainsFile() { return trainsFile; }
     public void setTrainsFile(String trainsFile) { this.trainsFile = trainsFile; }
@@ -144,7 +140,9 @@ public class LayoutData {
         private String id;
         private String sourceElementId;
         private String targetElementId;
+        private String name;
         private List<List<Integer>> tiles = new ArrayList<>();
+        private List<StationStopData> stops = new ArrayList<>();
 
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
@@ -155,8 +153,14 @@ public class LayoutData {
         public String getTargetElementId() { return targetElementId; }
         public void setTargetElementId(String targetElementId) { this.targetElementId = targetElementId; }
 
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+
         public List<List<Integer>> getTiles() { return tiles; }
         public void setTiles(List<List<Integer>> tiles) { this.tiles = tiles; }
+
+        public List<StationStopData> getStops() { return stops; }
+        public void setStops(List<StationStopData> stops) { this.stops = stops; }
     }
 
     // --- Block data ---
@@ -188,26 +192,7 @@ public class LayoutData {
         public void setAssignedTrainId(String assignedTrainId) { this.assignedTrainId = assignedTrainId; }
     }
 
-    // --- TrainRoute data ---
-
-    public static class TrainRouteData {
-        private String id;
-        private String name;
-        private List<List<Integer>> tiles = new ArrayList<>();
-        private List<StationStopData> stops = new ArrayList<>();
-
-        public String getId() { return id; }
-        public void setId(String id) { this.id = id; }
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-
-        public List<List<Integer>> getTiles() { return tiles; }
-        public void setTiles(List<List<Integer>> tiles) { this.tiles = tiles; }
-
-        public List<StationStopData> getStops() { return stops; }
-        public void setStops(List<StationStopData> stops) { this.stops = stops; }
-    }
+    // --- Station stop data ---
 
     public static class StationStopData {
         private int pathIndex;

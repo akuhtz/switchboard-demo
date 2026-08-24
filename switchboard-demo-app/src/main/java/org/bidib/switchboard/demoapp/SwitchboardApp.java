@@ -35,7 +35,7 @@ import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.component.model.Train;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.component.view.TrainListPanel;
-import org.bidib.switchboard.component.view.TrainRouteListPanel;
+import org.bidib.switchboard.component.view.RouteListPanel;
 import org.bidib.switchboard.demoapp.config.DemoOccupancy;
 import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
 import org.bidib.switchboard.demoapp.persistence.DefaultSettingsManager;
@@ -91,7 +91,7 @@ public class SwitchboardApp {
 
     private TrainListPanel trainListPanel;
 
-    private TrainRouteListPanel trainRouteListPanel;
+    private RouteListPanel routeListPanel;
 
     private final TrainSerializer trainSerializer = new TrainSerializer();
 
@@ -136,8 +136,8 @@ public class SwitchboardApp {
             updateTitle();
         }
         trainListPanel = new TrainListPanel(model.getTrainListModel(), messages);
-        trainRouteListPanel = new TrainRouteListPanel(model.getTrainRouteListModel(), messages);
-        trainRouteListPanel.setSelectionListener(route -> switchboardPanel.setSelectedTrainRoute(route));
+        routeListPanel = new RouteListPanel(switchboardPanel.getRouteModel(), messages);
+        routeListPanel.setSelectionListener(route -> switchboardPanel.setSelectedRoute(route));
 
         buildMenu();
         buildFrame();
@@ -205,7 +205,7 @@ public class SwitchboardApp {
 
     private JCheckBoxMenuItem editModeItem;
 
-    private JCheckBoxMenuItem trainRouteMenuItem;
+    private JCheckBoxMenuItem routeMenuItem;
 
     private JToggleButton editToggle;
 
@@ -345,18 +345,18 @@ public class SwitchboardApp {
         editMenu.add(autoChangeSignalItem);
 
         editMenu.addSeparator();
-        JCheckBoxMenuItem trainRouteItem = new JCheckBoxMenuItem(messages.getString("menu.edit.defineTrainRoute"));
-        trainRouteItem.setMnemonic('T');
-        trainRouteItem.setAccelerator(KeyStroke.getKeyStroke("control T"));
-        trainRouteItem.addActionListener(e -> {
-            if (trainRouteItem.isSelected()) {
-                switchboardPanel.enterTrainRouteMode();
+        JCheckBoxMenuItem routeItem = new JCheckBoxMenuItem(messages.getString("menu.edit.defineTrainRoute"));
+        routeItem.setMnemonic('T');
+        routeItem.setAccelerator(KeyStroke.getKeyStroke("control T"));
+        routeItem.addActionListener(e -> {
+            if (routeItem.isSelected()) {
+                switchboardPanel.enterRouteCreationMode();
             } else {
-                saveTrainRouteFromPanel();
+                saveRouteFromPanel();
             }
         });
-        editMenu.add(trainRouteItem);
-        this.trainRouteMenuItem = trainRouteItem;
+        editMenu.add(routeItem);
+        this.routeMenuItem = routeItem;
 
         menuBar.add(editMenu);
 
@@ -369,29 +369,31 @@ public class SwitchboardApp {
         editToggle.setSelected(enabled);
     }
 
-    private void saveTrainRouteFromPanel() {
-        java.util.List<int[]> path = switchboardPanel.exitTrainRouteMode();
+    private void saveRouteFromPanel() {
+        java.util.List<int[]> path = switchboardPanel.exitRouteCreationMode();
         if (path.isEmpty()) {
-            trainRouteMenuItem.setSelected(false);
+            routeMenuItem.setSelected(false);
             return;
         }
-        java.util.Set<Integer> stops = switchboardPanel.getTrainRouteStops();
+        java.util.Set<Integer> stops = switchboardPanel.getRouteCreationStops();
         String name = javax.swing.JOptionPane.showInputDialog(frame,
             messages.getString("dialog.trainRoute.name"),
             messages.getString("dialog.trainRoute.title"),
             javax.swing.JOptionPane.QUESTION_MESSAGE);
         if (name == null || name.trim().isEmpty()) {
-            trainRouteMenuItem.setSelected(false);
+            routeMenuItem.setSelected(false);
             return;
         }
-        String id = "TR-" + String.format("%03d", model.getTrainRouteListModel().size() + 1);
-        org.bidib.switchboard.component.model.TrainRoute route =
-            new org.bidib.switchboard.component.model.TrainRoute(id, name.trim(), path);
+        int routeCount = (int) switchboardPanel.getRouteModel().getRoutes().values().stream()
+            .count();
+        String id = "TR-" + String.format("%03d", routeCount + 1);
+        org.bidib.switchboard.component.model.Route namedRoute =
+            new org.bidib.switchboard.component.model.Route(id, name.trim(), null, null, path);
         for (int stopIdx : stops) {
-            route.addStop(stopIdx, 5000);
+            namedRoute.addStop(stopIdx, 5000);
         }
-        model.getTrainRouteListModel().addTrainRoute(route);
-        trainRouteMenuItem.setSelected(false);
+        switchboardPanel.getRouteModel().addRoute(namedRoute);
+        routeMenuItem.setSelected(false);
     }
 
     private void applyLookAndFeel(LookAndFeel laf) {
@@ -426,10 +428,9 @@ public class SwitchboardApp {
 
         // prepare the dockables
         desktop.addDockable(trainListPanel);
-        desktop.addDockable(trainRouteListPanel);
         desktop.split(trainListPanel, switchboardPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
         desktop.setDockableWidth(this.trainListPanel, 0.2d);
-        desktop.split(trainListPanel, trainRouteListPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_BOTTOM);
+        desktop.split(trainListPanel, routeListPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_BOTTOM);
 
         frame.setSize(1280, 768);
         frame.setLocationRelativeTo(null);

@@ -18,44 +18,44 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.bidib.switchboard.component.model.TrainRoute;
-import org.bidib.switchboard.component.model.TrainRouteListModel;
+import org.bidib.switchboard.component.model.Route;
+import org.bidib.switchboard.component.model.RouteModel;
 
 import com.vlsolutions.swing.docking.Dockable;
 import com.vlsolutions.swing.docking.DockKey;
 
-public class TrainRouteListPanel extends JPanel implements Dockable, PropertyChangeListener {
+public class RouteListPanel extends JPanel implements Dockable, PropertyChangeListener {
 
     private static final long serialVersionUID = 1L;
 
-    private final DockKey dockKey = new DockKey("trainRouteList");
+    private final DockKey dockKey = new DockKey("routeList");
 
-    private final TrainRouteListModel trainRouteListModel;
+    private final RouteModel routeModel;
 
-    private final DefaultListModel<TrainRoute> listModel = new DefaultListModel<>();
+    private final DefaultListModel<Route> listModel = new DefaultListModel<>();
 
-    private final JList<TrainRoute> routeList;
+    private final JList<Route> routeList;
 
-    private Consumer<TrainRoute> selectionListener;
+    private Consumer<Route> selectionListener;
 
-    public TrainRouteListPanel(TrainRouteListModel trainRouteListModel, ResourceBundle messages) {
-        this.trainRouteListModel = trainRouteListModel;
-        trainRouteListModel.addPropertyChangeListener(this);
+    public RouteListPanel(RouteModel routeModel, ResourceBundle messages) {
+        this.routeModel = routeModel;
+        routeModel.addPropertyChangeListener(this);
 
-        dockKey.setName(messages != null ? messages.getString("trainRouteList.title") : "Train Routes");
-        dockKey.setTooltip(messages != null ? messages.getString("trainRouteList.tooltip") : "List of train routes");
+        dockKey.setName(messages != null ? messages.getString("routeList.title") : "Routes");
+        dockKey.setTooltip(messages != null ? messages.getString("routeList.tooltip") : "List of routes");
 
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(200, 200));
 
         routeList = new JList<>(listModel);
         routeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        routeList.setCellRenderer(new TrainRouteCellRenderer());
+        routeList.setCellRenderer(new RouteCellRenderer());
         routeList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    TrainRoute selected = routeList.getSelectedValue();
+                    Route selected = routeList.getSelectedValue();
                     if (selectionListener != null) {
                         selectionListener.accept(selected);
                     }
@@ -69,7 +69,7 @@ public class TrainRouteListPanel extends JPanel implements Dockable, PropertyCha
         syncFromModel();
     }
 
-    public void setSelectionListener(Consumer<TrainRoute> listener) {
+    public void setSelectionListener(Consumer<Route> listener) {
         this.selectionListener = listener;
     }
 
@@ -88,15 +88,17 @@ public class TrainRouteListPanel extends JPanel implements Dockable, PropertyCha
         SwingUtilities.invokeLater(this::syncFromModel);
     }
 
-    public TrainRoute getSelectedTrainRoute() {
+    public Route getSelectedRoute() {
         return routeList.getSelectedValue();
     }
 
     private void syncFromModel() {
-        TrainRoute oldSelection = routeList.getSelectedValue();
+        Route oldSelection = routeList.getSelectedValue();
         listModel.clear();
-        for (TrainRoute route : trainRouteListModel.getTrainRoutes()) {
-            listModel.addElement(route);
+        for (Route route : routeModel.getRoutes().values()) {
+            if (route.getName() != null) {
+                listModel.addElement(route);
+            }
         }
         // Try to restore selection
         if (oldSelection != null) {
@@ -109,15 +111,15 @@ public class TrainRouteListPanel extends JPanel implements Dockable, PropertyCha
         }
     }
 
-    private static class TrainRouteCellRenderer extends DefaultListCellRenderer {
+    private static class RouteCellRenderer extends DefaultListCellRenderer {
 
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                 boolean isSelected, boolean cellHasFocus) {
             super.getListCellRendererComponent(list, "", index, isSelected, cellHasFocus);
-            if (value instanceof TrainRoute route) {
+            if (value instanceof Route route) {
                 int stopCount = route.getStops().size();
-                int totalDwellMs = route.getStops().stream().mapToInt(TrainRoute.StationStop::getDwellTimeMs).sum();
+                int totalDwellMs = route.getStops().stream().mapToInt(Route.StationStop::getDwellTimeMs).sum();
                 String suffix;
                 if (stopCount == 0) {
                     suffix = "";

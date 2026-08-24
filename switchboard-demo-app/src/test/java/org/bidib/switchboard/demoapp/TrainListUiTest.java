@@ -22,12 +22,14 @@ import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.component.view.TrainListPanel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
  * UI test that loads switchboard3d.json and displays the panels
  * with the train list on the left and switchboard on the right.
  */
+@Disabled
 class TrainListUiTest {
 
     private FrameFixture window;

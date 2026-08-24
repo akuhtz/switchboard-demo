@@ -103,11 +103,22 @@ public class LayoutPersistence {
             rd.setId(r.getId());
             rd.setSourceElementId(r.getSourceElementId());
             rd.setTargetElementId(r.getTargetElementId());
+            rd.setName(r.getName());
             List<List<Integer>> tileKeys = new ArrayList<>();
             for (int[] p : r.getPath()) {
                 tileKeys.add(List.of(p[0], p[1]));
             }
             rd.setTiles(tileKeys);
+            if (r.hasStops()) {
+                List<LayoutData.StationStopData> stopList = new ArrayList<>();
+                for (Route.StationStop stop : r.getStops()) {
+                    LayoutData.StationStopData sd = new LayoutData.StationStopData();
+                    sd.setPathIndex(stop.getPathIndex());
+                    sd.setDwellTimeMs(stop.getDwellTimeMs());
+                    stopList.add(sd);
+                }
+                rd.setStops(stopList);
+            }
             routeList.add(rd);
         }
         data.setRoutes(routeList);
@@ -134,29 +145,6 @@ public class LayoutPersistence {
             blockList.add(bd);
         }
         data.setBlocks(blockList);
-
-        // Capture train routes
-        List<LayoutData.TrainRouteData> trainRouteList = new ArrayList<>();
-        for (org.bidib.switchboard.component.model.TrainRoute tr : grid.getModel().getTrainRouteListModel().getTrainRoutes()) {
-            LayoutData.TrainRouteData trd = new LayoutData.TrainRouteData();
-            trd.setId(tr.getId());
-            trd.setName(tr.getName());
-            List<List<Integer>> tileKeys = new ArrayList<>();
-            for (int[] p : tr.getPath()) {
-                tileKeys.add(List.of(p[0], p[1]));
-            }
-            trd.setTiles(tileKeys);
-            List<LayoutData.StationStopData> stopList = new ArrayList<>();
-            for (org.bidib.switchboard.component.model.TrainRoute.StationStop stop : tr.getStops()) {
-                LayoutData.StationStopData sd = new LayoutData.StationStopData();
-                sd.setPathIndex(stop.getPathIndex());
-                sd.setDwellTimeMs(stop.getDwellTimeMs());
-                stopList.add(sd);
-            }
-            trd.setStops(stopList);
-            trainRouteList.add(trd);
-        }
-        data.setTrainRoutes(trainRouteList);
 
         return data;
     }
@@ -248,7 +236,12 @@ public class LayoutPersistence {
                 for (List<Integer> tileCoord : rd.getTiles()) {
                     path.add(new int[] { tileCoord.get(0), tileCoord.get(1) });
                 }
-                Route route = new Route(rd.getId(), rd.getSourceElementId(), rd.getTargetElementId(), path);
+                Route route = new Route(rd.getId(), rd.getName(), rd.getSourceElementId(), rd.getTargetElementId(), path);
+                if (rd.getStops() != null) {
+                    for (LayoutData.StationStopData sd : rd.getStops()) {
+                        route.addStop(sd.getPathIndex(), sd.getDwellTimeMs());
+                    }
+                }
                 grid.getRouteModel().addRoute(route);
             }
         }
@@ -281,25 +274,6 @@ public class LayoutPersistence {
                 if (bd.getAssignedTrainId() != null) {
                     block.setAssignedTrainId(bd.getAssignedTrainId());
                 }
-            }
-        }
-
-        // Load train routes
-        grid.getModel().getTrainRouteListModel().setTrainRoutes(java.util.Collections.emptyList());
-        if (data.getTrainRoutes() != null) {
-            for (LayoutData.TrainRouteData trd : data.getTrainRoutes()) {
-                List<int[]> path = new ArrayList<>();
-                for (List<Integer> tileCoord : trd.getTiles()) {
-                    path.add(new int[] { tileCoord.get(0), tileCoord.get(1) });
-                }
-                org.bidib.switchboard.component.model.TrainRoute route =
-                    new org.bidib.switchboard.component.model.TrainRoute(trd.getId(), trd.getName(), path);
-                if (trd.getStops() != null) {
-                    for (LayoutData.StationStopData sd : trd.getStops()) {
-                        route.addStop(sd.getPathIndex(), sd.getDwellTimeMs());
-                    }
-                }
-                grid.getModel().getTrainRouteListModel().addTrainRoute(route);
             }
         }
     }

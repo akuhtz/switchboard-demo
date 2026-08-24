@@ -75,7 +75,6 @@ import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.model.TileDirection;
 import org.bidib.switchboard.component.model.Train;
-import org.bidib.switchboard.component.model.TrainRoute;
 import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.simulation.OccupancySimulation;
 import org.bidib.switchboard.component.util.SvgIconLoader;
@@ -189,6 +188,10 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         for (SimulationEntry entry : simulations.values()) {
             entry.simulation().setAutoChangeSignal(autoChange);
         }
+        
+        if (routeSimulation!= null) {
+        		routeSimulation.setAutoChangeSignal(autoChangeSignal);
+        }
     }
 
     public boolean isAutoChangeSignal() {
@@ -250,21 +253,21 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private int routeSourceRow = -1;
 
-    private boolean trainRouteMode = false;
+    private boolean routeCreationMode = false;
 
-    private final java.util.List<int[]> trainRoutePath = new java.util.ArrayList<>();
+    private final java.util.List<int[]> routeCreationPath = new java.util.ArrayList<>();
 
-    private TrainRoute selectedTrainRoute = null;
+    private Route selectedRoute = null;
 
-    private final java.util.Set<Integer> trainRouteStops = new java.util.LinkedHashSet<>();
+    private final java.util.Set<Integer> routeCreationStops = new java.util.LinkedHashSet<>();
 
-    private List<int[]> trainRoutePendingPrimary = null;
+    private List<int[]> routeCreationPendingPrimary = null;
 
-    private List<List<int[]>> trainRoutePendingAlternatives = java.util.Collections.emptyList();
+    private List<List<int[]>> routeCreationPendingAlternatives = java.util.Collections.emptyList();
 
-    private org.bidib.switchboard.component.simulation.TrainRouteSimulation trainRouteSimulation;
+    private org.bidib.switchboard.component.simulation.RouteSimulation routeSimulation;
 
-    private Timer trainRouteTimer;
+    private Timer routeTimer;
 
     public SwitchboardPanel(final OccupancyFactory occupancyFactory, final AssignOccupancyDialogFactory assignOccupancyDialogFactory, final RailwayModel model) {
         this(occupancyFactory, assignOccupancyDialogFactory, model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
@@ -538,63 +541,63 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             selectedCol = -1;
             selectedRow = -1;
             clearMultiSelection();
-            trainRouteStops.clear();
-        } else if (selectedTrainRoute != null) {
-            trainRouteStops.clear();
-            for (TrainRoute.StationStop stop : selectedTrainRoute.getStops()) {
-                trainRouteStops.add(stop.getPathIndex());
+            routeCreationStops.clear();
+        } else if (selectedRoute != null) {
+            routeCreationStops.clear();
+            for (Route.StationStop stop : selectedRoute.getStops()) {
+                routeCreationStops.add(stop.getPathIndex());
             }
         }
         repaint();
     }
 
-    public boolean isTrainRouteMode() {
-        return trainRouteMode;
+    public boolean isRouteCreationMode() {
+        return routeCreationMode;
     }
 
-    public void enterTrainRouteMode() {
-        trainRouteMode = true;
-        trainRoutePath.clear();
-        trainRouteStops.clear();
+    public void enterRouteCreationMode() {
+        routeCreationMode = true;
+        routeCreationPath.clear();
+        routeCreationStops.clear();
         clearPendingRoute();
         repaint();
     }
 
-    public java.util.List<int[]> exitTrainRouteMode() {
-        java.util.List<int[]> result = new java.util.ArrayList<>(trainRoutePath);
-        trainRouteMode = false;
-        trainRoutePath.clear();
-        trainRouteStops.clear();
-        trainRoutePendingPrimary = null;
-        trainRoutePendingAlternatives = java.util.Collections.emptyList();
+    public java.util.List<int[]> exitRouteCreationMode() {
+        java.util.List<int[]> result = new java.util.ArrayList<>(routeCreationPath);
+        routeCreationMode = false;
+        routeCreationPath.clear();
+        routeCreationStops.clear();
+        routeCreationPendingPrimary = null;
+        routeCreationPendingAlternatives = java.util.Collections.emptyList();
         clearPendingRoute();
         repaint();
         return result;
     }
 
-    public java.util.Set<Integer> getTrainRouteStops() {
-        return java.util.Collections.unmodifiableSet(trainRouteStops);
+    public java.util.Set<Integer> getRouteCreationStops() {
+        return java.util.Collections.unmodifiableSet(routeCreationStops);
     }
 
-    public void cancelTrainRouteMode() {
-        trainRouteMode = false;
-        trainRoutePath.clear();
-        trainRouteStops.clear();
-        trainRoutePendingPrimary = null;
-        trainRoutePendingAlternatives = java.util.Collections.emptyList();
+    public void cancelRouteCreationMode() {
+        routeCreationMode = false;
+        routeCreationPath.clear();
+        routeCreationStops.clear();
+        routeCreationPendingPrimary = null;
+        routeCreationPendingAlternatives = java.util.Collections.emptyList();
         clearPendingRoute();
         repaint();
     }
 
-    private boolean isTileInTrainRoutePath(int col, int row) {
-        if (trainRouteMode) {
-            for (int[] p : trainRoutePath) {
+    private boolean isTileInRouteCreationPath(int col, int row) {
+        if (routeCreationMode) {
+            for (int[] p : routeCreationPath) {
                 if (p[0] == col && p[1] == row) {
                     return true;
                 }
             }
-        } else if (selectedTrainRoute != null) {
-            for (int[] p : selectedTrainRoute.getPath()) {
+        } else if (selectedRoute != null) {
+            for (int[] p : selectedRoute.getPath()) {
                 if (p[0] == col && p[1] == row) {
                     return true;
                 }
@@ -603,16 +606,16 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         return false;
     }
 
-    private int trainRoutePathIndex(int col, int row) {
-        if (trainRouteMode) {
-            for (int i = 0; i < trainRoutePath.size(); i++) {
-                int[] p = trainRoutePath.get(i);
+    private int routeCreationPathIndex(int col, int row) {
+        if (routeCreationMode) {
+            for (int i = 0; i < routeCreationPath.size(); i++) {
+                int[] p = routeCreationPath.get(i);
                 if (p[0] == col && p[1] == row) {
                     return i;
                 }
             }
-        } else if (selectedTrainRoute != null) {
-            List<int[]> path = selectedTrainRoute.getPath();
+        } else if (selectedRoute != null) {
+            List<int[]> path = selectedRoute.getPath();
             for (int i = 0; i < path.size(); i++) {
                 int[] p = path.get(i);
                 if (p[0] == col && p[1] == row) {
@@ -650,7 +653,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     // --- Route ---
 
-    private void findRouteForTrainRoute(int targetCol, int targetRow) {
+    private void findRouteForCreation(int targetCol, int targetRow) {
         if (routeSourceCol < 0 || routeSourceRow < 0) {
             return;
         }
@@ -690,18 +693,18 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
         if (alts.isEmpty()) {
             // No alternatives, append directly
-            appendTrainRoutePath(path);
+            appendRouteCreationPath(path);
             clearPendingRoute();
         } else {
             // Store pending primary + alternatives for context menu selection
-            trainRoutePendingPrimary = path;
-            trainRoutePendingAlternatives = alts;
+            routeCreationPendingPrimary = path;
+            routeCreationPendingAlternatives = alts;
             LOGGER.info("Train route segment: {} alternatives found, right-click to choose", alts.size());
         }
         repaint();
     }
 
-    private void appendTrainRoutePath(List<int[]> path) {
+    private void appendRouteCreationPath(List<int[]> path) {
         if (path == null || path.isEmpty()) {
             return;
         }
@@ -709,48 +712,48 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
         List<int[]> toAdd = path;
         // Remove junction overlap
-        if (!trainRoutePath.isEmpty()) {
-            int[] lastExisting = trainRoutePath.get(trainRoutePath.size() - 1);
+        if (!routeCreationPath.isEmpty()) {
+            int[] lastExisting = routeCreationPath.get(routeCreationPath.size() - 1);
             if (lastExisting[0] == toAdd.get(0)[0] && lastExisting[1] == toAdd.get(0)[1]) {
                 toAdd = toAdd.subList(1, toAdd.size());
             }
         }
-        trainRoutePath.addAll(toAdd);
+        routeCreationPath.addAll(toAdd);
     }
 
-    public boolean hasTrainRoutePendingAlternatives() {
-        return trainRoutePendingPrimary != null && !trainRoutePendingAlternatives.isEmpty();
+    public boolean hasRouteCreationPendingAlternatives() {
+        return routeCreationPendingPrimary != null && !routeCreationPendingAlternatives.isEmpty();
     }
 
-    public List<int[]> getTrainRoutePendingPrimary() {
-        return trainRoutePendingPrimary;
+    public List<int[]> getRouteCreationPendingPrimary() {
+        return routeCreationPendingPrimary;
     }
 
-    public List<List<int[]>> getTrainRoutePendingAlternatives() {
-        return trainRoutePendingAlternatives;
+    public List<List<int[]>> getRouteCreationPendingAlternatives() {
+        return routeCreationPendingAlternatives;
     }
 
-    public void selectTrainRoutePrimary() {
-        if (trainRoutePendingPrimary != null) {
-            appendTrainRoutePath(trainRoutePendingPrimary);
+    public void selectRouteCreationPrimary() {
+        if (routeCreationPendingPrimary != null) {
+            appendRouteCreationPath(routeCreationPendingPrimary);
         }
-        trainRoutePendingPrimary = null;
-        trainRoutePendingAlternatives = java.util.Collections.emptyList();
+        routeCreationPendingPrimary = null;
+        routeCreationPendingAlternatives = java.util.Collections.emptyList();
         clearPendingRoute();
         repaint();
     }
 
-    public void selectTrainRouteAlternative(int index) {
-        if (index >= 0 && index < trainRoutePendingAlternatives.size()) {
-            appendTrainRoutePath(trainRoutePendingAlternatives.get(index));
+    public void selectRouteCreationAlternative(int index) {
+        if (index >= 0 && index < routeCreationPendingAlternatives.size()) {
+            appendRouteCreationPath(routeCreationPendingAlternatives.get(index));
         }
-        trainRoutePendingPrimary = null;
-        trainRoutePendingAlternatives = java.util.Collections.emptyList();
+        routeCreationPendingPrimary = null;
+        routeCreationPendingAlternatives = java.util.Collections.emptyList();
         clearPendingRoute();
         repaint();
     }
 
-    private List<org.bidib.switchboard.component.model.TrainRoute> findTrainRoutesStartingAtBlock(Block block) {
+    private List<org.bidib.switchboard.component.model.Route> findRoutesStartingAtBlock(Block block) {
         List<int[]> blockPath = block.getPath();
         if (blockPath.isEmpty()) {
             return java.util.Collections.emptyList();
@@ -761,8 +764,11 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         for (int[] p : blockPath) {
             blockTileKeys.add(Tile.key(p[0], p[1]));
         }
-        List<org.bidib.switchboard.component.model.TrainRoute> result = new java.util.ArrayList<>();
-        for (org.bidib.switchboard.component.model.TrainRoute tr : model.getTrainRouteListModel().getTrainRoutes()) {
+        List<org.bidib.switchboard.component.model.Route> result = new java.util.ArrayList<>();
+        for (org.bidib.switchboard.component.model.Route tr : routeModel.getRoutes().values()) {
+            if (tr.getName() == null) {
+                continue;
+            }
             boolean matches = false;
             if (!tr.getPath().isEmpty()) {
                 int[] first = tr.getPath().get(0);
@@ -779,9 +785,9 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         return result;
     }
 
-    private void startTrainRouteSimulation(org.bidib.switchboard.component.model.TrainRoute tr) {
+    private void startRouteSimulation(org.bidib.switchboard.component.model.Route tr) {
         // Stop any existing simulation
-        stopTrainRouteSimulation();
+        stopRouteSimulation();
 
         // Find the block where this route's first tile is located
         String trainId = null;
@@ -799,9 +805,10 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             return;
         }
 
-        trainRouteSimulation = new org.bidib.switchboard.component.simulation.TrainRouteSimulation(
+        routeSimulation = new org.bidib.switchboard.component.simulation.RouteSimulation(
             model, this, occupancyFactory);
-        trainRouteSimulation.setOnTick(this::repaint);
+        routeSimulation.setOnTick(this::repaint);
+        routeSimulation.setAutoChangeSignal(autoChangeSignal);
 
         // Find the start index in the route path that overlaps with or is adjacent to the block
         int startIndex = 0;
@@ -824,34 +831,46 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                 if (startIndex > 0) break;
             }
         }
-        trainRouteSimulation.start(tr, trainId, startIndex);
+        routerService.setRouteAspects(tr.getPath(), model);
+        // Reset signals on the route to red — the simulation manages them
+        for (int[] p : tr.getPath()) {
+            Tile tile = getTile(p[0], p[1]);
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                ElementType type = et.getElementType();
+                if (type == ElementType.SIGNAL_M3 || type == ElementType.SIGNAL_COMBINED) {
+                    model.setElementAspect(et.getElementId(), 0);
+                }
+            }
+        }
+        routeSimulation.start(tr, trainId, startIndex);
+        selectedRoute = null;
 
         // Drive simulation with a timer
-        trainRouteTimer = new Timer(200, e -> {
-            if (trainRouteSimulation != null && trainRouteSimulation.isRunning()) {
-                trainRouteSimulation.tick();
+        routeTimer = new Timer(200, e -> {
+            if (routeSimulation != null && routeSimulation.isRunning()) {
+                routeSimulation.tick();
             } else {
-                stopTrainRouteSimulation();
+                stopRouteSimulation();
             }
         });
-        trainRouteTimer.start();
+        routeTimer.start();
         repaint();
     }
 
-    private void stopTrainRouteSimulation() {
-        if (trainRouteTimer != null) {
-            trainRouteTimer.stop();
-            trainRouteTimer = null;
+    private void stopRouteSimulation() {
+        if (routeTimer != null) {
+            routeTimer.stop();
+            routeTimer = null;
         }
-        if (trainRouteSimulation != null) {
-            trainRouteSimulation.reset();
-            trainRouteSimulation = null;
+        if (routeSimulation != null) {
+            routeSimulation.reset();
+            routeSimulation = null;
         }
         repaint();
     }
 
-    public org.bidib.switchboard.component.simulation.TrainRouteSimulation getTrainRouteSimulation() {
-        return trainRouteSimulation;
+    public org.bidib.switchboard.component.simulation.RouteSimulation getRouteSimulation() {
+        return routeSimulation;
     }
 
     private void clearPendingRoute() {
@@ -895,7 +914,8 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         }
         List<int[]> path = routerService.bfsRoute(routeSourceCol, routeSourceRow, targetCol, targetRow);
         if (path != null) {
-            Route route = new Route(srcId, dstId, path);
+            String routeName = srcId + " \u2192 " + dstId;
+            Route route = new Route(routeName, srcId, dstId, path);
             LOGGER.info("Route {} added: {} tiles {}", route.getId(), path.size(), pathToString(path));
 
             Map<String, Integer> oldAspects = new HashMap<>();
@@ -913,7 +933,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             List<List<int[]>> alts = routerService.bfsAlternativeRoutes(routeSourceCol, routeSourceRow, targetCol, targetRow, path, exhaustive);
             if (!alts.isEmpty()) {
                 for (List<int[]> altPath : alts) {
-                    Route alt = new Route(srcId, dstId, altPath);
+                    Route alt = new Route(routeName, srcId, dstId, altPath);
                     altRoutes.add(alt);
                     routeModel.addAlternativeRoute(route.getId(), alt);
                     LOGGER.info("Alternative route found: {} tiles {}", altPath.size(), pathToString(altPath));
@@ -958,15 +978,15 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             infoItem.addActionListener(e -> showTileInfo(tile));
             menu.add(infoItem);
 
-            if (trainRouteMode && hasTrainRoutePendingAlternatives()) {
+            if (routeCreationMode && hasRouteCreationPendingAlternatives()) {
                 if (menu.getComponentCount() > 0) {
                     menu.addSeparator();
                 }
                 JMenuItem primaryItem = new JMenuItem("Use primary route");
-                primaryItem.addActionListener(e -> selectTrainRoutePrimary());
+                primaryItem.addActionListener(e -> selectRouteCreationPrimary());
                 menu.add(primaryItem);
 
-                List<List<int[]>> alts = getTrainRoutePendingAlternatives();
+                List<List<int[]>> alts = getRouteCreationPendingAlternatives();
                 for (int i = 0; i < alts.size(); i++) {
                     final int idx = i;
                     int tiles = alts.get(i).size();
@@ -980,26 +1000,26 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                         @Override public int getIconWidth() { return 16; }
                         @Override public int getIconHeight() { return 16; }
                     });
-                    altItem.addActionListener(e -> selectTrainRouteAlternative(idx));
+                    altItem.addActionListener(e -> selectRouteCreationAlternative(idx));
                     menu.add(altItem);
                 }
             }
 
-            if ((trainRouteMode || (editMode && selectedTrainRoute != null)) && isTileInTrainRoutePath(col, row)) {
-                boolean isStop = trainRouteStops.contains(trainRoutePathIndex(col, row));
+            if ((routeCreationMode || (editMode && selectedRoute != null)) && isTileInRouteCreationPath(col, row)) {
+                boolean isStop = routeCreationStops.contains(routeCreationPathIndex(col, row));
                 JMenuItem stopItem = new JMenuItem(isStop ? messages.getString("context.removeStationStop") : messages.getString("context.addStationStop"));
                 stopItem.addActionListener(e -> {
-                    int idx = trainRoutePathIndex(col, row);
+                    int idx = routeCreationPathIndex(col, row);
                     if (idx >= 0) {
                         if (isStop) {
-                            trainRouteStops.remove(idx);
-                            if (selectedTrainRoute != null) {
-                                selectedTrainRoute.removeStop(idx);
+                            routeCreationStops.remove(idx);
+                            if (selectedRoute != null) {
+                                selectedRoute.removeStop(idx);
                             }
                         } else {
-                            trainRouteStops.add(idx);
-                            if (selectedTrainRoute != null) {
-                                selectedTrainRoute.addStop(idx, 5000);
+                            routeCreationStops.add(idx);
+                            if (selectedRoute != null) {
+                                selectedRoute.addStop(idx, 5000);
                             }
                         }
                         repaint();
@@ -1014,28 +1034,28 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                     Block block = blockModel.getBlock(blockId);
                     if (block != null && block.getAssignedTrainId() != null) {
                         // Find train routes that start at this block
-                        List<org.bidib.switchboard.component.model.TrainRoute> matchingRoutes =
-                            findTrainRoutesStartingAtBlock(block);
+                        List<org.bidib.switchboard.component.model.Route> matchingRoutes =
+                            findRoutesStartingAtBlock(block);
                         if (!matchingRoutes.isEmpty()) {
                             if (matchingRoutes.size() == 1) {
-                                org.bidib.switchboard.component.model.TrainRoute tr = matchingRoutes.get(0);
+                                org.bidib.switchboard.component.model.Route tr = matchingRoutes.get(0);
                                 JMenuItem runItem = new JMenuItem("Run: " + tr.getName());
-                                runItem.addActionListener(e -> startTrainRouteSimulation(tr));
+                                runItem.addActionListener(e -> startRouteSimulation(tr));
                                 menu.add(runItem);
                             } else {
-                                JMenu runMenu = new JMenu("Run TrainRoute");
-                                for (org.bidib.switchboard.component.model.TrainRoute tr : matchingRoutes) {
+                                JMenu runMenu = new JMenu("Run Route");
+                                for (org.bidib.switchboard.component.model.Route tr : matchingRoutes) {
                                     JMenuItem routeItem = new JMenuItem(tr.getName());
-                                    routeItem.addActionListener(e -> startTrainRouteSimulation(tr));
+                                    routeItem.addActionListener(e -> startRouteSimulation(tr));
                                     runMenu.add(routeItem);
                                 }
                                 menu.add(runMenu);
                             }
                         }
 
-                        if (trainRouteSimulation != null && trainRouteSimulation.isRunning()) {
-                            JMenuItem stopItem = new JMenuItem("Stop TrainRoute");
-                            stopItem.addActionListener(e -> stopTrainRouteSimulation());
+                        if (routeSimulation != null && routeSimulation.isRunning()) {
+                            JMenuItem stopItem = new JMenuItem("Stop Route");
+                            stopItem.addActionListener(e -> stopRouteSimulation());
                             menu.add(stopItem);
                         }
 
@@ -1841,13 +1861,12 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         drawSelection(g2);
         if (selectedTiles.isEmpty()) {
             drawRoute(g2);
-            drawOccupancy(g2);
             drawAlternatives(g2);
         }
-        drawTrainRoutePath(g2);
         drawSignals(g2);
         drawSignalDirectionMarkers(g2);
         drawBlockMarkerLabels(g2);
+        drawOccupancy(g2);
     }
 
     private void drawBlockMarkerLabels(Graphics2D g2) {
@@ -2304,47 +2323,73 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private void drawRoute(Graphics2D g2) {
         int half = tileSize / 2;
+
+        // Draw all routes from model
         for (Route route : routeModel.getRoutes().values()) {
             List<int[]> path = route.getPath();
-            int n = path.size();
-            int[] xPoints = new int[n];
-            int[] yPoints = new int[n];
-            for (int i = 0; i < n; i++) {
-                int[] p = path.get(i);
-                xPoints[i] = p[0] * tileSize + half;
-                yPoints[i] = p[1] * tileSize + half;
-            }
+            if (path.isEmpty()) continue;
 
-            g2.setColor(COLOR_ROUTE);
-            g2.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.drawPolyline(xPoints, yPoints, n);
+            boolean isNamedRoute = route.getSourceElementId() == null || route.getTargetElementId() == null;
+            boolean isSelected = route == selectedRoute;
 
-            int[] first = path.get(0);
-            int sx = first[0] * tileSize + half;
-            int sy = first[1] * tileSize + half;
-            g2.setColor(COLOR_ROUTE_SOURCE);
-            g2.fillOval(sx - 6, sy - 6, 12, 12);
+            // Hide named routes that are not selected
+            if (isNamedRoute && !isSelected) continue;
 
-            if (routeModel.hasAlternativeRoute(route.getId())) {
-                g2.setColor(Color.WHITE);
-                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
-                boolean startHorizontal = n > 1 && path.get(0)[1] == path.get(1)[1];
-                g2.drawString("+", startHorizontal ? sx - 6 : sx + 10, startHorizontal ? sy + 18 : sy + 6);
-            }
+            Color routeColor = isSelected ? COLOR_SELECTED_ROUTE : COLOR_ROUTE;
+            Color stopColor = isSelected ? COLOR_SELECTED_ROUTE_STOP : COLOR_TRAIN_ROUTE_STOP;
 
-            if (n > 1) {
-                int[] last = path.get(n - 1);
-                int tx = last[0] * tileSize + half;
-                int ty = last[1] * tileSize + half;
-                g2.setColor(COLOR_ROUTE_TARGET);
-                g2.fillOval(tx - 6, ty - 6, 12, 12);
+            drawRouteLine(g2, path, route.getStops(), routeColor, stopColor, false);
+
+            // Signal-to-signal routes: source/target dots + alt indicators
+            if (route.getSourceElementId() != null && route.getTargetElementId() != null) {
+                int n = path.size();
+                int[] first = path.get(0);
+                int sx = first[0] * tileSize + half;
+                int sy = first[1] * tileSize + half;
+                g2.setColor(COLOR_ROUTE_SOURCE);
+                g2.fillOval(sx - 6, sy - 6, 12, 12);
 
                 if (routeModel.hasAlternativeRoute(route.getId())) {
                     g2.setColor(Color.WHITE);
                     g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
-                    boolean endHorizontal = n > 1 && path.get(n - 2)[1] == path.get(n - 1)[1];
-                    g2.drawString("+", endHorizontal ? tx - 6 : tx + 10, endHorizontal ? ty + 18 : ty + 6);
+                    boolean startHorizontal = n > 1 && path.get(0)[1] == path.get(1)[1];
+                    g2.drawString("+", startHorizontal ? sx - 6 : sx + 10, startHorizontal ? sy + 18 : sy + 6);
                 }
+
+                if (n > 1) {
+                    int[] last = path.get(n - 1);
+                    int tx = last[0] * tileSize + half;
+                    int ty = last[1] * tileSize + half;
+                    g2.setColor(COLOR_ROUTE_TARGET);
+                    g2.fillOval(tx - 6, ty - 6, 12, 12);
+
+                    if (routeModel.hasAlternativeRoute(route.getId())) {
+                        g2.setColor(Color.WHITE);
+                        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
+                        boolean endHorizontal = n > 1 && path.get(n - 2)[1] == path.get(n - 1)[1];
+                        g2.drawString("+", endHorizontal ? tx - 6 : tx + 10, endHorizontal ? ty + 18 : ty + 6);
+                    }
+                }
+            }
+        }
+
+        // Draw creation mode path
+        if (routeCreationMode) {
+            if (!routeCreationPath.isEmpty()) {
+                java.util.List<Route.StationStop> creationStops = new java.util.ArrayList<>();
+                for (int idx : routeCreationStops) {
+                    creationStops.add(new Route.StationStop(idx, 0));
+                }
+                drawRouteLine(g2, routeCreationPath, creationStops,
+                    COLOR_TRAIN_ROUTE, COLOR_TRAIN_ROUTE_STOP, true);
+            }
+
+            if (routeCreationPendingPrimary != null) {
+                for (int i = 0; i < routeCreationPendingAlternatives.size(); i++) {
+                    List<int[]> altPath = routeCreationPendingAlternatives.get(i);
+                    drawPendingAltPath(g2, altPath, altPaletteColor(i));
+                }
+                drawPendingAltPath(g2, routeCreationPendingPrimary, COLOR_TRAIN_ROUTE);
             }
         }
 
@@ -2361,35 +2406,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     private static final Color COLOR_SELECTED_ROUTE = new Color(0, 120, 255, 180);
     private static final Color COLOR_SELECTED_ROUTE_STOP = new Color(255, 100, 200, 200);
 
-    private void drawTrainRoutePath(Graphics2D g2) {
-        int half = tileSize / 2;
-
-        // Draw selected train route (from list selection)
-        if (selectedTrainRoute != null && !selectedTrainRoute.getPath().isEmpty()) {
-            boolean drawSourceMarker = editMode;
-            drawTrainRoute(g2, selectedTrainRoute.getPath(), selectedTrainRoute.getStops(),
-                COLOR_SELECTED_ROUTE, COLOR_SELECTED_ROUTE_STOP, drawSourceMarker);
-        }
-
-        // Draw creation mode path
-        if (trainRouteMode) {
-            if (!trainRoutePath.isEmpty()) {
-                drawTrainRoute(g2, trainRoutePath, trainRouteStops,
-                    COLOR_TRAIN_ROUTE, COLOR_TRAIN_ROUTE_STOP, true);
-            }
-
-            // Draw pending primary and alternatives
-            if (trainRoutePendingPrimary != null) {
-                for (int i = 0; i < trainRoutePendingAlternatives.size(); i++) {
-                    List<int[]> altPath = trainRoutePendingAlternatives.get(i);
-                    drawPendingAltPath(g2, altPath, altPaletteColor(i));
-                }
-                drawPendingAltPath(g2, trainRoutePendingPrimary, COLOR_TRAIN_ROUTE);
-            }
-        }
-    }
-
-    private void drawTrainRoute(Graphics2D g2, List<int[]> path, java.util.Collection<TrainRoute.StationStop> stops,
+    private void drawRouteLine(Graphics2D g2, List<int[]> path, java.util.Collection<Route.StationStop> stops,
                                 Color routeColor, Color stopColor, boolean drawSourceMarker) {
         int half = tileSize / 2;
         int n = path.size();
@@ -2406,46 +2423,8 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         g2.drawPolyline(xPoints, yPoints, n);
 
         // Draw station stops
-        for (TrainRoute.StationStop stop : stops) {
+        for (Route.StationStop stop : stops) {
             int stopIdx = stop.getPathIndex();
-            if (stopIdx >= 0 && stopIdx < n) {
-                int[] p = path.get(stopIdx);
-                int cx = p[0] * tileSize + half;
-                int cy = p[1] * tileSize + half;
-                g2.setColor(stopColor);
-                int size = 10;
-                int[] dx = {cx, cx + size, cx, cx - size};
-                int[] dy = {cy - size, cy, cy + size, cy};
-                g2.fillPolygon(dx, dy, 4);
-            }
-        }
-
-        // Draw source marker (only for creation mode)
-        if (drawSourceMarker && n > 0) {
-            int[] first = path.get(0);
-            g2.setColor(Color.GREEN.darker());
-            g2.fillOval(first[0] * tileSize + half - 6, first[1] * tileSize + half - 6, 12, 12);
-        }
-    }
-
-    private void drawTrainRoute(Graphics2D g2, List<int[]> path, java.util.Set<Integer> stopIndices,
-                                Color routeColor, Color stopColor, boolean drawSourceMarker) {
-        int half = tileSize / 2;
-        int n = path.size();
-        int[] xPoints = new int[n];
-        int[] yPoints = new int[n];
-        for (int i = 0; i < n; i++) {
-            int[] p = path.get(i);
-            xPoints[i] = p[0] * tileSize + half;
-            yPoints[i] = p[1] * tileSize + half;
-        }
-
-        g2.setColor(routeColor);
-        g2.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g2.drawPolyline(xPoints, yPoints, n);
-
-        // Draw station stops
-        for (int stopIdx : stopIndices) {
             if (stopIdx >= 0 && stopIdx < n) {
                 int[] p = path.get(stopIdx);
                 int cx = p[0] * tileSize + half;
@@ -2617,6 +2596,9 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private void drawAlternatives(Graphics2D g2) {
         for (Route route : routeModel.getRoutes().values()) {
+            if (route.getSourceElementId() == null || route.getTargetElementId() == null) {
+                continue;
+            }
             int selectedIdx = routeModel.getSelectedAlternativeIndex(route.getId());
             if (selectedIdx < 0) continue;
             List<Route> alts = routeModel.getAlternativeRoutes(route.getId());
@@ -2938,14 +2920,14 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         selectedRow = row;
         requestFocusInWindow();
 
-        if (trainRouteMode) {
+        if (routeCreationMode) {
             if (routeSourceCol < 0) {
                 routeSourceCol = col;
                 routeSourceRow = row;
                 LOGGER.info("Train route source set at ({},{})", col, row);
             }
             else {
-                findRouteForTrainRoute(col, row);
+                findRouteForCreation(col, row);
             }
             repaint();
             return;
@@ -3144,19 +3126,19 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         return routeModel.getRoutes().values().stream().mapToInt(r -> r.getPath().size()).sum();
     }
 
-    public void setSelectedTrainRoute(TrainRoute route) {
-        this.selectedTrainRoute = route;
+    public void setSelectedRoute(Route route) {
+        this.selectedRoute = route;
         if (editMode && route != null) {
-            trainRouteStops.clear();
-            for (TrainRoute.StationStop stop : route.getStops()) {
-                trainRouteStops.add(stop.getPathIndex());
+            routeCreationStops.clear();
+            for (Route.StationStop stop : route.getStops()) {
+                routeCreationStops.add(stop.getPathIndex());
             }
         }
         repaint();
     }
 
-    public TrainRoute getSelectedTrainRoute() {
-        return selectedTrainRoute;
+    public Route getSelectedRoute() {
+        return selectedRoute;
     }
 
     public void testSetRouteSource(int col, int row) {
@@ -3260,12 +3242,12 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         showContextMenu(col * tileSize, row * tileSize);
     }
 
-    public void testStartTrainRouteSimulation(org.bidib.switchboard.component.model.TrainRoute tr) {
-        startTrainRouteSimulation(tr);
+    public void testStartRouteSimulation(org.bidib.switchboard.component.model.Route tr) {
+        startRouteSimulation(tr);
     }
 
-    public void testStopTrainRouteSimulation() {
-        stopTrainRouteSimulation();
+    public void testStopRouteSimulation() {
+        stopRouteSimulation();
     }
 
     // --- Observer ---

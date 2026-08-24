@@ -268,7 +268,7 @@ class RouterServiceTest {
         RouteModel rm = new RouteModel();
         RouterService svc = new RouterService(Map.of(), 10, 10, rm);
 
-        rm.addRoute(new Route("src", "dst", List.of(new int[]{0, 0}, new int[]{1, 0})));
+        rm.addRoute(new Route("test-route", "src", "dst", List.of(new int[]{0, 0}, new int[]{1, 0})));
 
         assertThat(svc.getRoutes()).hasSize(1);
         assertThat(svc.getRoutes()).containsKey("src-dst");
