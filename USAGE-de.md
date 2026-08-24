@@ -74,7 +74,18 @@ Im **Normalmodus** (Strg+E zum Umschalten):
 
 - **Einzelne Fahrstraße löschen**: Rechtsklick auf eine Kachel der Fahrstraße → **Fahrstraße löschen ({id})**.
 - **Alle Fahrstraßen löschen**: **Clear selection** im Kontextmenü (nur im Bearbeitungsmodus) oder programmatisch über das Modell.
-- Mehrere nicht-überlappende Fahrstraßen können gleichzeitig existieren — BFS findet einen Weg um bestehende Fahrstraßenkacheln.
+- Mehrere überlappende Fahrstraßen können gleichzeitig existieren — BFS überspringt keine Kacheln, die von anderen Fahrstraßen belegt sind.
+
+### Fahrstraße erstellen (Route Creation Mode)
+
+Wenn das Schaltbild ein Fahrstraßenmodell geladen hat (z.B. `switchboard-route-001.json`), betritt **Strg+Klick** den **Fahrstraßen-Modus** statt der normalen BFS-Fahrstraßensuche:
+
+1. **Erster Strg+Klick** auf eine Kachel neben einem Signal markiert die **Quelle** — eine grüne Quellmarkierung erscheint.
+2. **Zweiter Strg+Klick** auf eine andere Kachel markiert das **Ziel** — eine blaue Zielmarkierung erscheint.
+3. Die Fahrstraße wird **automatisch gespeichert**, wenn der Dialog geschlossen wird.
+4. Ein Dialog fragt nach dem **Fahrstraßennamen** (Pflicht). Der Standardname ist `"srcId → dstId"`.
+5. Mehrere überlappende Fahrstraßen können erstellt werden — jede erhält eine eindeutige ID.
+6. Im **Bearbeitungsmodus** werden Fahrstraßen als editierbare Pfade angezeigt.
 
 ## 7. Kachelrichtung
 
@@ -201,6 +212,7 @@ Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und 
 - **Strg+S** — in die aktuelle Datei speichern (oder Speichern-Dialog öffnen, falls keine vorhanden).
 - **Strg+L** — ein zuvor gespeichertes `.json`-Layout laden.
 - Beim Start merkt sich die Anwendung die zuletzt geladene Datei und stellt sie automatisch wieder her.
+- **Zuletzt verwendet**: Das **Datei**-Menü zeigt ein **Zuletzt**-Untermenü mit bis zu 6 kürzlich geöffneten Layouts. Klicken Sie auf einen Eintrag, um ihn direkt zu laden. Der neueste Eintrag steht oben.
 - Einstellungen werden in `~/switchboard-demo-1/settings.json` gespeichert.
 
 ## 16. Protokollierung

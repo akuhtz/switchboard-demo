@@ -20,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -93,6 +94,8 @@ public class SwitchboardApp {
     private TrainListPanel trainListPanel;
 
     private RouteListPanel routeListPanel;
+
+    private JMenu recentMenu;
 
     private final TrainSerializer trainSerializer = new TrainSerializer();
 
@@ -222,8 +225,13 @@ public class SwitchboardApp {
         loadItem.addActionListener(e -> {
             layoutService.onLoad();
             updateTitle();
+            rebuildRecentMenu();
         });
         fileMenu.add(loadItem);
+
+        recentMenu = new JMenu(messages.getString("menu.file.recent"));
+        fileMenu.add(recentMenu);
+        rebuildRecentMenu();
 
         JMenuItem saveItem = new JMenuItem(messages.getString("menu.file.save"));
         saveItem.setMnemonic('S');
@@ -342,8 +350,14 @@ public class SwitchboardApp {
         editMenu.add(occupanciesItem);
 
         JCheckBoxMenuItem autoChangeSignalItem = new JCheckBoxMenuItem(messages.getString("menu.edit.autoChangeSignal"));
-        autoChangeSignalItem.addActionListener(e -> switchboardPanel.setAutoChangeSignal(autoChangeSignalItem.isSelected()));
+        autoChangeSignalItem.setSelected(settings.isAutoChangeSignal());
+        autoChangeSignalItem.addActionListener(e -> {
+            boolean selected = autoChangeSignalItem.isSelected();
+            switchboardPanel.setAutoChangeSignal(selected);
+            settings.setAutoChangeSignal(selected);
+        });
         editMenu.add(autoChangeSignalItem);
+        switchboardPanel.setAutoChangeSignal(settings.isAutoChangeSignal());
 
         editMenu.addSeparator();
         JCheckBoxMenuItem routeItem = new JCheckBoxMenuItem(messages.getString("menu.edit.defineTrainRoute"));
@@ -500,5 +514,32 @@ public class SwitchboardApp {
         dialog.setSize(400, 300);
         dialog.setLocationRelativeTo(frame);
         dialog.setVisible(true);
+    }
+
+    private void rebuildRecentMenu() {
+        recentMenu.removeAll();
+        List<String> recentFiles = settings.getRecentFiles();
+        if (recentFiles.isEmpty()) {
+            recentMenu.setEnabled(false);
+            return;
+        }
+        recentMenu.setEnabled(true);
+        for (int i = 0; i < recentFiles.size(); i++) {
+            String filePath = recentFiles.get(i);
+            Path path = Path.of(filePath);
+            String displayName = path.getFileName().toString();
+            JMenuItem item = new JMenuItem((i + 1) + ". " + displayName);
+            item.setToolTipText(filePath);
+            item.addActionListener(e -> {
+                try {
+                    org.bidib.switchboard.component.persistence.LayoutData data = layoutService.loadLayout(path);
+                    updateTitle();
+                    rebuildRecentMenu();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, "Error loading file:\n" + ex.getMessage(), "Load Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+            recentMenu.add(item);
+        }
     }
 }

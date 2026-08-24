@@ -1,6 +1,7 @@
 package org.bidib.switchboard.demoapp.persistence;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.demoapp.persistence.SettingsData.LookAndFeel;
@@ -51,7 +52,15 @@ public interface SettingsManager {
 
     void setExhaustiveRouting(boolean exhaustive);
 
+    boolean isAutoChangeSignal();
+
+    void setAutoChangeSignal(boolean autoChange);
+
     SignalSide getSignalSide();
 
     void setSignalSide(SignalSide side);
+
+    List<String> getRecentFiles();
+
+    void setRecentFiles(List<String> recentFiles);
 }

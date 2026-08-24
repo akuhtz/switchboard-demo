@@ -51,6 +51,7 @@ class SwitchboardAppTest {
 		Mockito.when(settings.getLookAndFeel()).thenReturn(LookAndFeel.DARK);
 		Mockito.when(settings.isExhaustiveRouting()).thenReturn(false);
 		Mockito.when(settings.getSignalSide()).thenReturn(SignalSide.LEFT);
+		Mockito.when(settings.getRecentFiles()).thenReturn(java.util.List.of());
 
 		SwitchboardApp app = GuiActionRunner.execute(() -> new SwitchboardApp(settings, false));
 		window = new FrameFixture(app.getFrame());

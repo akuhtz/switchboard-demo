@@ -94,6 +94,15 @@ public class DefaultSettingsManager implements SettingsManager {
         save();
     }
 
+    public boolean isAutoChangeSignal() {
+        return data.isAutoChangeSignal();
+    }
+
+    public void setAutoChangeSignal(boolean autoChange) {
+        data.setAutoChangeSignal(autoChange);
+        save();
+    }
+
     public SignalSide getSignalSide() {
         String val = data.getSignalSide();
         if (val == null) return SignalSide.LEFT;
@@ -118,6 +127,15 @@ public class DefaultSettingsManager implements SettingsManager {
      */
     public void setLanguage(String language) {
         data.setLanguage(language);
+        save();
+    }
+
+    public java.util.List<String> getRecentFiles() {
+        return data.getRecentFiles();
+    }
+
+    public void setRecentFiles(java.util.List<String> recentFiles) {
+        data.setRecentFiles(recentFiles);
         save();
     }
 

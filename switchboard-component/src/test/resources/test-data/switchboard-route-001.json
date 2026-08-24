@@ -14,7 +14,7 @@
     "successors" : null,
     "tiles" : [ [ 27, 4 ], [ 28, 4 ], [ 29, 5 ], [ 30, 6 ], [ 30, 7 ], [ 30, 8 ], [ 30, 9 ], [ 30, 10 ], [ 30, 11 ], [ 30, 12 ], [ 29, 13 ], [ 28, 14 ], [ 27, 14 ] ]
   }, {
-    "assignedTrainId" : null,
+    "assignedTrainId" : "T002",
     "id" : "blk003",
     "name" : "blk003",
     "predecessors" : null,
@@ -56,7 +56,7 @@
       "aspect" : 1,
       "id" : "TL-001",
       "nodeId" : 0,
-      "occupancyId" : "occ-653"
+      "occupancyId" : "occ-723"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -74,31 +74,31 @@
       "aspect" : 0,
       "id" : "DG-002",
       "nodeId" : 0,
-      "occupancyId" : "occ-650"
+      "occupancyId" : "occ-720"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "CL-001",
       "nodeId" : 0,
-      "occupancyId" : "occ-651"
+      "occupancyId" : "occ-721"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "CR-001",
       "nodeId" : 0,
-      "occupancyId" : "occ-649"
+      "occupancyId" : "occ-719"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "SV-001",
       "nodeId" : 0,
-      "occupancyId" : "occ-648"
+      "occupancyId" : "occ-718"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-005",
       "nodeId" : 0,
-      "occupancyId" : "occ-647"
+      "occupancyId" : "occ-717"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -122,31 +122,31 @@
       "aspect" : 0,
       "id" : "P-011",
       "nodeId" : 0,
-      "occupancyId" : "occ-656"
+      "occupancyId" : "occ-726"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-012",
       "nodeId" : 0,
-      "occupancyId" : "occ-657"
+      "occupancyId" : "occ-727"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-013",
       "nodeId" : 0,
-      "occupancyId" : "occ-658"
+      "occupancyId" : "occ-728"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-014",
       "nodeId" : 0,
-      "occupancyId" : "occ-659"
+      "occupancyId" : "occ-729"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-015",
       "nodeId" : 0,
-      "occupancyId" : "occ-660"
+      "occupancyId" : "occ-730"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -182,7 +182,7 @@
       "aspect" : 0,
       "id" : "P-021",
       "nodeId" : 0,
-      "occupancyId" : "occ-661"
+      "occupancyId" : "occ-731"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -200,7 +200,7 @@
       "aspect" : 0,
       "id" : "P-024",
       "nodeId" : 0,
-      "occupancyId" : "occ-662"
+      "occupancyId" : "occ-732"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -224,7 +224,7 @@
       "aspect" : 0,
       "id" : "P-031",
       "nodeId" : 0,
-      "occupancyId" : "occ-664"
+      "occupancyId" : "occ-734"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -242,7 +242,7 @@
       "aspect" : 0,
       "id" : "P-034",
       "nodeId" : 0,
-      "occupancyId" : "occ-665"
+      "occupancyId" : "occ-735"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -254,7 +254,7 @@
       "aspect" : 0,
       "id" : "P-037",
       "nodeId" : 0,
-      "occupancyId" : "occ-666"
+      "occupancyId" : "occ-736"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -272,7 +272,7 @@
       "aspect" : 0,
       "id" : "P-040",
       "nodeId" : 0,
-      "occupancyId" : "occ-667"
+      "occupancyId" : "occ-737"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -290,7 +290,7 @@
       "aspect" : 0,
       "id" : "P-043",
       "nodeId" : 0,
-      "occupancyId" : "occ-668"
+      "occupancyId" : "occ-738"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -302,7 +302,7 @@
       "aspect" : 0,
       "id" : "P-046",
       "nodeId" : 0,
-      "occupancyId" : "occ-669"
+      "occupancyId" : "occ-739"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -314,7 +314,7 @@
       "aspect" : 1,
       "id" : "TR-002",
       "nodeId" : 0,
-      "occupancyId" : "occ-604"
+      "occupancyId" : "occ-674"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -326,61 +326,61 @@
       "aspect" : 0,
       "id" : "CR-004",
       "nodeId" : 0,
-      "occupancyId" : "occ-606"
+      "occupancyId" : "occ-676"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "DG-003",
       "nodeId" : 0,
-      "occupancyId" : "occ-607"
+      "occupancyId" : "occ-677"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "CL-004",
       "nodeId" : 0,
-      "occupancyId" : "occ-608"
+      "occupancyId" : "occ-678"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-053",
       "nodeId" : 0,
-      "occupancyId" : "occ-610"
+      "occupancyId" : "occ-680"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-054",
       "nodeId" : 0,
-      "occupancyId" : "occ-645"
+      "occupancyId" : "occ-715"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-057",
       "nodeId" : 0,
-      "occupancyId" : "occ-612"
+      "occupancyId" : "occ-682"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "CR-005",
       "nodeId" : 0,
-      "occupancyId" : "occ-614"
+      "occupancyId" : "occ-684"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "DG-004",
       "nodeId" : 0,
-      "occupancyId" : "occ-615"
+      "occupancyId" : "occ-685"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "CL-006",
       "nodeId" : 0,
-      "occupancyId" : "occ-616"
+      "occupancyId" : "occ-686"
     }, {
       "accessoryId" : 0,
-      "aspect" : 1,
+      "aspect" : 0,
       "id" : "TR-003",
       "nodeId" : 0,
-      "occupancyId" : "occ-639"
+      "occupancyId" : "occ-709"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -392,103 +392,103 @@
       "aspect" : 0,
       "id" : "P-061",
       "nodeId" : 0,
-      "occupancyId" : "occ-718"
+      "occupancyId" : "occ-706"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-062",
       "nodeId" : 0,
-      "occupancyId" : "occ-717"
+      "occupancyId" : "occ-705"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-063",
       "nodeId" : 0,
-      "occupancyId" : "occ-716"
+      "occupancyId" : "occ-704"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-064",
       "nodeId" : 0,
-      "occupancyId" : "occ-715"
+      "occupancyId" : "occ-703"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-065",
       "nodeId" : 0,
-      "occupancyId" : "occ-714"
+      "occupancyId" : "occ-702"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-066",
       "nodeId" : 0,
-      "occupancyId" : "occ-713"
+      "occupancyId" : "occ-701"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-067",
       "nodeId" : 0,
-      "occupancyId" : "occ-712"
+      "occupancyId" : "occ-700"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-069",
       "nodeId" : 0,
-      "occupancyId" : "occ-710"
+      "occupancyId" : "occ-698"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-070",
       "nodeId" : 0,
-      "occupancyId" : "occ-709"
+      "occupancyId" : "occ-697"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-071",
       "nodeId" : 0,
-      "occupancyId" : "occ-708"
+      "occupancyId" : "occ-696"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-072",
       "nodeId" : 0,
-      "occupancyId" : "occ-707"
+      "occupancyId" : "occ-695"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-073",
       "nodeId" : 0,
-      "occupancyId" : "occ-706"
+      "occupancyId" : "occ-694"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-074",
       "nodeId" : 0,
-      "occupancyId" : "occ-705"
+      "occupancyId" : "occ-693"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-075",
       "nodeId" : 0,
-      "occupancyId" : "occ-704"
+      "occupancyId" : "occ-692"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-076",
       "nodeId" : 0,
-      "occupancyId" : "occ-703"
+      "occupancyId" : "occ-691"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-077",
       "nodeId" : 0,
-      "occupancyId" : "occ-702"
+      "occupancyId" : "occ-690"
     }, {
       "accessoryId" : 0,
-      "aspect" : 0,
+      "aspect" : 1,
       "id" : "S3-005",
       "nodeId" : 0,
-      "occupancyId" : "occ-720"
+      "occupancyId" : "occ-708"
     }, {
       "accessoryId" : 0,
       "aspect" : 1,
@@ -497,10 +497,10 @@
       "occupancyId" : "occ-637"
     }, {
       "accessoryId" : 0,
-      "aspect" : 1,
+      "aspect" : 0,
       "id" : "TL-004",
       "nodeId" : 0,
-      "occupancyId" : "occ-618"
+      "occupancyId" : "occ-688"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -512,7 +512,7 @@
       "aspect" : 0,
       "id" : "SV-003",
       "nodeId" : 0,
-      "occupancyId" : "occ-613"
+      "occupancyId" : "occ-683"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -608,7 +608,7 @@
       "aspect" : 1,
       "id" : "DTR-001",
       "nodeId" : 0,
-      "occupancyId" : "occ-654"
+      "occupancyId" : "occ-724"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -620,7 +620,7 @@
       "aspect" : 1,
       "id" : "DTL-001",
       "nodeId" : 0,
-      "occupancyId" : "occ-603"
+      "occupancyId" : "occ-673"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -644,7 +644,7 @@
       "aspect" : 1,
       "id" : "SM-001",
       "nodeId" : 0,
-      "occupancyId" : "occ-652"
+      "occupancyId" : "occ-722"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -662,31 +662,31 @@
       "aspect" : 1,
       "id" : "SM3-002",
       "nodeId" : 0,
-      "occupancyId" : "occ-671"
+      "occupancyId" : "occ-741"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-105",
       "nodeId" : 0,
-      "occupancyId" : "occ-670"
+      "occupancyId" : "occ-740"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-106",
       "nodeId" : 0,
-      "occupancyId" : "occ-719"
+      "occupancyId" : "occ-707"
     }, {
       "accessoryId" : 0,
       "aspect" : 1,
       "id" : "SM-002",
       "nodeId" : 0,
-      "occupancyId" : "occ-617"
+      "occupancyId" : "occ-687"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "SM-003",
       "nodeId" : 0,
-      "occupancyId" : "occ-605"
+      "occupancyId" : "occ-675"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -698,7 +698,7 @@
       "aspect" : 0,
       "id" : "SM3-004",
       "nodeId" : 0,
-      "occupancyId" : "occ-655"
+      "occupancyId" : "occ-725"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -716,7 +716,7 @@
       "aspect" : 0,
       "id" : "SM3-007",
       "nodeId" : 0,
-      "occupancyId" : "occ-701"
+      "occupancyId" : "occ-689"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -728,43 +728,43 @@
       "aspect" : 0,
       "id" : "SV-004",
       "nodeId" : 0,
-      "occupancyId" : "occ-609"
+      "occupancyId" : "occ-679"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "CR-009",
       "nodeId" : 0,
-      "occupancyId" : "occ-641"
+      "occupancyId" : "occ-711"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "CL-010",
       "nodeId" : 0,
-      "occupancyId" : "occ-642"
+      "occupancyId" : "occ-712"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "P-108",
       "nodeId" : 0,
-      "occupancyId" : "occ-643"
+      "occupancyId" : "occ-713"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "SV-005",
       "nodeId" : 0,
-      "occupancyId" : "occ-644"
+      "occupancyId" : "occ-714"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "SM-004",
       "nodeId" : 0,
-      "occupancyId" : "occ-640"
+      "occupancyId" : "occ-710"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "BM-001",
       "nodeId" : 0,
-      "occupancyId" : "occ-711"
+      "occupancyId" : "occ-699"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -776,13 +776,13 @@
       "aspect" : 0,
       "id" : "BM-003",
       "nodeId" : 0,
-      "occupancyId" : "occ-611"
+      "occupancyId" : "occ-681"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
       "id" : "BM-004",
       "nodeId" : 0,
-      "occupancyId" : "occ-646"
+      "occupancyId" : "occ-716"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -794,7 +794,7 @@
       "aspect" : 0,
       "id" : "BM-006",
       "nodeId" : 0,
-      "occupancyId" : "occ-663"
+      "occupancyId" : "occ-733"
     }, {
       "accessoryId" : 0,
       "aspect" : 0,
@@ -4157,6 +4157,56 @@
       "nodeId" : 0,
       "portId" : 0,
       "state" : "FREE"
+    }, {
+      "id" : "occ-672",
+      "nodeId" : 0,
+      "portId" : 0,
+      "state" : "FREE"
+    }, {
+      "id" : "occ-673",
+      "nodeId" : 0,
+      "portId" : 0,
+      "state" : "FREE"
+    }, {
+      "id" : "occ-674",
+      "nodeId" : 0,
+      "portId" : 0,
+      "state" : "FREE"
+    }, {
+      "id" : "occ-675",
+      "nodeId" : 0,
+      "portId" : 0,
+      "state" : "FREE"
+    }, {
+      "id" : "occ-676",
+      "nodeId" : 0,
+      "portId" : 0,
+      "state" : "FREE"
+    }, {
+      "id" : "occ-677",
+      "nodeId" : 0,
+      "portId" : 0,
+      "state" : "FREE"
+    }, {
+      "id" : "occ-678",
+      "nodeId" : 0,
+      "portId" : 0,
+      "state" : "FREE"
+    }, {
+      "id" : "occ-679",
+      "nodeId" : 0,
+      "portId" : 0,
+      "state" : "FREE"
+    }, {
+      "id" : "occ-680",
+      "nodeId" : 0,
+      "portId" : 0,
+      "state" : "FREE"
+    }, {
+      "id" : "occ-681",
+      "nodeId" : 0,
+      "portId" : 0,
+      "state" : "FREE"
     } ]
   },
   "routes" : [ {
@@ -4179,6 +4229,19 @@
     } ],
     "targetElementId" : null,
     "tiles" : [ [ 24, 3 ], [ 25, 3 ], [ 26, 4 ], [ 27, 4 ], [ 28, 4 ], [ 29, 5 ], [ 30, 6 ], [ 30, 7 ], [ 30, 8 ], [ 30, 9 ], [ 30, 10 ], [ 30, 11 ], [ 30, 12 ], [ 29, 13 ], [ 28, 14 ], [ 27, 14 ], [ 26, 14 ], [ 25, 15 ], [ 24, 15 ], [ 23, 15 ], [ 22, 15 ], [ 21, 15 ], [ 20, 15 ], [ 19, 15 ], [ 18, 15 ], [ 17, 15 ], [ 16, 15 ], [ 15, 15 ], [ 14, 15 ], [ 13, 15 ], [ 12, 15 ], [ 11, 15 ], [ 10, 15 ], [ 9, 15 ], [ 8, 15 ], [ 7, 15 ], [ 6, 15 ], [ 5, 14 ], [ 4, 14 ], [ 3, 14 ], [ 2, 13 ], [ 2, 12 ], [ 2, 11 ], [ 2, 10 ], [ 2, 9 ], [ 2, 8 ], [ 2, 7 ], [ 2, 6 ], [ 3, 5 ], [ 4, 4 ], [ 5, 4 ], [ 6, 4 ], [ 7, 3 ], [ 8, 3 ], [ 9, 3 ], [ 10, 3 ], [ 11, 3 ], [ 12, 3 ], [ 13, 3 ], [ 14, 3 ], [ 15, 3 ], [ 16, 3 ], [ 17, 3 ], [ 18, 3 ], [ 19, 3 ], [ 20, 3 ], [ 21, 3 ], [ 22, 3 ], [ 23, 3 ], [ 24, 3 ] ]
+  }, {
+    "id" : "TR-003",
+    "name" : "tr-003",
+    "sourceElementId" : null,
+    "stops" : [ {
+      "dwellTimeMs" : 5000,
+      "pathIndex" : 0
+    }, {
+      "dwellTimeMs" : 5000,
+      "pathIndex" : 36
+    } ],
+    "targetElementId" : null,
+    "tiles" : [ [ 24, 3 ], [ 25, 3 ], [ 26, 4 ], [ 27, 4 ], [ 28, 4 ], [ 29, 5 ], [ 30, 6 ], [ 30, 7 ], [ 30, 8 ], [ 30, 9 ], [ 30, 10 ], [ 30, 11 ], [ 30, 12 ], [ 29, 13 ], [ 28, 14 ], [ 27, 14 ], [ 26, 14 ], [ 25, 14 ], [ 24, 14 ], [ 23, 14 ], [ 22, 14 ], [ 21, 14 ], [ 20, 14 ], [ 19, 14 ], [ 18, 14 ], [ 17, 14 ], [ 16, 14 ], [ 15, 14 ], [ 14, 14 ], [ 13, 14 ], [ 12, 14 ], [ 11, 14 ], [ 10, 14 ], [ 9, 14 ], [ 8, 14 ], [ 7, 14 ], [ 6, 14 ], [ 5, 14 ], [ 4, 14 ], [ 3, 14 ], [ 2, 13 ], [ 2, 12 ], [ 2, 11 ], [ 2, 10 ], [ 2, 9 ], [ 2, 8 ], [ 2, 7 ], [ 2, 6 ], [ 3, 5 ], [ 4, 4 ], [ 5, 4 ], [ 6, 4 ], [ 7, 3 ], [ 8, 3 ], [ 9, 3 ], [ 10, 3 ], [ 11, 3 ], [ 12, 3 ], [ 13, 3 ], [ 14, 3 ], [ 15, 3 ], [ 16, 3 ], [ 17, 3 ], [ 18, 3 ], [ 19, 3 ], [ 20, 3 ], [ 21, 3 ], [ 22, 3 ], [ 23, 3 ], [ 24, 3 ] ]
   } ],
   "rows" : 30,
   "tileSize" : 32,

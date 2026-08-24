@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -111,6 +112,7 @@ public class LayoutService {
                 org.bidib.switchboard.component.persistence.LayoutData data = layoutPersistence.load(tileGrid, path);
                 currentFilePath = path;
                 trainsFile = data.getTrainsFile();
+                addToRecentFiles(path);
                 log.info("Layout loaded from {}", path);
             }
             catch (Exception e) {
@@ -135,17 +137,24 @@ public class LayoutService {
         enterLastLayoutDirectory(chooser);
         if (chooser.showOpenDialog(parentComponent) == JFileChooser.APPROVE_OPTION) {
             Path path = chooser.getSelectedFile().toPath();
-            try {
-                org.bidib.switchboard.component.persistence.LayoutData data = layoutPersistence.load(tileGrid, path);
-                currentFilePath = path;
-                trainsFile = data.getTrainsFile();
-                settings.setLastLayoutFile(path);
-                log.info("Loaded layout from {}", path);
-            }
-            catch (IOException ex) {
-                log.error("Error loading layout from {}", path, ex);
-                JOptionPane.showMessageDialog(parentComponent, "Error loading file:\n" + ex.getMessage(), "Load Error", JOptionPane.ERROR_MESSAGE);
-            }
+            loadLayout(path);
+        }
+    }
+
+    public org.bidib.switchboard.component.persistence.LayoutData loadLayout(Path path) {
+        try {
+            org.bidib.switchboard.component.persistence.LayoutData data = layoutPersistence.load(tileGrid, path);
+            currentFilePath = path;
+            trainsFile = data.getTrainsFile();
+            settings.setLastLayoutFile(path);
+            addToRecentFiles(path);
+            log.info("Loaded layout from {}", path);
+            return data;
+        }
+        catch (IOException ex) {
+            log.error("Error loading layout from {}", path, ex);
+            JOptionPane.showMessageDialog(parentComponent, "Error loading file:\n" + ex.getMessage(), "Load Error", JOptionPane.ERROR_MESSAGE);
+            return null;
         }
     }
 
@@ -188,6 +197,18 @@ public class LayoutService {
                 JOptionPane.showMessageDialog(parentComponent, "Error saving file:\n" + ex.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    private static final int MAX_RECENT_FILES = 6;
+
+    private void addToRecentFiles(Path path) {
+        List<String> recentFiles = new ArrayList<>(settings.getRecentFiles());
+        recentFiles.remove(path.toAbsolutePath().toString());
+        recentFiles.add(0, path.toAbsolutePath().toString());
+        if (recentFiles.size() > MAX_RECENT_FILES) {
+            recentFiles = recentFiles.subList(0, MAX_RECENT_FILES);
+        }
+        settings.setRecentFiles(recentFiles);
     }
 
     /**

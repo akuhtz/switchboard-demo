@@ -1,5 +1,8 @@
 package org.bidib.switchboard.demoapp.persistence;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * DTO for application settings serialized to settings.json.
  */
@@ -17,9 +20,13 @@ public class SettingsData {
 
     private boolean exhaustiveRouting;
 
+    private boolean autoChangeSignal;
+
     private String signalSide = "LEFT"; // Swiss default
 
     private String language; // "en" or "de"; null = system default
+
+    private List<String> recentFiles = new ArrayList<>();
 
     public String getSignalSide() { return signalSide; }
     public void setSignalSide(String signalSide) { this.signalSide = signalSide; }
@@ -33,6 +40,14 @@ public class SettingsData {
 
     public void setExhaustiveRouting(boolean exhaustiveRouting) {
         this.exhaustiveRouting = exhaustiveRouting;
+    }
+
+    public boolean isAutoChangeSignal() {
+        return autoChangeSignal;
+    }
+
+    public void setAutoChangeSignal(boolean autoChangeSignal) {
+        this.autoChangeSignal = autoChangeSignal;
     }
 
     public String getLastLayoutFile() {
@@ -57,5 +72,13 @@ public class SettingsData {
 
     public void setLookAndFeel(LookAndFeel lookAndFeel) {
         this.lookAndFeel = lookAndFeel;
+    }
+
+    public List<String> getRecentFiles() {
+        return recentFiles;
+    }
+
+    public void setRecentFiles(List<String> recentFiles) {
+        this.recentFiles = recentFiles;
     }
 }

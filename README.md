@@ -132,7 +132,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `Route`
 - Immutable value class for a found route path.
-- Fields: `id` (`"{sourceElementId}-{targetElementId}"`), `sourceElementId`, `targetElementId`, `path` (ordered `List<int[]>` of `[col, row]`).
+- Fields: `id` (auto-generated), `name` (mandatory, final), `sourceElementId`, `targetElementId`, `path` (ordered `List<int[]>` of `[col, row]`).
 - `containsTile(col, row)` — checks if a grid tile is part of the route.
 
 ### `RouteModel`
@@ -363,16 +363,19 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `RouterService`
 - Stateless service class encapsulating the route-finding logic.
+- Injected into `SwitchboardPanel` via constructor; can be shared between multiple panel instances.
 - Constructed with `Map<String, Tile> tiles`, `int cols`, `int rows`, `RouteModel routeModel`.
+- `RouterService.createDefault()` — factory method creating a service with empty tiles, 60×30 grid, and a fresh `RouteModel`.
 - `bfsRoute(startCol, startRow, endCol, endRow)` — BFS-based shortest path using physical port connectivity.
   Returns `List<int[]>` path or `null`. Tries without tile-revisit override first; falls back with override
   (max 8 revisits per tile) only if the first attempt returns null.
 - `bfsBlockPath(startCol, startRow, endCol, endRow, excludedTiles)` — BFS-based connected path for blocks.
   Never passes through turnout tiles and avoids tiles belonging to other blocks (via `excludedTiles`).
   Returns `List<int[]>` or `null`.
-- `bfsAlternativeRoutes(startCol, startRow, endCol, endRow, primaryPath, exhaustive)` — finds alternative
-  routes by blocking edges of the primary path (and of found alternatives when `exhaustive=true`).
+- `bfsAlternativeRoutes(startCol, startRow, endCol, endRow, primaryPath)` — finds alternative
+  routes by blocking edges of the primary path (and of found alternatives when `exhaustiveRouting` is enabled).
   Never uses tile-revisit override. Returns `List<List<int[]>>`.
+- `setExhaustiveRouting(boolean)` / `isExhaustiveRouting()` — when enabled, BFS also blocks edges from found alternatives (k-shortest-paths iteration), finding more distinct routes. Persisted in settings.
 - `setRouteAspects(path, model)` — sets turnouts on a found route to the correct aspect. For diagonal entries
   (both `prevDc` and `prevDr` non-zero), tries both the vertical and horizontal entry port and prefers the
   higher (diverted) aspect.
@@ -399,7 +402,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - `LayoutData` holds grid dimensions, tile list (with type, svgPaths, rotation, direction, signalSide, and optional mainSignalId for linked distant signals), `ModelStateData`, routes, and blocks.
 - `ModelStateData` holds a `List<ElementData>` (each containing `id`, `nodeId`, `accessoryId`, `aspect`, `occupancyId`) and a `List<OccupancyData>` (each containing `id`, `nodeId`, `portId`, `state`).
 - `BlockData` (list under `blocks`) holds `id`, `name`, and an ordered `tiles` list of `[col, row]` coordinates.
-- `SettingsData` holds `lastLayoutFile`, `lastLayoutDirectory`, `lookAndFeel` (LIGHT/DARK enum), and `signalSide` (LEFT/RIGHT).
+- `SettingsData` holds `lastLayoutFile`, `lastLayoutDirectory`, `lookAndFeel` (LIGHT/DARK enum), `signalSide` (LEFT/RIGHT), `exhaustiveRouting` (boolean, default false), `autoChangeSignal` (boolean, default false), and `recentFiles` (List<String>, max 6).
 
 ---
 
@@ -531,9 +534,9 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 
 ## Tests
 
-102 tests across eleven test classes:
+130+ tests across eight test classes:
 
-### `SwitchboardAppTest` (7 tests)
+### `SwitchboardAppTest` (8 tests)
 | Test | Description |
 |------|-------------|
 | `frameTitleContainsSwitchboard` | Frame title includes "Model Railway Switchboard" |
@@ -544,7 +547,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `clearSelectionItemVisibleOnlyInEditMode` | Clear selection only appears in edit mode |
 | `occupancyPersistenceRoundtrip` | Occupancies and element assignments survive `capture()`/`apply()` round-trip |
 
-### `RouteFindingTest` (31 tests)
+### `RouteFindingTest` (32 tests)
 | Test | Description |
 |------|-------------|
 | `routeThroughDivertedTurnouts` | (0,0)→(10,1) via TR-003/TR-002 diverted, verifies aspect set |
@@ -553,7 +556,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `routeFromRow3Col2ToRow0Col10` | (2,3)→(10,0) blocked by turnout through-path constraints |
 | `routeFromRow1Col10ToRow3Col2` | (10,1)→(2,3) reverse-direction found |
 | `twoNonOverlappingRoutesCoexist` | Two disjoint routes exist simultaneously in `RouteModel` |
-| `routeConflictBlocksOverlappingRoute` | BFS skips tiles reserved by existing routes |
+| `routeConflictBlocksOverlappingRoute` | BFS skips tiles reserved by existing routes (edit mode: overlapping allowed) |
 | `removeRouteById` | Route removed from model by ID |
 | `routeModelClearRemovesAllRoutes` | Clearing `RouteModel` removes all routes |
 | `routePersistenceRoundTrip` | Routes survive `capture()`/`apply()` round-trip |
@@ -571,7 +574,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `routeFromP114ToP137MustNotUseInvalidTurnoutPath` | Route from P-114 to P-137 must not go via (25,13)→(24,14) — verifies canTraverse is called for vertical-only entries |
 | `routeFromP112ToCL013WithAndWithoutPreExistingRoutes` | Route from P-112 to CL-013 found both with and without pre-existing CR-010-P-130 — verifies BFS override fallback |
 
-### `RouterServiceTest` (11 tests)
+### `RouterServiceTest` (12 tests)
 | Test | Description |
 |------|-------------|
 | `bfsRouteWithStartOutsideGrid` | Start column or row out of bounds returns null |
@@ -585,6 +588,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `diagonalAwarePort` | Correct port mapping for 8-direction neighbor offsets |
 | `bfsRouteReturnsNullWhenBlocked` | BFS returns null when no path exists between valid tiles |
 | `diagonalConnectsThroughDiagonalTiles` | Diagonal tiles connect via corner ports in both directions |
+| `testSetRouteSource` | `setRouteAspects` sets source element to aspect 1 on diagonal entry |
 
 ### `BlockTest` (16 tests)
 | Test | Description |
@@ -618,7 +622,7 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 |------|-------------|
 | `debugP015toTL004` | Convenience test with `System.out` output for manual debugging of route finding |
 
-### `RouteFindingUiTest` (7 tests)
+### `RouteFindingUiTest` (8 tests)
 | Test | Description |
 |------|-------------|
 | `undoRouteCreationViaUI` | Route removed after undo via Edit > Undo menu |
@@ -627,6 +631,8 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoTileCreationOnEmptyCellViaUI` | Empty cell restored after undo via Edit > Undo menu |
 | `undoTileReplaceViaUI` | Original tile restored after undo of UI tile replacement |
 | `occupiedRouteTilesDetectedViaUI` | Occupied route tiles show occupancy color via `drawOccupancy` |
+| `createTrainRouteWithAlternativesViaUI` | Route creation mode: Ctrl+click source/target on switchboard-route-001.json, 5-route model saved |
+| `routeNameEnforcedInRouteCreationMode` | Route name "A" saved in JSON with format `"srcId → dstId"` |
 
 ### `OccupancyUiTest` (12 tests)
 | Test | Description |

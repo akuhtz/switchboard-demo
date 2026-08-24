@@ -74,7 +74,20 @@ In **normal mode** (Ctrl+E to toggle):
 
 - **Clear a single route**: right-click any tile on the route → **Clear route ({id})**.
 - **Clear all routes**: click **Clear selection** from the context menu (edit mode only, deselects all) or programmatically via the model.
-- Multiple non-overlapping routes can coexist — the BFS will find a path around existing route tiles.
+- Multiple overlapping routes can coexist — the BFS no longer skips tiles reserved by other routes.
+
+### Route creation mode
+
+When the switchboard has a route model loaded (from a layout file), **Ctrl+click** enters **route creation mode** instead of the normal BFS route finding:
+
+1. **First Ctrl+click** on a tile adjacent to a signal marks the **source** — a green source marker appears.
+2. **Second Ctrl+click** on another tile marks the **target** — a blue target marker appears.
+3. The route is **automatically saved** to the layout's route model when the dialog closes.
+4. A dialog asks for the **route name** (mandatory). The default name is `"srcId → dstId"`.
+5. Multiple non-overlapping routes can be created — each gets a unique ID.
+6. In **edit mode**, routes are displayed as editable paths that can be modified.
+
+Route creation mode is used with `switchboard-route-001.json` and similar layouts that define a route model upfront.
 
 ## 7. Tile direction
 
@@ -199,6 +212,7 @@ Translations are maintained in `i18n/messages.properties` (component) and `i18n/
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.
 - On startup, the app remembers the last loaded file and restores it automatically.
+- **Recent files**: The **File** menu shows a **Recent** submenu with up to 6 recently opened layouts. Click any entry to load it instantly. The most recent entry appears at the top.
 - Settings are stored in `~/switchboard-demo-1/settings.json`.
 
 ## 16. Logging
