@@ -24,6 +24,7 @@ import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.Block;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.util.ScreenRecorder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +58,7 @@ class BlockUiTest {
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
 
         panel = GuiActionRunner.execute(
-            () -> new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model));
+            () -> new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault()));
 
         var url = BlockUiTest.class.getResource("/test-data/switchboard-block1.json");
         Path path = Paths.get(url.toURI());

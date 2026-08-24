@@ -17,6 +17,7 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Train;
 import org.bidib.switchboard.component.model.TrainListModel;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.view.AssignOccupancyDialog;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.component.view.TrainListPanel;
@@ -42,7 +43,7 @@ class TrainListUiTest {
         SwitchboardPanel switchboardPanel = GuiActionRunner.execute(() -> new SwitchboardPanel(
             new TestOccupancyFactory(),
             (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el),
-            model));
+            model, RouterService.createDefault()));
 
         // Load switchboard3d.json
         URL url = getClass().getResource("/test-data/switchboard3d.json");

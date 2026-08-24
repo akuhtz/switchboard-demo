@@ -152,7 +152,9 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private final RailwayModel model;
 
-    private final Map<String, Tile> tiles = new LinkedHashMap<>();
+    private final Map<String, Tile> tiles;
+
+    private final RouteModel routeModel;
 
     private final Map<TileImageKey, BufferedImage> tileImageCache = new LinkedHashMap<>(64, 0.75f, true);
 
@@ -163,8 +165,6 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     private static final String SIGNAL_BASE_SVG = "/icons/tracks/straight.svg";
 
     private final Deque<Command> undoStack = new ArrayDeque<>();
-
-    private boolean exhaustiveRouting = false;
 
     private boolean autoChangeSignal = false;
 
@@ -180,7 +180,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     }
 
     public void setExhaustiveRouting(boolean exhaustive) {
-        this.exhaustiveRouting = exhaustive;
+        routerService.setExhaustiveRouting(exhaustive);
     }
 
     public void setAutoChangeSignal(boolean autoChange) {
@@ -223,8 +223,6 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     private boolean editMode;
 
     private ResourceBundle messages = ResourceBundle.getBundle("i18n.messages");
-
-    private final RouteModel routeModel = new RouteModel();
 
     private final BlockModel blockModel = new BlockModel();
 
@@ -269,18 +267,20 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private Timer routeTimer;
 
-    public SwitchboardPanel(final OccupancyFactory occupancyFactory, final AssignOccupancyDialogFactory assignOccupancyDialogFactory, final RailwayModel model) {
-        this(occupancyFactory, assignOccupancyDialogFactory, model, DEFAULT_COLS, DEFAULT_ROWS, DEFAULT_TILE_SIZE);
+    public SwitchboardPanel(final OccupancyFactory occupancyFactory, final AssignOccupancyDialogFactory assignOccupancyDialogFactory, final RailwayModel model, RouterService routerService) {
+        this(occupancyFactory, assignOccupancyDialogFactory, model, routerService, routerService.getCols(), routerService.getRows(), DEFAULT_TILE_SIZE);
     }
 
-    public SwitchboardPanel(final OccupancyFactory occupancyFactory, final AssignOccupancyDialogFactory assignOccupancyDialogFactory, final RailwayModel model, int cols, int rows, int tileSize) {
+    public SwitchboardPanel(final OccupancyFactory occupancyFactory, final AssignOccupancyDialogFactory assignOccupancyDialogFactory, final RailwayModel model, RouterService routerService, int cols, int rows, int tileSize) {
     		this.occupancyFactory = occupancyFactory;
         this.assignOccupancyDialogFactory = assignOccupancyDialogFactory;
         this.model = model;
+        this.routerService = routerService;
         this.cols = cols;
         this.rows = rows;
         this.tileSize = tileSize;
-        this.routerService = new RouterService(tiles, cols, rows, routeModel);
+        this.tiles = routerService.getTiles();
+        this.routeModel = routerService.getRouteModel();
         model.addPropertyChangeListener(this);
         setBackground(background());
         setPreferredSize(new Dimension(cols * tileSize, rows * tileSize));
@@ -689,7 +689,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
         // Find alternatives
         List<List<int[]>> alts = routerService.bfsAlternativeRoutes(
-            routeSourceCol, routeSourceRow, targetCol, targetRow, path, this.exhaustiveRouting);
+            routeSourceCol, routeSourceRow, targetCol, targetRow, path);
 
         if (alts.isEmpty()) {
             // No alternatives, append directly
@@ -879,10 +879,6 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     }
 
     private void findRoute(int targetCol, int targetRow) {
-        findRoute(targetCol, targetRow, this.exhaustiveRouting);
-    }
-
-    private void findRoute(int targetCol, int targetRow, boolean exhaustive) {
         if (routeSourceCol < 0 || routeSourceRow < 0) {
             return;
         }
@@ -930,7 +926,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             }
 
             List<Route> altRoutes = new ArrayList<>();
-            List<List<int[]>> alts = routerService.bfsAlternativeRoutes(routeSourceCol, routeSourceRow, targetCol, targetRow, path, exhaustive);
+            List<List<int[]>> alts = routerService.bfsAlternativeRoutes(routeSourceCol, routeSourceRow, targetCol, targetRow, path);
             if (!alts.isEmpty()) {
                 for (List<int[]> altPath : alts) {
                     Route alt = new Route(routeName, srcId, dstId, altPath);
@@ -3147,27 +3143,23 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     }
 
     public void testFindRoute(int targetCol, int targetRow) {
-        findRoute(targetCol, targetRow, this.exhaustiveRouting);
+        findRoute(targetCol, targetRow);
     }
 
-    public void testFindRoute(int targetCol, int targetRow, boolean exhaustive) {
-        findRoute(targetCol, targetRow, exhaustive);
-    }
-
-    public void testTileContextAction(int col, int row, ElementType type) {
+    protected void testTileContextAction(int col, int row, ElementType type) {
         onTileContextAction(col, row, type);
     }
 
-    public void testRotateSelectedTile() {
+    protected void testRotateSelectedTile() {
         rotateSelectedTile();
     }
 
-    public void testSetBlockStart(int col, int row) {
+    protected void testSetBlockStart(int col, int row) {
         blockStartCol = col;
         blockStartRow = row;
     }
 
-    public Block testCreateBlock(int endCol, int endRow) {
+    protected Block testCreateBlock(int endCol, int endRow) {
         if (blockStartCol < 0 || blockStartRow < 0) {
             return null;
         }
@@ -3188,11 +3180,11 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         return blockModel.addBlock(block) ? block : null;
     }
 
-    public void testSetRouteAspects(List<int[]> path) {
+    protected void testSetRouteAspects(List<int[]> path) {
         routerService.setRouteAspects(path, model);
     }
 
-    public void testStartOccupancySimulation(Route route, int delay) {
+    protected void testStartOccupancySimulation(Route route, int delay) {
         startRouteOccupancySimulation(route, delay);
     }
 
@@ -3221,11 +3213,11 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         return simulations.values().stream().anyMatch(SimulationEntry::isRunning);
     }
 
-    public Set<String> testGetSelectedTiles() {
+    protected Set<String> testGetSelectedTiles() {
         return Set.copyOf(selectedTiles);
     }
 
-    public void testSelectRegion(int startCol, int startRow, int endCol, int endRow) {
+    protected void testSelectRegion(int startCol, int startRow, int endCol, int endRow) {
         selectionDragStartCol = startCol;
         selectionDragStartRow = startRow;
         selectionDragEndCol = endCol;
@@ -3234,20 +3226,48 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         repaint();
     }
 
-    public void testMoveSelectedTiles(int dCol, int dRow) {
+    protected void testMoveSelectedTiles(int dCol, int dRow) {
         moveSelectedTiles(dCol, dRow);
     }
 
-    public void testShowContextMenu(int col, int row) {
+    protected void testShowContextMenu(int col, int row) {
         showContextMenu(col * tileSize, row * tileSize);
     }
 
-    public void testStartRouteSimulation(org.bidib.switchboard.component.model.Route tr) {
+    protected void testStartRouteSimulation(org.bidib.switchboard.component.model.Route tr) {
         startRouteSimulation(tr);
     }
 
-    public void testStopRouteSimulation() {
+    protected void testStopRouteSimulation() {
         stopRouteSimulation();
+    }
+
+    protected void testEnterRouteCreationMode() {
+        enterRouteCreationMode();
+    }
+
+    protected void testFindRouteForCreation(int targetCol, int targetRow) {
+        findRouteForCreation(targetCol, targetRow);
+    }
+
+    protected java.util.List<java.util.List<int[]>> testGetRouteCreationPendingAlternatives() {
+        return getRouteCreationPendingAlternatives();
+    }
+
+    protected void testSelectRouteCreationAlternative(int index) {
+        selectRouteCreationAlternative(index);
+    }
+
+    protected void testSelectRouteCreationPrimary() {
+        selectRouteCreationPrimary();
+    }
+
+    protected java.util.List<int[]> testExitRouteCreationMode() {
+        return exitRouteCreationMode();
+    }
+
+    protected java.util.List<int[]> testGetRouteCreationPath() {
+        return java.util.Collections.unmodifiableList(routeCreationPath);
     }
 
     // --- Observer ---

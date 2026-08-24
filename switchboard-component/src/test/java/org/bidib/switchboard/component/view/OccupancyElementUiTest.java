@@ -29,6 +29,7 @@ import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
+import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.util.ScreenRecorder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,7 +93,7 @@ class OccupancyElementUiTest {
 
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
 
-        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model));
+        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault()));
 
         GuiActionRunner.execute(() -> {
             int row = 0;

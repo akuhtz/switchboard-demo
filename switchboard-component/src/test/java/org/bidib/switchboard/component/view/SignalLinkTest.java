@@ -14,6 +14,7 @@ import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.persistence.LayoutData;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
 import org.junit.jupiter.api.Test;
 
 class SignalLinkTest {
@@ -24,7 +25,7 @@ class SignalLinkTest {
     private static class TestablePanel extends SwitchboardPanel {
         int removeChoice = 2;
         TestablePanel(OccupancyFactory occupancyFactory, RailwayModel model) {
-            super(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+            super(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault());
         }
         @Override
         int confirmRemoveMainSignal(List<SignalTile> linked) {

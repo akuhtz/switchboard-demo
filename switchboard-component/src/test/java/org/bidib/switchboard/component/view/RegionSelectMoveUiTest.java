@@ -23,6 +23,7 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -48,7 +49,7 @@ class RegionSelectMoveUiTest {
 
         panel = GuiActionRunner.execute(
             () -> new SwitchboardPanel(occupancyFactory,
-                (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model));
+                (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault()));
 
         routeModel = panel.getRouteModel();
 

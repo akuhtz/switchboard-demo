@@ -26,16 +26,15 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 
-@Disabled
 class RouteFindingUiTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RouteFindingUiTest.class);
@@ -52,7 +51,7 @@ class RouteFindingUiTest {
 
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
 
-        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model));
+        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault()));
 
         var url = RouteFindingUiTest.class.getResource("/test-data/switchboard3.json");
         Path path = Paths.get(url.toURI());
@@ -313,5 +312,85 @@ class RouteFindingUiTest {
             Thread.currentThread().interrupt();
             throw new RuntimeException(ie);
         }
+    }
+
+    @Test
+    void createTrainRouteWithAlternativesViaUI() throws Exception {
+        var url = RouteFindingUiTest.class.getResource("/test-data/switchboard-route-001.json");
+        Path layoutPath = Paths.get(url.toURI());
+        var layoutPersistence = new LayoutPersistence();
+        GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
+        window.robot().waitForIdle();
+
+        GuiActionRunner.execute(() -> panel.testEnterRouteCreationMode());
+        assertThat(panel.isRouteCreationMode()).isTrue();
+
+        // Segment 1: (25,4) -> (6,14)
+        GuiActionRunner.execute(() -> panel.testSetRouteSource(25, 4));
+        GuiActionRunner.execute(() -> panel.testFindRouteForCreation(6, 14));
+        window.robot().waitForIdle();
+
+        List<List<int[]>> alts1 = GuiActionRunner.execute(() -> panel.testGetRouteCreationPendingAlternatives());
+        LOGGER.info("Segment 1: {} alternatives", alts1.size());
+        assertThat(alts1.isEmpty()).as("Segment 1 should have alternatives").isFalse();
+
+        // Select the alternative that goes via (27,14)
+        int altIndex1 = -1;
+        for (int i = 0; i < alts1.size(); i++) {
+            boolean via27_14 = alts1.get(i).stream().anyMatch(p -> p[0] == 27 && p[1] == 14);
+            if (via27_14) {
+                altIndex1 = i;
+            }
+        }
+        assertThat(altIndex1).as("Should find alternative via (27,14)").isGreaterThanOrEqualTo(0);
+        int selectedAlt1 = altIndex1;
+        GuiActionRunner.execute(() -> panel.testSelectRouteCreationAlternative(selectedAlt1));
+        LOGGER.info("Segment 1: selected alternative {} (via 27,14)", altIndex1);
+        window.robot().waitForIdle();
+
+        List<int[]> path1 = GuiActionRunner.execute(() -> panel.testGetRouteCreationPath());
+        assertThat(path1).as("Route path should have tiles after segment 1").isNotEmpty();
+        LOGGER.info("Route path after segment 1: {} tiles", path1.size());
+
+        // Segment 2: (6,14) -> (25,4)
+        GuiActionRunner.execute(() -> panel.testSetRouteSource(6, 14));
+        GuiActionRunner.execute(() -> panel.testFindRouteForCreation(25, 4));
+        window.robot().waitForIdle();
+
+        List<List<int[]>> alts2 = GuiActionRunner.execute(() -> panel.testGetRouteCreationPendingAlternatives());
+        LOGGER.info("Segment 2: {} alternatives", alts2.size());
+        assertThat(alts2.isEmpty()).as("Segment 2 should have alternatives").isFalse();
+
+        // Select the first alternative (only path back available)
+        GuiActionRunner.execute(() -> panel.testSelectRouteCreationAlternative(0));
+        LOGGER.info("Segment 2: selected alternative 0");
+        window.robot().waitForIdle();
+
+        List<int[]> finalPath = GuiActionRunner.execute(() -> panel.testGetRouteCreationPath());
+        LOGGER.info("Final route path: {} tiles", finalPath.size());
+        assertThat(finalPath.size()).as("Route should have tiles from both segments").isGreaterThan(1);
+
+        // Exit route creation mode and create named route
+        List<int[]> resultPath = GuiActionRunner.execute(() -> panel.testExitRouteCreationMode());
+        assertThat(resultPath).isNotEmpty();
+
+        GuiActionRunner.execute(() -> {
+            Route route = new Route("tr-test-001", "SM3-006", "SM3-006", resultPath);
+            panel.getRouteModel().addRoute(route);
+        });
+        window.robot().waitForIdle();
+
+        Route created = null;
+        for (Route r : panel.getRouteModel().getRoutes().values()) {
+            if ("tr-test-001".equals(r.getName())) {
+                created = r;
+                break;
+            }
+        }
+        assertThat(created).as("Route tr-test-001 should exist").isNotNull();
+        assertThat(created.getPath()).as("Route should have tiles from both segments").isNotEmpty();
+        LOGGER.info("Created route '{}' with {} tiles", created.getName(), created.getPath().size());
+
+        waitSeconds(3);
     }
 }

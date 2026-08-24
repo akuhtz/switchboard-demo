@@ -20,6 +20,7 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.Train;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,7 @@ class RouteRunUiTest {
 
         panel = GuiActionRunner.execute(
             () -> new SwitchboardPanel(occupancyFactory,
-                (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model));
+                (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault()));
 
         // Add train T002 to the model (referenced by blk001's assignedTrainId)
         GuiActionRunner.execute(() -> model.getTrainListModel().addTrain(new Train("T002", "IC 2000", null)));

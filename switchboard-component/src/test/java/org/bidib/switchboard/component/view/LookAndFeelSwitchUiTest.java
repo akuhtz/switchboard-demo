@@ -19,6 +19,7 @@ import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -46,7 +47,7 @@ class LookAndFeelSwitchUiTest {
 
         panel = GuiActionRunner.execute(
             () -> new SwitchboardPanel(occupancyFactory,
-                (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, 60, 30, 32));
+                (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault(), 60, 30, 32));
 
         var url = LookAndFeelSwitchUiTest.class.getResource("/test-data/switchboard3d.json");
         Path path = Paths.get(url.toURI());

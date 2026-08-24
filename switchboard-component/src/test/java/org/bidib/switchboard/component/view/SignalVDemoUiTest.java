@@ -34,6 +34,7 @@ import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.SignalTile;
+import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.util.SvgIconLoader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
@@ -63,7 +64,7 @@ class SignalVDemoUiTest {
 
         SwitchboardPanel panel = GuiActionRunner.execute(
             () -> new SwitchboardPanel(occupancyFactory,
-                (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, 3, 2, 32));
+                (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault(), 3, 2, 32));
 
         List<List<String>> rows = List.of(
             List.of("/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg"),

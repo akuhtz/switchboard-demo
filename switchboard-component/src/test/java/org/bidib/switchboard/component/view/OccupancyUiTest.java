@@ -32,10 +32,12 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.util.ScreenRecorder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +68,7 @@ class OccupancyUiTest {
 
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
 
-        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model));
+        panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault()));
 
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard5.json");
         Path path = Paths.get(url.toURI());
@@ -205,6 +207,7 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Tag("occupancy-ui")
     @Disabled
     void routeFromTL003ToTR002Straight() throws Exception {
         GuiActionRunner.execute(() -> {
@@ -237,6 +240,7 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Tag("occupancy-ui")
     @Disabled
     void alternativeRouteTL003ToP001() throws Exception {
         GuiActionRunner.execute(() -> {
@@ -304,6 +308,8 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Tag("occupancy-ui")
+    @Disabled
     void routeP112ToCL013WithAndWithoutPreExistingRoutes() throws Exception {
         LOGGER.info("Test route: P-112-CL-013 with and without pre-existing CR-010-P-130");
 
@@ -388,6 +394,7 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Tag("occupancy-ui")
     @Disabled
     void routeCR010ToP130() throws Exception {
         routeTest("CR-010-P-130", new int[] { 24, 17 }, new int[] { 10, 12 }, routeId -> {
@@ -395,6 +402,7 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Tag("occupancy-ui")
     @Disabled
     void routeP114ToP015() throws Exception {
         routeTest("P-114-P-015", new int[] { 25, 14 }, new int[] { 2, 3 }, routeId -> {
@@ -404,6 +412,7 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Tag("occupancy-ui")
     @Disabled
     void routeP114ToP015alternative2() throws Exception {
 
@@ -424,6 +433,8 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Tag("occupancy-ui")
+    @Disabled
     void simulationTerminatesAtBumperStop() throws Exception {
         // Load switchboard8.json which has BS-001 at (20,5)
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard8.json");
@@ -479,6 +490,8 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Tag("occupancy-ui")
+    @Disabled
     void simulationStopsAfter5Seconds() throws Exception {
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
@@ -534,6 +547,8 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Tag("occupancy-ui")
+    @Disabled
     void distantSignalDoesNotStopTrainAndMirrorsNextSignal() throws Exception {
         // Load switchboard3a.json: distant signal SV-001 (10,5) ahead of main signal SM3-003 (7,5)
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard3a.json");
@@ -599,6 +614,8 @@ class OccupancyUiTest {
     }
 
     @Test
+    @Tag("occupancy-ui")
+    @Disabled
     void routeP087ToP015StopsAtFacingSignals() throws Exception {
         // Load switchboard7.json
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard7.json");

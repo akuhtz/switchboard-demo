@@ -22,6 +22,7 @@ import org.bidib.switchboard.component.model.Element;
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.RailwayModel;
+import org.bidib.switchboard.component.service.RouterService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -60,7 +61,7 @@ class TurnoutClickUiTest {
         GuiActionRunner.execute(() -> FlatDarkLaf.setup());
 
         panel = GuiActionRunner.execute(() -> new SwitchboardPanel(occupancyFactory,
-            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model,
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault(),
             TURNOUT_SVG.size(), 1, TILE_SIZE));
 
         GuiActionRunner.execute(() -> {

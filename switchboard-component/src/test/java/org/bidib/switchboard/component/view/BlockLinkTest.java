@@ -28,7 +28,7 @@ class BlockLinkTest {
 
     private SwitchboardPanel setup() throws Exception {
         var panel = new SwitchboardPanel(occupancyFactory,
-            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), new RailwayModel());
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), new RailwayModel(), RouterService.createDefault());
         var url = BlockLinkTest.class.getResource("/test-data/switchboard3.json");
         new LayoutPersistence().load(panel, java.nio.file.Paths.get(url.toURI()));
         return panel;
@@ -160,7 +160,7 @@ class BlockLinkTest {
 
         // Reload into fresh panel
         SwitchboardPanel fresh = new SwitchboardPanel(occupancyFactory,
-            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), new RailwayModel());
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), new RailwayModel(), RouterService.createDefault());
         persistence.apply(fresh, data);
 
         Block freshA = fresh.getBlockModel().getBlock("blk001");
@@ -192,7 +192,7 @@ class BlockLinkTest {
         // Between them: T3-001 (4,3) → P-050 (5,3) → T3-002 (6,3) → ...
         // P-050 is a straight tile NOT in any block — the BFS must traverse it.
         var panel = new SwitchboardPanel(occupancyFactory,
-            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), new RailwayModel());
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), new RailwayModel(), RouterService.createDefault());
         var url = BlockLinkTest.class.getResource("/test-data/switchboard3d.json");
         new LayoutPersistence().load(panel, java.nio.file.Paths.get(url.toURI()));
 

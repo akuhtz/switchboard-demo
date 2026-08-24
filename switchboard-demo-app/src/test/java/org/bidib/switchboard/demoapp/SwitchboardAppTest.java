@@ -19,6 +19,7 @@ import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.view.AssignOccupancyDialog;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
@@ -144,7 +145,7 @@ class SwitchboardAppTest {
 		var data = layoutPersistence.capture(panel);
 
 		var freshModel = new RailwayModel();
-		var freshPanel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), freshModel);
+		var freshPanel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), freshModel, RouterService.createDefault());
 		layoutPersistence.apply(freshPanel, data);
 
 		Assertions.assertThat(freshModel.getOccupancies()).hasSize(1);

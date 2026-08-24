@@ -47,7 +47,7 @@ class RouteFindingTest {
     private TestFixture setup() throws Exception {
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory,
-            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault());
         new LayoutPersistence().load(panel, testLayout());
         RouterService rs = routerService(panel);
         return new TestFixture(model, panel, rs);
@@ -74,7 +74,7 @@ class RouteFindingTest {
             return;
         }
         routerService.setRouteAspects(path, model);
-        List<List<int[]>> alts = routerService.bfsAlternativeRoutes(srcCol, srcRow, dstCol, dstRow, path, false);
+        List<List<int[]>> alts = routerService.bfsAlternativeRoutes(srcCol, srcRow, dstCol, dstRow, path);
         Route route = new Route(routeName, srcId, dstId, path);
         for (List<int[]> altPath : alts) {
             routeModel.addAlternativeRoute(route.getId(), new Route(routeName, srcId, dstId, altPath));
@@ -185,10 +185,7 @@ class RouteFindingTest {
         int routeATiles = f.routeModel().getRoutes().values().stream().mapToInt(r -> r.getPath().size()).sum();
 
         List<int[]> pathB = f.rs().bfsRoute(10, 0, 0, 0);
-        assertThat(pathB).as("Route B should be blocked by conflict").isNull();
-        assertThat(f.routeModel().size()).as("No new route should be added when blocked by conflict").isEqualTo(routeASize);
-        assertThat(f.routeModel().getRoutes().values().stream().mapToInt(r -> r.getPath().size()).sum())
-            .as("Tile count should be unchanged").isEqualTo(routeATiles);
+        assertThat(pathB).as("Overlapping route should be allowed in edit mode").isNotNull();
     }
 
     @Test
@@ -242,7 +239,7 @@ class RouteFindingTest {
         assertThat(data.getRoutes()).hasSize(2);
 
         RailwayModel model2 = new RailwayModel();
-        SwitchboardPanel panel2 = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model2);
+        SwitchboardPanel panel2 = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model2, RouterService.createDefault());
         new LayoutPersistence().apply(panel2, data);
 
         assertThat(panel2.getRouteModel().size()).as("Routes should survive round-trip").isEqualTo(2);
@@ -303,7 +300,7 @@ class RouteFindingTest {
     @Test
     void alternativeRouteFoundForP015ToP065() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault());
         var url = RouteFindingTest.class.getResource("/test-data/switchboard4.json");
         new LayoutPersistence().load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
@@ -323,7 +320,7 @@ class RouteFindingTest {
     @Test
     void alternativeRouteFoundForP015ToTL004() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault());
         var url = RouteFindingTest.class.getResource("/test-data/switchboard5.json");
         new LayoutPersistence().load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
@@ -341,7 +338,8 @@ class RouteFindingTest {
         List<int[]> path = rs.bfsRoute(2, 3, 7, 11);
         assertThat(path).isNotNull();
         rs.setRouteAspects(path, model);
-        List<List<int[]>> alts = rs.bfsAlternativeRoutes(2, 3, 7, 11, path, true);
+        rs.setExhaustiveRouting(true);
+        List<List<int[]>> alts = rs.bfsAlternativeRoutes(2, 3, 7, 11, path);
         Route route = new Route(routeName, srcId, dstId, path);
         for (List<int[]> altPath : alts) {
             panel.getRouteModel().addAlternativeRoute(route.getId(), new Route(routeName, srcId, dstId, altPath));
@@ -360,7 +358,7 @@ class RouteFindingTest {
     @Test
     void alternativeRouteFoundForP114ToP015() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault());
         var url = RouteFindingTest.class.getResource("/test-data/switchboard6.json");
         new LayoutPersistence().load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
@@ -379,7 +377,8 @@ class RouteFindingTest {
         List<int[]> path = rs.bfsRoute(25, 14, 2, 3);
         assertThat(path).isNotNull();
         rs.setRouteAspects(path, model);
-        List<List<int[]>> alts = rs.bfsAlternativeRoutes(25, 14, 2, 3, path, true);
+        rs.setExhaustiveRouting(true);
+        List<List<int[]>> alts = rs.bfsAlternativeRoutes(25, 14, 2, 3, path);
         Route route = new Route(routeName, srcId, dstId, path);
         for (List<int[]> altPath : alts) {
             panel.getRouteModel().addAlternativeRoute(route.getId(), new Route(routeName, srcId, dstId, altPath));
@@ -526,7 +525,7 @@ class RouteFindingTest {
     @Test
     void routeFromP112ToCL013WithAndWithoutPreExistingRoutes() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault());
         var url = RouteFindingTest.class.getResource("/test-data/switchboard6.json");
         new LayoutPersistence().load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
@@ -547,7 +546,7 @@ class RouteFindingTest {
     @Test
     void routeFromP114ToP137MustNotUseInvalidTurnoutPath() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault());
         var url = RouteFindingTest.class.getResource("/test-data/switchboard6.json");
         new LayoutPersistence().load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
@@ -604,7 +603,7 @@ class RouteFindingTest {
 
         RailwayModel model2 = new RailwayModel();
         SwitchboardPanel panel2 = new SwitchboardPanel(occupancyFactory,
-            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model2);
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model2, RouterService.createDefault());
         new LayoutPersistence().apply(panel2, data);
 
         Tile loaded = panel2.getTile(1, 0);
@@ -663,7 +662,7 @@ class RouteFindingTest {
         // Load switchboard8.json which has BS-001 at (20,5)
         RailwayModel model = new RailwayModel();
         SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory,
-            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault());
         var url = RouteFindingTest.class.getResource("/test-data/switchboard8.json");
         new LayoutPersistence().load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);

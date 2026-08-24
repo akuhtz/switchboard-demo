@@ -32,6 +32,7 @@ import javax.swing.table.AbstractTableModel;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.SignalSide;
+import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.model.Train;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.component.view.TrainListPanel;
@@ -125,7 +126,7 @@ public class SwitchboardApp {
         
         desktop = new DockingDesktop();
 
-        switchboardPanel = new SwitchboardPanel(occupancyFactory, new DemoAssignOccupancyDialogFactory(), model);
+        switchboardPanel = new SwitchboardPanel(occupancyFactory, new DemoAssignOccupancyDialogFactory(), model, RouterService.createDefault());
         switchboardPanel.setLocale(locale);
 
         frame = new JFrame(messages.getString("frame.title"));

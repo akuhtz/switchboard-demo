@@ -10,6 +10,7 @@ import org.bidib.switchboard.component.config.TestOccupancyFactory;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.persistence.LayoutPersistence;
+import org.bidib.switchboard.component.service.RouterService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ class DebugTest {
     @Test
     void debugP015toTL004() throws Exception {
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault());
 
         var layoutPersistence = new LayoutPersistence();
         layoutPersistence.load(panel, testLayout5());

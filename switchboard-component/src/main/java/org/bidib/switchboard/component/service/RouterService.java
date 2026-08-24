@@ -29,7 +29,17 @@ public class RouterService {
 
     public static final int MAX_ALTERNATIVES = 10;
 
+    private boolean exhaustiveRouting = false;
+
     private static final int REVISIT_CAP = 8;
+
+    public boolean isExhaustiveRouting() {
+        return exhaustiveRouting;
+    }
+
+    public void setExhaustiveRouting(boolean exhaustiveRouting) {
+        this.exhaustiveRouting = exhaustiveRouting;
+    }
 
     private final Map<String, Tile> tiles;
 
@@ -44,6 +54,26 @@ public class RouterService {
         this.cols = cols;
         this.rows = rows;
         this.routeModel = routeModel;
+    }
+
+    public static RouterService createDefault() {
+        return new RouterService(new java.util.LinkedHashMap<>(), 60, 30, new RouteModel());
+    }
+
+    public Map<String, Tile> getTiles() {
+        return tiles;
+    }
+
+    public int getCols() {
+        return cols;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public RouteModel getRouteModel() {
+        return routeModel;
     }
 
     public Map<String, Route> getRoutes() {
@@ -222,14 +252,10 @@ public class RouterService {
     }
 
     public List<List<int[]>> bfsAlternativeRoutes(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath) {
-        return bfsAlternativeRoutes(startCol, startRow, endCol, endRow, primaryPath, false);
+        return bfsAlternativeRoutesInternal(startCol, startRow, endCol, endRow, primaryPath);
     }
 
-    public List<List<int[]>> bfsAlternativeRoutes(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath, boolean exhaustive) {
-        return bfsAlternativeRoutesInternal(startCol, startRow, endCol, endRow, primaryPath, exhaustive);
-    }
-
-    private List<List<int[]>> bfsAlternativeRoutesInternal(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath, boolean exhaustive) {
+    private List<List<int[]>> bfsAlternativeRoutesInternal(int startCol, int startRow, int endCol, int endRow, List<int[]> primaryPath) {
         String startKey = Tile.key(startCol, startRow);
         String endKey = Tile.key(endCol, endRow);
         if (!tiles.containsKey(startKey) || !tiles.containsKey(endKey) || primaryPath == null || primaryPath.size() < 2) {
@@ -276,7 +302,7 @@ public class RouterService {
                 if (result != null) {
                     if (!isDuplicatePath(alts, result)) {
                         alts.add(result);
-                        if (exhaustive) {
+                        if (exhaustiveRouting) {
                             findAdditionalAlternatives(startCol, startRow, endCol, endRow, block, result, alts);
                         }
                     }
@@ -397,7 +423,7 @@ public class RouterService {
                 int neighborRow = neighbor[1];
                 String neighborKey = Tile.key(neighborCol, neighborRow);
 
-                if (!tiles.containsKey(neighborKey) || routeModel.isTileReserved(neighborCol, neighborRow, null) || blockedEdges.contains(edgeKey(col, row, neighborCol, neighborRow))) {
+                if (!tiles.containsKey(neighborKey) || blockedEdges.contains(edgeKey(col, row, neighborCol, neighborRow))) {
                     continue;
                 }
 

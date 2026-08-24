@@ -21,7 +21,7 @@ class BlockTest {
 
     private SwitchboardPanel newPanel() {
         return new SwitchboardPanel(occupancyFactory,
-            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), new RailwayModel());
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), new RailwayModel(), RouterService.createDefault());
     }
 
     private static RouterService routerService(SwitchboardPanel panel) {

@@ -109,7 +109,10 @@ class RouterServiceTest {
         var url = RouterServiceTest.class.getResource("/test-data/switchboard4.json");
         java.nio.file.Path path = java.nio.file.Paths.get(url.toURI());
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        RouterService routerService = RouterService.createDefault();
+        routerService.setExhaustiveRouting(true);
+
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, routerService);
         var layoutPersistence = new LayoutPersistence();
         layoutPersistence.load(panel, path);
 
@@ -182,11 +185,13 @@ class RouterServiceTest {
         var url = RouterServiceTest.class.getResource("/test-data/switchboard5.json");
         java.nio.file.Path layoutPath = java.nio.file.Paths.get(url.toURI());
         RailwayModel model = new RailwayModel();
-        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model);
+        RouterService routerService = RouterService.createDefault();
+        routerService.setExhaustiveRouting(true);
+
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory, (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, routerService);
         var layoutPersistence = new LayoutPersistence();
         layoutPersistence.load(panel, layoutPath);
 
-        panel.setExhaustiveRouting(true);
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(7, 11);
 
