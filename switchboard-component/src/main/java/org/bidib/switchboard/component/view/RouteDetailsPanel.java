@@ -81,7 +81,7 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
         altLabel = new JLabel("");
         FormBuilder builder = FormBuilder.create()
             .columns("right:pref, 3dlu, 60dlu:grow")
-            .rows("pref, 3dlu, pref, 3dlu, pref:grow, 3dlu, pref");
+            .rows("pref, 3dlu, pref, 3dlu, pref:grow:fill, 3dlu, pref");
         builder.border(Paddings.TABBED_DIALOG);
 
         builder.add(nameLabel).xy(1, 1);

@@ -458,8 +458,9 @@ public class SwitchboardApp {
         // prepare the dockables
         desktop.addDockable(trainListPanel);
         desktop.split(trainListPanel, switchboardPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
-        desktop.setDockableWidth(this.trainListPanel, 0.25d);
+        desktop.setDockableWidth(this.trainListPanel, 0.21d);
         desktop.split(trainListPanel, routeListPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_BOTTOM);
+        desktop.setDockableHeight(this.trainListPanel, 0.20d);
 
         // add route details as a tab alongside route list
         com.vlsolutions.swing.docking.TabbedDockableContainer container =
