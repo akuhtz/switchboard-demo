@@ -53,52 +53,59 @@ In **edit mode** (Ctrl+E), you can select and move tiles:
 
 In **normal mode** (Ctrl+E to toggle):
 - Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, orange ↔ green ↔ orange+green ↔ aspect 3 for the distant signal, etc.).
-- Clicking a **main signal** also switches every **linked distant signal** to the matching preview aspect (see [section 9](#9-link-a-distant-signal-to-a-main-signal)). A linked distant signal itself cannot be clicked to change its aspect.
+- Clicking a **main signal** also switches every **linked distant signal** to the matching preview aspect (see [section 10](#10-link-a-distant-signal-to-a-main-signal)). A linked distant signal itself cannot be clicked to change its aspect.
 - A **combined signal** behaves like a main signal: clicking cycles its own head aspect (red/green/orange). Its distant plate is controlled by the linked main signal and cannot be clicked.
 - Turnouts auto-switch to the correct aspect when a route is found.
 
 ## 6. Create a route
 
-- Make sure you are in **normal mode** (Ctrl+E to toggle off edit mode).
-- **Ctrl+click** a source tile — a green marker appears.
-- **Ctrl+click** a target tile — the shortest path is found and drawn as a blue polyline with green (source) and blue (target) markers.
-- Turnouts along the route are automatically set to the correct aspect.
-- Route finding uses BFS with physical port-connectivity checking. Routes respect turnout direction (no backwards frog-end traversal), tile direction markers, and avoid tiles already reserved by other routes.
-- **Alternative routes**: When a route is created, BFS finds alternative paths by blocking each edge of the primary path. A white **"+"** badge appears next to the source and target markers when alternatives are available. Right-click any route tile to see them in the context menu:
-  - **Alternative 1 / Alternative 2 / ...** — preview the alternative as a dotted line in its own color from a 16-color palette, on top of the main route. Each menu item shows a colored circle icon matching the route color. The main route remains visible.
-  - **Use primary route** — discard alternatives and show the original blue route.
-  - **Use selected alternative** — promote the previewed alternative to the primary route.
+There is a single unified way to define routes: **route creation mode**.
+
+1. Enter **edit mode** (**Ctrl+E**), then enable **Edit → Define Train Route** (**Ctrl+T**).
+2. **Click** a source tile — a green source marker appears.
+3. **Click** a target tile — the shortest path is found via BFS and appended to the route path.
+   Turnouts along the segment are automatically set to the correct aspect.
+4. Repeat steps 2–3 to build multi-segment paths; junction tiles are merged automatically.
+5. Optionally right-click any tile of the collected path → **Add Station Stop** (5s dwell) or
+   **Remove Station Stop**.
+6. Disable **Define Train Route** — a dialog asks for the **route name** (mandatory).
+   The route is saved as a named train route (`TR-001`, `TR-002`, ...) and auto-selected in the Routes list.
+7. Turning off edit mode while route creation is active cancels the route creation.
+
+### Segment alternatives during creation
+
+When BFS finds alternative paths for a segment, right-click anywhere to choose:
+
+- **Use primary route** — append the shortest segment.
+- **Alternative 1 / Alternative 2 / ...** — append an alternative segment instead (shown in its own color).
+
+### Alternative routes on saved routes
+
+When a route is created, BFS also finds alternative paths for the whole route by blocking each edge of the primary path. A white **"+"** badge appears next to the source and target markers of the selected route when alternatives are available. Right-click any tile of the selected route:
+
+- **Alternative 1 / Alternative 2 / ...** — preview the alternative. Each menu item shows a colored circle icon matching the route color.
+- **Use primary route** — discard all alternatives.
+- **Use selected alternative** — promote the previewed alternative to the primary route.
 - **Exhaustive Route Search**: Enable in **File → Settings → Exhaustive Route Search**. When active, the BFS also blocks edges from found alternatives (k-shortest-paths iteration), finding more distinct routes. The setting is persisted in `switchboard-demo-app/settings.json`.
+
+Routes are shown on the switchboard only while selected in the Routes list.
 
 ### Manage routes
 
-- **Clear a single route**: right-click any tile on the route → **Clear route ({id})**.
-- **Clear all routes**: click **Clear selection** from the context menu (edit mode only, deselects all) or programmatically via the model.
-- Multiple overlapping routes can coexist — the BFS no longer skips tiles reserved by other routes.
-
-### Route creation mode
-
-Route creation is only available in **edit mode** (Ctrl+E). When the switchboard has a route model loaded (from a layout file), **Ctrl+click** enters **route creation mode** instead of the normal BFS route finding:
-
-1. **First Ctrl+click** on a tile adjacent to a signal marks the **source** — a green source marker appears.
-2. **Second Ctrl+click** on another tile marks the **target** — a blue target marker appears.
-3. The route is **automatically saved** to the layout's route model when the dialog closes.
-4. A dialog asks for the **route name** (mandatory). The default name is `"srcId → dstId"`.
-5. Multiple overlapping routes can be created — each gets a unique ID.
-6. Routes are displayed as editable paths that can be modified.
-7. Turning off edit mode while route creation is active cancels the route creation.
-
-Route creation mode is used with `switchboard-route-001.json` and similar layouts that define a route model upfront.
+- **Clear a single route**: select it in the Routes list, then right-click any tile on the route → **Clear route ({id})**.
+- Multiple overlapping routes can coexist — the BFS does not skip tiles reserved by other routes.
+- **Legacy layouts**: routes saved as signal-to-signal routes by older versions are automatically converted to named train routes when the layout is loaded (name preserved).
 
 ## 7. Route details
 
 The **Route Details** tab appears alongside the **Routes** tab in the left panel. When you select a route in the Routes list, the Route Details panel shows:
 
 - **Route Name** text field (top): editable, must be non-blank and unique across all routes.
+- **Alternatives badge** (below the name): shows how many alternative paths are stored for this route and which one is currently selected ("-" = primary).
 - **Tree** (center): lists turnouts and main signals along the route path in order. The last tile is always shown, even if it is not a turnout or main signal. Distant signals (SIGNAL_V) are excluded.
-- **Save / Cancel** buttons (bottom): Save validates the name (non-blank, unique) and applies it. Cancel reverts to the original name.
+- **Save / Cancel / Run** buttons (bottom): Save validates the name (non-blank, unique) and applies it. Cancel reverts to the original name. Run starts the route simulation immediately — it is visible only in **edit mode**.
 
-## 7. Tile direction
+## 8. Tile direction
 
 Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWARD, or BOTH).
 
@@ -107,7 +114,7 @@ Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWA
 - Route finding respects the direction: BFS will not traverse a tile against its direction.
 - Default is **Both** (no constraint) — backward-compatible with existing layouts.
 
-## 8. Signal side
+## 9. Signal side
 
 Signal tiles can display their body above (Swiss, `_left`) or below (German, `_right`) the track. This applies to all signal types (SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED).
 
@@ -116,7 +123,7 @@ Signal tiles can display their body above (Swiss, `_left`) or below (German, `_r
 - When you change the signal side, the tile image updates immediately.
 - The **Tile Info** dialog (left‑click a signal in normal mode) shows the resolved signal side.
 
-## 9. Link a distant signal to a main signal
+## 10. Link a distant signal to a main signal
 
 A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_M3 or SIGNAL_COMBINED) it previews. A combined signal's (SIGNAL_COMBINED) distant plate uses the same link. Once linked:
 
@@ -128,7 +135,7 @@ A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_M3 or SIGNA
 - The link is saved with the layout and restored on load.
 - The **Tile Info** dialog shows the link (Main signal / Distant signals) and, for combined signals, the current distant plate aspect.
 
-## 10. Define blocks
+## 11. Define blocks
 
 A **block** is a connected path of tiles that forms a section of track. Blocks are useful for
 modelling track occupancy sections.
@@ -149,16 +156,16 @@ modelling track occupancy sections.
   orange square marker.
 - Blocks are saved with the layout and restored when it is loaded.
 
-## 11. Block markers
+## 12. Block markers
 
 Block markers (`BLOCK_MARKER` / `BM`) are straight-through tiles that display the block name as a centered text label. They help visually identify block boundaries on the switchboard.
 
 - Place a block marker by right-clicking a cell in edit mode → **BM (BLOCK_MARKER)**.
 - The marker label shows the block name in yellow (`(255,220,80)`) when the block is not occupied, or red when occupied.
 - Block markers can be rotated (0° or 90°) like straight track tiles.
-- A block marker can have a **train assigned** to it via drag-and-drop (see [section 11](#11-trains-and-draganddrop)). When a train is assigned, the marker displays the train name instead of the block name.
+- A block marker can have a **train assigned** to it via drag-and-drop (see [section 13](#13-trains-and-drag-and-drop)). When a train is assigned, the marker displays the train name instead of the block name.
 
-## 12. Trains and drag-and-drop
+## 13. Trains and drag-and-drop
 
 The application includes a train list panel on the left side of the window, showing all defined trains.
 
@@ -184,7 +191,7 @@ Each train has:
 - The **drop cursor** (arrow + plus sign) only appears when hovering over a block marker tile, not over regular track tiles.
 - Dragging a train to a non-block-marker tile has no effect.
 
-## 13. Simulate occupancy
+## 14. Simulate occupancy
 
 After a route is created, you can animate a train moving along it:
 
@@ -192,7 +199,7 @@ After a route is created, you can animate a train moving along it:
 - The simulation creates occupancy markers on every tile along the route and slides the **OCCUPIED** state from the start to the end, one tile at a time (200ms per step).
 - Turnouts along the route are automatically set to the correct position for the simulated path.
 - **Signal stops**: When a train reaches a main signal (SIGNAL_M3 or SIGNAL_COMBINED) at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it.
-- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of the next main signal ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". A distant signal linked to a main signal (see [section 9](#9-link-a-distant-signal-to-a-main-signal)) also mirrors the main signal's aspect when you click it manually, outside the simulation.
+- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of the next main signal ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". A distant signal linked to a main signal (see [section 10](#10-link-a-distant-signal-to-a-main-signal)) also mirrors the main signal's aspect when you click it manually, outside the simulation.
 - **Combined signals**: The main head stops the train like a main signal. During simulation the combined signal's distant plate mirrors the next main signal ahead in the path (`syncCombinedPlate`); outside a simulation it mirrors its linked main signal.
 - **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a main signal that blocks a train auto-switches to aspect 1 (green) after 2 seconds, allowing the train to resume. Toggling this option immediately affects all running simulations.
 - **Multiple simulations**: Each route can have its own independent simulation running concurrently.
@@ -205,7 +212,7 @@ To reset the simulation:
 - Sets all occupancy states along the route back to FREE.
 - **Clear simulated occupancy** is disabled while a simulation is in progress.
 
-## 14. Language / Internationalization
+## 15. Language / Internationalization
 
 The application supports **English** and **German** locales. The UI language is determined at startup: it uses the language saved in **File → Settings → Language** when one is stored, otherwise the system locale. The selected language is persisted so it is applied again on the next start.
 
@@ -216,7 +223,7 @@ The application supports **English** and **German** locales. The UI language is 
 
 Translations are maintained in `i18n/messages.properties` (component) and `i18n/app-messages.properties` (demo app), each with a `_de` variant.
 
-## 15. Save & load
+## 16. Save & load
 
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.
@@ -224,7 +231,7 @@ Translations are maintained in `i18n/messages.properties` (component) and `i18n/
 - **Recent files**: The **File** menu shows a **Recent** submenu with up to 6 recently opened layouts. Click any entry to load it instantly. The most recent entry appears at the top.
 - Settings are stored in `~/switchboard-demo-1/settings.json`.
 
-## 16. Logging
+## 17. Logging
 
 The application writes log output both to the console and to a log file:
 

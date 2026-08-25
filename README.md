@@ -132,7 +132,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `Route`
 - Value class for a found route path.
-- Fields: `id` (auto-generated), `name` (editable, must be non-blank and unique), `sourceElementId`, `targetElementId`, `path` (ordered `List<int[]>` of `[col, row]`).
+- Fields: `id` (train routes: `"TR-NNN"` auto-incremented; alternatives: `"{primaryId}-AN"`), `name` (editable, must be non-blank and unique), `sourceElementId`, `targetElementId` (both null for train routes — kept for legacy layout migration), `path` (ordered `List<int[]>` of `[col, row]`), `stops` (station stops with path index + dwell time).
 - `setName(String)` — updates the name; throws `IllegalArgumentException` if blank.
 - `containsTile(col, row)` — checks if a grid tile is part of the route.
 
@@ -240,40 +240,44 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - **Modes**:
   - **Normal**: left-click cycles aspects on clickable tiles (aspectCount > 1). Clicking a main signal (SIGNAL_M3 or SIGNAL_COMBINED) also switches every linked distant signal to the matching preview aspect.
   - **Edit**: left-click selects tiles (cyan border), Ctrl+R rotates selected tile 90°, right-click context menu to place/clear tiles. No aspect cycling. Selection clears when edit mode is turned off.
-  - **Route Finding**:
-  - Ctrl+click source tile, then Ctrl+click target tile.
-  - Source marker (green filled oval) appears immediately on first Ctrl+click.
-  - BFS finds path using physical port connectivity (orthogonal + diagonal).
-  - BFS skips tiles already reserved by existing routes (conflict detection).
-  - Diagonal port checks use OR (not AND) on corner ports, enabling symmetric traversal
-    through curves and diagonals in both directions.
-   - **Through-path validation**: BFS tracks entry port per tile via `entryPorts` map
-     (entry1 for horizontal, entry2 for vertical). Before adding a neighbor,
-     `canTraverse()` checks `isValidThroughPath(entry, exit, rotation)` on the current
-     tile when either entry port is set. Turnouts block frog-end→frog-end (backwards)
-     traversal and invalid diagonal paths through 3-way turnouts.
-  - Each connection validates BOTH sender and receiver ports (bidirectional).
-  - Diagonal connections require `hasValidDiagonal()` on the sender corner.
-  - Found routes are stored in a `RouteModel` supporting multiple simultaneous routes.
-    Each route has an ID `{sourceElementId}-{targetElementId}`.
-     - Routes render as blue polylines (`(80,80,160)`, stroke-width 4) through tile centers,
-    with a green filled oval at the source and a blue filled oval at the target.
-   - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
-   - **Alternative routes**: When a route is created, BFS finds alternative paths by blocking each edge of the primary path one at a time and re-running. By default this finds short alternatives. When "Exhaustive Route Search" is enabled (File > Settings), alternatives are also found by blocking edges of previously found alternatives (k-shortest-paths iteration), up to `MAX_ALTERNATIVES` (10). All alternatives are stored in `RouteModel` as a list keyed by route ID.
-   - When alternatives exist, a white **"+"** badge appears next to both the source and target markers. The badge is positioned below the marker for horizontal route segments and to the right for vertical segments.
-   - Right-clicking a route tile shows "Use primary route", "Alternative 1/2/..." (preview), and "Use selected alternative" in the context menu. Each menu item has a colored circle icon matching the alternative's rendering color.
-   - Each alternative is drawn with its own color from a 16-color palette (orange, red, purple, teal, pink, amber, maroon, steel blue, lime, coral, indigo, turquoise, gold, rose, violet, sand) as a dotted 4px stroke on top of the main route. The main route remains fully visible during preview.
-   - By default, only the selected preview alternative is shown. Other (non-selected) alternatives can be enabled via `setShowOtherAlternatives(true)` which draws them in their palette colors as well.
-   - "Use primary route" discards all alternatives and restores normal blue rendering.
-
-
-   - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
-   - Dotted lines are only visible during preview (index >= 0); they disappear after committing to primary or an alternative.
-   - Context menu shows "Clear route ({id})" on tiles belonging to a route,
-        "Simulate occupancy ({id})" on the green source circle (disabled while
-        that route's simulation is running), "Stop simulation ({id})" while running,
-        and "Clear simulated occupancy ({id})" when tiles on the route have OCCUPIED state.
-        Multiple routes can run simulations concurrently.
+   - **Route Creation** (single unified workflow):
+   - Entered via **Edit > Define Train Route** (`Ctrl+T`), available only in edit mode.
+   - Click source tile, then target tile — a green source marker appears on the first click.
+   - BFS finds path using physical port connectivity (orthogonal + diagonal).
+   - Diagonal port checks use OR (not AND) on corner ports, enabling symmetric traversal
+     through curves and diagonals in both directions.
+    - **Through-path validation**: BFS tracks entry port per tile via `entryPorts` map
+      (entry1 for horizontal, entry2 for vertical). Before adding a neighbor,
+      `canTraverse()` checks `isValidThroughPath(entry, exit, rotation)` on the current
+      tile when either entry port is set. Turnouts block frog-end→frog-end (backwards)
+      traversal and invalid diagonal paths through 3-way turnouts.
+   - Each connection validates BOTH sender and receiver ports (bidirectional).
+   - Diagonal connections require `hasValidDiagonal()` on the sender corner.
+   - **Multi-segment paths**: each source→target segment is appended to the collected path;
+     overlapping junction tiles are merged.
+    - **Segment alternatives**: when BFS finds alternative segment paths, right-click shows
+      "Use primary route" and "Alternative N" in the context menu to choose which segment is appended.
+   - **Station stops**: right-click any tile of the collected path → **Add/Remove Station Stop**
+     (5s dwell time per stop).
+   - Turning off **Define Train Route** prompts for the route name (mandatory) and saves the
+     route as a named train route with ID `TR-NNN` (auto-incremented). The whole-path
+     alternatives are computed via BFS and stored persistently in `RouteModel`, and the new
+     route is auto-selected in the Routes list.
+   - Found routes are stored in a `RouteModel` supporting multiple simultaneous routes.
+      - Named routes render as blue polylines through tile centers, but are **hidden unless selected**
+     in the Routes list; the selected route renders highlighted with green source / blue target dots.
+    - Turnouts on found routes are auto-set via `aspectForRoute(entryPort, exitPort, rotation)`.
+    - **Alternative routes**: When a route is created, BFS finds alternative paths by blocking each edge of the primary path one at a time and re-running. By default this finds short alternatives. When "Exhaustive Route Search" is enabled (File > Settings), alternatives are also found by blocking edges of previously found alternatives (k-shortest-paths iteration), up to `MAX_ALTERNATIVES` (10). All alternatives are stored in `RouteModel` as a list keyed by route ID.
+    - When alternatives exist, a white **"+"** badge appears next to both the source and target markers. The badge is positioned below the marker for horizontal route segments and to the right for vertical segments.
+    - Right-clicking a route tile shows "Use primary route", "Alternative 1/2/..." (preview), and "Use selected alternative" in the context menu. Each menu item has a colored circle icon matching the alternative's rendering color.
+    - By default, only the selected preview alternative is shown. Other (non-selected) alternatives can be enabled via `setShowOtherAlternatives(true)` which draws them in their palette colors as well.
+    - "Use primary route" discards all alternatives and restores normal blue rendering.
+    - "Use selected alternative" promotes the previewed alternative to primary route and discards all alternatives.
+    - Context menu shows "Clear route ({id})" on tiles belonging to a route,
+         "Simulate occupancy ({id})" on the green source circle (disabled while
+         that route's simulation is running), "Stop simulation ({id})" while running,
+         and "Clear simulated occupancy ({id})" when tiles on the route have OCCUPIED state.
+         Multiple routes can run simulations concurrently.
 - **Occupancy rendering**: In `paintComponent`, `drawOccupancy()` is called last, after routes. For each tile with an OCCUPIED occupancy, it draws port-based line segments using the element's current aspect: `getActivePorts(el.getCurrentAspect(), tile.getRotation())`. Lines are drawn from tile center to each active port. Straight, diagonal, and crossing elements draw to edge midpoints via `drawPortLine()`. Turnouts draw the main port to its edge midpoint and the diverted port to a corner. Curves (CURVE_LEFT, CURVE_RIGHT) draw port[0] to its edge midpoint and port[1] to a corner: `dx` comes from the port's own x-side if horizontal (or the opposite of port[0]'s x-side if vertical), `dy` comes from the port's own y-side if vertical (or the opposite of port[0]'s y-side if horizontal). Color: `COLOR_OCCUPIED` = `(255, 80, 80)` with stroke-width 4.
 - **Signal stops**: During occupancy simulation, a train arriving at a main signal (SIGNAL_M3 or SIGNAL_COMBINED) with aspect 0 (red) stops and waits. Signals have an implicit facing direction based on rotation (rot 0 → faces LEFT). Only trains entering from the signal's facing port are blocked; trains approaching from behind ignore the signal. `isSignalBlocking(Tile, int entryPort)` implements this check. When `autoChangeSignal` is enabled, a blocked signal auto-switches to aspect 1 after 2 seconds. Toggling this option immediately affects all running simulations.
 - **Distant signals (SIGNAL_V)**: Distant signals never stop the train. Each distant signal on a route mirrors the aspect of the next main signal (SIGNAL_M3) ahead in the path, previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". The preview is mapped from the next signal's aspect (SIGNAL_M3: red→orange, orange→orange+green, green→green). Mirroring is applied on simulation start and refreshed every simulation step. The fourth aspect (aspect 3: bottom-right orange + both green lights) is only reachable by manually cycling the signal.
@@ -391,6 +395,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 - Tile type string format: `{prefix}{count}`, e.g. `"TL2"`, `"T32"`, `"S22"`, `"S32"`, `"P1"`, `"CL1"`, `"CR1"`, `"DG1"`.
 - Type is matched by iterating `ElementType.values()` and testing `typeStr.startsWith(prefix)`.
 - Occupancies are serialised in `ModelStateData.occupancies` and element→occupancy references via `occupancyId` on each `ElementData`.
+- **Signal route migration**: on load, legacy signal routes (with non-null `sourceElementId`/`targetElementId`) are converted to named train routes: new ID `TR-NNN` (highest existing + 1), name preserved (or derived as `"srcId → dstId"`), path and station stops kept, source/target IDs cleared. Logged at info level.
 
 ### `SettingsManager`
 - Manages `settings.json` at `~/switchboard-demo-1/settings.json`, separate from the layout file.
@@ -423,6 +428,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 | File | Exit | — | Exit application |
 | Edit | Undo | `Ctrl+Z` | Undo last tile or route operation |
 | Edit | Edit Mode | `Ctrl+E` | Toggle normal/edit mode |
+| Edit | Define Train Route | `Ctrl+T` | Toggle route creation mode (edit mode only): click source/target tiles to build a named train route |
 | Edit | Load Default Layout | — | Load the built-in default layout |
 | Edit | Occupancies... | — | Show dialog with all occupancies sorted by id |
 | Edit | Auto-change signal | — | Toggle: auto-switch blocked signals to aspect 1 after 2s during simulation |
@@ -437,7 +443,7 @@ The application uses the [VLDocking](https://github.com/akuhtz/vldocking) framew
 - **SwitchboardPanel** (right side): the main switchboard grid, implements `Dockable`.
 - **TrainListPanel** (left side, 20% width): train list with drag-and-drop support, implements `Dockable`.
 - **RouteListPanel** (left side, below train list): list of routes, implements `Dockable`.
-- **RouteDetailsPanel** (tabbed alongside RouteListPanel): route details with editable name, turnout/signal tree, and Save/Cancel buttons, implements `Dockable`.
+- **RouteDetailsPanel** (tabbed alongside RouteListPanel): route details with editable name, alternatives badge, turnout/signal tree, and Save/Cancel/Run buttons (Run visible only in edit mode), implements `Dockable`.
 - RouteListPanel and RouteDetailsPanel appear as tabs in the same dock area via `DockingDesktop.createTab()`.
 - Panels can be detached, re-docked, or rearranged via the VLDocking UI (drag tab headers).
 
@@ -562,9 +568,10 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `routeConflictBlocksOverlappingRoute` | BFS skips tiles reserved by existing routes (edit mode: overlapping allowed) |
 | `removeRouteById` | Route removed from model by ID |
 | `routeModelClearRemovesAllRoutes` | Clearing `RouteModel` removes all routes |
-| `routePersistenceRoundTrip` | Routes survive `capture()`/`apply()` round-trip |
+| `routePersistenceRoundTrip` | Routes survive `capture()`/`apply()` round-trip; legacy signal routes are migrated to train routes on load |
+| `signalRoutesMigratedToTrainRoutesOnLoad` | Loading a layout with a legacy signal route converts it to a named train route (`TR-001`, name preserved, source/target cleared) |
 | `routeModelIsTileReserved` | `isTileReserved()` correctness with/without exclusion |
-| `routeIdFormat` | Route ID format `"{source}-{target}"` |
+| `routeIdFormat` | Route auto-generated ID format `"{source}-{target}"` (legacy `Route(name, src, tgt, path)` constructor; train routes use `TR-NNN`) |
 | `routeContainsTile` | Route includes source/target, excludes out-of-bounds |
 | `alternativeRouteFoundForP015ToP065` | BFS finds 2 alternative routes via T3-001/T3-002 diagonals |
 | `alternativeRouteFoundForP015ToTL004` | Exhaustive BFS finds 4 alternatives via T3 diagonals + row-11 corridor |
@@ -634,14 +641,14 @@ All icons are 32×32 viewBox with a dark background (#2d2d32). Track lines use l
 | `undoTileCreationOnEmptyCellViaUI` | Empty cell restored after undo via Edit > Undo menu |
 | `undoTileReplaceViaUI` | Original tile restored after undo of UI tile replacement |
 | `occupiedRouteTilesDetectedViaUI` | Occupied route tiles show occupancy color via `drawOccupancy` |
-| `createTrainRouteWithAlternativesViaUI` | Route creation mode: Ctrl+click source/target on switchboard-route-001.json, 5-route model saved |
+| `createTrainRouteWithAlternativesViaUI` | Route creation mode: click source/target tiles on switchboard-route-001.json, 5-route model saved |
 | `routeNameEnforcedInRouteCreationMode` | Route name "A" saved in JSON with format `"srcId → dstId"` |
 
 ### `OccupancyUiTest` (12 tests)
 | Test | Description |
 |------|-------------|
 | `occupancyAdvancesAlongRoute` | Timer-driven occupancy animation along a route path, verifying sliding-window pattern |
-| `routeFromTL003ToTR002` | Route found from TL-003 to TR-002 with correct source/target element IDs, TL-003 aspect 1 (diverted) |
+| `routeFromTL003ToTR002` | Route found from TL-003 to TR-002 as a train route, TL-003 aspect 1 (diverted) |
 | `routeFromTL003ToTR002Straight` | Primary route TL-003→P-001 along row 0, TL-003 aspect 0 (through), alternatives cleared |
 | `alternativeRouteTL003ToP001` | Alternative route TL-003→P-001 via DG-003/CL-005/row-1 corridor, verified 23-tile path, TL-003 aspect 1 (diverted), TR-003 aspect 1 (diverted) |
 | `routeP112ToCL013WithAndWithoutPreExistingRoutes` | Route P-112→CL-013 found with and without pre-existing CR-010-P-130 via UI test hooks |

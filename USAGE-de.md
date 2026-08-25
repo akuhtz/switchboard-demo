@@ -53,52 +53,59 @@ Im **Bearbeitungsmodus** (Strg+E) können Kacheln ausgewählt und verschoben wer
 
 Im **Normalmodus** (Strg+E zum Umschalten):
 - Auf eine Weiche oder ein Signal klicken, um die Stellung zu wechseln (gerade ↔ abzweigend, rot ↔ grün, orange ↔ grün ↔ orange+grün ↔ Stellung 3 beim Vorsignal usw.).
-- Ein Klick auf ein **Hauptsignal** schaltet auch jedes **verknüpfte Vorsignal** auf die passende Vorankündigung (siehe [Abschnitt 9](#9-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)). Ein verknüpftes Vorsignal selbst lässt sich nicht anklicken, um seine Stellung zu ändern.
+- Ein Klick auf ein **Hauptsignal** schaltet auch jedes **verknüpfte Vorsignal** auf die passende Vorankündigung (siehe [Abschnitt 10](#10-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)). Ein verknüpftes Vorsignal selbst lässt sich nicht anklicken, um seine Stellung zu ändern.
 - Ein **Kombinationssignal** verhält sich wie ein Hauptsignal: Durch Klicken wird die Stellung seines eigenen Hauptsignalkopfes gewechselt (rot/grün/orange). Seine Vorsignalplatte wird über das verknüpfte Hauptsignal gesteuert und lässt sich nicht anklicken.
 - Weichen werden automatisch auf die korrekte Stellung gesetzt, wenn eine Fahrstraße gefunden wird.
 
 ## 6. Fahrstraße erstellen
 
-- Sicherstellen, dass der **Normalmodus** aktiv ist (Strg+E zum Deaktivieren des Bearbeitungsmodus).
-- **Strg+Klick** auf eine Startkachel — eine grüne Markierung erscheint.
-- **Strg+Klick** auf eine Zielkachel — der kürzeste Weg wird gefunden und als blaue Polylinie mit grüner (Start) und blauer (Ziel) Markierung gezeichnet.
-- Weichen entlang der Fahrstraße werden automatisch auf die korrekte Stellung gesetzt.
-- Die Fahrstraßensuche verwendet BFS mit physischer Port-Konnektivitätsprüfung. Fahrstraßen berücksichtigen die Weichenrichtung (kein Rückwärts-Durchfahren am Herzstück), Richtungsmarkierungen und vermeiden bereits durch andere Fahrstraßen reservierte Kacheln.
-- **Alternative Fahrstraßen**: Bei der Erstellung einer Fahrstraße findet BFS alternative Wege, indem jede Kante des Primärpfads blockiert wird. Ein weißes **"+"**-Symbol erscheint neben den Start- und Zielmarkierungen, wenn Alternativen verfügbar sind. Rechtsklick auf eine Fahrstraßenkachel zeigt sie im Kontextmenü:
-  - **Alternative 1 / Alternative 2 / ...** — Vorschau der Alternative als gestrichelte Linie in eigener Farbe aus einer 16-Farben-Palette, über der Hauptfahrstraße. Jeder Menüeintrag zeigt ein farbiges Kreissymbol passend zur Fahrstraßenfarbe. Die Hauptfahrstraße bleibt sichtbar.
-  - **Primärfahrstraße verwenden** — Alternativen verwerfen und die originale blaue Fahrstraße anzeigen.
-  - **Ausgewählte Alternative verwenden** — die vorgeschaute Alternative zur Primärfahrstraße machen.
+Es gibt einen einzigen einheitlichen Weg, Fahrstraßen zu definieren: den **Fahrstraßen-Modus**.
+
+1. **Bearbeitungsmodus** aktivieren (**Strg+E**), dann **Bearbeiten → Zugroute definieren** (**Strg+T**) einschalten.
+2. Auf eine Quellkachel **klicken** — eine grüne Quellmarkierung erscheint.
+3. Auf eine Zielkachel **klicken** — der kürzeste Weg wird per BFS gefunden und an den Fahrstraßenpfad angehängt.
+   Weichen entlang des Segments werden automatisch auf die korrekte Stellung gesetzt.
+4. Schritte 2–3 wiederholen, um mehrteilige Pfade zu bauen; Verbindungskacheln werden automatisch zusammengeführt.
+5. Optional: Rechtsklick auf eine Kachel des gesammelten Pfads → **Haltepunkt hinzufügen** (5s Haltezeit) oder
+   **Haltepunkt entfernen**.
+6. **Zugroute definieren** ausschalten — ein Dialog fragt nach dem **Fahrstraßennamen** (Pflicht).
+   Die Fahrstraße wird als benannte Zugroute gespeichert (`TR-001`, `TR-002`, ...) und in der Routenliste automatisch ausgewählt.
+7. Das Deaktivieren des Bearbeitungsmodus während der Fahrstraßenerstellung bricht diese ab.
+
+### Segment-Alternativen während der Erstellung
+
+Wenn BFS alternative Pfade für ein Segment findet, Rechtsklick zeigt:
+
+- **Primärfahrstraße verwenden** — das kürzeste Segment anhängen.
+- **Alternative 1 / Alternative 2 / ...** — stattdessen ein alternatives Segment anhängen (in eigener Farbe dargestellt).
+
+### Alternative Fahrstraßen bei gespeicherten Routen
+
+Beim Erstellen einer Fahrstraße findet BFS auch alternative Pfade für die gesamte Fahrstraße, indem jede Kante des Primärpfads blockiert wird. Ein weißes **"+"**-Symbol erscheint neben den Start- und Zielmarkierungen der ausgewählten Route, wenn Alternativen verfügbar sind. Rechtsklick auf eine Kachel der ausgewählten Route:
+
+- **Alternative 1 / Alternative 2 / ...** — Vorschau der Alternative. Jeder Menüeintrag zeigt ein farbiges Kreissymbol passend zur Fahrstraßenfarbe.
+- **Primärfahrstraße verwenden** — alle Alternativen verwerfen.
+- **Ausgewählte Alternative verwenden** — die vorgeschaute Alternative zur Primärfahrstraße machen.
 - **Erschöpfende Fahrstraßensuche**: Aktivieren unter **Datei → Einstellungen → Erschöpfende Fahrstraßensuche**. Wenn aktiv, blockiert BFS auch Kanten gefundener Alternativen (k-kürzeste-Wege-Iteration) und findet so mehr verschiedene Fahrstraßen. Die Einstellung wird in `switchboard-demo-app/settings.json` gespeichert.
+
+Fahrstraßen werden auf dem Schaltbild nur angezeigt, während sie in der Routenliste ausgewählt sind.
 
 ### Fahrstraßen verwalten
 
-- **Einzelne Fahrstraße löschen**: Rechtsklick auf eine Kachel der Fahrstraße → **Fahrstraße löschen ({id})**.
-- **Alle Fahrstraßen löschen**: **Clear selection** im Kontextmenü (nur im Bearbeitungsmodus) oder programmatisch über das Modell.
+- **Einzelne Fahrstraße löschen**: in der Routenliste auswählen, dann Rechtsklick auf eine Kachel der Fahrstraße → **Fahrstraße löschen ({id})**.
 - Mehrere überlappende Fahrstraßen können gleichzeitig existieren — BFS überspringt keine Kacheln, die von anderen Fahrstraßen belegt sind.
-
-### Fahrstraße erstellen (Route Creation Mode)
-
-Fahrstraßenerstellung ist nur im **Bearbeitungsmodus** (Strg+E) verfügbar. Wenn das Schaltbild ein Fahrstraßenmodell geladen hat (z.B. `switchboard-route-001.json`), betritt **Strg+Klick** den **Fahrstraßen-Modus** statt der normalen BFS-Fahrstraßensuche:
-
-1. **Erster Strg+Klick** auf eine Kachel neben einem Signal markiert die **Quelle** — eine grüne Quellmarkierung erscheint.
-2. **Zweiter Strg+Klick** auf eine andere Kachel markiert das **Ziel** — eine blaue Zielmarkierung erscheint.
-3. Die Fahrstraße wird **automatisch gespeichert**, wenn der Dialog geschlossen wird.
-4. Ein Dialog fragt nach dem **Fahrstraßennamen** (Pflicht). Der Standardname ist `"srcId → dstId"`.
-5. Mehrere überlappende Fahrstraßen können erstellt werden — jede erhält eine eindeutige ID.
-6. Fahrstraßen werden als editierbare Pfade angezeigt.
-7. Das Deaktivieren des Bearbeitungsmodus während der Fahrstraßenerstellung bricht diese ab.
-
-Fahrstraßenerstellung wird mit `switchboard-route-001.json` und ähnlichen Layouts verwendet, die ein Fahrstraßenmodell definieren.
+- **Alte Layouts**: Fahrstraßen, die von älteren Versionen als Signal-zu-Signal-Routen gespeichert wurden, werden beim Laden des Layouts automatisch in benannte Zugrouten umgewandelt (Name bleibt erhalten).
 
 ## 7. Routendetails
 
 Der Tab **Routendetails** erscheint neben dem Tab **Routen** in der linken Panel. Wenn Sie eine Route in der Routenliste auswählen, zeigt das Routendetails-Panel:
 
 - **Routenname** Textfeld (oben): editierbar, muss nicht leer und eindeutig sein.
+- **Alternativen-Anzeige** (unter dem Namen): zeigt, wie viele alternative Pfade für diese Route gespeichert sind und welche gerade ausgewählt ist („-" = Primärfahrstraße).
 - **Baum** (Mitte): listet Weichen und Hauptsignale entlang der Fahrstraße in Reihenfolge auf. Die letzte Kachel wird immer angezeigt, auch wenn es keine Weiche oder kein Hauptsignal ist. Vorsignale (SIGNAL_V) werden ausgeschlossen.
-- **Speichern / Abbrechen** Schaltflächen (unten): Speichern validiert den Namen (nicht leer, eindeutig) und wendet ihn an. Abbrechen setzt den ursprünglichen Namen zurück.
+- **Speichern / Abbrechen / Starten** Schaltflächen (unten): Speichern validiert den Namen (nicht leer, eindeutig) und wendet ihn an. Abbrechen setzt den ursprünglichen Namen zurück. Starten beginnt sofort mit der Fahrstraßensimulation — sichtbar nur im **Bearbeitungsmodus**.
 
-## 7. Kachelrichtung
+## 8. Kachelrichtung
 
 Gerade und diagonale Kacheln können eine **Richtungsbeschränkung** haben (FORWARD, BACKWARD oder BOTH).
 
@@ -107,7 +114,7 @@ Gerade und diagonale Kacheln können eine **Richtungsbeschränkung** haben (FORW
 - Die Fahrstraßensuche berücksichtigt die Richtung: BFS wird eine Kachel nicht gegen ihre Richtung durchfahren.
 - Standard ist **Both** (keine Beschränkung) — abwärtskompatibel mit bestehenden Layouts.
 
-## 8. Signalseite
+## 9. Signalseite
 
 Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unterhalb (deutsche Norm, `_right`) des Gleises anzeigen. Dies gilt für alle Signaltypen (SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED).
 
@@ -116,7 +123,7 @@ Signalkacheln können ihr Gehäuse oberhalb (Schweizer Norm, `_left`) oder unter
 - Bei Änderung der Signalseite wird das Kachelbild sofort aktualisiert.
 - Der **Kachel-Info**-Dialog (Linksklick auf ein Signal im Normalmodus) zeigt die aufgelöste Signalseite an.
 
-## 9. Vorsignal mit Hauptsignal verknüpfen
+## 10. Vorsignal mit Hauptsignal verknüpfen
 
 Ein Vorsignal (SIGNAL_V) kann mit dem Hauptsignal (SIGNAL_M3 oder SIGNAL_COMBINED) verknüpft werden, das es ankündigt. Die Vorsignalplatte eines Kombinationssignals (SIGNAL_COMBINED) verwendet dieselbe Verknüpfung. Nach der Verknüpfung gilt:
 
@@ -128,7 +135,7 @@ Ein Vorsignal (SIGNAL_V) kann mit dem Hauptsignal (SIGNAL_M3 oder SIGNAL_COMBINE
 - Die Verknüpfung wird mit dem Layout gespeichert und beim Laden wiederhergestellt.
 - Der **Kachel-Info**-Dialog zeigt die Verknüpfung an (Hauptsignal / Vorsignale) und bei Kombinationssignalen die aktuelle Stellung der Vorsignalplatte.
 
-## 10. Blöcke definieren
+## 11. Blöcke definieren
 
 Ein **Block** ist ein verbundener Pfad aus Kacheln, der einen Gleisabschnitt bildet. Blöcke sind
 nützlich, um Belegungsabschnitte zu modellieren.
@@ -150,16 +157,16 @@ nützlich, um Belegungsabschnitte zu modellieren.
   Blockanfang wird als   orangefarbene quadratische Markierung angezeigt.
 - Blöcke werden mit dem Layout gespeichert und beim Laden wiederhergestellt.
 
-## 11. Blockmarkierungen
+## 12. Blockmarkierungen
 
 Blockmarkierungen (`BLOCK_MARKER` / `BM`) sind gerade Gleiskacheln, die den Blocknamen als zentrierte Textbeschriftung anzeigen. Sie helfen bei der visuellen Identifizierung von Blockgrenzen auf dem Schaltpult.
 
 - Blockmarkierung platzieren: Rechtsklick auf eine Zelle im Bearbeitungsmodus → **BM (BLOCK_MARKER)**.
 - Die Markierung zeigt den Blocknamen in Gelb (`(255,220,80)`) an, wenn der Block nicht belegt ist, oder in Rot wenn belegt.
 - Blockmarkierungen können wie gerade Gleiskacheln gedreht werden (0° oder 90°).
-- Eine Blockmarkierung kann einen **Zug** zugewiesen bekommen per Drag-and-Drop (siehe [Abschnitt 11](#11-züge-und-draganddrop)). Wenn ein Zug zugewiesen ist, zeigt die Markierung den Zugnamen statt des Blocknamens an.
+- Eine Blockmarkierung kann einen **Zug** zugewiesen bekommen per Drag-and-Drop (siehe [Abschnitt 13](#13-züge-und-drag-and-drop)). Wenn ein Zug zugewiesen ist, zeigt die Markierung den Zugnamen statt des Blocknamens an.
 
-## 12. Züge und Drag-and-Drop
+## 13. Züge und Drag-and-Drop
 
 Die Anwendung zeigt eine Zugliste links im Fenster an, die alle definierten Züge anzeigt.
 
@@ -185,7 +192,7 @@ Jeder Zug hat:
 - Der **Drop-Cursor** (Pfeil + Pluszeichen) erscheint nur beim Überfahren einer Blockmarkierungskachel, nicht über regulären Gleiskacheln.
 - Das Ziehen eines Zugs auf eine nicht-Blockmarkierungskachel hat keine Auswirkung.
 
-## 13. Belegung simulieren
+## 14. Belegung simulieren
 
 Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert werden:
 
@@ -193,7 +200,7 @@ Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert w
 - Die Simulation erzeugt Belegungsmarkierungen auf jeder Kachel der Fahrstraße und schiebt den **OCCUPIED**-Zustand vom Start zum Ende, eine Kachel pro Schritt (200ms pro Schritt).
 - Weichen entlang der Fahrstraße werden automatisch auf die korrekte Position für den simulierten Weg gesetzt.
 - **Signalhalt**: Wenn ein Zug ein Hauptsignal (SIGNAL_M3 oder SIGNAL_COMBINED) mit Stellung 0 (rot) erreicht, hält er an und wartet. Signale blockieren nur Züge, die sich von vorne nähern (die Richtung, in die das Signal basierend auf seiner Rotation zeigt). Züge, die sich einem Signal von hinten nähern, ignorieren es.
-- **Vorsignale (SIGNAL_V)**: Das Vorsignal hält den Zug nie an. Es spiegelt die Stellung des nächsten Hauptsignals im Pfad wider und kündigt so die kommende Stellung an: orange „Halt erwarten", grün „Frei erwarten", orange+grün „Langsamfahrt erwarten". Ein mit einem Hauptsignal verknüpftes Vorsignal (siehe [Abschnitt 9](#9-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)) spiegelt dessen Stellung auch beim manuellen Klicken außerhalb der Simulation.
+- **Vorsignale (SIGNAL_V)**: Das Vorsignal hält den Zug nie an. Es spiegelt die Stellung des nächsten Hauptsignals im Pfad wider und kündigt so die kommende Stellung an: orange „Halt erwarten", grün „Frei erwarten", orange+grün „Langsamfahrt erwarten". Ein mit einem Hauptsignal verknüpftes Vorsignal (siehe [Abschnitt 10](#10-vorsignal-mit-hauptsignal-verkn%C3%BCpfen)) spiegelt dessen Stellung auch beim manuellen Klicken außerhalb der Simulation.
 - **Kombinationssignale**: Der Hauptsignalkopf hält den Zug wie ein Hauptsignal an. Während der Simulation spiegelt die Vorsignalplatte des Kombinationssignals das nächste Hauptsignal im Pfad (`syncCombinedPlate`); außerhalb einer Simulation spiegelt sie das verknüpfte Hauptsignal.
 - **Automatischer Signalwechsel**: Aktivieren über **Bearbeiten → Automatischer Signalwechsel**. Wenn aktiv, schaltet ein Hauptsignal, das einen Zug blockiert, nach 2 Sekunden automatisch auf Stellung 1 (grün) um, sodass der Zug weiterfahren kann. Das Umschalten dieser Option wirkt sich sofort auf alle laufenden Simulationen aus.
 - **Mehrere Simulationen**: Jede Fahrstraße kann ihre eigene unabhängige Simulation gleichzeitig ausführen.
@@ -206,7 +213,7 @@ Simulation zurücksetzen:
 - Setzt alle Belegungszustände entlang der Fahrstraße auf FREE zurück.
 - **Simulierte Belegung löschen** ist deaktiviert, solange eine Simulation läuft.
 
-## 14. Sprache / Internationalisierung
+## 15. Sprache / Internationalisierung
 
 Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Sprache wird beim Start ermittelt: Falls eine Sprache unter **Datei → Einstellungen → Sprache** gespeichert ist, wird diese verwendet, sonst die Systemsprache. Die gewählte Sprache wird gespeichert und beim nächsten Start wieder angewendet.
 
@@ -218,7 +225,7 @@ Die Anwendung unterstützt die Sprachen **Englisch** und **Deutsch**. Die UI-Spr
 
 Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und `i18n/app-messages.properties` (Demo-Anwendung), jeweils mit einer `_de`-Variante.
 
-## 15. Speichern & Laden
+## 16. Speichern & Laden
 
 - **Strg+S** — in die aktuelle Datei speichern (oder Speichern-Dialog öffnen, falls keine vorhanden).
 - **Strg+L** — ein zuvor gespeichertes `.json`-Layout laden.
@@ -226,7 +233,7 @@ Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und 
 - **Zuletzt verwendet**: Das **Datei**-Menü zeigt ein **Zuletzt**-Untermenü mit bis zu 6 kürzlich geöffneten Layouts. Klicken Sie auf einen Eintrag, um ihn direkt zu laden. Der neueste Eintrag steht oben.
 - Einstellungen werden in `~/switchboard-demo-1/settings.json` gespeichert.
 
-## 16. Protokollierung
+## 17. Protokollierung
 
 Die Anwendung schreibt Log-Ausgaben sowohl auf die Konsole als auch in eine Protokolldatei:
 
