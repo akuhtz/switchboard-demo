@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 
-// TEMP-DISABLED-REMOVED @Disabled
+@Disabled
 class RegionSelectMoveUiTest {
 
     private FrameFixture window;

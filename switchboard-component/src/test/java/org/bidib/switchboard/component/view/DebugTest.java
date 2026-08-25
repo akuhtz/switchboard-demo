@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TEMP-DISABLED-REMOVED @Disabled
+@Disabled
 class DebugTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugTest.class);

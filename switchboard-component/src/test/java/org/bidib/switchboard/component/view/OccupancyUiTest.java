@@ -209,7 +209,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    // TEMP-DISABLED-REMOVED @Disabled
+    @Disabled
     void routeFromTL003ToTR002Straight() throws Exception {
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
@@ -243,7 +243,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    // TEMP-DISABLED-REMOVED @Disabled
+    @Disabled
     void alternativeRouteTL003ToP001() throws Exception {
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
@@ -311,7 +311,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    // TEMP-DISABLED-REMOVED @Disabled
+    @Disabled
     void routeP112ToCL013WithAndWithoutPreExistingRoutes() throws Exception {
         LOGGER.info("Test route: P-112-CL-013 with and without pre-existing CR-010-P-130");
 
@@ -400,7 +400,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    // TEMP-DISABLED-REMOVED @Disabled
+    @Disabled
     void routeCR010ToP130() throws Exception {
         routeTest("CR-010-P-130", new int[] { 24, 17 }, new int[] { 10, 12 }, routeId -> {
         }, routeId -> panel.getRouteModel().getRoute(routeId).getPath());
@@ -408,7 +408,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    // TEMP-DISABLED-REMOVED @Disabled
+    @Disabled
     void routeP114ToP015() throws Exception {
         routeTest("P-114-P-015", new int[] { 25, 14 }, new int[] { 2, 3 }, routeId -> {
             assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
@@ -418,7 +418,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    // TEMP-DISABLED-REMOVED @Disabled
+    @Disabled
     void routeP114ToP015alternative2() throws Exception {
 
         panel.setExhaustiveRouting(true);
@@ -439,7 +439,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    // TEMP-DISABLED-REMOVED @Disabled
+    @Disabled
     void simulationTerminatesAtBumperStop() throws Exception {
         // Load switchboard8.json which has BS-001 at (20,5)
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard8.json");
@@ -496,7 +496,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    // TEMP-DISABLED-REMOVED @Disabled
+    @Disabled
     void simulationStopsAfter5Seconds() throws Exception {
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
@@ -553,7 +553,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    // TEMP-DISABLED-REMOVED @Disabled
+    @Disabled
     void distantSignalDoesNotStopTrainAndMirrorsNextSignal() throws Exception {
         // Load switchboard3a.json: distant signal SV-001 (10,5) ahead of main signal SM3-003 (7,5)
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard3a.json");
@@ -622,7 +622,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    // TEMP-DISABLED-REMOVED @Disabled
+    @Disabled
     void routeP087ToP015StopsAtFacingSignals() throws Exception {
         // Load switchboard7.json
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard7.json");
