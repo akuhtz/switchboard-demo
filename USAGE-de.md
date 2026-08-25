@@ -78,14 +78,17 @@ Im **Normalmodus** (Strg+E zum Umschalten):
 
 ### Fahrstraße erstellen (Route Creation Mode)
 
-Wenn das Schaltbild ein Fahrstraßenmodell geladen hat (z.B. `switchboard-route-001.json`), betritt **Strg+Klick** den **Fahrstraßen-Modus** statt der normalen BFS-Fahrstraßensuche:
+Fahrstraßenerstellung ist nur im **Bearbeitungsmodus** (Strg+E) verfügbar. Wenn das Schaltbild ein Fahrstraßenmodell geladen hat (z.B. `switchboard-route-001.json`), betritt **Strg+Klick** den **Fahrstraßen-Modus** statt der normalen BFS-Fahrstraßensuche:
 
 1. **Erster Strg+Klick** auf eine Kachel neben einem Signal markiert die **Quelle** — eine grüne Quellmarkierung erscheint.
 2. **Zweiter Strg+Klick** auf eine andere Kachel markiert das **Ziel** — eine blaue Zielmarkierung erscheint.
 3. Die Fahrstraße wird **automatisch gespeichert**, wenn der Dialog geschlossen wird.
 4. Ein Dialog fragt nach dem **Fahrstraßennamen** (Pflicht). Der Standardname ist `"srcId → dstId"`.
 5. Mehrere überlappende Fahrstraßen können erstellt werden — jede erhält eine eindeutige ID.
-6. Im **Bearbeitungsmodus** werden Fahrstraßen als editierbare Pfade angezeigt.
+6. Fahrstraßen werden als editierbare Pfade angezeigt.
+7. Das Deaktivieren des Bearbeitungsmodus während der Fahrstraßenerstellung bricht diese ab.
+
+Fahrstraßenerstellung wird mit `switchboard-route-001.json` und ähnlichen Layouts verwendet, die ein Fahrstraßenmodell definieren.
 
 ## 7. Kachelrichtung
 

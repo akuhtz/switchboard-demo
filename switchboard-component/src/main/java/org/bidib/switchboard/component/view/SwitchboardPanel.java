@@ -2930,6 +2930,9 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         }
 
         if (e.isControlDown()) {
+            if (!editMode) {
+                return;
+            }
             if (routeSourceCol < 0) {
                 routeSourceCol = col;
                 routeSourceRow = row;

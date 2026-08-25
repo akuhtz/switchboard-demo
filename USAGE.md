@@ -78,14 +78,15 @@ In **normal mode** (Ctrl+E to toggle):
 
 ### Route creation mode
 
-When the switchboard has a route model loaded (from a layout file), **Ctrl+click** enters **route creation mode** instead of the normal BFS route finding:
+Route creation is only available in **edit mode** (Ctrl+E). When the switchboard has a route model loaded (from a layout file), **Ctrl+click** enters **route creation mode** instead of the normal BFS route finding:
 
 1. **First Ctrl+click** on a tile adjacent to a signal marks the **source** — a green source marker appears.
 2. **Second Ctrl+click** on another tile marks the **target** — a blue target marker appears.
 3. The route is **automatically saved** to the layout's route model when the dialog closes.
 4. A dialog asks for the **route name** (mandatory). The default name is `"srcId → dstId"`.
-5. Multiple non-overlapping routes can be created — each gets a unique ID.
-6. In **edit mode**, routes are displayed as editable paths that can be modified.
+5. Multiple overlapping routes can be created — each gets a unique ID.
+6. Routes are displayed as editable paths that can be modified.
+7. Turning off edit mode while route creation is active cancels the route creation.
 
 Route creation mode is used with `switchboard-route-001.json` and similar layouts that define a route model upfront.
 

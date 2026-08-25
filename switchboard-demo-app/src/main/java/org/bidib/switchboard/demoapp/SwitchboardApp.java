@@ -382,6 +382,11 @@ public class SwitchboardApp {
         switchboardPanel.setEditMode(enabled);
         editModeItem.setSelected(enabled);
         editToggle.setSelected(enabled);
+        routeMenuItem.setEnabled(enabled);
+        if (!enabled && routeMenuItem.isSelected()) {
+            routeMenuItem.setSelected(false);
+            switchboardPanel.cancelRouteCreationMode();
+        }
     }
 
     private void saveRouteFromPanel() {
