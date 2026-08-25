@@ -238,7 +238,6 @@ class RouteFindingUiTest {
                 assertThat(panel.isTileOccupied(col, row)).isTrue();
             }
         });
-
         LOGGER.info("After the test.");
     }
 
@@ -256,6 +255,7 @@ class RouteFindingUiTest {
             panel.testSetRouteSource(9, 10);
             panel.testFindRoute(19, 4);
         });
+        window.robot().waitForIdle();
 
         String routeId = GuiActionRunner.execute(() -> panel.getSelectedRoute().getId());
         Route route = panel.getRouteModel().getRoute(routeId);
@@ -270,8 +270,6 @@ class RouteFindingUiTest {
             panel.getRouteModel().hasAlternativeRoute(routeId)
                 ? panel.getRouteModel().getAlternativeRoutes(routeId).size() : 0);
 
-        // Wait 2 seconds
-        waitSeconds(2);
 
         // Select "Alternative 1" from context menu
         assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).as("Alternatives should exist").isTrue();
@@ -280,9 +278,10 @@ class RouteFindingUiTest {
             panel.repaint();
         });
         LOGGER.info("Selected Alternative 1");
+        window.robot().waitForIdle();
 
-        // Wait 2 seconds
-        waitSeconds(2);
+        // Wait 1 seconds
+        waitSeconds(1);
 
         // Use primary route
         GuiActionRunner.execute(() -> {
@@ -290,7 +289,10 @@ class RouteFindingUiTest {
             panel.repaint();
         });
         LOGGER.info("Used primary route");
+        window.robot().waitForIdle();
 
+        waitSeconds(1);
+        
         // Verify route is still the primary one going via P-099
         Route finalRoute = panel.getRouteModel().getRoute(routeId);
         assertThat(finalRoute).isNotNull();
@@ -347,6 +349,8 @@ class RouteFindingUiTest {
         GuiActionRunner.execute(() -> panel.testSelectRouteCreationAlternative(selectedAlt1));
         LOGGER.info("Segment 1: selected alternative {} (via 27,14)", altIndex1);
         window.robot().waitForIdle();
+        
+        waitSeconds(1);
 
         List<int[]> path1 = GuiActionRunner.execute(() -> panel.testGetRouteCreationPath());
         assertThat(path1).as("Route path should have tiles after segment 1").isNotEmpty();
@@ -356,6 +360,8 @@ class RouteFindingUiTest {
         GuiActionRunner.execute(() -> panel.testSetRouteSource(6, 14));
         GuiActionRunner.execute(() -> panel.testFindRouteForCreation(25, 4));
         window.robot().waitForIdle();
+        
+        waitSeconds(1);
 
         List<List<int[]>> alts2 = GuiActionRunner.execute(() -> panel.testGetRouteCreationPendingAlternatives());
         LOGGER.info("Segment 2: {} alternatives", alts2.size());
@@ -365,6 +371,8 @@ class RouteFindingUiTest {
         GuiActionRunner.execute(() -> panel.testSelectRouteCreationAlternative(0));
         LOGGER.info("Segment 2: selected alternative 0");
         window.robot().waitForIdle();
+        
+        waitSeconds(1);
 
         List<int[]> finalPath = GuiActionRunner.execute(() -> panel.testGetRouteCreationPath());
         LOGGER.info("Final route path: {} tiles", finalPath.size());
@@ -379,6 +387,8 @@ class RouteFindingUiTest {
             panel.getRouteModel().addRoute(route);
         });
         window.robot().waitForIdle();
+        
+        waitSeconds(1);
 
         Route created = null;
         for (Route r : panel.getRouteModel().getRoutes().values()) {
@@ -390,7 +400,5 @@ class RouteFindingUiTest {
         assertThat(created).as("Route tr-test-001 should exist").isNotNull();
         assertThat(created.getPath()).as("Route should have tiles from both segments").isNotEmpty();
         LOGGER.info("Created route '{}' with {} tiles", created.getName(), created.getPath().size());
-
-        waitSeconds(3);
     }
 }
