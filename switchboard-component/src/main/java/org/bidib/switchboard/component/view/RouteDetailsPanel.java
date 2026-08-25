@@ -226,7 +226,11 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
             if (tile instanceof ElementTile et) {
                 ElementType type = et.getElementType();
                 if (isRelevant(type)) {
-                    include = true;
+                    // Signals are only shown when they are relevant for the
+                    // train travelling along the path in its direction.
+                    if (!isMainSignal(type) || isSignalRelevantForDirection(tile, i, path)) {
+                        include = true;
+                    }
                 }
             }
 
@@ -246,6 +250,27 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
                  SIGNAL_M3, SIGNAL_COMBINED -> true;
             default -> false;
         };
+    }
+
+    private boolean isMainSignal(ElementType type) {
+        return type == ElementType.SIGNAL_M3 || type == ElementType.SIGNAL_COMBINED;
+    }
+
+    /**
+     * Returns true when the signal at the given path index is relevant for a train
+     * travelling along the route, i.e., the train approaches it from the front — the
+     * same rule the simulations use to decide whether to stop. The first path tile
+     * has no approach direction, so a main signal there is never shown.
+     */
+    private boolean isSignalRelevantForDirection(Tile tile, int pathIndex, java.util.List<int[]> path) {
+        if (pathIndex == 0) {
+            return false;
+        }
+        int[] prev = path.get(pathIndex - 1);
+        int[] curr = path.get(pathIndex);
+        int entryPort = org.bidib.switchboard.component.simulation.OccupancySimulation.portFromDelta(
+            curr[0] - prev[0], curr[1] - prev[1]);
+        return org.bidib.switchboard.component.simulation.OccupancySimulation.isSignalRelevantForTrain(tile, entryPort);
     }
 
     private String buildNodeLabel(int col, int row, Tile tile, boolean isLast) {

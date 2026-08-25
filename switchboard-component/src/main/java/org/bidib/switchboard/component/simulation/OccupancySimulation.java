@@ -335,9 +335,35 @@ public class OccupancySimulation {
         if (!isSignalAtRed(tile, model)) {
             return false;
         }
+        return isSignalRelevantForTrain(tile, entryPort);
+    }
+
+    /**
+     * Returns the port through which a train must enter for this signal to apply
+     * (the signal's facing port). Signal facing convention: at rotation 0 the signal
+     * faces LEFT.
+     */
+    public static int signalFacingPort(Tile tile) {
         int rotSteps = (tile.getRotation() / 90) % 4;
-        int facingPort = (ElementType.PORT_LEFT + rotSteps) % 4;
-        return entryPort == facingPort;
+        return (ElementType.PORT_LEFT + rotSteps) % 4;
+    }
+
+    /**
+     * Returns true when the main signal (SIGNAL_M3 or SIGNAL_COMBINED) applies to a
+     * train entering the tile through the given port, i.e., the train approaches from
+     * the signal's front. Distant signals (SIGNAL_V) are never relevant. This check
+     * ignores the current aspect; use {@link #isSignalBlocking(Tile, int, RailwayModel)}
+     * to additionally require the signal to be at red.
+     */
+    public static boolean isSignalRelevantForTrain(Tile tile, int entryPort) {
+        if (!(tile instanceof ElementTile et)) {
+            return false;
+        }
+        ElementType type = et.getElementType();
+        if (type != ElementType.SIGNAL_M3 && type != ElementType.SIGNAL_COMBINED) {
+            return false;
+        }
+        return entryPort == signalFacingPort(tile);
     }
 
     /**
