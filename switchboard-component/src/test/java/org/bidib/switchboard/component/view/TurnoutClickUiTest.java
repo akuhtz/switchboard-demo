@@ -28,7 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
+// TEMP-DISABLED-REMOVED @Disabled
 class TurnoutClickUiTest {
 
     private static final int TILE_SIZE = 32;

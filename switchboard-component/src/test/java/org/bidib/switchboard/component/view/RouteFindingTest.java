@@ -245,11 +245,16 @@ class RouteFindingTest {
         assertThat(panel2.getRouteModel().size()).as("Routes should survive round-trip").isEqualTo(2);
         assertThat(panel2.getRouteModel().isEmpty()).isFalse();
 
-        Route r1 = panel2.getRouteModel().getRoute("P-001-P-011");
-        assertThat(r1).as("Route P-001-P-011 should exist after load").isNotNull();
+        // Signal routes are migrated to named train routes on load
+        Route r1 = panel2.getRouteModel().getRoutes().values().stream()
+            .filter(r -> "P-001 \u2192 P-011".equals(r.getName())).findFirst().orElse(null);
+        assertThat(r1).as("Route P-001 → P-011 should exist after load").isNotNull();
+        assertThat(r1.getId()).as("Migrated route should have a TR id").startsWith("TR-");
+        assertThat(r1.getSourceElementId()).as("Migrated route should have no source element").isNull();
 
-        Route r2 = panel2.getRouteModel().getRoute("P-015-P-024");
-        assertThat(r2).as("Route P-015-P-024 should exist after load").isNotNull();
+        Route r2 = panel2.getRouteModel().getRoutes().values().stream()
+            .filter(r -> "P-015 \u2192 P-024".equals(r.getName())).findFirst().orElse(null);
+        assertThat(r2).as("Route P-015 → P-024 should exist after load").isNotNull();
     }
 
     @Test
@@ -325,8 +330,10 @@ class RouteFindingTest {
         new LayoutPersistence().load(panel, Paths.get(url.toURI()));
         RouterService rs = routerService(panel);
 
-        Route existing = panel.getRouteModel().getRoute("TL-003-SM3-008");
-        assertThat(existing).isNotNull();
+        Route existing = panel.getRouteModel().getRoutes().values().stream()
+            .filter(r -> r.getName() != null && r.getName().startsWith("TL-003"))
+            .findFirst().orElse(null);
+        assertThat(existing).as("Migrated layout route should exist").isNotNull();
 
         String srcId = panel.getTile(2, 3).getElementId();
         String dstId = panel.getTile(7, 11).getElementId();
@@ -672,5 +679,25 @@ class RouteFindingTest {
         assertThat(path).as("Route from (14,5) to (20,5) should be found").isNotNull();
         assertThat(path.get(0)).containsExactly(14, 5);
         assertThat(path.get(path.size() - 1)).containsExactly(20, 5);
+    }
+
+    @Test
+    void signalRoutesMigratedToTrainRoutesOnLoad() throws Exception {
+        RailwayModel model = new RailwayModel();
+        SwitchboardPanel panel = new SwitchboardPanel(occupancyFactory,
+            (parent, m, el) -> new AssignOccupancyDialog().show(parent, m, el), model, RouterService.createDefault());
+        // switchboard5.json contains the legacy signal route TL-003-SM3-008
+        var url = RouteFindingTest.class.getResource("/test-data/switchboard5.json");
+        new LayoutPersistence().load(panel, Paths.get(url.toURI()));
+
+        RouteModel rm = panel.getRouteModel();
+        assertThat(rm.size()).as("Migrated route should be present").isEqualTo(1);
+
+        Route migrated = rm.getRoutes().values().iterator().next();
+        assertThat(migrated.getId()).as("Migrated route should have a TR id").isEqualTo("TR-001");
+        assertThat(migrated.getName()).as("Name should be preserved").isEqualTo("TL-003 \u2192 SM3-008");
+        assertThat(migrated.getSourceElementId()).as("Source element should be cleared").isNull();
+        assertThat(migrated.getTargetElementId()).as("Target element should be cleared").isNull();
+        assertThat(migrated.getPath()).as("Path should be preserved").hasSize(14);
     }
 }

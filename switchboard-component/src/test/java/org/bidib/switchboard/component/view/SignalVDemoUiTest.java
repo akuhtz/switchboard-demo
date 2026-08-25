@@ -50,7 +50,7 @@ import com.github.weisj.jsvg.view.ViewBox;
  * (square body aspect ratio, track overlap, lamp states) can be inspected.
  * The window closes automatically after 5 seconds.
  */
-@Disabled
+// TEMP-DISABLED-REMOVED @Disabled
 class SignalVDemoUiTest {
 
     private FrameFixture window;

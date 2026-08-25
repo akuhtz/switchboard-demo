@@ -149,6 +149,11 @@ public class SwitchboardApp {
             switchboardPanel.setSelectedRoute(route);
             routeDetailsPanel.setRoute(route);
         });
+        routeDetailsPanel.addRouteDetailsListener(evt -> {
+            if ("routeRun".equals(evt.getPropertyName()) && evt.getNewValue() instanceof org.bidib.switchboard.component.model.Route route) {
+                switchboardPanel.startRouteSimulation(route);
+            }
+        });
 
         buildMenu();
         buildFrame();
@@ -390,6 +395,7 @@ public class SwitchboardApp {
         editModeItem.setSelected(enabled);
         editToggle.setSelected(enabled);
         routeMenuItem.setEnabled(enabled);
+        routeDetailsPanel.setEditMode(enabled);
         if (!enabled && routeMenuItem.isSelected()) {
             routeMenuItem.setSelected(false);
             switchboardPanel.cancelRouteCreationMode();
@@ -397,29 +403,25 @@ public class SwitchboardApp {
     }
 
     private void saveRouteFromPanel() {
-        java.util.List<int[]> path = switchboardPanel.exitRouteCreationMode();
-        if (path.isEmpty()) {
+        if (!switchboardPanel.hasRouteCreationPath()) {
             routeMenuItem.setSelected(false);
+            switchboardPanel.cancelRouteCreationMode();
             return;
         }
-        java.util.Set<Integer> stops = switchboardPanel.getRouteCreationStops();
         String name = javax.swing.JOptionPane.showInputDialog(frame,
             messages.getString("dialog.trainRoute.name"),
             messages.getString("dialog.trainRoute.title"),
             javax.swing.JOptionPane.QUESTION_MESSAGE);
         if (name == null || name.trim().isEmpty()) {
             routeMenuItem.setSelected(false);
+            switchboardPanel.cancelRouteCreationMode();
             return;
         }
-        int routeCount = (int) switchboardPanel.getRouteModel().getRoutes().values().stream()
-            .count();
-        String id = "TR-" + String.format("%03d", routeCount + 1);
-        org.bidib.switchboard.component.model.Route namedRoute =
-            new org.bidib.switchboard.component.model.Route(id, name.trim(), null, null, path);
-        for (int stopIdx : stops) {
-            namedRoute.addStop(stopIdx, 5000);
+        org.bidib.switchboard.component.model.Route route =
+            switchboardPanel.finishRouteCreation(name.trim());
+        if (route != null) {
+            routeListPanel.selectRoute(route.getId());
         }
-        switchboardPanel.getRouteModel().addRoute(namedRoute);
         routeMenuItem.setSelected(false);
     }
 

@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 
-@Disabled
+// TEMP-DISABLED-REMOVED @Disabled
 class LookAndFeelSwitchUiTest {
 
     private FrameFixture window;

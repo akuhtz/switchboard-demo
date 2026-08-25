@@ -257,7 +257,7 @@ class RouteFindingUiTest {
             panel.testFindRoute(19, 4);
         });
 
-        String routeId = "P-086-SM3-015";
+        String routeId = GuiActionRunner.execute(() -> panel.getSelectedRoute().getId());
         Route route = panel.getRouteModel().getRoute(routeId);
         assertThat(route).as("Route %s should be found", routeId).isNotNull();
 

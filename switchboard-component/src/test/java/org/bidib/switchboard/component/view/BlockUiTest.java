@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 
-@Disabled
+// TEMP-DISABLED-REMOVED @Disabled
 class BlockUiTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BlockUiTest.class);

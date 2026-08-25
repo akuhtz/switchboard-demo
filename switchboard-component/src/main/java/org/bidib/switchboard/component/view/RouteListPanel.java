@@ -92,6 +92,21 @@ public class RouteListPanel extends JPanel implements Dockable, PropertyChangeLi
         return routeList.getSelectedValue();
     }
 
+    /**
+     * Programmatically selects the route with the given ID (if present in the list).
+     *
+     * @param routeId the route ID to select
+     */
+    public void selectRoute(String routeId) {
+        for (int i = 0; i < listModel.size(); i++) {
+            if (listModel.get(i).getId().equals(routeId)) {
+                routeList.setSelectedIndex(i);
+                routeList.ensureIndexIsVisible(i);
+                return;
+            }
+        }
+    }
+
     private void syncFromModel() {
         Route oldSelection = routeList.getSelectedValue();
         listModel.clear();

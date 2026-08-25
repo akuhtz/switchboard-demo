@@ -165,7 +165,8 @@ class OccupancyUiTest {
             panel.testFindRoute(8, 1);
         });
 
-        List<int[]> path = panel.getRouteModel().getRoute("TL-003-TR-002").getPath();
+        String routeId = GuiActionRunner.execute(() -> panel.getSelectedRoute().getId());
+        List<int[]> path = panel.getRouteModel().getRoute(routeId).getPath();
         assertThat(path).isNotEmpty();
 
         Integer tl003aspect = panel.getModel().getElementAspect("TL-003");
@@ -208,7 +209,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    @Disabled
+    // TEMP-DISABLED-REMOVED @Disabled
     void routeFromTL003ToTR002Straight() throws Exception {
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
@@ -216,10 +217,11 @@ class OccupancyUiTest {
             panel.testFindRoute(0, 0);
         });
 
-        List<int[]> path = panel.getRouteModel().getRoute("TL-003-P-001").getPath();
+        String routeId = GuiActionRunner.execute(() -> panel.getSelectedRoute().getId());
+        List<int[]> path = panel.getRouteModel().getRoute(routeId).getPath();
         assertThat(path).isNotEmpty();
 
-        GuiActionRunner.execute(() -> panel.getRouteModel().clearAlternatives("TL-003-P-001"));
+        GuiActionRunner.execute(() -> panel.getRouteModel().clearAlternatives(routeId));
 
         Integer tl003aspect = panel.getModel().getElementAspect("TL-003");
         LOGGER.info("TL-003 aspect after straight route={}", tl003aspect);
@@ -241,7 +243,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    @Disabled
+    // TEMP-DISABLED-REMOVED @Disabled
     void alternativeRouteTL003ToP001() throws Exception {
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
@@ -249,7 +251,7 @@ class OccupancyUiTest {
             panel.testFindRoute(0, 0);
         });
 
-        String routeId = "TL-003-P-001";
+        String routeId = GuiActionRunner.execute(() -> panel.getSelectedRoute().getId());
         assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
         assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(1);
 
@@ -309,11 +311,9 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    @Disabled
+    // TEMP-DISABLED-REMOVED @Disabled
     void routeP112ToCL013WithAndWithoutPreExistingRoutes() throws Exception {
         LOGGER.info("Test route: P-112-CL-013 with and without pre-existing CR-010-P-130");
-
-        final String routeId = "P-112-CL-013";
 
         panel.setExhaustiveRouting(true);
         
@@ -337,6 +337,8 @@ class OccupancyUiTest {
 	            panel.testSetRouteSource(25, 12);
 	            panel.testFindRoute(24, 13);
 	        });
+
+	        String routeId = GuiActionRunner.execute(() -> panel.getSelectedRoute().getId());
 	
 	        Route routeWithRoutes = panel.getRouteModel().getRoute(routeId);
 	        LOGGER.info("With pre-existing routes: found={}", routeWithRoutes != null);
@@ -350,27 +352,30 @@ class OccupancyUiTest {
 	            panel.testSetRouteSource(25, 12);
 	            panel.testFindRoute(24, 13);
 	        });
+
+	        // Re-resolve the route id: after clear() the id counter restarts at TR-001
+	        final String routeIdAfterClear = GuiActionRunner.execute(() -> panel.getSelectedRoute().getId());
 	
 	        GuiActionRunner.execute(() -> {
-		        Route routeAfterClear = panel.getRouteModel().getRoute(routeId);
+		        Route routeAfterClear = panel.getRouteModel().getRoute(routeIdAfterClear);
 		        LOGGER.info("After clearing routes: found={}", routeAfterClear != null);
-		        assertThat(routeAfterClear).as("Route %s should be found after clearing pre-existing routes", routeId).isNotNull();
+		        assertThat(routeAfterClear).as("Route %s should be found after clearing pre-existing routes", routeIdAfterClear).isNotNull();
 	        });
 	        
 	        waitAfterTest(1, TimeUnit.SECONDS);
 
-            assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
-            assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(9);
+            assertThat(panel.getRouteModel().hasAlternativeRoute(routeIdAfterClear)).isTrue();
+            assertThat(panel.getRouteModel().getAlternativeRoutes(routeIdAfterClear)).hasSize(9);
             
             
             int selectedAlternative = 4;
 
 	        GuiActionRunner.execute(() -> {
 	
-	            panel.getRouteModel().setSelectedAlternativeIndex(routeId, selectedAlternative);
-	            panel.getRouteModel().swapWithAlternative(routeId);
+	            panel.getRouteModel().setSelectedAlternativeIndex(routeIdAfterClear, selectedAlternative);
+	            panel.getRouteModel().swapWithAlternative(routeIdAfterClear);
 	            
-	            Route newRoute = panel.getRouteModel().getRoute(routeId);
+	            Route newRoute = panel.getRouteModel().getRoute(routeIdAfterClear);
                 if (newRoute != null) {
                 		panel.testSetRouteAspects(newRoute.getPath());
                 }
@@ -395,7 +400,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    @Disabled
+    // TEMP-DISABLED-REMOVED @Disabled
     void routeCR010ToP130() throws Exception {
         routeTest("CR-010-P-130", new int[] { 24, 17 }, new int[] { 10, 12 }, routeId -> {
         }, routeId -> panel.getRouteModel().getRoute(routeId).getPath());
@@ -403,7 +408,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    @Disabled
+    // TEMP-DISABLED-REMOVED @Disabled
     void routeP114ToP015() throws Exception {
         routeTest("P-114-P-015", new int[] { 25, 14 }, new int[] { 2, 3 }, routeId -> {
             assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
@@ -413,7 +418,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    @Disabled
+    // TEMP-DISABLED-REMOVED @Disabled
     void routeP114ToP015alternative2() throws Exception {
 
         panel.setExhaustiveRouting(true);
@@ -434,7 +439,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    @Disabled
+    // TEMP-DISABLED-REMOVED @Disabled
     void simulationTerminatesAtBumperStop() throws Exception {
         // Load switchboard8.json which has BS-001 at (20,5)
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard8.json");
@@ -449,7 +454,7 @@ class OccupancyUiTest {
             panel.testFindRoute(20, 5);
         });
 
-        String routeId = "P-038-BS-001";
+        String routeId = GuiActionRunner.execute(() -> panel.getSelectedRoute().getId());
         Route route = panel.getRouteModel().getRoute(routeId);
         assertThat(route).as("Route %s should be found", routeId).isNotNull();
         assertThat(route.getPath().get(route.getPath().size() - 1))
@@ -491,7 +496,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    @Disabled
+    // TEMP-DISABLED-REMOVED @Disabled
     void simulationStopsAfter5Seconds() throws Exception {
         GuiActionRunner.execute(() -> {
             panel.getRouteModel().clear();
@@ -548,7 +553,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    @Disabled
+    // TEMP-DISABLED-REMOVED @Disabled
     void distantSignalDoesNotStopTrainAndMirrorsNextSignal() throws Exception {
         // Load switchboard3a.json: distant signal SV-001 (10,5) ahead of main signal SM3-003 (7,5)
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard3a.json");
@@ -556,10 +561,12 @@ class OccupancyUiTest {
         var layoutPersistence = new LayoutPersistence();
         GuiActionRunner.execute(() -> layoutPersistence.load(panel, layoutPath));
 
-        // Pre-existing route P-028-DG-002 runs R→L through SV-001 then SM3-003
-        String routeId = "P-028-DG-002";
-        Route route = panel.getRouteModel().getRoute(routeId);
+        // Pre-existing route P-028-DG-002 (migrated to a train route on load) runs R→L through SV-001 then SM3-003
+        Route route = panel.getRouteModel().getRoutes().values().stream()
+            .filter(r -> r.getName() != null && r.getName().startsWith("P-028"))
+            .findFirst().orElse(null);
         assertThat(route).as("Persisted route should be loaded").isNotNull();
+        String routeId = route.getId();
 
         List<int[]> path = route.getPath();
         assertThat(path.stream().anyMatch(p -> p[0] == 10 && p[1] == 5)).as("Route should go via SV-001 (10,5)").isTrue();
@@ -615,7 +622,7 @@ class OccupancyUiTest {
 
     @Test
     @Tag("occupancy-ui")
-    @Disabled
+    // TEMP-DISABLED-REMOVED @Disabled
     void routeP087ToP015StopsAtFacingSignals() throws Exception {
         // Load switchboard7.json
         var url = OccupancyUiTest.class.getResource("/test-data/switchboard7.json");
@@ -633,7 +640,7 @@ class OccupancyUiTest {
             panel.testFindRoute(2, 3);
         });
 
-        String routeId = "P-087-P-015";
+        String routeId = GuiActionRunner.execute(() -> panel.getSelectedRoute().getId());
         assertThat(panel.getRouteModel().getRoute(routeId)).as("Route should be found").isNotNull();
         assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).as("Alternatives should exist").isTrue();
 
@@ -762,11 +769,15 @@ class OccupancyUiTest {
             panel.testFindRoute(target[0], target[1]);
         });
 
-        validation.accept(routeId);
+        // Routes are created as train routes ("TR-XXX"); resolve the actual id
+        final String resolvedId = GuiActionRunner.execute(() -> panel.getSelectedRoute().getId());
+        LOGGER.info("Resolved route id {} for legacy id {}", resolvedId, routeId);
 
-        List<int[]> path = routeSelector.apply(routeId);
+        validation.accept(resolvedId);
+
+        List<int[]> path = routeSelector.apply(resolvedId);
         assertThat(path).isNotEmpty();
-        GuiActionRunner.execute(() -> panel.getRouteModel().clearAlternatives(routeId));
+        GuiActionRunner.execute(() -> panel.getRouteModel().clearAlternatives(resolvedId));
         int limit = path.size();
         LOGGER.info("Route has {} tiles", limit);
 

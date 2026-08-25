@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
  * UI test that loads switchboard3d.json and displays the panels
  * with the train list on the left and switchboard on the right.
  */
-@Disabled
+// TEMP-DISABLED-REMOVED @Disabled
 class TrainListUiTest {
 
     private FrameFixture window;

@@ -120,11 +120,12 @@ class RouterServiceTest {
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(24, 6);
 
-        String routeId = "P-015-P-065";
-        org.bidib.switchboard.component.model.Route r = panel.getRouteModel().getRoute(routeId);
+        String routeName = "P-015 \u2192 P-065";
+        org.bidib.switchboard.component.model.Route r = panel.getRouteModel().getRoutes().values().stream()
+            .filter(rt -> routeName.equals(rt.getName())).findFirst().orElse(null);
         assertThat(r).isNotNull();
-        assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
-        assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(2);
+        assertThat(panel.getRouteModel().hasAlternativeRoute(r.getId())).isTrue();
+        assertThat(panel.getRouteModel().getAlternativeRoutes(r.getId())).hasSize(2);
     }
 
     @Test
@@ -195,11 +196,12 @@ class RouterServiceTest {
         panel.testSetRouteSource(2, 3);
         panel.testFindRoute(7, 11);
 
-        String routeId = "P-015-TL-004";
-        org.bidib.switchboard.component.model.Route r = panel.getRouteModel().getRoute(routeId);
+        String routeName = "P-015 \u2192 TL-004";
+        org.bidib.switchboard.component.model.Route r = panel.getRouteModel().getRoutes().values().stream()
+            .filter(rt -> routeName.equals(rt.getName())).findFirst().orElse(null);
         assertThat(r).isNotNull();
-        assertThat(panel.getRouteModel().hasAlternativeRoute(routeId)).isTrue();
-        assertThat(panel.getRouteModel().getAlternativeRoutes(routeId)).hasSize(4);
+        assertThat(panel.getRouteModel().hasAlternativeRoute(r.getId())).isTrue();
+        assertThat(panel.getRouteModel().getAlternativeRoutes(r.getId())).hasSize(4);
     }
 
     @Test

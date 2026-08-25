@@ -12,10 +12,13 @@ import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
+import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.SignalSide;
 import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.view.TileGrid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
@@ -23,6 +26,8 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 public class LayoutPersistence {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LayoutPersistence.class);
 
     private static final ObjectMapper MAPPER = JsonMapper.builder()
             .enable(SerializationFeature.INDENT_OUTPUT)
@@ -244,6 +249,7 @@ public class LayoutPersistence {
                 }
                 grid.getRouteModel().addRoute(route);
             }
+            migrateSignalRoutes(grid.getRouteModel());
         }
 
         if (data.getBlocks() != null) {
@@ -276,6 +282,50 @@ public class LayoutPersistence {
                 }
             }
         }
+    }
+
+    /**
+     * Converts legacy signal routes (identified by non-null source/target element IDs)
+     * into named train routes ("TR-XXX"). The route name is preserved; missing names
+     * are derived as "sourceId → targetId". Paths and station stops are kept.
+     *
+     * @param routeModel the route model whose routes are migrated in place
+     */
+    private static void migrateSignalRoutes(RouteModel routeModel) {
+        List<Route> signalRoutes = new ArrayList<>();
+        for (Route r : routeModel.getRoutes().values()) {
+            if (r.getSourceElementId() != null || r.getTargetElementId() != null) {
+                signalRoutes.add(r);
+            }
+        }
+        for (Route old : signalRoutes) {
+            routeModel.removeRoute(old.getId());
+            String name = old.getName() != null && !old.getName().isBlank()
+                ? old.getName()
+                : old.getSourceElementId() + " \u2192 " + old.getTargetElementId();
+            String id = nextTrainRouteId(routeModel);
+            Route migrated = new Route(id, name, null, null, old.getPath());
+            for (Route.StationStop stop : old.getStops()) {
+                migrated.addStop(stop.getPathIndex(), stop.getDwellTimeMs());
+            }
+            routeModel.addRoute(migrated);
+            LOGGER.info("Migrated signal route {} to train route {}", old.getId(), id);
+        }
+    }
+
+    private static String nextTrainRouteId(RouteModel routeModel) {
+        int maxNum = 0;
+        for (String key : routeModel.getRoutes().keySet()) {
+            if (key.startsWith("TR-")) {
+                try {
+                    maxNum = Math.max(maxNum, Integer.parseInt(key.substring(3)));
+                }
+                catch (NumberFormatException e) {
+                    // ignore non-numeric suffixes
+                }
+            }
+        }
+        return "TR-" + String.format("%03d", maxNum + 1);
     }
 
     private static Tile reconstructTile(LayoutData.TileData td) {

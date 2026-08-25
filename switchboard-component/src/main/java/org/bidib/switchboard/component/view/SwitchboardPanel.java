@@ -753,6 +753,46 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         repaint();
     }
 
+    /**
+     * Finishes route creation mode: collects stops and path, creates a named train
+     * route ("TR-XXX"), persists whole-path alternatives, and selects it.
+     *
+     * @param name the user-entered route name (must not be blank)
+     * @return the created route, or null if the collected path was empty
+     */
+    public boolean hasRouteCreationPath() {
+        return !routeCreationPath.isEmpty();
+    }
+
+    public org.bidib.switchboard.component.model.Route finishRouteCreation(String name) {
+        java.util.Set<Integer> stops = new java.util.HashSet<>(routeCreationStops);
+        List<int[]> path = exitRouteCreationMode();
+        if (path.isEmpty()) {
+            return null;
+        }
+        String id = generateTrainRouteId();
+        Route route = new Route(id, name, null, null, path);
+        for (int idx : stops) {
+            route.addStop(idx, 5000);
+        }
+        routeModel.addRoute(route);
+
+        // Persist whole-path alternatives so they can be selected via context menu
+        int[] first = path.get(0);
+        int[] last = path.get(path.size() - 1);
+        List<List<int[]>> alts = routerService.bfsAlternativeRoutes(first[0], first[1], last[0], last[1], path);
+        int altNum = 1;
+        for (List<int[]> altPath : alts) {
+            Route alt = new Route(id + "-A" + altNum++, name, null, null, altPath);
+            routeModel.addAlternativeRoute(id, alt);
+        }
+        LOGGER.info("Train route {} saved: {} tiles, {} stop(s), {} alternative(s)",
+            id, path.size(), stops.size(), alts.size());
+
+        setSelectedRoute(route);
+        return route;
+    }
+
     private List<org.bidib.switchboard.component.model.Route> findRoutesStartingAtBlock(Block block) {
         List<int[]> blockPath = block.getPath();
         if (blockPath.isEmpty()) {
@@ -785,7 +825,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         return result;
     }
 
-    private void startRouteSimulation(org.bidib.switchboard.component.model.Route tr) {
+    public void startRouteSimulation(org.bidib.switchboard.component.model.Route tr) {
         // Stop any existing simulation
         stopRouteSimulation();
 
@@ -903,17 +943,22 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             return;
         }
 
-        String routeId = srcId + "-" + dstId;
-        Route previousRoute = routeModel.getRoute(routeId);
-        if (previousRoute != null) {
-            routeModel.removeRoute(routeId);
+        String routeName = srcId + " \u2192 " + dstId;
+
+        // Replace an existing train route with the same name
+        Route previousRoute = null;
+        for (Route r : routeModel.getRoutes().values()) {
+            if (routeName.equals(r.getName())) {
+                previousRoute = r;
+                break;
+            }
         }
+        if (previousRoute != null) {
+            routeModel.removeRoute(previousRoute.getId());
+        }
+
         List<int[]> path = routerService.bfsRoute(routeSourceCol, routeSourceRow, targetCol, targetRow);
         if (path != null) {
-            String routeName = srcId + " \u2192 " + dstId;
-            Route route = new Route(routeName, srcId, dstId, path);
-            LOGGER.info("Route {} added: {} tiles {}", route.getId(), path.size(), pathToString(path));
-
             Map<String, Integer> oldAspects = new HashMap<>();
             for (int[] p : path) {
                 Tile tile = getTile(p[0], p[1]);
@@ -927,22 +972,22 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
             List<Route> altRoutes = new ArrayList<>();
             List<List<int[]>> alts = routerService.bfsAlternativeRoutes(routeSourceCol, routeSourceRow, targetCol, targetRow, path);
-            if (!alts.isEmpty()) {
-                for (List<int[]> altPath : alts) {
-                    Route alt = new Route(routeName, srcId, dstId, altPath);
-                    altRoutes.add(alt);
-                    routeModel.addAlternativeRoute(route.getId(), alt);
-                    LOGGER.info("Alternative route found: {} tiles {}", altPath.size(), pathToString(altPath));
-                }
+            String routeId = generateTrainRouteId();
+            Route route = new Route(routeId, routeName, null, null, path);
+            int altNum = 1;
+            for (List<int[]> altPath : alts) {
+                Route alt = new Route(routeId + "-A" + altNum++, routeName, null, null, altPath);
+                altRoutes.add(alt);
+                routeModel.addAlternativeRoute(route.getId(), alt);
             }
-            else {
-                LOGGER.info("No alternative route found for {}", route.getId());
-            }
+            LOGGER.info("Train route {} added: {} tiles {}, {} alternative(s)", route.getId(),
+                path.size(), pathToString(path), alts.size());
 
             routeModel.addRoute(route);
             routerService.setRouteAspects(path, model);
 
             undoStack.push(new CreateRouteCommand(routeModel, model, route, previousRoute, altRoutes, oldAspects));
+            setSelectedRoute(route);
         }
         else {
             LOGGER.info("No route found from ({},{}) to ({},{})", routeSourceCol, routeSourceRow, targetCol, targetRow);
@@ -952,6 +997,25 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         }
         clearPendingRoute();
         repaint();
+    }
+
+    /**
+     * Generates the next unique train route ID ("TR-001", "TR-002", ...) based on
+     * the highest existing TR- number in the route model.
+     */
+    private String generateTrainRouteId() {
+        int maxNum = 0;
+        for (String key : routeModel.getRoutes().keySet()) {
+            if (key.startsWith("TR-")) {
+                try {
+                    maxNum = Math.max(maxNum, Integer.parseInt(key.substring(3)));
+                }
+                catch (NumberFormatException e) {
+                    // ignore non-numeric suffixes
+                }
+            }
+        }
+        return "TR-" + String.format("%03d", maxNum + 1);
     }
 
     // --- Context menu ---
@@ -1564,7 +1628,13 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             menu.add(primaryItem);
             for (int i = 0; i < alts.size(); i++) {
                 Route alt = alts.get(i);
-                String label = MessageFormat.format(messages.getString("context.format.alternative"), i + 1, alt.getSourceElementId(), alt.getTargetElementId());
+                String label;
+                if (alt.getSourceElementId() != null && alt.getTargetElementId() != null) {
+                    label = MessageFormat.format(messages.getString("context.format.alternative"), i + 1, alt.getSourceElementId(), alt.getTargetElementId());
+                }
+                else {
+                    label = MessageFormat.format(messages.getString("context.format.alternativeTiles"), i + 1, alt.getPath().size());
+                }
                 Color altColor = altPaletteColor(i);
                 Icon icon = new Icon() {
                     @Override public void paintIcon(Component comp, Graphics g, int x, int y) {
@@ -2320,51 +2390,47 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     private void drawRoute(Graphics2D g2) {
         int half = tileSize / 2;
 
-        // Draw all routes from model
+        // Draw all routes from model (named/train routes only when selected)
         for (Route route : routeModel.getRoutes().values()) {
             List<int[]> path = route.getPath();
             if (path.isEmpty()) continue;
 
-            boolean isNamedRoute = route.getSourceElementId() == null || route.getTargetElementId() == null;
             boolean isSelected = route == selectedRoute;
 
-            // Hide named routes that are not selected
-            if (isNamedRoute && !isSelected) continue;
+            // Named (train) routes are hidden unless selected
+            if (route.getSourceElementId() == null && !isSelected) continue;
 
             Color routeColor = isSelected ? COLOR_SELECTED_ROUTE : COLOR_ROUTE;
             Color stopColor = isSelected ? COLOR_SELECTED_ROUTE_STOP : COLOR_TRAIN_ROUTE_STOP;
 
             drawRouteLine(g2, path, route.getStops(), routeColor, stopColor, false);
 
-            // Signal-to-signal routes: source/target dots + alt indicators
-            if (route.getSourceElementId() != null && route.getTargetElementId() != null) {
-                int n = path.size();
-                int[] first = path.get(0);
-                int sx = first[0] * tileSize + half;
-                int sy = first[1] * tileSize + half;
-                g2.setColor(COLOR_ROUTE_SOURCE);
-                g2.fillOval(sx - 6, sy - 6, 12, 12);
+            // Source/target dots + "+" badge when alternatives exist
+            boolean hasAlts = routeModel.hasAlternativeRoute(route.getId());
+            int n = path.size();
+            int[] first = path.get(0);
+            int sx = first[0] * tileSize + half;
+            int sy = first[1] * tileSize + half;
+            g2.setColor(COLOR_ROUTE_SOURCE);
+            g2.fillOval(sx - 6, sy - 6, 12, 12);
+            if (hasAlts) {
+                g2.setColor(Color.WHITE);
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
+                boolean startHorizontal = n > 1 && path.get(0)[1] == path.get(1)[1];
+                g2.drawString("+", startHorizontal ? sx - 6 : sx + 10, startHorizontal ? sy + 18 : sy + 6);
+            }
 
-                if (routeModel.hasAlternativeRoute(route.getId())) {
+            if (n > 1) {
+                int[] last = path.get(n - 1);
+                int tx = last[0] * tileSize + half;
+                int ty = last[1] * tileSize + half;
+                g2.setColor(COLOR_ROUTE_TARGET);
+                g2.fillOval(tx - 6, ty - 6, 12, 12);
+                if (hasAlts) {
                     g2.setColor(Color.WHITE);
                     g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
-                    boolean startHorizontal = n > 1 && path.get(0)[1] == path.get(1)[1];
-                    g2.drawString("+", startHorizontal ? sx - 6 : sx + 10, startHorizontal ? sy + 18 : sy + 6);
-                }
-
-                if (n > 1) {
-                    int[] last = path.get(n - 1);
-                    int tx = last[0] * tileSize + half;
-                    int ty = last[1] * tileSize + half;
-                    g2.setColor(COLOR_ROUTE_TARGET);
-                    g2.fillOval(tx - 6, ty - 6, 12, 12);
-
-                    if (routeModel.hasAlternativeRoute(route.getId())) {
-                        g2.setColor(Color.WHITE);
-                        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 14f));
-                        boolean endHorizontal = n > 1 && path.get(n - 2)[1] == path.get(n - 1)[1];
-                        g2.drawString("+", endHorizontal ? tx - 6 : tx + 10, endHorizontal ? ty + 18 : ty + 6);
-                    }
+                    boolean endHorizontal = n > 1 && path.get(n - 2)[1] == path.get(n - 1)[1];
+                    g2.drawString("+", endHorizontal ? tx - 6 : tx + 10, endHorizontal ? ty + 18 : ty + 6);
                 }
             }
         }
@@ -2924,22 +2990,6 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             }
             else {
                 findRouteForCreation(col, row);
-            }
-            repaint();
-            return;
-        }
-
-        if (e.isControlDown()) {
-            if (!editMode) {
-                return;
-            }
-            if (routeSourceCol < 0) {
-                routeSourceCol = col;
-                routeSourceRow = row;
-                LOGGER.info("Route source set at ({},{})", col, row);
-            }
-            else {
-                findRoute(col, row);
             }
             repaint();
             return;
