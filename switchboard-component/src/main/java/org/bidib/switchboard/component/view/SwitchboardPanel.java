@@ -2343,6 +2343,23 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         isDraggingSelection = false;
     }
 
+    /**
+     * Programmatically selects a single tile (edit-mode selection). Clears any
+     * multi-selection. Does nothing when the coordinates are outside the grid.
+     *
+     * @param col the column of the tile to select
+     * @param row the row of the tile to select
+     */
+    public void selectTile(int col, int row) {
+        if (col < 0 || col >= cols || row < 0 || row >= rows) {
+            return;
+        }
+        clearMultiSelection();
+        selectedCol = col;
+        selectedRow = row;
+        repaint();
+    }
+
     private void drawSelection(Graphics2D g2) {
         if (!editMode) {
             return;

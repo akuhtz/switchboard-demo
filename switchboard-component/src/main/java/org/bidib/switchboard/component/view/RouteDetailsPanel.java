@@ -61,6 +61,8 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
 
     private Route displayedRoute;
 
+    private java.util.function.Consumer<int[]> tileSelectionListener;
+
     private final java.beans.PropertyChangeSupport pcs = new java.beans.PropertyChangeSupport(this);
 
     public RouteDetailsPanel(TileGrid tileGrid, RouteModel routeModel) {
@@ -126,8 +128,31 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
         cancelButton.addActionListener(e -> onCancel());
         runButton.addActionListener(e -> onRun());
 
+        // Select the corresponding tile in the switchboard (edit mode only)
+        tree.addTreeSelectionListener(e -> {
+            if (!editMode) {
+                return;
+            }
+            Object node = tree.getLastSelectedPathComponent();
+            if (tileSelectionListener != null
+                && node instanceof DefaultMutableTreeNode dmn
+                && dmn.getUserObject() instanceof TileNode tn) {
+                tileSelectionListener.accept(new int[] { tn.col(), tn.row() });
+            }
+        });
+
         // Refresh the alternatives badge when the route model changes
         routeModel.addPropertyChangeListener(evt -> SwingUtilities.invokeLater(this::refreshAltBadge));
+    }
+
+    /**
+     * Sets the listener notified with the tile coordinates of a clicked tree node.
+     * The listener is only invoked while edit mode is active.
+     *
+     * @param listener consumer receiving {@code int[] {col, row}}
+     */
+    public void setTileSelectionListener(java.util.function.Consumer<int[]> listener) {
+        this.tileSelectionListener = listener;
     }
 
     /**
@@ -207,7 +232,7 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
 
             if (include) {
                 String label = buildNodeLabel(col, row, tile, isLast);
-                rootNode.add(new DefaultMutableTreeNode(label));
+                rootNode.add(new DefaultMutableTreeNode(new TileNode(col, row, label)));
             }
         }
         treeModel.reload();
@@ -240,6 +265,18 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
     private void expandAll() {
         for (int i = 0; i < tree.getRowCount(); i++) {
             tree.expandRow(i);
+        }
+    }
+
+    /**
+     * Tree node user object carrying the tile coordinates of the route path entry
+     * plus the display label. {@code toString()} returns the label so the default
+     * tree cell renderer shows it unchanged.
+     */
+    private record TileNode(int col, int row, String label) {
+        @Override
+        public String toString() {
+            return label;
         }
     }
 

@@ -154,6 +154,7 @@ public class SwitchboardApp {
                 switchboardPanel.startRouteSimulation(route);
             }
         });
+        routeDetailsPanel.setTileSelectionListener(coord -> switchboardPanel.selectTile(coord[0], coord[1]));
 
         buildMenu();
         buildFrame();
