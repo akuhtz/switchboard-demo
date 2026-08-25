@@ -83,7 +83,7 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
         altLabel = new JLabel("");
         FormBuilder builder = FormBuilder.create()
             .columns("right:pref, 3dlu, 60dlu:grow")
-            .rows("pref, 3dlu, pref, 3dlu, pref:grow:fill, 3dlu, pref");
+            .rows("pref, 3dlu, pref, 3dlu, fill:pref:grow, 3dlu, pref");
         builder.border(Paddings.TABBED_DIALOG);
 
         builder.add(nameLabel).xy(1, 1);
@@ -221,7 +221,7 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
             Tile tile = tileGrid.getTile(col, row);
 
             boolean isLast = (i == path.size() - 1);
-            boolean include = isLast;
+            boolean include = (i == 0) || isLast;
 
             if (tile instanceof ElementTile et) {
                 ElementType type = et.getElementType();
