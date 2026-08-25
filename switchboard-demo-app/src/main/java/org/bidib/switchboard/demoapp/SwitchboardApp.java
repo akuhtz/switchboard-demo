@@ -144,7 +144,7 @@ public class SwitchboardApp {
         }
         trainListPanel = new TrainListPanel(model.getTrainListModel(), messages);
         routeListPanel = new RouteListPanel(switchboardPanel.getRouteModel(), messages);
-        routeDetailsPanel = new RouteDetailsPanel(switchboardPanel, model, switchboardPanel.getRouteModel(), messages);
+        routeDetailsPanel = new RouteDetailsPanel(switchboardPanel, model, switchboardPanel.getRouteModel());
         routeListPanel.setSelectionListener(route -> {
             switchboardPanel.setSelectedRoute(route);
             routeDetailsPanel.setRoute(route);

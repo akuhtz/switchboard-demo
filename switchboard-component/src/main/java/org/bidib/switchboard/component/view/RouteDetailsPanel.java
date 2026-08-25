@@ -58,11 +58,11 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
 
     private final java.beans.PropertyChangeSupport pcs = new java.beans.PropertyChangeSupport(this);
 
-    public RouteDetailsPanel(TileGrid tileGrid, RailwayModel model, RouteModel routeModel, ResourceBundle messages) {
+    public RouteDetailsPanel(TileGrid tileGrid, RailwayModel model, RouteModel routeModel) {
         this.tileGrid = tileGrid;
         this.model = model;
         this.routeModel = routeModel;
-        this.messages = messages;
+        this.messages = ResourceBundle.getBundle("i18n.messages");
 
         dockKey.setName(messages != null ? messages.getString("routeDetails.title") : "Route Details");
         dockKey.setTooltip(messages != null ? messages.getString("routeDetails.tooltip") : "Details of the selected route");
