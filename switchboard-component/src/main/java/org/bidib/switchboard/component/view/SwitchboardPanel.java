@@ -846,7 +846,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         }
 
         routeSimulation = new org.bidib.switchboard.component.simulation.RouteSimulation(
-            model, this, occupancyFactory);
+            model, this, occupancyFactory, routerService, 3);
         routeSimulation.setOnTick(this::repaint);
         routeSimulation.setAutoChangeSignal(autoChangeSignal);
 
@@ -2778,7 +2778,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             existing.stop();
         }
 
-        OccupancySimulation sim = new OccupancySimulation(model, this, occupancyFactory);
+        OccupancySimulation sim = new OccupancySimulation(model, this, occupancyFactory, routerService, 3);
         sim.setAutoChangeSignal(autoChangeSignal);
         sim.setOnTick(this::repaint);
         sim.start(route);

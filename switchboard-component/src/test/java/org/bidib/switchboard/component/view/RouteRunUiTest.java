@@ -116,6 +116,8 @@ class RouteRunUiTest {
         int currentIndex = GuiActionRunner.execute(() -> panel.getRouteSimulation().getCurrentIndex());
         assertThat(currentIndex).as("Simulation should have advanced past start").isGreaterThan(1);
 
+        waitSeconds(2);
+
         // Stop the simulation
         GuiActionRunner.execute(() -> panel.testStopRouteSimulation());
         window.robot().waitForIdle();
@@ -123,8 +125,6 @@ class RouteRunUiTest {
         // Verify simulation is stopped
         var simAfterStop = GuiActionRunner.execute(() -> panel.getRouteSimulation());
         assertThat(simAfterStop).as("Simulation should be stopped").isNull();
-
-        waitSeconds(1);
     }
 
     private void waitSeconds(int seconds) {

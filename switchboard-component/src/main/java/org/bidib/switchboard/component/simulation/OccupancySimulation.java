@@ -11,6 +11,7 @@ import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
+import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.view.TileGrid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +33,13 @@ public class OccupancySimulation {
 
     private static final Logger LOG = LoggerFactory.getLogger(OccupancySimulation.class);
     private static final long AUTO_CHANGE_DELAY_MS = 2000;
+    private static final int DEFAULT_TRAIN_LENGTH = 3;
 
     private final RailwayModel model;
     private final TileGrid tileGrid;
     private final OccupancyFactory occupancyFactory;
+    private RouterService routerService;
+    private int trainLength = DEFAULT_TRAIN_LENGTH;
 
     private Route route;
     private List<int[]> path;
@@ -44,11 +48,33 @@ public class OccupancySimulation {
     private boolean autoChangeSignal;
     private long signalBlockedSince = -1;
     private Runnable onTick;
+    private TrainMovement trainMovement;
 
     public OccupancySimulation(RailwayModel model, TileGrid tileGrid, OccupancyFactory occupancyFactory) {
+        this(model, tileGrid, occupancyFactory, null, DEFAULT_TRAIN_LENGTH);
+    }
+
+    public OccupancySimulation(RailwayModel model, TileGrid tileGrid, OccupancyFactory occupancyFactory,
+            RouterService routerService, int trainLength) {
         this.model = model;
         this.tileGrid = tileGrid;
         this.occupancyFactory = occupancyFactory;
+        this.routerService = routerService;
+        this.trainLength = Math.max(1, trainLength);
+        this.trainMovement = new TrainMovement(this.trainLength);
+    }
+
+    public void setRouterService(RouterService routerService) {
+        this.routerService = routerService;
+    }
+
+    public void setTrainLength(int trainLength) {
+        this.trainLength = Math.max(1, trainLength);
+        this.trainMovement = new TrainMovement(this.trainLength);
+    }
+
+    public int getTrainLength() {
+        return trainLength;
     }
 
     // --- Configuration ---
@@ -97,13 +123,18 @@ public class OccupancySimulation {
             }
         }
 
-        // Set first tile to OCCUPIED
-        int[] first = path.get(0);
-        Tile ft = tileGrid.getTile(first[0], first[1]);
-        if (ft instanceof ElementTile fet && fet.getElementId() != null) {
-            Element fel = model.getElement(fet.getElementId());
-            if (fel != null && fel.getOccupancy() != null) {
-                fel.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
+        // Initialize train movement: head at path[0], cars behind on physical track
+        int[] headPos = path.get(0);
+        trainMovement.initialize(headPos, tileGrid, routerService);
+
+        // Set all train positions to OCCUPIED (including off-path backward tiles)
+        for (int[] pos : trainMovement.getPositions()) {
+            Tile tile = tileGrid.getTile(pos[0], pos[1]);
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null && el.getOccupancy() != null) {
+                    el.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
+                }
             }
         }
 
@@ -127,17 +158,17 @@ public class OccupancySimulation {
     public void reset() {
         running = false;
         signalBlockedSince = -1;
-        if (path != null) {
-            for (int[] p : path) {
-                Tile tile = tileGrid.getTile(p[0], p[1]);
-                if (tile instanceof ElementTile et && et.getElementId() != null) {
-                    Element el = model.getElement(et.getElementId());
-                    if (el != null && el.getOccupancy() != null) {
-                        el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
-                    }
+        // Free all train positions
+        for (int[] pos : trainMovement.getPositions()) {
+            Tile tile = tileGrid.getTile(pos[0], pos[1]);
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null && el.getOccupancy() != null) {
+                    el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
                 }
             }
         }
+        trainMovement.clear();
         currentIndex = 0;
     }
 
@@ -192,17 +223,23 @@ public class OccupancySimulation {
         // Clear blocked state if we moved past
         signalBlockedSince = -1;
 
-        // Advance: set previous tile to FREE
-        if (pt instanceof ElementTile pet && pet.getElementId() != null) {
-            Element pel = model.getElement(pet.getElementId());
-            if (pel != null && pel.getOccupancy() != null) {
-                pel.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+        // Advance train: get new head position
+        int[] newHead = path.get(currentIndex);
+        List<int[]> freed = trainMovement.advance(newHead);
+
+        // Free the tail positions that were left behind
+        for (int[] freedPos : freed) {
+            Tile tile = tileGrid.getTile(freedPos[0], freedPos[1]);
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null && el.getOccupancy() != null) {
+                    el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                }
             }
         }
 
-        // Set current tile to OCCUPIED
-        int[] cp = path.get(currentIndex);
-        Tile ct = tileGrid.getTile(cp[0], cp[1]);
+        // Set new head to OCCUPIED
+        Tile ct = tileGrid.getTile(newHead[0], newHead[1]);
         if (ct instanceof ElementTile cet && cet.getElementId() != null) {
             Element cel = model.getElement(cet.getElementId());
             if (cel != null && cel.getOccupancy() != null) {
@@ -304,6 +341,10 @@ public class OccupancySimulation {
 
     public boolean isBlockedAtSignal() {
         return signalBlockedSince >= 0;
+    }
+
+    public List<int[]> getTrainPositions() {
+        return trainMovement.getPositions();
     }
 
     // --- Static signal utilities ---

@@ -20,6 +20,7 @@ import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.model.TileDirection;
+import org.bidib.switchboard.component.view.TileGrid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -599,7 +600,108 @@ public class RouterService {
         return true;
     }
 
-    private List<int[]> getConnectedNeighbors(int col, int row) {
+    private boolean hasPhysicalPort(int col, int row, int port) {
+        Tile t = getTile(col, row);
+        if (t == null) return false;
+        int[] ports = getPhysicalPorts(t);
+        if (ports == null) return false;
+        return Arrays.stream(ports).anyMatch(p -> p == port);
+    }
+
+    private int[] getPhysicalPorts(Tile tile) {
+        if (tile instanceof ElementTile et) {
+            return et.getElementType().getPhysicalPorts(tile.getRotation());
+        }
+        return null;
+    }
+
+    private Tile getTile(int col, int row) {
+        return tiles.get(Tile.key(col, row));
+    }
+
+    static String edgeKey(int fromCol, int fromRow, int toCol, int toRow) {
+        return fromCol + "," + fromRow + "->" + toCol + "," + toRow;
+    }
+
+    // --- Public utilities for train movement ---
+
+    /**
+     * Returns all physically connected neighbor tiles for the given coordinates.
+     * This is a public wrapper around the internal neighbor finding logic.
+     */
+    public List<int[]> getConnectedNeighbors(int col, int row) {
+        return getConnectedNeighborsInternal(col, row);
+    }
+
+    /**
+     * Finds the best neighbor tile behind the given tile, relative to the tile
+     * we came from (the "head side"). Used to walk backward along the physical
+     * track to place train cars.
+     *
+     * @param grid        the tile grid for tile lookup
+     * @param col         current tile column
+     * @param row         current tile row
+     * @param fromCol     column of the tile we came from (head side), or -1 if none
+     * @param fromRow     row of the tile we came from, or -1 if none
+     * @return coordinates of the backward neighbor, or null if none exists
+     */
+    public int[] pickBackwardNeighbor(TileGrid grid, int col, int row, int[] fromCoord) {
+        List<int[]> neighbors = getConnectedNeighborsInternal(col, row);
+        if (neighbors.isEmpty()) {
+            return null;
+        }
+
+        // If we have a from-coord, exclude it and prefer straight-through continuation
+        if (fromCoord != null) {
+            int fromCol = fromCoord[0];
+            int fromRow = fromCoord[1];
+
+            // Compute entry port: the port on current tile facing the from-tile
+            int dc = col - fromCol;
+            int dr = row - fromRow;
+            int entryPort = portFromDelta(dc, dr);
+
+            // Filter out the from-tile
+            java.util.List<int[]> candidates = new java.util.ArrayList<>();
+            for (int[] n : neighbors) {
+                if (n[0] == fromCol && n[1] == fromRow) {
+                    continue;
+                }
+                candidates.add(n);
+            }
+
+            if (candidates.isEmpty()) {
+                return null;
+            }
+
+            // Prefer the neighbor that forms a valid through-path with the entry port
+            Tile currentTile = grid.getTile(col, row);
+            if (currentTile instanceof ElementTile et) {
+                int rotation = currentTile.getRotation();
+                ElementType type = et.getElementType();
+                for (int[] n : candidates) {
+                    int ndc = n[0] - col;
+                    int ndr = n[1] - row;
+                    int exitPort = portFromDelta(ndc, ndr);
+                    if (type.isValidThroughPath(entryPort, exitPort, rotation)) {
+                        return n;
+                    }
+                }
+            }
+
+            // No straight-through: return first candidate
+            return candidates.get(0);
+        }
+
+        // No from-coord (first step from head): just return first neighbor
+        return neighbors.get(0);
+    }
+
+    /**
+     * Internal method to get connected neighbors. Extracted to be called by
+     * both the public wrapper and pickBackwardNeighbor.
+     */
+    private List<int[]> getConnectedNeighborsInternal(int col, int row) {
         List<int[]> neighbors = new ArrayList<>();
         Tile tile = getTile(col, row);
         if (tile == null) {
@@ -664,26 +766,14 @@ public class RouterService {
         return neighbors;
     }
 
-    private boolean hasPhysicalPort(int col, int row, int port) {
-        Tile t = getTile(col, row);
-        if (t == null) return false;
-        int[] ports = getPhysicalPorts(t);
-        if (ports == null) return false;
-        return Arrays.stream(ports).anyMatch(p -> p == port);
-    }
-
-    private int[] getPhysicalPorts(Tile tile) {
-        if (tile instanceof ElementTile et) {
-            return et.getElementType().getPhysicalPorts(tile.getRotation());
-        }
-        return null;
-    }
-
-    private Tile getTile(int col, int row) {
-        return tiles.get(Tile.key(col, row));
-    }
-
-    static String edgeKey(int fromCol, int fromRow, int toCol, int toRow) {
-        return fromCol + "," + fromRow + "->" + toCol + "," + toRow;
+    /**
+     * Static helper to compute port from delta, matching OccupancySimulation.portFromDelta.
+     */
+    static int portFromDelta(int dc, int dr) {
+        if (dc == 1) return ElementType.PORT_LEFT;
+        if (dc == -1) return ElementType.PORT_RIGHT;
+        if (dr == 1) return ElementType.PORT_TOP;
+        if (dr == -1) return ElementType.PORT_BOTTOM;
+        return -1;
     }
 }

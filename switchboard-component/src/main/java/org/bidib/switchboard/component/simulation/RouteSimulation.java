@@ -12,6 +12,7 @@ import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.Tile;
+import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.view.TileGrid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,13 @@ public class RouteSimulation {
     private static final Logger LOG = LoggerFactory.getLogger(RouteSimulation.class);
 
     private static final long AUTO_CHANGE_DELAY_MS = 2000;
+    private static final int DEFAULT_TRAIN_LENGTH = 3;
 
     private final RailwayModel model;
     private final TileGrid tileGrid;
     private final OccupancyFactory occupancyFactory;
+    private RouterService routerService;
+    private int trainLength = DEFAULT_TRAIN_LENGTH;
 
     private Route route;
     private String trainId;
@@ -40,11 +44,33 @@ public class RouteSimulation {
     private boolean startSignalSet;
     private long startedAt;
     private Runnable onTick;
+    private TrainMovement trainMovement;
 
     public RouteSimulation(RailwayModel model, TileGrid tileGrid, OccupancyFactory occupancyFactory) {
+        this(model, tileGrid, occupancyFactory, null, DEFAULT_TRAIN_LENGTH);
+    }
+
+    public RouteSimulation(RailwayModel model, TileGrid tileGrid, OccupancyFactory occupancyFactory,
+            RouterService routerService, int trainLength) {
         this.model = model;
         this.tileGrid = tileGrid;
         this.occupancyFactory = occupancyFactory;
+        this.routerService = routerService;
+        this.trainLength = Math.max(1, trainLength);
+        this.trainMovement = new TrainMovement(this.trainLength);
+    }
+
+    public void setRouterService(RouterService routerService) {
+        this.routerService = routerService;
+    }
+
+    public void setTrainLength(int trainLength) {
+        this.trainLength = Math.max(1, trainLength);
+        this.trainMovement = new TrainMovement(this.trainLength);
+    }
+
+    public int getTrainLength() {
+        return trainLength;
     }
 
     public void setOnTick(Runnable onTick) {
@@ -93,11 +119,17 @@ public class RouteSimulation {
             }
         }
 
-        // Set first tile to OCCUPIED
-        setOccupied(path.get(0));
+        // Initialize train movement: head at path[0], cars behind on physical track
+        int[] headPos = path.get(0);
+        trainMovement.initialize(headPos, tileGrid, routerService);
+
+        // Set all train positions to OCCUPIED (including off-path backward tiles)
+        for (int[] pos : trainMovement.getPositions()) {
+            setOccupied(pos);
+        }
 
         // If there is a signal at the start position, switch it to green immediately
-        Tile startTile = tileGrid.getTile(path.get(0)[0], path.get(0)[1]);
+        Tile startTile = tileGrid.getTile(headPos[0], headPos[1]);
         if (startTile instanceof ElementTile et && et.getElementId() != null) {
             ElementType type = et.getElementType();
             if (type == ElementType.SIGNAL_M3 || type == ElementType.SIGNAL_COMBINED) {
@@ -109,9 +141,9 @@ public class RouteSimulation {
         // Move train to first block on the path
         assignTrainToFirstBlock();
 
-        currentIndex = 1;
         running = true;
-        LOG.info("Started route '{}' with train {}", route.getName() != null ? route.getName() : route.getId(), trainId);
+        LOG.info("Started route '{}' with train {} (length {})",
+            route.getName() != null ? route.getName() : route.getId(), trainId, trainLength);
         notifyTick();
     }
 
@@ -125,7 +157,11 @@ public class RouteSimulation {
         running = false;
         pausedAtStation = false;
         stationPausedSince = -1;
-        clearOccupancies();
+        // Free all train positions
+        for (int[] pos : trainMovement.getPositions()) {
+            setFree(pos);
+        }
+        trainMovement.clear();
         currentIndex = 0;
         notifyTick();
     }
@@ -185,8 +221,7 @@ public class RouteSimulation {
                         signalBlockedSince = now;
                         LOG.info("Train blocked at signal on tile ({},{})", path.get(prev)[0], path.get(prev)[1]);
                     } else if (now - signalBlockedSince >= AUTO_CHANGE_DELAY_MS) {
-                    		LOG.info(">>> auto-change signal elapsed.");
-                    		
+                        LOG.info(">>> auto-change signal elapsed.");
                         if (pt instanceof ElementTile et && et.getElementId() != null) {
                             model.setElementAspect(et.getElementId(), 1);
                             LOG.info("Auto-changed signal {} to green", et.getElementId());
@@ -201,11 +236,17 @@ public class RouteSimulation {
 
         signalBlockedSince = -1;
 
-        // Advance: set previous tile to FREE
-        setFree(path.get(prev));
+        // Advance train: get new head position
+        int[] newHead = path.get(currentIndex);
+        List<int[]> freed = trainMovement.advance(newHead);
 
-        // Set current tile to OCCUPIED
-        setOccupied(path.get(currentIndex));
+        // Free the tail positions that were left behind
+        for (int[] freedPos : freed) {
+            setFree(freedPos);
+        }
+
+        // Set new head to OCCUPIED
+        setOccupied(newHead);
 
         // Move train to the block containing the current tile
         assignTrainToCurrentBlock();
@@ -308,5 +349,9 @@ public class RouteSimulation {
 
     public int getCurrentIndex() {
         return currentIndex;
+    }
+
+    public List<int[]> getTrainPositions() {
+        return trainMovement.getPositions();
     }
 }
