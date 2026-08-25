@@ -3,30 +3,28 @@ package org.bidib.switchboard.component.view;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ResourceBundle;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTree;
 import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import org.bidib.switchboard.component.model.ElementTile;
 import org.bidib.switchboard.component.model.ElementType;
-import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 import org.bidib.switchboard.component.model.Tile;
 
 import com.jgoodies.forms.builder.FormBuilder;
-import com.vlsolutions.swing.docking.Dockable;
+import com.jgoodies.forms.factories.Paddings;
 import com.vlsolutions.swing.docking.DockKey;
+import com.vlsolutions.swing.docking.Dockable;
 
 public class RouteDetailsPanel extends JPanel implements Dockable {
 
@@ -35,8 +33,6 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
     private final DockKey dockKey = new DockKey("routeDetails");
 
     private final TileGrid tileGrid;
-
-    private final RailwayModel model;
 
     private final RouteModel routeModel;
 
@@ -58,9 +54,8 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
 
     private final java.beans.PropertyChangeSupport pcs = new java.beans.PropertyChangeSupport(this);
 
-    public RouteDetailsPanel(TileGrid tileGrid, RailwayModel model, RouteModel routeModel) {
+    public RouteDetailsPanel(TileGrid tileGrid, RouteModel routeModel) {
         this.tileGrid = tileGrid;
-        this.model = model;
         this.routeModel = routeModel;
         this.messages = ResourceBundle.getBundle("i18n.messages");
 
@@ -74,13 +69,13 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
         String nameLabel = messages != null ? messages.getString("routeDetails.routeName") : "Route Name:";
         nameField = new JTextField();
         nameField.setEnabled(false);
-        JPanel namePanel = FormBuilder.create()
+        FormBuilder builder = FormBuilder.create()
             .columns("right:pref, 3dlu, 60dlu:grow")
-            .rows("pref")
-            .add(new JLabel(nameLabel)).xy(1, 1)
-            .add(nameField).xy(3, 1)
-            .build();
-        add(namePanel, BorderLayout.NORTH);
+            .rows("pref, 3dlu, pref:grow, 3dlu, pref");
+        builder.border(Paddings.TABBED_DIALOG);
+
+        builder.add(nameLabel).xy(1, 1);
+        builder.add(nameField).xy(3, 1);
 
         // Center: tree
         rootNode = new DefaultMutableTreeNode("Root");
@@ -89,8 +84,8 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
         tree.setRootVisible(false);
         tree.setShowsRootHandles(true);
         JScrollPane scrollPane = new JScrollPane(tree);
-        add(scrollPane, BorderLayout.CENTER);
-
+        builder.add(scrollPane).xyw(1, 3, 3);
+        
         // South: buttons
         String saveText = messages != null ? messages.getString("routeDetails.save") : "Save";
         String cancelText = messages != null ? messages.getString("routeDetails.cancel") : "Cancel";
@@ -104,7 +99,12 @@ public class RouteDetailsPanel extends JPanel implements Dockable {
             .add(saveButton).xy(1, 1)
             .add(cancelButton).xy(3, 1)
             .build();
-        add(buttonPanel, BorderLayout.SOUTH);
+//        add(buttonPanel, BorderLayout.SOUTH);
+        builder.add(buttonPanel).xyw(1, 5, 3);
+        
+        JPanel contentPanel = builder.build();
+        JScrollPane panelScrollPane = new JScrollPane(contentPanel);
+        add(panelScrollPane, BorderLayout.CENTER);
 
         saveButton.addActionListener(e -> onSave());
         cancelButton.addActionListener(e -> onCancel());

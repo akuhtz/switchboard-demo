@@ -144,7 +144,7 @@ public class SwitchboardApp {
         }
         trainListPanel = new TrainListPanel(model.getTrainListModel(), messages);
         routeListPanel = new RouteListPanel(switchboardPanel.getRouteModel(), messages);
-        routeDetailsPanel = new RouteDetailsPanel(switchboardPanel, model, switchboardPanel.getRouteModel());
+        routeDetailsPanel = new RouteDetailsPanel(switchboardPanel, switchboardPanel.getRouteModel());
         routeListPanel.setSelectionListener(route -> {
             switchboardPanel.setSelectedRoute(route);
             routeDetailsPanel.setRoute(route);
@@ -456,11 +456,10 @@ public class SwitchboardApp {
         // prepare the dockables
         desktop.addDockable(trainListPanel);
         desktop.split(trainListPanel, switchboardPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
-        desktop.setDockableWidth(this.trainListPanel, 0.2d);
+        desktop.setDockableWidth(this.trainListPanel, 0.25d);
         desktop.split(trainListPanel, routeListPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_BOTTOM);
 
         // add route details as a tab alongside route list
-        desktop.addDockable(routeDetailsPanel);
         com.vlsolutions.swing.docking.TabbedDockableContainer container =
             com.vlsolutions.swing.docking.DockingUtilities.findTabbedDockableContainer(routeListPanel);
         int order = (container != null) ? container.getTabCount() : 1;

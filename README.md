@@ -131,8 +131,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
   - `addPropertyChangeListener` / `removePropertyChangeListener`
 
 ### `Route`
-- Immutable value class for a found route path.
-- Fields: `id` (auto-generated), `name` (mandatory, final), `sourceElementId`, `targetElementId`, `path` (ordered `List<int[]>` of `[col, row]`).
+- Value class for a found route path.
+- Fields: `id` (auto-generated), `name` (editable, must be non-blank and unique), `sourceElementId`, `targetElementId`, `path` (ordered `List<int[]>` of `[col, row]`).
+- `setName(String)` — updates the name; throws `IllegalArgumentException` if blank.
 - `containsTile(col, row)` — checks if a grid tile is part of the route.
 
 ### `RouteModel`
@@ -435,7 +436,9 @@ The application uses the [VLDocking](https://github.com/akuhtz/vldocking) framew
 
 - **SwitchboardPanel** (right side): the main switchboard grid, implements `Dockable`.
 - **TrainListPanel** (left side, 20% width): train list with drag-and-drop support, implements `Dockable`.
-- Both panels are split side-by-side using `DockingDesktop.split()`.
+- **RouteListPanel** (left side, below train list): list of routes, implements `Dockable`.
+- **RouteDetailsPanel** (tabbed alongside RouteListPanel): route details with editable name, turnout/signal tree, and Save/Cancel buttons, implements `Dockable`.
+- RouteListPanel and RouteDetailsPanel appear as tabs in the same dock area via `DockingDesktop.createTab()`.
 - Panels can be detached, re-docked, or rearranged via the VLDocking UI (drag tab headers).
 
 ### Train list panel
@@ -451,7 +454,7 @@ All UI strings (menu bar, toolbar, context menu, tile info dialog) are loaded fr
 
 | Bundle | File (English) | File (German) | Scope |
 |--------|---------------|---------------|-------|
-| Component | `i18n/messages.properties` | `i18n/messages_de.properties` | Context menu, info dialog |
+| Component | `i18n/messages.properties` | `i18n/messages_de.properties` | Context menu, info dialog, route details |
 | Demo App | `i18n/app-messages.properties` | `i18n/app-messages_de.properties` | Main menu, toolbar, frame title |
 
 The locale is determined by the system locale at startup (`Locale.getDefault()`). Parameterized

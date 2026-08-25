@@ -90,6 +90,14 @@ Route creation is only available in **edit mode** (Ctrl+E). When the switchboard
 
 Route creation mode is used with `switchboard-route-001.json` and similar layouts that define a route model upfront.
 
+## 7. Route details
+
+The **Route Details** tab appears alongside the **Routes** tab in the left panel. When you select a route in the Routes list, the Route Details panel shows:
+
+- **Route Name** text field (top): editable, must be non-blank and unique across all routes.
+- **Tree** (center): lists turnouts and main signals along the route path in order. The last tile is always shown, even if it is not a turnout or main signal. Distant signals (SIGNAL_V) are excluded.
+- **Save / Cancel** buttons (bottom): Save validates the name (non-blank, unique) and applies it. Cancel reverts to the original name.
+
 ## 7. Tile direction
 
 Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWARD, or BOTH).

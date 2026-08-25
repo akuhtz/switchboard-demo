@@ -90,6 +90,14 @@ Fahrstraßenerstellung ist nur im **Bearbeitungsmodus** (Strg+E) verfügbar. Wen
 
 Fahrstraßenerstellung wird mit `switchboard-route-001.json` und ähnlichen Layouts verwendet, die ein Fahrstraßenmodell definieren.
 
+## 7. Routendetails
+
+Der Tab **Routendetails** erscheint neben dem Tab **Routen** in der linken Panel. Wenn Sie eine Route in der Routenliste auswählen, zeigt das Routendetails-Panel:
+
+- **Routenname** Textfeld (oben): editierbar, muss nicht leer und eindeutig sein.
+- **Baum** (Mitte): listet Weichen und Hauptsignale entlang der Fahrstraße in Reihenfolge auf. Die letzte Kachel wird immer angezeigt, auch wenn es keine Weiche oder kein Hauptsignal ist. Vorsignale (SIGNAL_V) werden ausgeschlossen.
+- **Speichern / Abbrechen** Schaltflächen (unten): Speichern validiert den Namen (nicht leer, eindeutig) und wendet ihn an. Abbrechen setzt den ursprünglichen Namen zurück.
+
 ## 7. Kachelrichtung
 
 Gerade und diagonale Kacheln können eine **Richtungsbeschränkung** haben (FORWARD, BACKWARD oder BOTH).
