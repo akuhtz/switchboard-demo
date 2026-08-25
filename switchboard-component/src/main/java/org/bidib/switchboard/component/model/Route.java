@@ -8,7 +8,7 @@ import java.util.Map;
 public class Route {
 
     private final String id;
-    private final String name;
+    private String name;
     private final String sourceElementId;
     private final String targetElementId;
     private final List<int[]> path;
@@ -36,6 +36,13 @@ public class Route {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Route name must not be blank");
+        }
+        this.name = name;
     }
 
     public String getSourceElementId() {

@@ -38,6 +38,7 @@ import org.bidib.switchboard.component.model.Train;
 import org.bidib.switchboard.component.view.SwitchboardPanel;
 import org.bidib.switchboard.component.view.TrainListPanel;
 import org.bidib.switchboard.component.view.RouteListPanel;
+import org.bidib.switchboard.component.view.RouteDetailsPanel;
 import org.bidib.switchboard.demoapp.config.DemoOccupancy;
 import org.bidib.switchboard.demoapp.config.DemoOccupancyFactory;
 import org.bidib.switchboard.demoapp.persistence.DefaultSettingsManager;
@@ -95,6 +96,8 @@ public class SwitchboardApp {
 
     private RouteListPanel routeListPanel;
 
+    private RouteDetailsPanel routeDetailsPanel;
+
     private JMenu recentMenu;
 
     private final TrainSerializer trainSerializer = new TrainSerializer();
@@ -141,7 +144,11 @@ public class SwitchboardApp {
         }
         trainListPanel = new TrainListPanel(model.getTrainListModel(), messages);
         routeListPanel = new RouteListPanel(switchboardPanel.getRouteModel(), messages);
-        routeListPanel.setSelectionListener(route -> switchboardPanel.setSelectedRoute(route));
+        routeDetailsPanel = new RouteDetailsPanel(switchboardPanel, model, switchboardPanel.getRouteModel(), messages);
+        routeListPanel.setSelectionListener(route -> {
+            switchboardPanel.setSelectedRoute(route);
+            routeDetailsPanel.setRoute(route);
+        });
 
         buildMenu();
         buildFrame();
@@ -451,6 +458,13 @@ public class SwitchboardApp {
         desktop.split(trainListPanel, switchboardPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_RIGHT);
         desktop.setDockableWidth(this.trainListPanel, 0.2d);
         desktop.split(trainListPanel, routeListPanel, com.vlsolutions.swing.docking.DockingConstants.SPLIT_BOTTOM);
+
+        // add route details as a tab alongside route list
+        desktop.addDockable(routeDetailsPanel);
+        com.vlsolutions.swing.docking.TabbedDockableContainer container =
+            com.vlsolutions.swing.docking.DockingUtilities.findTabbedDockableContainer(routeListPanel);
+        int order = (container != null) ? container.getTabCount() : 1;
+        desktop.createTab(routeListPanel, routeDetailsPanel, order, false);
 
         frame.setSize(1280, 768);
         frame.setLocationRelativeTo(null);
