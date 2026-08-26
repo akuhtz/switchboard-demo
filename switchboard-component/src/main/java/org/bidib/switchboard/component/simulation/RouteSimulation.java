@@ -27,7 +27,7 @@ public class RouteSimulation {
     private static final Logger LOG = LoggerFactory.getLogger(RouteSimulation.class);
 
     private static final long AUTO_CHANGE_DELAY_MS = 2000;
-    private static final long BLOCK_MARKER_CLEAR_DELAY_MS = 5000;
+    private static final long BLOCK_MARKER_CLEAR_DELAY_MS = 2000;
     private static final int DEFAULT_TRAIN_LENGTH = 3;
 
     private final RailwayModel model;
@@ -299,7 +299,10 @@ public class RouteSimulation {
                 recordBlockDeparture(previousBlock);
             }
         }
-        previousBlock = currentBlock;
+        // Keep previousBlock even if currentBlock is null (head on unregistered tile)
+        if (currentBlock != null) {
+            previousBlock = currentBlock;
+        }
 
         currentIndex++;
 
@@ -387,13 +390,18 @@ public class RouteSimulation {
 
     private void stopBlockCleanupTimer() {
         if (blockCleanupTimer != null) {
-            blockCleanupTimer.stop();
+	    		LOG.info(">>> stopBlockCleanupTimer");
+	
+	    		blockCleanupTimer.stop();
             blockCleanupTimer = null;
         }
     }
 
     private void checkBlockCleanups() {
         long now = System.currentTimeMillis();
+        
+        LOG.info("Check block cleanups.");
+        
         boolean anyRemaining = false;
         Iterator<Map.Entry<Block, Long>> it = blockDepartures.entrySet().iterator();
         while (it.hasNext()) {
@@ -412,10 +420,10 @@ public class RouteSimulation {
                 anyRemaining = true;
             }
         }
-        if (!anyRemaining) {
-            LOG.info("No more blocks pending cleanup, stopping timer");
-            stopBlockCleanupTimer();
-        }
+//        if (!anyRemaining) {
+//            LOG.info("No more blocks pending cleanup, stopping timer");
+//            stopBlockCleanupTimer();
+//        }
     }
 
     private void notifyTick() {
