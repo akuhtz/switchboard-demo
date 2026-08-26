@@ -90,13 +90,13 @@ public class Block {
 
     /** Assigns a train to this block. */
     public void setAssignedTrainId(String trainId) {
-		LOGGER.info("Set assigned train in block: {}, trainId: {}", this.name, trainId);
+		LOGGER.trace("Set assigned train in block: {}, trainId: {}", this.name, trainId);
         this.assignedTrainId = trainId;
     }
 
     /** Clears the assigned train from this block. */
     public void clearAssignedTrain() {
-    		LOGGER.info("Clear train from block: {}, assignedTrainId: {}", this.name, this.assignedTrainId);
+    		LOGGER.trace("Clear train from block: {}, assignedTrainId: {}", this.name, this.assignedTrainId);
         this.assignedTrainId = null;
     }
 

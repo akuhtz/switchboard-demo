@@ -30,8 +30,8 @@ public class RouteSimulation {
     private static final long AUTO_CHANGE_DELAY_MS = 2000;
     private static final long BLOCK_MARKER_CLEAR_DELAY_MS = 2000;
     private static final int DEFAULT_TRAIN_LENGTH = 3;
-    private static final int DEFAULT_SIGNAL_RESET_DISTANCE = 3;
-    private static final int DEFAULT_TICK_INTERVAL_MS = 400;
+    private static final int DEFAULT_SIGNAL_RESET_DISTANCE = 5;
+    private static final int DEFAULT_TICK_INTERVAL_MS = 200;
     private static final int BLOCK_CLEANUP_EVERY_N_TICKS = 5;
 
     private final RailwayModel model;
