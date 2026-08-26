@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A connected path of tiles that forms a railway block.
  *
@@ -12,6 +15,8 @@ import java.util.List;
  * contains turnout tiles.</p>
  */
 public class Block {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(Block.class);
 
     private final String id;
 
@@ -85,11 +90,13 @@ public class Block {
 
     /** Assigns a train to this block. */
     public void setAssignedTrainId(String trainId) {
+		LOGGER.info("Set assigned train in block: {}, trainId: {}", this.name, trainId);
         this.assignedTrainId = trainId;
     }
 
     /** Clears the assigned train from this block. */
     public void clearAssignedTrain() {
+    		LOGGER.info("Clear train from block: {}, assignedTrainId: {}", this.name, this.assignedTrainId);
         this.assignedTrainId = null;
     }
 

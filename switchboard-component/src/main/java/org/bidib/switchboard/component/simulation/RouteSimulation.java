@@ -3,6 +3,8 @@ package org.bidib.switchboard.component.simulation;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.Timer;
+
 import org.bidib.switchboard.component.config.OccupancyFactory;
 import org.bidib.switchboard.component.model.Block;
 import org.bidib.switchboard.component.model.Element;
@@ -22,6 +24,7 @@ public class RouteSimulation {
     private static final Logger LOG = LoggerFactory.getLogger(RouteSimulation.class);
 
     private static final long AUTO_CHANGE_DELAY_MS = 2000;
+    private static final long BLOCK_MARKER_CLEAR_DELAY_MS = 5000;
     private static final int DEFAULT_TRAIN_LENGTH = 3;
 
     private final RailwayModel model;
@@ -36,6 +39,7 @@ public class RouteSimulation {
     private Set<Integer> stops;
     private int currentIndex;
     private boolean running;
+    private boolean finished;
     private boolean pausedAtStation;
     private long stationPausedSince = -1;
     private int dwellTimeMs = 5000;
@@ -45,6 +49,8 @@ public class RouteSimulation {
     private long startedAt;
     private Runnable onTick;
     private TrainMovement trainMovement;
+    private Block previousBlock;
+    private Timer blockCleanupTimer;
 
     public RouteSimulation(RailwayModel model, TileGrid tileGrid, OccupancyFactory occupancyFactory) {
         this(model, tileGrid, occupancyFactory, null, DEFAULT_TRAIN_LENGTH);
@@ -97,6 +103,8 @@ public class RouteSimulation {
         this.stationPausedSince = -1;
         this.startSignalSet = false;
         this.startedAt = System.currentTimeMillis();
+        this.finished = false;
+        this.previousBlock = null;
 
         if (path.isEmpty()) {
             running = false;
@@ -149,14 +157,19 @@ public class RouteSimulation {
 
     public void stop() {
         running = false;
+        finished = false;
         pausedAtStation = false;
         stationPausedSince = -1;
+        scheduleBlockCleanup();
     }
 
     public void reset() {
         running = false;
+        finished = false;
         pausedAtStation = false;
         stationPausedSince = -1;
+        cancelBlockCleanup();
+        previousBlock = null;
         // Free all train positions
         for (int[] pos : trainMovement.getPositions()) {
             setFree(pos);
@@ -169,6 +182,11 @@ public class RouteSimulation {
     public void tick() {
         if (!running || path == null || currentIndex >= path.size()) {
             running = false;
+            finished = (currentIndex >= path.size());
+            if (finished) {
+                LOG.info("Route '{}' completed", route.getName() != null ? route.getName() : route.getId());
+                scheduleBlockCleanup();
+            }
             notifyTick();
             return;
         }
@@ -248,8 +266,19 @@ public class RouteSimulation {
         // Set new head to OCCUPIED
         setOccupied(newHead);
 
-        // Move train to the block containing the current tile
-        assignTrainToCurrentBlock();
+        // Check if we moved to a new block
+        Block currentBlock = tileGrid.getBlockModel().getBlockForTile(newHead[0], newHead[1]);
+        if (currentBlock != previousBlock) {
+            // Clear the previous block's train assignment immediately
+            if (previousBlock != null) {
+                clearBlockAssignment(previousBlock);
+            }
+            // Assign train to the new block
+            if (currentBlock != null) {
+                currentBlock.setAssignedTrainId(trainId);
+            }
+            previousBlock = currentBlock;
+        }
 
         currentIndex++;
 
@@ -262,11 +291,6 @@ public class RouteSimulation {
                 stationPausedSince = System.currentTimeMillis();
                 LOG.info("Stopped at station (index {}), dwell {}ms", currentIndex - 1, dwellTimeMs);
             }
-        }
-
-        if (currentIndex >= path.size()) {
-            running = false;
-            LOG.info("Route '{}' completed", route.getName() != null ? route.getName() : route.getId());
         }
 
         notifyTick();
@@ -313,15 +337,36 @@ public class RouteSimulation {
         Block block = tileGrid.getBlockModel().getBlockForTile(first[0], first[1]);
         if (block != null) {
             block.setAssignedTrainId(trainId);
+            previousBlock = block;
         }
     }
 
-    private void assignTrainToCurrentBlock() {
-        if (currentIndex < 0 || currentIndex >= path.size()) return;
-        int[] coord = path.get(currentIndex);
-        Block block = tileGrid.getBlockModel().getBlockForTile(coord[0], coord[1]);
-        if (block != null) {
-            block.setAssignedTrainId(trainId);
+    private void clearBlockAssignment(Block block) {
+        block.setAssignedTrainId(null);
+        notifyTick();
+        LOG.info("Cleared train assignment from block '{}'", block.getName());
+    }
+
+    private void scheduleBlockCleanup() {
+        cancelBlockCleanup();
+        Block blockToClean = previousBlock;
+        if (blockToClean == null) {
+            return;
+        }
+        blockCleanupTimer = new Timer((int) BLOCK_MARKER_CLEAR_DELAY_MS, e -> {
+            if (blockToClean.getAssignedTrainId() != null) {
+                clearBlockAssignment(blockToClean);
+            }
+            blockCleanupTimer = null;
+        });
+        blockCleanupTimer.setRepeats(false);
+        blockCleanupTimer.start();
+    }
+
+    private void cancelBlockCleanup() {
+        if (blockCleanupTimer != null) {
+            blockCleanupTimer.stop();
+            blockCleanupTimer = null;
         }
     }
 
@@ -333,6 +378,10 @@ public class RouteSimulation {
 
     public boolean isRunning() {
         return running;
+    }
+
+    public boolean isFinished() {
+        return finished;
     }
 
     public boolean isPausedAtStation() {

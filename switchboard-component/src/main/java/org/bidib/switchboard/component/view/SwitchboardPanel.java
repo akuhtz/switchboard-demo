@@ -889,7 +889,13 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         routeTimer = new Timer(200, e -> {
             if (routeSimulation != null && routeSimulation.isRunning()) {
                 routeSimulation.tick();
+            } else if (routeSimulation != null && routeSimulation.isFinished()) {
+                // Simulation completed naturally: stop timer, keep occupancies
+                routeTimer.stop();
+                routeTimer = null;
+                repaint();
             } else {
+                // Simulation was explicitly stopped or failed
                 stopRouteSimulation();
             }
         });

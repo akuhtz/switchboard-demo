@@ -7,28 +7,28 @@
     "successors" : null,
     "tiles" : [ [ 8, 3 ], [ 9, 3 ], [ 10, 3 ], [ 11, 3 ], [ 12, 3 ], [ 13, 3 ], [ 14, 3 ], [ 15, 3 ], [ 16, 3 ], [ 17, 3 ], [ 18, 3 ], [ 19, 3 ], [ 20, 3 ], [ 21, 3 ], [ 22, 3 ], [ 23, 3 ], [ 24, 3 ] ]
   }, {
-    "assignedTrainId" : "T002",
+    "assignedTrainId" : null,
     "id" : "blk002",
     "name" : "blk002",
     "predecessors" : null,
     "successors" : null,
     "tiles" : [ [ 27, 4 ], [ 28, 4 ], [ 29, 5 ], [ 30, 6 ], [ 30, 7 ], [ 30, 8 ], [ 30, 9 ], [ 30, 10 ], [ 30, 11 ], [ 30, 12 ], [ 29, 13 ], [ 28, 14 ], [ 27, 14 ] ]
   }, {
-    "assignedTrainId" : "T002",
+    "assignedTrainId" : null,
     "id" : "blk003",
     "name" : "blk003",
     "predecessors" : null,
     "successors" : null,
     "tiles" : [ [ 25, 14 ], [ 24, 14 ], [ 23, 14 ], [ 22, 14 ], [ 21, 14 ], [ 20, 14 ], [ 19, 14 ], [ 18, 14 ], [ 17, 14 ], [ 16, 14 ], [ 15, 14 ], [ 14, 14 ], [ 13, 14 ], [ 12, 14 ], [ 11, 14 ], [ 10, 14 ], [ 9, 14 ], [ 8, 14 ], [ 7, 14 ], [ 6, 14 ] ]
   }, {
-    "assignedTrainId" : "T002",
+    "assignedTrainId" : null,
     "id" : "blk004",
     "name" : "blk004",
     "predecessors" : null,
     "successors" : null,
     "tiles" : [ [ 25, 15 ], [ 24, 15 ], [ 23, 15 ], [ 22, 15 ], [ 21, 15 ], [ 20, 15 ], [ 19, 15 ], [ 18, 15 ], [ 17, 15 ], [ 16, 15 ], [ 15, 15 ], [ 14, 15 ], [ 13, 15 ], [ 12, 15 ], [ 11, 15 ], [ 10, 15 ], [ 9, 15 ], [ 8, 15 ], [ 7, 15 ], [ 6, 15 ] ]
   }, {
-    "assignedTrainId" : "T002",
+    "assignedTrainId" : null,
     "id" : "blk005",
     "name" : "blk005",
     "predecessors" : null,
