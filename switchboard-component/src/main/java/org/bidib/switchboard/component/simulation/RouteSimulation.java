@@ -1,6 +1,9 @@
 package org.bidib.switchboard.component.simulation;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.Timer;
@@ -50,6 +53,7 @@ public class RouteSimulation {
     private Runnable onTick;
     private TrainMovement trainMovement;
     private Block previousBlock;
+    private final Map<Block, Long> blockDepartures = new HashMap<>();
     private Timer blockCleanupTimer;
 
     public RouteSimulation(RailwayModel model, TileGrid tileGrid, OccupancyFactory occupancyFactory) {
@@ -160,7 +164,11 @@ public class RouteSimulation {
         finished = false;
         pausedAtStation = false;
         stationPausedSince = -1;
-        scheduleBlockCleanup();
+        // Record departure for the current block so it gets cleaned up
+        if (previousBlock != null) {
+            recordBlockDeparture(previousBlock);
+        }
+        startBlockCleanupTimer();
     }
 
     public void reset() {
@@ -168,7 +176,8 @@ public class RouteSimulation {
         finished = false;
         pausedAtStation = false;
         stationPausedSince = -1;
-        cancelBlockCleanup();
+        stopBlockCleanupTimer();
+        blockDepartures.clear();
         previousBlock = null;
         // Free all train positions
         for (int[] pos : trainMovement.getPositions()) {
@@ -185,7 +194,10 @@ public class RouteSimulation {
             finished = (currentIndex >= path.size());
             if (finished) {
                 LOG.info("Route '{}' completed", route.getName() != null ? route.getName() : route.getId());
-                scheduleBlockCleanup();
+                if (previousBlock != null) {
+                    recordBlockDeparture(previousBlock);
+                }
+                startBlockCleanupTimer();
             }
             notifyTick();
             return;
@@ -266,19 +278,27 @@ public class RouteSimulation {
         // Set new head to OCCUPIED
         setOccupied(newHead);
 
-        // Check if we moved to a new block
+        // Assign train to the block containing the head
         Block currentBlock = tileGrid.getBlockModel().getBlockForTile(newHead[0], newHead[1]);
-        if (currentBlock != previousBlock) {
-            // Clear the previous block's train assignment immediately
-            if (previousBlock != null) {
-                clearBlockAssignment(previousBlock);
-            }
-            // Assign train to the new block
-            if (currentBlock != null) {
-                currentBlock.setAssignedTrainId(trainId);
-            }
-            previousBlock = currentBlock;
+        if (currentBlock != null) {
+            currentBlock.setAssignedTrainId(trainId);
         }
+
+        // Check if the previous block still has any train tiles
+        if (previousBlock != null && previousBlock != currentBlock) {
+            boolean trainStillInPrevious = false;
+            for (int[] pos : trainMovement.getPositions()) {
+                if (tileGrid.getBlockModel().getBlockForTile(pos[0], pos[1]) == previousBlock) {
+                    trainStillInPrevious = true;
+                    break;
+                }
+            }
+            if (!trainStillInPrevious) {
+                // Train has fully left the previous block — record departure for delayed cleanup
+                recordBlockDeparture(previousBlock);
+            }
+        }
+        previousBlock = currentBlock;
 
         currentIndex++;
 
@@ -347,26 +367,46 @@ public class RouteSimulation {
         LOG.info("Cleared train assignment from block '{}'", block.getName());
     }
 
-    private void scheduleBlockCleanup() {
-        cancelBlockCleanup();
-        Block blockToClean = previousBlock;
-        if (blockToClean == null) {
-            return;
+    private void recordBlockDeparture(Block block) {
+        if (!blockDepartures.containsKey(block)) {
+            blockDepartures.put(block, System.currentTimeMillis());
         }
-        blockCleanupTimer = new Timer((int) BLOCK_MARKER_CLEAR_DELAY_MS, e -> {
-            if (blockToClean.getAssignedTrainId() != null) {
-                clearBlockAssignment(blockToClean);
-            }
-            blockCleanupTimer = null;
-        });
-        blockCleanupTimer.setRepeats(false);
+    }
+
+    private void startBlockCleanupTimer() {
+        if (blockCleanupTimer != null) {
+            return; // already running
+        }
+        blockCleanupTimer = new Timer(1000, e -> checkBlockCleanups());
+        blockCleanupTimer.setRepeats(true);
         blockCleanupTimer.start();
     }
 
-    private void cancelBlockCleanup() {
+    private void stopBlockCleanupTimer() {
         if (blockCleanupTimer != null) {
             blockCleanupTimer.stop();
             blockCleanupTimer = null;
+        }
+    }
+
+    private void checkBlockCleanups() {
+        long now = System.currentTimeMillis();
+        boolean anyRemaining = false;
+        Iterator<Map.Entry<Block, Long>> it = blockDepartures.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Block, Long> entry = it.next();
+            if (now - entry.getValue() >= BLOCK_MARKER_CLEAR_DELAY_MS) {
+                Block block = entry.getKey();
+                it.remove();
+                if (block.getAssignedTrainId() != null) {
+                    clearBlockAssignment(block);
+                }
+            } else {
+                anyRemaining = true;
+            }
+        }
+        if (!anyRemaining) {
+            stopBlockCleanupTimer();
         }
     }
 
