@@ -51,6 +51,7 @@ public class RouteSimulation {
     private boolean finished;
     private boolean pausedAtStation;
     private long stationPausedSince = -1;
+    private long stationReservationSince = -1;
     private int dwellTimeMs = 5000;
     private boolean autoChangeSignal;
     private long signalBlockedSince = -1;
@@ -134,6 +135,7 @@ public class RouteSimulation {
         this.currentIndex = Math.max(1, startIndex);
         this.pausedAtStation = false;
         this.stationPausedSince = -1;
+        this.stationReservationSince = -1;
         this.startSignalSet = false;
         this.startedAt = System.currentTimeMillis();
         this.finished = false;
@@ -171,14 +173,20 @@ public class RouteSimulation {
             setOccupied(pos);
         }
 
-        // If there is a signal at the start position, switch it to green immediately
+        // Reserve the next block before setting signal to green
+        Block nextBlock = findGuardedBlock(0);
+        if (nextBlock != null && nextBlock.getAssignedTrainId() == null) {
+            nextBlock.setAssignedTrainId(trainId);
+            LOG.info("Reserved block '{}' for train {} at start", nextBlock.getName(), trainId);
+        }
+
+        // Ensure signal at start position is red — tick() will set it to green after the delay
         Tile startTile = tileGrid.getTile(headPos[0], headPos[1]);
         if (startTile instanceof ElementTile et && et.getElementId() != null) {
             ElementType type = et.getElementType();
             if (type == ElementType.SIGNAL_M3 || type == ElementType.SIGNAL_COMBINED) {
-                model.setElementAspect(et.getElementId(), 1);
-                lastGreenSignalIndex = 0;
-                LOG.info("Start signal {} set to green", et.getElementId());
+                model.setElementAspect(et.getElementId(), 0);
+                LOG.info("Start signal {} set to red (will turn green after delay)", et.getElementId());
             }
         }
         syncDistantSignals();
@@ -199,6 +207,7 @@ public class RouteSimulation {
         finished = false;
         pausedAtStation = false;
         stationPausedSince = -1;
+        stationReservationSince = -1;
         stopSimulationTimer();
         // Record departure for the current block so it gets cleaned up
         if (previousBlock != null) {
@@ -212,6 +221,7 @@ public class RouteSimulation {
         finished = false;
         pausedAtStation = false;
         stationPausedSince = -1;
+        stationReservationSince = -1;
         stopSimulationTimer();
         blockDepartures.clear();
         previousBlock = null;
@@ -253,11 +263,60 @@ public class RouteSimulation {
                 notifyTick();
                 return; // Still dwelling
             }
-            pausedAtStation = false;
-            stationPausedSince = -1;
 
-            // Set signal at the station stop to green
+            // After dwell: reserve next block, then set signal to green after 2s
             int stationIndex = currentIndex - 1;
+
+            // First, reset the station signal to red
+            if (stationIndex >= 0 && stationIndex < path.size()) {
+                Tile stationTile = tileGrid.getTile(path.get(stationIndex)[0], path.get(stationIndex)[1]);
+                if (stationTile instanceof ElementTile et && et.getElementId() != null) {
+                    ElementType type = et.getElementType();
+                    if ((type == ElementType.SIGNAL_M3 || type == ElementType.SIGNAL_COMBINED)
+                        && model.getElement(et.getElementId()).getCurrentAspect() != 0) {
+                        model.setElementAspect(et.getElementId(), 0);
+                        lastGreenSignalIndex = -1;
+                        syncDistantSignals();
+                        LOG.info("Reset station signal {} to red after dwell", et.getElementId());
+                    }
+                }
+            }
+
+            // Reserve the guard block if needed
+            if (stationIndex >= 0 && stationIndex < path.size()) {
+                Block guardBlock = findGuardedBlock(stationIndex);
+                if (guardBlock != null) {
+                    String reservedBy = guardBlock.getAssignedTrainId();
+                    if (reservedBy != null && !reservedBy.equals(trainId)) {
+                        // Another train has this block — stay paused, retry next tick
+                        pausedAtStation = true;
+                        stationPausedSince = System.currentTimeMillis() - dwellTimeMs;
+                        LOG.info("Station dwell complete but block '{}' reserved by train {}, waiting",
+                            guardBlock.getName(), reservedBy);
+                        notifyTick();
+                        return;
+                    }
+                    if (reservedBy == null) {
+                        guardBlock.setAssignedTrainId(trainId);
+                        LOG.info("Reserved block '{}' for train {} after station dwell",
+                            guardBlock.getName(), trainId);
+                    }
+                }
+            }
+
+            // Wait 2s after block reservation before setting signal to green
+            if (stationReservationSince < 0) {
+                stationReservationSince = System.currentTimeMillis();
+                notifyTick();
+                return;
+            }
+            if (System.currentTimeMillis() - stationReservationSince < AUTO_CHANGE_DELAY_MS) {
+                notifyTick();
+                return;
+            }
+            stationReservationSince = -1;
+
+            // Set signal to green
             if (stationIndex >= 0 && stationIndex < path.size()) {
                 Tile stationTile = tileGrid.getTile(path.get(stationIndex)[0], path.get(stationIndex)[1]);
                 if (stationTile instanceof ElementTile et && et.getElementId() != null) {
@@ -269,8 +328,10 @@ public class RouteSimulation {
                 }
             }
             syncDistantSignals();
+            pausedAtStation = false;
+            stationPausedSince = -1;
 
-            LOG.info("Station dwell complete, continuing");
+            LOG.info("Station dwell complete, signal set to green");
         }
 
         // Check if the previous tile is a signal blocking the train
@@ -282,21 +343,40 @@ public class RouteSimulation {
             int dr = path.get(prev)[1] - pp[1];
             int entryPort = OccupancySimulation.portFromDelta(dc, dr);
             if (OccupancySimulation.isSignalBlocking(pt, entryPort, model)) {
-                // Auto-change signal if enabled and this signal is NOT a station stop
-                if (autoChangeSignal && !stops.contains(prev)) {
+                // Check if this signal guards a block boundary
+                Block guardBlock = findGuardedBlock(prev);
+                if (guardBlock != null) {
+                    String reservedBy = guardBlock.getAssignedTrainId();
+                    if (reservedBy != null && !reservedBy.equals(trainId)) {
+                        // Another train has reserved this block — signal stays red
+                        LOG.info("Signal at ({},{}) stays red — block '{}' reserved by train {}",
+                            path.get(prev)[0], path.get(prev)[1], guardBlock.getName(), reservedBy);
+                        notifyTick();
+                        return;
+                    }
+                    // Block is free — reserve it and set signal to green
+                    if (reservedBy == null) {
+                        guardBlock.setAssignedTrainId(trainId);
+                        LOG.info("Reserved block '{}' for train {} at signal ({},{})",
+                            guardBlock.getName(), trainId, path.get(prev)[0], path.get(prev)[1]);
+                    }
+                }
+                // Auto-change signal if enabled (or if guard block was free/already ours)
+                if (!stops.contains(prev)) {
                     long now = System.currentTimeMillis();
                     if (signalBlockedSince < 0) {
                         signalBlockedSince = now;
                         LOG.info("Train blocked at signal on tile ({},{})", path.get(prev)[0], path.get(prev)[1]);
-                    } else if (now - signalBlockedSince >= AUTO_CHANGE_DELAY_MS) {
-                        LOG.info(">>> auto-change signal elapsed.");
-                        if (pt instanceof ElementTile et && et.getElementId() != null) {
-                            model.setElementAspect(et.getElementId(), 1);
-                            lastGreenSignalIndex = prev;
-                            LOG.info("Auto-changed signal {} to green", et.getElementId());
+                    } else if (autoChangeSignal || guardBlock != null) {
+                        if (now - signalBlockedSince >= AUTO_CHANGE_DELAY_MS) {
+                            if (pt instanceof ElementTile et && et.getElementId() != null) {
+                                model.setElementAspect(et.getElementId(), 1);
+                                lastGreenSignalIndex = prev;
+                                LOG.info("Set signal {} to green", et.getElementId());
+                            }
+                            signalBlockedSince = -1;
+                            syncDistantSignals();
                         }
-                        signalBlockedSince = -1;
-                        syncDistantSignals();
                     }
                 }
                 notifyTick();
@@ -463,6 +543,24 @@ public class RouteSimulation {
                 }
             }
         }
+    }
+
+    /**
+     * Finds the block that a signal at the given path index is guarding.
+     * Walks forward from the signal along the route path to find the first tile
+     * belonging to a different block than the signal's own block.
+     */
+    private Block findGuardedBlock(int signalPathIndex) {
+        Tile signalTile = tileGrid.getTile(path.get(signalPathIndex)[0], path.get(signalPathIndex)[1]);
+        Block signalBlock = tileGrid.getBlockModel().getBlockForTile(
+            path.get(signalPathIndex)[0], path.get(signalPathIndex)[1]);
+        for (int i = signalPathIndex + 1; i < path.size(); i++) {
+            Block block = tileGrid.getBlockModel().getBlockForTile(path.get(i)[0], path.get(i)[1]);
+            if (block != null && block != signalBlock) {
+                return block;
+            }
+        }
+        return null;
     }
 
     private void notifyTick() {

@@ -753,6 +753,14 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 - **Self-driving simulation timer**: `RouteSimulation` now owns its own timer (configurable interval, default 200ms) that drives both `tick()` and block cleanup (every 5th tick). The `SwitchboardPanel` no longer manages a separate `routeTimer`. An `onComplete` callback notifies the panel when the route finishes naturally.
 - **Configurable tick interval**: `RouteSimulation.setTickInterval(int ms)` sets the simulation step interval (minimum 50ms, default 200ms).
 
+**2026-08-25 — block reservation system**
+
+- **Block reservation before entry**: Before a train can enter a block, the block must be reserved (locked) for that train. The reservation happens when the signal guarding the block turns green. If the block is already reserved by another train, the signal stays red and the train waits.
+- **Start sequence**: At simulation start, the next block is reserved first, then the start signal turns green after a 2s delay, then the train begins moving.
+- **Station stop sequence**: After a station dwell completes, the station signal resets to red, the next block is reserved, and after another 2s delay the signal turns green. If the block is reserved by another train, the train stays at the station.
+- **Reserved block rendering**: Reserved blocks are drawn in dark blue (`COLOR_RESERVED = (0, 0, 160)`) instead of the normal red occupancy color. The red occupancy overlay is drawn on top, so occupied-and-reserved tiles show red. When the train leaves a block, the reservation is released after a 2s delay and the dark blue disappears.
+- **Signal blocking with block reservation**: When a signal is blocking the train, `findGuardedBlock()` walks forward along the route path to find the block the signal guards. If that block is reserved by another train, the signal stays red regardless of the `autoChangeSignal` setting.
+
 **2026-08-23 — VLDocking integration, train list panel, and block marker drag-and-drop**
 
 - Integrated [VLDocking](https://github.com/nicola-spb/vldocking) framework for dockable panel management. `SwitchboardPanel` and `TrainListPanel` implement `Dockable` and are split side-by-side using `DockingDesktop.split()`.

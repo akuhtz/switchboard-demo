@@ -113,6 +113,8 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private static final Color COLOR_OCCUPIED = new Color(255, 80, 80);
 
+    private static final Color COLOR_RESERVED = new Color(0, 0, 160);
+
     private static final Color[] COLOR_ALT_PALETTE = {
         new Color(255, 165, 0),    // orange
         new Color(220, 50, 50),    // red
@@ -1923,6 +1925,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         drawSignals(g2);
         drawSignalDirectionMarkers(g2);
         drawBlockMarkerLabels(g2);
+        drawReservedBlocks(g2);
         drawOccupancy(g2);
     }
 
@@ -2532,6 +2535,49 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         g2.setStroke(new BasicStroke(4, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND,
             1f, new float[] { 6f, 4f }, 0f));
         g2.drawPolyline(xPoints, yPoints, n);
+    }
+
+    private void drawReservedBlocks(Graphics2D g2) {
+        int half = tileSize / 2;
+        g2.setColor(COLOR_RESERVED);
+        g2.setStroke(new BasicStroke(4, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
+        for (Tile tile : tiles.values()) {
+            if (!(tile instanceof ElementTile et) || et.getElementId() == null) {
+                continue;
+            }
+            Block block = blockModel.getBlockForTile(tile.getCol(), tile.getRow());
+            if (block == null || block.getAssignedTrainId() == null) {
+                continue;
+            }
+            Element el = model.getElement(et.getElementId());
+            if (el == null || el.getOccupancy() == null
+                || el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
+                continue; // skip occupied tiles — drawOccupancy handles those
+            }
+            int cx = tile.getCol() * tileSize + half;
+            int cy = tile.getRow() * tileSize + half;
+            int d = (tileSize - 2) / 2;
+            int rotSteps = (tile.getRotation() / 90) % 4;
+
+            if (et.getElementType() == ElementType.DIAGONAL) {
+                drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
+                continue;
+            }
+            if (et.getElementType() == ElementType.DIAGONAL_TURNOUT_RIGHT
+                || et.getElementType() == ElementType.DIAGONAL_TURNOUT_LEFT) {
+                drawDiagonalTurnoutOccupancy(g2, cx, cy, d, rotSteps, et, el);
+                continue;
+            }
+            int[] ports = et.getElementType().getActivePorts(el.getCurrentAspect(), tile.getRotation());
+            if (ports.length == 2
+                && (et.getElementType() == ElementType.CURVE_LEFT
+                || et.getElementType() == ElementType.CURVE_RIGHT
+                || et.getElementType() == ElementType.TURNOUT_3WAY)) {
+                drawCurveOccupancy(g2, cx, cy, d, ports);
+                continue;
+            }
+            drawPortsOccupancy(g2, cx, cy, d, rotSteps, et, el, ports);
+        }
     }
 
     private void drawOccupancy(Graphics2D g2) {
