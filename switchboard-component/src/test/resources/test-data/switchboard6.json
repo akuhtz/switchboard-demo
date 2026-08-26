@@ -1537,10 +1537,11 @@
   },
   "routes": [
     {
-      "id": "P-015-P-065",
-      "name": "P-015 \u2192 P-065",
-      "sourceElementId": "P-015",
-      "targetElementId": "P-065",
+      "id": "TR-001",
+      "name": "P-015 → P-065",
+      "sourceElementId": null,
+      "targetElementId": null,
+      "stops": [],
       "tiles": [
         [
           2,
@@ -1641,10 +1642,11 @@
       ]
     },
     {
-      "id": "TL-003-SM3-008",
-      "name": "TL-003 \u2192 SM3-008",
-      "sourceElementId": "TL-003",
-      "targetElementId": "SM3-008",
+      "id": "TR-002",
+      "name": "TL-003 → SM3-008",
+      "sourceElementId": null,
+      "targetElementId": null,
+      "stops": [],
       "tiles": [
         [
           22,
@@ -1705,10 +1707,11 @@
       ]
     },
     {
-      "id": "CR-010-P-130",
-      "name": "CR-010 \u2192 P-130",
-      "sourceElementId": "CR-010",
-      "targetElementId": "P-130",
+      "id": "TR-003",
+      "name": "CR-010 → P-130",
+      "sourceElementId": null,
+      "targetElementId": null,
+      "stops": [],
       "tiles": [
         [
           24,
@@ -2061,7 +2064,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 3,
@@ -2239,7 +2242,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 6,
@@ -2374,7 +2377,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 7,
@@ -2448,7 +2451,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 8,
@@ -2460,7 +2463,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 8,
@@ -2472,7 +2475,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 8,
@@ -2544,7 +2547,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 9,
@@ -2556,7 +2559,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 9,
@@ -3218,7 +3221,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 15,
@@ -3230,7 +3233,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 15,
@@ -3242,7 +3245,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 15,
@@ -3254,7 +3257,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 15,
@@ -3266,7 +3269,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 15,
@@ -3647,7 +3650,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 19,
@@ -3659,7 +3662,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 19,
@@ -3772,7 +3775,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 20,
@@ -3897,7 +3900,7 @@
         "/icons/signals/sbb_l/signal_m3_green_left.svg",
         "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
       ],
-      "type" : "SM33"
+      "type": "SM33"
     },
     {
       "col": 21,

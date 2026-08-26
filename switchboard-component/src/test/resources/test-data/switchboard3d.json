@@ -1,1803 +1,2451 @@
 {
-  "blocks" : [ {
-    "assignedTrainId" : null,
-    "id" : "blk001",
-    "name" : "blk001",
-    "predecessors" : [ "blk003" ],
-    "successors" : [ "blk002" ],
-    "tiles" : [ [ 7, 4 ], [ 8, 4 ], [ 9, 4 ], [ 10, 4 ], [ 11, 4 ], [ 12, 4 ], [ 13, 4 ], [ 14, 4 ], [ 15, 4 ], [ 16, 4 ], [ 17, 4 ] ]
-  }, {
-    "assignedTrainId" : null,
-    "id" : "blk002",
-    "name" : "blk002",
-    "predecessors" : [ "blk001" ],
-    "successors" : null,
-    "tiles" : [ [ 19, 3 ], [ 20, 3 ], [ 21, 3 ] ]
-  }, {
-    "assignedTrainId" : "T002",
-    "id" : "blk003",
-    "name" : "blk003",
-    "predecessors" : null,
-    "successors" : [ "blk001" ],
-    "tiles" : [ [ 3, 3 ], [ 2, 3 ], [ 1, 3 ], [ 0, 4 ], [ 0, 5 ], [ 0, 6 ], [ 0, 7 ] ]
-  } ],
-  "cols" : 60,
-  "modelState" : {
-    "elements" : [ {
-      "accessoryId" : 0,
-      "aspect" : 2,
-      "id" : "T3-001",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-001",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-002",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-003",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-004",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-005",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "T3-002",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "CL-001",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-007",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "DG-001",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "CL-003",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-008",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "TR-002",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "TR-003",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-010",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SM3-002",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SM3-008",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-011",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-013",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SM3-007",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-014",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-015",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-016",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "CR-001",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SM3-006",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-017",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-018",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SM3-005",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-019",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-020",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SM3-004",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-021",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "DG-002",
-      "nodeId" : 0,
-      "occupancyId" : "occ-11"
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "CR-002",
-      "nodeId" : 0,
-      "occupancyId" : "occ-10"
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SM3-003",
-      "nodeId" : 0,
-      "occupancyId" : "occ-9"
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-022",
-      "nodeId" : 0,
-      "occupancyId" : "occ-8"
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-023",
-      "nodeId" : 0,
-      "occupancyId" : "occ-7"
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-024",
-      "nodeId" : 0,
-      "occupancyId" : "occ-5"
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-027",
-      "nodeId" : 0,
-      "occupancyId" : "occ-2"
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-028",
-      "nodeId" : 0,
-      "occupancyId" : "occ-1"
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "CR-003",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "CL-004",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-029",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-030",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-031",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SV-002",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SM-001",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-032",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-033",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-034",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SM3-009",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SM-002",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "DTR-001",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-035",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-036",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "CL-006",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-037",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "TL-001",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-038",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-039",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-041",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-042",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-043",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-044",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "TL-002",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "CL-007",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-045",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-047",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "TR-004",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "CL-008",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "CR-004",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "SV-003",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-049",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "TL-003",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "BM-001",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "BM-002",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "BM-003",
-      "nodeId" : 0,
-      "occupancyId" : null
-    }, {
-      "accessoryId" : 0,
-      "aspect" : 0,
-      "id" : "P-050",
-      "nodeId" : 0,
-      "occupancyId" : null
-    } ],
-    "occupancies" : [ {
-      "id" : "occ-1",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    }, {
-      "id" : "occ-2",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    }, {
-      "id" : "occ-3",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    }, {
-      "id" : "occ-4",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    }, {
-      "id" : "occ-5",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    }, {
-      "id" : "occ-6",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    }, {
-      "id" : "occ-7",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    }, {
-      "id" : "occ-8",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    }, {
-      "id" : "occ-9",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    }, {
-      "id" : "occ-10",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    }, {
-      "id" : "occ-11",
-      "nodeId" : 0,
-      "portId" : 0,
-      "state" : "FREE"
-    } ]
+  "blocks": [
+    {
+      "assignedTrainId": null,
+      "id": "blk001",
+      "name": "blk001",
+      "predecessors": [
+        "blk003"
+      ],
+      "successors": [
+        "blk002"
+      ],
+      "tiles": [
+        [
+          7,
+          4
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          10,
+          4
+        ],
+        [
+          11,
+          4
+        ],
+        [
+          12,
+          4
+        ],
+        [
+          13,
+          4
+        ],
+        [
+          14,
+          4
+        ],
+        [
+          15,
+          4
+        ],
+        [
+          16,
+          4
+        ],
+        [
+          17,
+          4
+        ]
+      ]
+    },
+    {
+      "assignedTrainId": null,
+      "id": "blk002",
+      "name": "blk002",
+      "predecessors": [
+        "blk001"
+      ],
+      "successors": null,
+      "tiles": [
+        [
+          19,
+          3
+        ],
+        [
+          20,
+          3
+        ],
+        [
+          21,
+          3
+        ]
+      ]
+    },
+    {
+      "assignedTrainId": "T002",
+      "id": "blk003",
+      "name": "blk003",
+      "predecessors": null,
+      "successors": [
+        "blk001"
+      ],
+      "tiles": [
+        [
+          3,
+          3
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ]
+      ]
+    }
+  ],
+  "cols": 60,
+  "modelState": {
+    "elements": [
+      {
+        "accessoryId": 0,
+        "aspect": 2,
+        "id": "T3-001",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-001",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-002",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-003",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-004",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-005",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "T3-002",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "CL-001",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-007",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "DG-001",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "CL-003",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-008",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "TR-002",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "TR-003",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-010",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SM3-002",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SM3-008",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-011",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-013",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SM3-007",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-014",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-015",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-016",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "CR-001",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SM3-006",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-017",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-018",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SM3-005",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-019",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-020",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SM3-004",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-021",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "DG-002",
+        "nodeId": 0,
+        "occupancyId": "occ-11"
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "CR-002",
+        "nodeId": 0,
+        "occupancyId": "occ-10"
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SM3-003",
+        "nodeId": 0,
+        "occupancyId": "occ-9"
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-022",
+        "nodeId": 0,
+        "occupancyId": "occ-8"
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-023",
+        "nodeId": 0,
+        "occupancyId": "occ-7"
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-024",
+        "nodeId": 0,
+        "occupancyId": "occ-5"
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-027",
+        "nodeId": 0,
+        "occupancyId": "occ-2"
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-028",
+        "nodeId": 0,
+        "occupancyId": "occ-1"
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "CR-003",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "CL-004",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-029",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-030",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-031",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SV-002",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SM-001",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-032",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-033",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-034",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SM3-009",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SM-002",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "DTR-001",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-035",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-036",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "CL-006",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-037",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "TL-001",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-038",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-039",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-041",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-042",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-043",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-044",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "TL-002",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "CL-007",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-045",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-047",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "TR-004",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "CL-008",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "CR-004",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "SV-003",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-049",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "TL-003",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "BM-001",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "BM-002",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "BM-003",
+        "nodeId": 0,
+        "occupancyId": null
+      },
+      {
+        "accessoryId": 0,
+        "aspect": 0,
+        "id": "P-050",
+        "nodeId": 0,
+        "occupancyId": null
+      }
+    ],
+    "occupancies": [
+      {
+        "id": "occ-1",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      },
+      {
+        "id": "occ-2",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      },
+      {
+        "id": "occ-3",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      },
+      {
+        "id": "occ-4",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      },
+      {
+        "id": "occ-5",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      },
+      {
+        "id": "occ-6",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      },
+      {
+        "id": "occ-7",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      },
+      {
+        "id": "occ-8",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      },
+      {
+        "id": "occ-9",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      },
+      {
+        "id": "occ-10",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      },
+      {
+        "id": "occ-11",
+        "nodeId": 0,
+        "portId": 0,
+        "state": "FREE"
+      }
+    ]
   },
-  "routes" : [ {
-    "id" : "P-028-DG-002",
-    "name" : "P-028 \u2192 DG-002",
-    "sourceElementId" : "P-028",
-    "targetElementId" : "DG-002",
-    "tiles" : [ [ 15, 5 ], [ 14, 5 ], [ 13, 5 ], [ 12, 5 ], [ 11, 5 ], [ 10, 5 ], [ 9, 5 ], [ 8, 5 ], [ 7, 5 ], [ 6, 5 ], [ 5, 4 ] ]
-  } ],
-  "rows" : 30,
-  "tileSize" : 32,
-  "tiles" : [ {
-    "col" : 0,
-    "direction" : null,
-    "elementId" : "P-001",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 0,
-    "direction" : null,
-    "elementId" : "CR-004",
-    "mainSignalId" : null,
-    "rotation" : 270,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
-    "type" : "CR1"
-  }, {
-    "col" : 0,
-    "direction" : null,
-    "elementId" : "BM-003",
-    "mainSignalId" : null,
-    "rotation" : 90,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/block_marker.svg" ],
-    "type" : "BM1"
-  }, {
-    "col" : 0,
-    "direction" : null,
-    "elementId" : "SV-003",
-    "mainSignalId" : "SM-002",
-    "rotation" : 270,
-    "row" : 6,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg" ],
-    "type" : "SV4"
-  }, {
-    "col" : 0,
-    "direction" : null,
-    "elementId" : "P-049",
-    "mainSignalId" : null,
-    "rotation" : 90,
-    "row" : 7,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 0,
-    "direction" : null,
-    "elementId" : "TL-003",
-    "mainSignalId" : null,
-    "rotation" : 90,
-    "row" : 8,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
-    "type" : "TL2"
-  }, {
-    "col" : 1,
-    "direction" : null,
-    "elementId" : "P-002",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 1,
-    "direction" : null,
-    "elementId" : "CL-008",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
-    "type" : "CL1"
-  }, {
-    "col" : 2,
-    "direction" : null,
-    "elementId" : "P-003",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 2,
-    "direction" : null,
-    "elementId" : "P-015",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 3,
-    "direction" : null,
-    "elementId" : "P-004",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 3,
-    "direction" : null,
-    "elementId" : "SM-002",
-    "mainSignalId" : "SM-001",
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_sm_head_red_left.svg", "/icons/signals/sbb_l/signal_sm_head_green_left.svg", "/icons/signals/sbb_l/signal_sm_head_orange_left.svg" ],
-    "type" : "SM3"
-  }, {
-    "col" : 4,
-    "direction" : null,
-    "elementId" : "P-005",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 4,
-    "direction" : null,
-    "elementId" : "T3-001",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg" ],
-    "type" : "T33"
-  }, {
-    "col" : 5,
-    "direction" : null,
-    "elementId" : "P-010",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 5,
-    "direction" : null,
-    "elementId" : "DG-001",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 2,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
-    "type" : "DG1"
-  }, {
-    "col" : 5,
-    "direction" : null,
-    "elementId" : "P-050",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 5,
-    "direction" : null,
-    "elementId" : "DG-002",
-    "mainSignalId" : null,
-    "rotation" : 90,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/diagonal.svg" ],
-    "type" : "DG1"
-  }, {
-    "col" : 6,
-    "direction" : null,
-    "elementId" : "SM3-002",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg" ],
-    "type" : "SM33"
-  }, {
-    "col" : 6,
-    "direction" : null,
-    "elementId" : "CL-003",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 1,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
-    "type" : "CL1"
-  }, {
-    "col" : 6,
-    "direction" : null,
-    "elementId" : "T3-002",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/turnout_3way_straight.svg", "/icons/tracks/turnout_3way_left.svg", "/icons/tracks/turnout_3way_right.svg" ],
-    "type" : "T33"
-  }, {
-    "col" : 6,
-    "direction" : null,
-    "elementId" : "CR-002",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
-    "type" : "CR1"
-  }, {
-    "col" : 7,
-    "direction" : null,
-    "elementId" : "TR-003",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
-    "type" : "TR2"
-  }, {
-    "col" : 7,
-    "direction" : null,
-    "elementId" : "P-008",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 1,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 7,
-    "direction" : null,
-    "elementId" : "CL-001",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 2,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
-    "type" : "CL1"
-  }, {
-    "col" : 7,
-    "direction" : null,
-    "elementId" : "P-016",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 7,
-    "direction" : null,
-    "elementId" : "CR-001",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
-    "type" : "CR1"
-  }, {
-    "col" : 7,
-    "direction" : null,
-    "elementId" : "SM3-003",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg" ],
-    "type" : "SM33"
-  }, {
-    "col" : 8,
-    "direction" : null,
-    "elementId" : "P-014",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 8,
-    "direction" : null,
-    "elementId" : "TR-002",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 1,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
-    "type" : "TR2"
-  }, {
-    "col" : 8,
-    "direction" : null,
-    "elementId" : "SM3-004",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 2,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg" ],
-    "type" : "SM33"
-  }, {
-    "col" : 8,
-    "direction" : null,
-    "elementId" : "SM3-005",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg" ],
-    "type" : "SM33"
-  }, {
-    "col" : 8,
-    "direction" : null,
-    "elementId" : "SM3-006",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg" ],
-    "type" : "SM33"
-  }, {
-    "col" : 8,
-    "direction" : null,
-    "elementId" : "P-022",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 9,
-    "direction" : null,
-    "elementId" : "SM3-007",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg" ],
-    "type" : "SM33"
-  }, {
-    "col" : 9,
-    "direction" : null,
-    "elementId" : "SM3-008",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 1,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg" ],
-    "type" : "SM33"
-  }, {
-    "col" : 9,
-    "direction" : null,
-    "elementId" : "P-007",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 2,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 9,
-    "direction" : null,
-    "elementId" : "P-019",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 9,
-    "direction" : null,
-    "elementId" : "P-017",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 9,
-    "direction" : null,
-    "elementId" : "P-023",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 10,
-    "direction" : null,
-    "elementId" : "P-013",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 10,
-    "direction" : null,
-    "elementId" : "P-011",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 1,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 10,
-    "direction" : null,
-    "elementId" : "P-021",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 2,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 10,
-    "direction" : null,
-    "elementId" : "P-020",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 10,
-    "direction" : null,
-    "elementId" : "P-018",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 10,
-    "direction" : null,
-    "elementId" : "P-030",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 11,
-    "direction" : null,
-    "elementId" : "SM-001",
-    "mainSignalId" : "SM3-009",
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_sm_head_red_left.svg", "/icons/signals/sbb_l/signal_sm_head_green_left.svg", "/icons/signals/sbb_l/signal_sm_head_orange_left.svg" ],
-    "type" : "SM3"
-  }, {
-    "col" : 11,
-    "direction" : null,
-    "elementId" : "P-039",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 11,
-    "direction" : null,
-    "elementId" : "P-024",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 12,
-    "direction" : null,
-    "elementId" : "P-032",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 12,
-    "direction" : null,
-    "elementId" : "BM-001",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/block_marker.svg" ],
-    "type" : "BM1"
-  }, {
-    "col" : 12,
-    "direction" : null,
-    "elementId" : "SV-002",
-    "mainSignalId" : "SM3-003",
-    "rotation" : 180,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_v_orange_left.svg", "/icons/signals/sbb_l/signal_v_yellow_left.svg", "/icons/signals/sbb_l/signal_v_green_left.svg", "/icons/signals/sbb_l/signal_v_aspect3_left.svg" ],
-    "type" : "SV4"
-  }, {
-    "col" : 13,
-    "direction" : null,
-    "elementId" : "P-033",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 13,
-    "direction" : null,
-    "elementId" : "P-041",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 13,
-    "direction" : null,
-    "elementId" : "P-031",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 14,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 14,
-    "direction" : null,
-    "elementId" : "P-034",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 14,
-    "direction" : null,
-    "elementId" : "P-042",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 14,
-    "direction" : null,
-    "elementId" : "P-027",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 15,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 15,
-    "direction" : null,
-    "elementId" : "SM3-009",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/signals/sbb_l/signal_m3_red_left.svg", "/icons/signals/sbb_l/signal_m3_green_left.svg", "/icons/signals/sbb_l/signal_m3_yellow_left.svg" ],
-    "type" : "SM33"
-  }, {
-    "col" : 15,
-    "direction" : null,
-    "elementId" : "P-043",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 15,
-    "direction" : null,
-    "elementId" : "P-028",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 16,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 16,
-    "direction" : null,
-    "elementId" : "TL-001",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
-    "type" : "TL2"
-  }, {
-    "col" : 16,
-    "direction" : null,
-    "elementId" : "P-044",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 16,
-    "direction" : null,
-    "elementId" : "CR-003",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 5,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/curve_right.svg" ],
-    "type" : "CR1"
-  }, {
-    "col" : 17,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 17,
-    "direction" : null,
-    "elementId" : "DTR-001",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 2,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/diag_turnout_straight_right.svg", "/icons/tracks/diag_turnout_diverted_right.svg" ],
-    "type" : "DTR2"
-  }, {
-    "col" : 17,
-    "direction" : null,
-    "elementId" : "P-038",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 17,
-    "direction" : null,
-    "elementId" : "CL-007",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 4,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
-    "type" : "CL1"
-  }, {
-    "col" : 17,
-    "direction" : null,
-    "elementId" : "CL-004",
-    "mainSignalId" : null,
-    "rotation" : 270,
-    "row" : 6,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
-    "type" : "CL1"
-  }, {
-    "col" : 17,
-    "direction" : null,
-    "elementId" : "P-029",
-    "mainSignalId" : null,
-    "rotation" : 90,
-    "row" : 7,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 18,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 18,
-    "direction" : null,
-    "elementId" : "CL-006",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 1,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/curve_left.svg" ],
-    "type" : "CL1"
-  }, {
-    "col" : 18,
-    "direction" : null,
-    "elementId" : "P-035",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 2,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 18,
-    "direction" : null,
-    "elementId" : "TL-002",
-    "mainSignalId" : null,
-    "rotation" : 180,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/turnout_straight_left.svg", "/icons/tracks/turnout_diverted_left.svg" ],
-    "type" : "TL2"
-  }, {
-    "col" : 19,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 19,
-    "direction" : null,
-    "elementId" : "P-037",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 1,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 19,
-    "direction" : null,
-    "elementId" : "P-036",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 2,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 19,
-    "direction" : null,
-    "elementId" : "P-045",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 20,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 20,
-    "direction" : null,
-    "elementId" : "BM-002",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/block_marker.svg" ],
-    "type" : "BM1"
-  }, {
-    "col" : 21,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 21,
-    "direction" : null,
-    "elementId" : "P-047",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/straight.svg" ],
-    "type" : "P1"
-  }, {
-    "col" : 22,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 22,
-    "direction" : null,
-    "elementId" : "TR-004",
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 3,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/tracks/turnout_straight_right.svg", "/icons/tracks/turnout_diverted_right.svg" ],
-    "type" : "TR2"
-  }, {
-    "col" : 23,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 24,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 25,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 26,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 27,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 28,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 29,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 30,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 31,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 32,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 33,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 34,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 35,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 36,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 37,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 38,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 39,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 40,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 41,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 42,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 43,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 44,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 45,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 46,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 47,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 48,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 49,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 50,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 51,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 52,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 53,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 54,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 55,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 56,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 57,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 58,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  }, {
-    "col" : 59,
-    "direction" : null,
-    "elementId" : null,
-    "mainSignalId" : null,
-    "rotation" : 0,
-    "row" : 0,
-    "signalSide" : null,
-    "svgPaths" : [ "/icons/empty.svg" ],
-    "type" : "plain"
-  } ],
-  "trainsFile" : null
+  "routes": [
+    {
+      "id": "TR-001",
+      "name": "P-028 → DG-002",
+      "sourceElementId": null,
+      "targetElementId": null,
+      "stops": [],
+      "tiles": [
+        [
+          15,
+          5
+        ],
+        [
+          14,
+          5
+        ],
+        [
+          13,
+          5
+        ],
+        [
+          12,
+          5
+        ],
+        [
+          11,
+          5
+        ],
+        [
+          10,
+          5
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          8,
+          5
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ]
+    }
+  ],
+  "rows": 30,
+  "tileSize": 32,
+  "tiles": [
+    {
+      "col": 0,
+      "direction": null,
+      "elementId": "P-001",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 0,
+      "direction": null,
+      "elementId": "CR-004",
+      "mainSignalId": null,
+      "rotation": 270,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/curve_right.svg"
+      ],
+      "type": "CR1"
+    },
+    {
+      "col": 0,
+      "direction": null,
+      "elementId": "BM-003",
+      "mainSignalId": null,
+      "rotation": 90,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/block_marker.svg"
+      ],
+      "type": "BM1"
+    },
+    {
+      "col": 0,
+      "direction": null,
+      "elementId": "SV-003",
+      "mainSignalId": "SM-002",
+      "rotation": 270,
+      "row": 6,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_v_orange_left.svg",
+        "/icons/signals/sbb_l/signal_v_yellow_left.svg",
+        "/icons/signals/sbb_l/signal_v_green_left.svg",
+        "/icons/signals/sbb_l/signal_v_aspect3_left.svg"
+      ],
+      "type": "SV4"
+    },
+    {
+      "col": 0,
+      "direction": null,
+      "elementId": "P-049",
+      "mainSignalId": null,
+      "rotation": 90,
+      "row": 7,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 0,
+      "direction": null,
+      "elementId": "TL-003",
+      "mainSignalId": null,
+      "rotation": 90,
+      "row": 8,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/turnout_straight_left.svg",
+        "/icons/tracks/turnout_diverted_left.svg"
+      ],
+      "type": "TL2"
+    },
+    {
+      "col": 1,
+      "direction": null,
+      "elementId": "P-002",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 1,
+      "direction": null,
+      "elementId": "CL-008",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/curve_left.svg"
+      ],
+      "type": "CL1"
+    },
+    {
+      "col": 2,
+      "direction": null,
+      "elementId": "P-003",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 2,
+      "direction": null,
+      "elementId": "P-015",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 3,
+      "direction": null,
+      "elementId": "P-004",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 3,
+      "direction": null,
+      "elementId": "SM-002",
+      "mainSignalId": "SM-001",
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_sm_head_red_left.svg",
+        "/icons/signals/sbb_l/signal_sm_head_green_left.svg",
+        "/icons/signals/sbb_l/signal_sm_head_orange_left.svg"
+      ],
+      "type": "SM3"
+    },
+    {
+      "col": 4,
+      "direction": null,
+      "elementId": "P-005",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 4,
+      "direction": null,
+      "elementId": "T3-001",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/turnout_3way_straight.svg",
+        "/icons/tracks/turnout_3way_left.svg",
+        "/icons/tracks/turnout_3way_right.svg"
+      ],
+      "type": "T33"
+    },
+    {
+      "col": 5,
+      "direction": null,
+      "elementId": "P-010",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 5,
+      "direction": null,
+      "elementId": "DG-001",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 2,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/diagonal.svg"
+      ],
+      "type": "DG1"
+    },
+    {
+      "col": 5,
+      "direction": null,
+      "elementId": "P-050",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 5,
+      "direction": null,
+      "elementId": "DG-002",
+      "mainSignalId": null,
+      "rotation": 90,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/diagonal.svg"
+      ],
+      "type": "DG1"
+    },
+    {
+      "col": 6,
+      "direction": null,
+      "elementId": "SM3-002",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_m3_red_left.svg",
+        "/icons/signals/sbb_l/signal_m3_green_left.svg",
+        "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
+      ],
+      "type": "SM33"
+    },
+    {
+      "col": 6,
+      "direction": null,
+      "elementId": "CL-003",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 1,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/curve_left.svg"
+      ],
+      "type": "CL1"
+    },
+    {
+      "col": 6,
+      "direction": null,
+      "elementId": "T3-002",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/turnout_3way_straight.svg",
+        "/icons/tracks/turnout_3way_left.svg",
+        "/icons/tracks/turnout_3way_right.svg"
+      ],
+      "type": "T33"
+    },
+    {
+      "col": 6,
+      "direction": null,
+      "elementId": "CR-002",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/curve_right.svg"
+      ],
+      "type": "CR1"
+    },
+    {
+      "col": 7,
+      "direction": null,
+      "elementId": "TR-003",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/turnout_straight_right.svg",
+        "/icons/tracks/turnout_diverted_right.svg"
+      ],
+      "type": "TR2"
+    },
+    {
+      "col": 7,
+      "direction": null,
+      "elementId": "P-008",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 1,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 7,
+      "direction": null,
+      "elementId": "CL-001",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 2,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/curve_left.svg"
+      ],
+      "type": "CL1"
+    },
+    {
+      "col": 7,
+      "direction": null,
+      "elementId": "P-016",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 7,
+      "direction": null,
+      "elementId": "CR-001",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/curve_right.svg"
+      ],
+      "type": "CR1"
+    },
+    {
+      "col": 7,
+      "direction": null,
+      "elementId": "SM3-003",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_m3_red_left.svg",
+        "/icons/signals/sbb_l/signal_m3_green_left.svg",
+        "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
+      ],
+      "type": "SM33"
+    },
+    {
+      "col": 8,
+      "direction": null,
+      "elementId": "P-014",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 8,
+      "direction": null,
+      "elementId": "TR-002",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 1,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/turnout_straight_right.svg",
+        "/icons/tracks/turnout_diverted_right.svg"
+      ],
+      "type": "TR2"
+    },
+    {
+      "col": 8,
+      "direction": null,
+      "elementId": "SM3-004",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 2,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_m3_red_left.svg",
+        "/icons/signals/sbb_l/signal_m3_green_left.svg",
+        "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
+      ],
+      "type": "SM33"
+    },
+    {
+      "col": 8,
+      "direction": null,
+      "elementId": "SM3-005",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_m3_red_left.svg",
+        "/icons/signals/sbb_l/signal_m3_green_left.svg",
+        "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
+      ],
+      "type": "SM33"
+    },
+    {
+      "col": 8,
+      "direction": null,
+      "elementId": "SM3-006",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_m3_red_left.svg",
+        "/icons/signals/sbb_l/signal_m3_green_left.svg",
+        "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
+      ],
+      "type": "SM33"
+    },
+    {
+      "col": 8,
+      "direction": null,
+      "elementId": "P-022",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 9,
+      "direction": null,
+      "elementId": "SM3-007",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_m3_red_left.svg",
+        "/icons/signals/sbb_l/signal_m3_green_left.svg",
+        "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
+      ],
+      "type": "SM33"
+    },
+    {
+      "col": 9,
+      "direction": null,
+      "elementId": "SM3-008",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 1,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_m3_red_left.svg",
+        "/icons/signals/sbb_l/signal_m3_green_left.svg",
+        "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
+      ],
+      "type": "SM33"
+    },
+    {
+      "col": 9,
+      "direction": null,
+      "elementId": "P-007",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 2,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 9,
+      "direction": null,
+      "elementId": "P-019",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 9,
+      "direction": null,
+      "elementId": "P-017",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 9,
+      "direction": null,
+      "elementId": "P-023",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 10,
+      "direction": null,
+      "elementId": "P-013",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 10,
+      "direction": null,
+      "elementId": "P-011",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 1,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 10,
+      "direction": null,
+      "elementId": "P-021",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 2,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 10,
+      "direction": null,
+      "elementId": "P-020",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 10,
+      "direction": null,
+      "elementId": "P-018",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 10,
+      "direction": null,
+      "elementId": "P-030",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 11,
+      "direction": null,
+      "elementId": "SM-001",
+      "mainSignalId": "SM3-009",
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_sm_head_red_left.svg",
+        "/icons/signals/sbb_l/signal_sm_head_green_left.svg",
+        "/icons/signals/sbb_l/signal_sm_head_orange_left.svg"
+      ],
+      "type": "SM3"
+    },
+    {
+      "col": 11,
+      "direction": null,
+      "elementId": "P-039",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 11,
+      "direction": null,
+      "elementId": "P-024",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 12,
+      "direction": null,
+      "elementId": "P-032",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 12,
+      "direction": null,
+      "elementId": "BM-001",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/block_marker.svg"
+      ],
+      "type": "BM1"
+    },
+    {
+      "col": 12,
+      "direction": null,
+      "elementId": "SV-002",
+      "mainSignalId": "SM3-003",
+      "rotation": 180,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_v_orange_left.svg",
+        "/icons/signals/sbb_l/signal_v_yellow_left.svg",
+        "/icons/signals/sbb_l/signal_v_green_left.svg",
+        "/icons/signals/sbb_l/signal_v_aspect3_left.svg"
+      ],
+      "type": "SV4"
+    },
+    {
+      "col": 13,
+      "direction": null,
+      "elementId": "P-033",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 13,
+      "direction": null,
+      "elementId": "P-041",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 13,
+      "direction": null,
+      "elementId": "P-031",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 14,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 14,
+      "direction": null,
+      "elementId": "P-034",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 14,
+      "direction": null,
+      "elementId": "P-042",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 14,
+      "direction": null,
+      "elementId": "P-027",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 15,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 15,
+      "direction": null,
+      "elementId": "SM3-009",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/signals/sbb_l/signal_m3_red_left.svg",
+        "/icons/signals/sbb_l/signal_m3_green_left.svg",
+        "/icons/signals/sbb_l/signal_m3_yellow_left.svg"
+      ],
+      "type": "SM33"
+    },
+    {
+      "col": 15,
+      "direction": null,
+      "elementId": "P-043",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 15,
+      "direction": null,
+      "elementId": "P-028",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 16,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 16,
+      "direction": null,
+      "elementId": "TL-001",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/turnout_straight_left.svg",
+        "/icons/tracks/turnout_diverted_left.svg"
+      ],
+      "type": "TL2"
+    },
+    {
+      "col": 16,
+      "direction": null,
+      "elementId": "P-044",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 16,
+      "direction": null,
+      "elementId": "CR-003",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 5,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/curve_right.svg"
+      ],
+      "type": "CR1"
+    },
+    {
+      "col": 17,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 17,
+      "direction": null,
+      "elementId": "DTR-001",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 2,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/diag_turnout_straight_right.svg",
+        "/icons/tracks/diag_turnout_diverted_right.svg"
+      ],
+      "type": "DTR2"
+    },
+    {
+      "col": 17,
+      "direction": null,
+      "elementId": "P-038",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 17,
+      "direction": null,
+      "elementId": "CL-007",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 4,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/curve_left.svg"
+      ],
+      "type": "CL1"
+    },
+    {
+      "col": 17,
+      "direction": null,
+      "elementId": "CL-004",
+      "mainSignalId": null,
+      "rotation": 270,
+      "row": 6,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/curve_left.svg"
+      ],
+      "type": "CL1"
+    },
+    {
+      "col": 17,
+      "direction": null,
+      "elementId": "P-029",
+      "mainSignalId": null,
+      "rotation": 90,
+      "row": 7,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 18,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 18,
+      "direction": null,
+      "elementId": "CL-006",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 1,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/curve_left.svg"
+      ],
+      "type": "CL1"
+    },
+    {
+      "col": 18,
+      "direction": null,
+      "elementId": "P-035",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 2,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 18,
+      "direction": null,
+      "elementId": "TL-002",
+      "mainSignalId": null,
+      "rotation": 180,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/turnout_straight_left.svg",
+        "/icons/tracks/turnout_diverted_left.svg"
+      ],
+      "type": "TL2"
+    },
+    {
+      "col": 19,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 19,
+      "direction": null,
+      "elementId": "P-037",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 1,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 19,
+      "direction": null,
+      "elementId": "P-036",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 2,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 19,
+      "direction": null,
+      "elementId": "P-045",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 20,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 20,
+      "direction": null,
+      "elementId": "BM-002",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/block_marker.svg"
+      ],
+      "type": "BM1"
+    },
+    {
+      "col": 21,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 21,
+      "direction": null,
+      "elementId": "P-047",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/straight.svg"
+      ],
+      "type": "P1"
+    },
+    {
+      "col": 22,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 22,
+      "direction": null,
+      "elementId": "TR-004",
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 3,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/tracks/turnout_straight_right.svg",
+        "/icons/tracks/turnout_diverted_right.svg"
+      ],
+      "type": "TR2"
+    },
+    {
+      "col": 23,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 24,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 25,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 26,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 27,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 28,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 29,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 30,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 31,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 32,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 33,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 34,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 35,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 36,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 37,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 38,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 39,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 40,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 41,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 42,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 43,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 44,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 45,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 46,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 47,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 48,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 49,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 50,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 51,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 52,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 53,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 54,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 55,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 56,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 57,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 58,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    },
+    {
+      "col": 59,
+      "direction": null,
+      "elementId": null,
+      "mainSignalId": null,
+      "rotation": 0,
+      "row": 0,
+      "signalSide": null,
+      "svgPaths": [
+        "/icons/empty.svg"
+      ],
+      "type": "plain"
+    }
+  ],
+  "trainsFile": null
 }
