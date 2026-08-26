@@ -190,6 +190,7 @@ public class LayoutService {
                 layoutPersistence.save(tileGrid, path, trainsFile);
                 currentFilePath = path;
                 settings.setLastLayoutFile(path);
+                addToRecentFiles(path);
                 log.info("Saved layout to {}", path);
             }
             catch (IOException ex) {

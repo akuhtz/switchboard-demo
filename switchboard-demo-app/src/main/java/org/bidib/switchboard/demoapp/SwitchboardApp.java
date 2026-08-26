@@ -143,12 +143,13 @@ public class SwitchboardApp {
             updateTitle();
         }
         trainListPanel = new TrainListPanel(model.getTrainListModel(), messages);
-        routeListPanel = new RouteListPanel(switchboardPanel.getRouteModel(), messages);
+        routeListPanel = new RouteListPanel(switchboardPanel.getRouteModel());
         routeDetailsPanel = new RouteDetailsPanel(switchboardPanel, switchboardPanel.getRouteModel());
         routeListPanel.setSelectionListener(route -> {
             switchboardPanel.setSelectedRoute(route);
             routeDetailsPanel.setRoute(route);
         });
+        routeListPanel.setDeleteAction(route -> switchboardPanel.deleteRoute(route.getId()));
         routeDetailsPanel.addRouteDetailsListener(evt -> {
             if ("routeRun".equals(evt.getPropertyName()) && evt.getNewValue() instanceof org.bidib.switchboard.component.model.Route route) {
                 switchboardPanel.startRouteSimulation(route);
@@ -258,6 +259,7 @@ public class SwitchboardApp {
         saveAsItem.addActionListener(e -> {
             layoutService.onSaveAs();
             updateTitle();
+            rebuildRecentMenu();
         });
         fileMenu.add(saveAsItem);
 
@@ -397,6 +399,7 @@ public class SwitchboardApp {
         editToggle.setSelected(enabled);
         routeMenuItem.setEnabled(enabled);
         routeDetailsPanel.setEditMode(enabled);
+        routeListPanel.setEditMode(enabled);
         if (!enabled && routeMenuItem.isSelected()) {
             routeMenuItem.setSelected(false);
             switchboardPanel.cancelRouteCreationMode();

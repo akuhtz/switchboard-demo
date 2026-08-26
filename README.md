@@ -443,7 +443,7 @@ The application uses the [VLDocking](https://github.com/akuhtz/vldocking) framew
 
 - **SwitchboardPanel** (right side): the main switchboard grid, implements `Dockable`.
 - **TrainListPanel** (left side, 20% width): train list with drag-and-drop support, implements `Dockable`.
-- **RouteListPanel** (left side, below train list): list of routes, implements `Dockable`.
+- **RouteListPanel** (left side, below train list): list of routes, implements `Dockable`. In edit mode, right-clicking a route shows a "Delete route" context menu item with a confirmation dialog.
 - **RouteDetailsPanel** (tabbed alongside RouteListPanel): route details with editable name, alternatives badge, turnout/signal tree, and Save/Cancel/Run buttons (Run visible only in edit mode), implements `Dockable`.
 - RouteListPanel and RouteDetailsPanel appear as tabs in the same dock area via `DockingDesktop.createTab()`.
 - Panels can be detached, re-docked, or rearranged via the VLDocking UI (drag tab headers).
@@ -739,6 +739,11 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 - Refactored `RouteSimulation` and `OccupancySimulation` to use `TrainMovement`. Both support `setTrainLength(int)` (minimum 1).
 - Added `RouterService.getConnectedNeighbors()` (public) and `RouterService.pickBackwardNeighbor()` for finding connected track tiles backward from the head.
 - Wired `RouterService` and `trainLength=3` in `SwitchboardPanel` when creating simulations.
+
+**2026-08-25 — route list context menu and MRU fix**
+
+- **Delete route from list**: In edit mode, right-click a route in the Routes list → "Delete route". A confirmation dialog asks whether to delete the route. If a simulation is running for that route, it is stopped before deletion.
+- **MRU fix for Save As**: Saving a layout with a new name (Ctrl+Shift+S) now correctly adds the new file to the Recent files menu. Previously the MRU list was not updated after Save As.
 
 **2026-08-25 — route simulation improvements**
 

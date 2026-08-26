@@ -87,6 +87,8 @@ import com.vlsolutions.swing.docking.DockKey;
 import com.vlsolutions.swing.docking.Dockable;
 
 public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, PropertyChangeListener {
+    private static final long serialVersionUID = 1L;
+
     private final DockKey dockKey = new DockKey("switchboard");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SwitchboardPanel.class);
@@ -3270,6 +3272,20 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     public boolean isAnySimulationRunning() {
         return simulations.values().stream().anyMatch(SimulationEntry::isRunning);
+    }
+
+    /**
+     * Deletes a route and stops its running simulation (if any).
+     *
+     * @param routeId the route ID to delete
+     */
+    public void deleteRoute(String routeId) {
+        SimulationEntry entry = simulations.remove(routeId);
+        if (entry != null && entry.isRunning()) {
+            entry.stop();
+        }
+        routeModel.removeRoute(routeId);
+        repaint();
     }
 
     protected Set<String> testGetSelectedTiles() {

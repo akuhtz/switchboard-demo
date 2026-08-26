@@ -93,6 +93,7 @@ Fahrstraßen werden auf dem Schaltbild nur angezeigt, während sie in der Routen
 ### Fahrstraßen verwalten
 
 - **Einzelne Fahrstraße löschen**: in der Routenliste auswählen, dann Rechtsklick auf eine Kachel der Fahrstraße → **Fahrstraße löschen ({id})**.
+- **Fahrstraße löschen (nur Bearbeitungsmodus)**: Rechtsklick auf eine Fahrstraße in der Routenliste → **Fahrstraße löschen**. Ein Bestätigungsdialog fragt, ob die Fahrstraße gelöscht werden soll. Wenn eine Simulation läuft, wird sie vor dem Löschen gestoppt.
 - Mehrere überlappende Fahrstraßen können gleichzeitig existieren — BFS überspringt keine Kacheln, die von anderen Fahrstraßen belegt sind.
 - **Alte Layouts**: Fahrstraßen, die von älteren Versionen als Signal-zu-Signal-Routen gespeichert wurden, werden beim Laden des Layouts automatisch in benannte Zugrouten umgewandelt (Name bleibt erhalten).
 
@@ -233,7 +234,7 @@ Die Übersetzungen befinden sich in `i18n/messages.properties` (Komponente) und 
 - **Strg+S** — in die aktuelle Datei speichern (oder Speichern-Dialog öffnen, falls keine vorhanden).
 - **Strg+L** — ein zuvor gespeichertes `.json`-Layout laden.
 - Beim Start merkt sich die Anwendung die zuletzt geladene Datei und stellt sie automatisch wieder her.
-- **Zuletzt verwendet**: Das **Datei**-Menü zeigt ein **Zuletzt**-Untermenü mit bis zu 6 kürzlich geöffneten Layouts. Klicken Sie auf einen Eintrag, um ihn direkt zu laden. Der neueste Eintrag steht oben.
+- **Zuletzt verwendet**: Das **Datei**-Menü zeigt ein **Zuletzt**-Untermenü mit bis zu 6 kürzlich geöffneten Layouts. Klicken Sie auf einen Eintrag, um ihn direkt zu laden. Der neueste Eintrag steht oben. Die Liste wird auch aktualisiert, wenn ein Layout unter einem neuen Namen gespeichert wird (Speichern unter).
 - Einstellungen werden in `~/switchboard-demo-1/settings.json` gespeichert.
 
 ## 17. Protokollierung

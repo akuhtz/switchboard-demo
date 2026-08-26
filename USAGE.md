@@ -93,6 +93,7 @@ Routes are shown on the switchboard only while selected in the Routes list.
 ### Manage routes
 
 - **Clear a single route**: select it in the Routes list, then right-click any tile on the route → **Clear route ({id})**.
+- **Delete a route (edit mode only)**: right-click a route in the Routes list → **Delete route**. A confirmation dialog asks whether to delete the route. If a simulation is running, it is stopped before deletion.
 - Multiple overlapping routes can coexist — the BFS does not skip tiles reserved by other routes.
 - **Legacy layouts**: routes saved as signal-to-signal routes by older versions are automatically converted to named train routes when the layout is loaded (name preserved).
 
@@ -231,7 +232,7 @@ Translations are maintained in `i18n/messages.properties` (component) and `i18n/
 - **Ctrl+S** — save to the current file (or open a save dialog if none).
 - **Ctrl+L** — load a previously saved `.json` layout.
 - On startup, the app remembers the last loaded file and restores it automatically.
-- **Recent files**: The **File** menu shows a **Recent** submenu with up to 6 recently opened layouts. Click any entry to load it instantly. The most recent entry appears at the top.
+- **Recent files**: The **File** menu shows a **Recent** submenu with up to 6 recently opened layouts. Click any entry to load it instantly. The most recent entry appears at the top. The list is also updated when saving a layout with a new name (Save As).
 - Settings are stored in `~/switchboard-demo-1/settings.json`.
 
 ## 17. Logging
