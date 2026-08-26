@@ -158,6 +158,7 @@ public class RouteSimulation {
             ElementType type = et.getElementType();
             if (type == ElementType.SIGNAL_M3 || type == ElementType.SIGNAL_COMBINED) {
                 model.setElementAspect(et.getElementId(), 1);
+                lastGreenSignalIndex = 0;
                 LOG.info("Start signal {} set to green", et.getElementId());
             }
         }
