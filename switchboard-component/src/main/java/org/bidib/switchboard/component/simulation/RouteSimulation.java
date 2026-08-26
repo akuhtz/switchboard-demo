@@ -50,6 +50,7 @@ public class RouteSimulation {
     private long signalBlockedSince = -1;
     private boolean startSignalSet;
     private long startedAt;
+    private int lastGreenSignalIndex = -1;
     private Runnable onTick;
     private TrainMovement trainMovement;
     private Block previousBlock;
@@ -109,6 +110,7 @@ public class RouteSimulation {
         this.startedAt = System.currentTimeMillis();
         this.finished = false;
         this.previousBlock = null;
+        this.lastGreenSignalIndex = -1;
 
         if (path.isEmpty()) {
             running = false;
@@ -226,6 +228,7 @@ public class RouteSimulation {
                     ElementType type = et.getElementType();
                     if (type == ElementType.SIGNAL_M3 || type == ElementType.SIGNAL_COMBINED) {
                         model.setElementAspect(et.getElementId(), 1);
+                        lastGreenSignalIndex = stationIndex;
                     }
                 }
             }
@@ -252,6 +255,7 @@ public class RouteSimulation {
                         LOG.info(">>> auto-change signal elapsed.");
                         if (pt instanceof ElementTile et && et.getElementId() != null) {
                             model.setElementAspect(et.getElementId(), 1);
+                            lastGreenSignalIndex = prev;
                             LOG.info("Auto-changed signal {} to green", et.getElementId());
                         }
                         signalBlockedSince = -1;
@@ -292,6 +296,17 @@ public class RouteSimulation {
         }
 
         currentIndex++;
+
+        // Reset signal to red when head is 2 tiles past it
+        if (lastGreenSignalIndex >= 0 && currentIndex >= lastGreenSignalIndex + 2) {
+            int[] sigPos = path.get(lastGreenSignalIndex);
+            Tile sigTile = tileGrid.getTile(sigPos[0], sigPos[1]);
+            if (sigTile instanceof ElementTile et && et.getElementId() != null) {
+                model.setElementAspect(et.getElementId(), 0);
+                LOG.info("Reset signal {} to red after train passed", et.getElementId());
+            }
+            lastGreenSignalIndex = -1;
+        }
 
         // Check if we just arrived at a station stop
         if (stops.contains(currentIndex - 1)) {
