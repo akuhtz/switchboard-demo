@@ -16,6 +16,7 @@ import org.bidib.switchboard.component.model.ElementType;
 import org.bidib.switchboard.component.model.Occupancy;
 import org.bidib.switchboard.component.model.RailwayModel;
 import org.bidib.switchboard.component.model.Route;
+import org.bidib.switchboard.component.model.SignalTile;
 import org.bidib.switchboard.component.model.Tile;
 import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.view.TileGrid;
@@ -180,6 +181,7 @@ public class RouteSimulation {
                 LOG.info("Start signal {} set to green", et.getElementId());
             }
         }
+        syncDistantSignals();
 
         // Move train to first block on the path
         assignTrainToFirstBlock();
@@ -266,6 +268,7 @@ public class RouteSimulation {
                     }
                 }
             }
+            syncDistantSignals();
 
             LOG.info("Station dwell complete, continuing");
         }
@@ -293,6 +296,7 @@ public class RouteSimulation {
                             LOG.info("Auto-changed signal {} to green", et.getElementId());
                         }
                         signalBlockedSince = -1;
+                        syncDistantSignals();
                     }
                 }
                 notifyTick();
@@ -340,6 +344,7 @@ public class RouteSimulation {
                 LOG.info("Reset signal {} to red after train passed", et.getElementId());
             }
             lastGreenSignalIndex = -1;
+            syncDistantSignals();
         }
 
         // Check if we just arrived at a station stop
@@ -492,5 +497,58 @@ public class RouteSimulation {
 
     public List<int[]> getTrainPositions() {
         return trainMovement.getPositions();
+    }
+
+    /**
+     * Keeps every distant signal (SIGNAL_V) on the route in sync with the next main signal
+     * (SIGNAL_M3) ahead in the path, so the distant signal previews the upcoming aspect. For
+     * combined signals (SIGNAL_COMBINED) the DISTANT PLATE on the signal's own mast mirrors the
+     * next main signal ahead, while the main head keeps its own operator-set aspect.
+     */
+    private void syncDistantSignals() {
+        if (path == null) {
+            return;
+        }
+        for (int i = 0; i < path.size(); i++) {
+            int[] p = path.get(i);
+            Tile tile = tileGrid.getTile(p[0], p[1]);
+            if (!(tile instanceof ElementTile et)) {
+                continue;
+            }
+            if (et.getElementType() == ElementType.SIGNAL_COMBINED) {
+                syncCombinedPlate(i, (SignalTile) et);
+                continue;
+            }
+            if (et.getElementType() != ElementType.SIGNAL_V || et.getElementId() == null) {
+                continue;
+            }
+            int nextAspect = findNextSignalAspect(i);
+            if (nextAspect >= 0) {
+                model.setElementAspect(et.getElementId(), nextAspect);
+            }
+        }
+    }
+
+    private void syncCombinedPlate(int fromIndex, SignalTile combined) {
+        int nextAspect = findNextSignalAspect(fromIndex);
+        if (nextAspect >= 0) {
+            combined.setPlateAspect(nextAspect);
+        }
+    }
+
+    private int findNextSignalAspect(int fromIndex) {
+        for (int i = fromIndex + 1; i < path.size(); i++) {
+            int[] p = path.get(i);
+            Tile tile = tileGrid.getTile(p[0], p[1]);
+            if (tile instanceof ElementTile et && et.getElementId() != null
+                && (et.getElementType() == ElementType.SIGNAL_M3
+                    || et.getElementType() == ElementType.SIGNAL_COMBINED)) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null) {
+                    return el.getCurrentAspect();
+                }
+            }
+        }
+        return -1;
     }
 }
