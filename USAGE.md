@@ -53,11 +53,41 @@ In **edit mode** (Ctrl+E), you can select and move tiles:
 
 In **normal mode** (Ctrl+E to toggle):
 - Click a turnout or signal to cycle its aspect (straight ↔ diverted, red ↔ green, orange ↔ green ↔ orange+green ↔ aspect 3 for the distant signal, etc.).
-- Clicking a **main signal** also switches every **linked distant signal** to the matching preview aspect (see [section 10](#10-link-a-distant-signal-to-a-main-signal)). A linked distant signal itself cannot be clicked to change its aspect.
+- Clicking a **main signal** also switches every **linked distant signal** to the matching preview aspect (see [section 12](#12-link-a-distant-signal-to-a-main-signal)). A linked distant signal itself cannot be clicked to change its aspect.
 - A **combined signal** behaves like a main signal: clicking cycles its own head aspect (red/green/orange). Its distant plate is controlled by the linked main signal and cannot be clicked.
 - Turnouts auto-switch to the correct aspect when a route is found.
 
-## 6. Create a route
+## 6. Define blocks
+
+A **block** is a connected path of tiles that forms a section of track. Blocks are useful for
+modelling track occupancy sections.
+
+- In **edit mode** (Ctrl+E), right-click the first tile → **Block → Set Block Start**.
+- Right-click the last tile → **Block → Set Block End**. The connected path between the two
+  tiles is found automatically and a block is created.
+- **No turnouts**: blocks never pass through turnout tiles (TL/TR/T3). If no turnout-free
+  connected path exists, no block is created.
+- **No overlaps**: every tile belongs to at most one block. Tiles already assigned to another
+  block are avoided when finding the path.
+- Every block gets a **unique ID** and a default name `blk001`, `blk002`, ... (zero-padded).
+- To change the name, right-click any tile of the block → **Block → Rename Block...** and enter
+  a new name in the dialog.
+- To remove a block, right-click any tile of the block → **Block → Remove Block**.
+- Blocks are drawn as a 2px yellow line below the track along the path, with a short vertical
+  tick at the outer edge of the start and end tiles. The pending block start is shown as an
+  orange square marker.
+- Blocks are saved with the layout and restored when it is loaded.
+
+## 7. Block markers
+
+Block markers (`BLOCK_MARKER` / `BM`) are straight-through tiles that display the block name as a centered text label. They help visually identify block boundaries on the switchboard.
+
+- Place a block marker by right-clicking a cell in edit mode → **BM (BLOCK_MARKER)**.
+- The marker label shows the block name in yellow (`(255,220,80)`) when the block is not occupied, or red when occupied.
+- Block markers can be rotated (0° or 90°) like straight track tiles.
+- A block marker can have a **train assigned** to it via drag-and-drop (see [section 13](#13-trains-and-drag-and-drop)). When a train is assigned, the marker displays the train name instead of the block name.
+
+## 8. Create a route
 
 There is a single unified way to define routes: **route creation mode**.
 
@@ -97,7 +127,7 @@ Routes are shown on the switchboard only while selected in the Routes list.
 - Multiple overlapping routes can coexist — the BFS does not skip tiles reserved by other routes.
 - **Legacy layouts**: routes saved as signal-to-signal routes by older versions are automatically converted to named train routes when the layout is loaded (name preserved).
 
-## 7. Route details
+## 9. Route details
 
 The **Route Details** tab appears alongside the **Routes** tab in the left panel. When you select a route in the Routes list, the Route Details panel shows:
 
@@ -106,7 +136,7 @@ The **Route Details** tab appears alongside the **Routes** tab in the left panel
 - **Tree** (center): lists turnouts and main signals along the route path in order. The last tile is always shown, even if it is not a turnout or main signal. Distant signals (SIGNAL_V) are excluded.
 - **Save / Cancel / Run** buttons (bottom): Save validates the name (non-blank, unique) and applies it. Cancel reverts to the original name. Run starts the route simulation immediately — it is visible only in **edit mode**.
 
-## 8. Tile direction
+## 10. Tile direction
 
 Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWARD, or BOTH).
 
@@ -115,7 +145,7 @@ Straight and diagonal tiles can have a **direction constraint** (FORWARD, BACKWA
 - Route finding respects the direction: BFS will not traverse a tile against its direction.
 - Default is **Both** (no constraint) — backward-compatible with existing layouts.
 
-## 9. Signal side
+## 11. Signal side
 
 Signal tiles can display their body above (Swiss, `_left`) or below (German, `_right`) the track. This applies to all signal types (SIGNAL_M3, SIGNAL_V, SIGNAL_COMBINED).
 
@@ -124,7 +154,7 @@ Signal tiles can display their body above (Swiss, `_left`) or below (German, `_r
 - When you change the signal side, the tile image updates immediately.
 - The **Tile Info** dialog (left‑click a signal in normal mode) shows the resolved signal side.
 
-## 10. Link a distant signal to a main signal
+## 12. Link a distant signal to a main signal
 
 A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_M3 or SIGNAL_COMBINED) it previews. A combined signal's (SIGNAL_COMBINED) distant plate uses the same link. Once linked:
 
@@ -135,36 +165,6 @@ A distant signal (SIGNAL_V) can be linked to the main signal (SIGNAL_M3 or SIGNA
 - **Removal**: When you clear a main signal that has linked distant signals, you are asked whether to **Remove linked** (remove the distant signals too), **Keep** the distant signals (the link is removed), or **Cancel**.
 - The link is saved with the layout and restored on load.
 - The **Tile Info** dialog shows the link (Main signal / Distant signals) and, for combined signals, the current distant plate aspect.
-
-## 11. Define blocks
-
-A **block** is a connected path of tiles that forms a section of track. Blocks are useful for
-modelling track occupancy sections.
-
-- In **edit mode** (Ctrl+E), right-click the first tile → **Block → Set Block Start**.
-- Right-click the last tile → **Block → Set Block End**. The connected path between the two
-  tiles is found automatically and a block is created.
-- **No turnouts**: blocks never pass through turnout tiles (TL/TR/T3). If no turnout-free
-  connected path exists, no block is created.
-- **No overlaps**: every tile belongs to at most one block. Tiles already assigned to another
-  block are avoided when finding the path.
-- Every block gets a **unique ID** and a default name `blk001`, `blk002`, ... (zero-padded).
-- To change the name, right-click any tile of the block → **Block → Rename Block...** and enter
-  a new name in the dialog.
-- To remove a block, right-click any tile of the block → **Block → Remove Block**.
-- Blocks are drawn as a 2px yellow line below the track along the path, with a short vertical
-  tick at the outer edge of the start and end tiles. The pending block start is shown as an
-  orange square marker.
-- Blocks are saved with the layout and restored when it is loaded.
-
-## 12. Block markers
-
-Block markers (`BLOCK_MARKER` / `BM`) are straight-through tiles that display the block name as a centered text label. They help visually identify block boundaries on the switchboard.
-
-- Place a block marker by right-clicking a cell in edit mode → **BM (BLOCK_MARKER)**.
-- The marker label shows the block name in yellow (`(255,220,80)`) when the block is not occupied, or red when occupied.
-- Block markers can be rotated (0° or 90°) like straight track tiles.
-- A block marker can have a **train assigned** to it via drag-and-drop (see [section 13](#13-trains-and-drag-and-drop)). When a train is assigned, the marker displays the train name instead of the block name.
 
 ## 13. Trains and drag-and-drop
 
@@ -201,7 +201,7 @@ After a route is created, you can animate a train moving along it:
 - **Train length**: Simulated trains occupy 3 tiles by default (head + 2 trailing cars). The head follows the route path; trailing cars are placed behind the head along the **physical track** (not necessarily on the route path). At start, cars are placed by walking backward from the first route tile along connected track in the opposite travel direction. During movement, the train advances as a sliding window: the head moves to the next path tile and the tail frees the oldest tile. The length is configurable (min 1) via the simulation API.
 - Turnouts along the route are automatically set to the correct position for the simulated path.
 - **Signal stops**: When a train reaches a main signal (SIGNAL_M3 or SIGNAL_COMBINED) at aspect 0 (red), it stops and waits. Signals only block trains approaching from the front (the direction the signal faces based on rotation). Trains approaching a signal from behind ignore it. **Signal reset to red**: When a green signal is passed by the train head (5 tiles ahead by default, configurable via `setSignalResetDistance`), it automatically resets to red.
-- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of its linked main signal (via `mainSignalId`), previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". A distant signal linked to a main signal (see [section 10](#10-link-a-distant-signal-to-a-main-signal)) also mirrors the main signal's aspect when you click it manually, outside the simulation.
+- **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of its linked main signal (via `mainSignalId`), previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". A distant signal linked to a main signal (see [section 12](#12-link-a-distant-signal-to-a-main-signal)) also mirrors the main signal's aspect when you click it manually, outside the simulation.
 - **Combined signals**: The main head stops the train like a main signal. During simulation the combined signal's distant plate mirrors its linked main signal; outside a simulation it mirrors its linked main signal as well.
 - **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a main signal that blocks a train auto-switches to aspect 1 (green) after 2 seconds, allowing the train to resume. Toggling this option immediately affects all running simulations.
 - **Multiple simulations**: Each route can have its own independent simulation running concurrently.
