@@ -370,6 +370,7 @@ public class RouteSimulation {
     private void recordBlockDeparture(Block block) {
         if (!blockDepartures.containsKey(block)) {
             blockDepartures.put(block, System.currentTimeMillis());
+            LOG.info("Recorded departure from block '{}'", block.getName());
         }
     }
 
@@ -377,6 +378,7 @@ public class RouteSimulation {
         if (blockCleanupTimer != null) {
             return; // already running
         }
+        LOG.info("Starting block cleanup timer ({} blocks pending)", blockDepartures.size());
         blockCleanupTimer = new Timer(1000, e -> checkBlockCleanups());
         blockCleanupTimer.setRepeats(true);
         blockCleanupTimer.start();
@@ -395,17 +397,22 @@ public class RouteSimulation {
         Iterator<Map.Entry<Block, Long>> it = blockDepartures.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<Block, Long> entry = it.next();
-            if (now - entry.getValue() >= BLOCK_MARKER_CLEAR_DELAY_MS) {
+            long elapsed = now - entry.getValue();
+            if (elapsed >= BLOCK_MARKER_CLEAR_DELAY_MS) {
                 Block block = entry.getKey();
                 it.remove();
+                LOG.info("Block '{}' departure delay elapsed ({}ms), clearing assignment", block.getName(), elapsed);
                 if (block.getAssignedTrainId() != null) {
                     clearBlockAssignment(block);
+                } else {
+                    LOG.info("Block '{}' already has no assignment, skipping", block.getName());
                 }
             } else {
                 anyRemaining = true;
             }
         }
         if (!anyRemaining) {
+            LOG.info("No more blocks pending cleanup, stopping timer");
             stopBlockCleanupTimer();
         }
     }
