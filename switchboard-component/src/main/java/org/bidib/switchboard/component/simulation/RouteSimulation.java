@@ -31,7 +31,7 @@ public class RouteSimulation {
     private static final long BLOCK_MARKER_CLEAR_DELAY_MS = 2000;
     private static final int DEFAULT_TRAIN_LENGTH = 3;
     private static final int DEFAULT_SIGNAL_RESET_DISTANCE = 3;
-    private static final int DEFAULT_TICK_INTERVAL_MS = 200;
+    private static final int DEFAULT_TICK_INTERVAL_MS = 400;
     private static final int BLOCK_CLEANUP_EVERY_N_TICKS = 5;
 
     private final RailwayModel model;
@@ -500,55 +500,48 @@ public class RouteSimulation {
     }
 
     /**
-     * Keeps every distant signal (SIGNAL_V) on the route in sync with the next main signal
-     * (SIGNAL_M3) ahead in the path, so the distant signal previews the upcoming aspect. For
-     * combined signals (SIGNAL_COMBINED) the DISTANT PLATE on the signal's own mast mirrors the
-     * next main signal ahead, while the main head keeps its own operator-set aspect.
+     * Keeps every distant signal (SIGNAL_V) on the route in sync with its linked main signal.
+     * Each distant signal has a configured {@code mainSignalId} on its SignalTile that identifies
+     * which main signal it previews. For combined signals (SIGNAL_COMBINED), the DISTANT PLATE
+     * on the signal's own mast mirrors the linked main signal.
      */
     private void syncDistantSignals() {
         if (path == null) {
             return;
         }
-        for (int i = 0; i < path.size(); i++) {
-            int[] p = path.get(i);
+        for (int[] p : path) {
             Tile tile = tileGrid.getTile(p[0], p[1]);
-            if (!(tile instanceof ElementTile et)) {
+            if (!(tile instanceof SignalTile st)) {
                 continue;
             }
-            if (et.getElementType() == ElementType.SIGNAL_COMBINED) {
-                syncCombinedPlate(i, (SignalTile) et);
+            if (st.getElementType() == ElementType.SIGNAL_COMBINED) {
+                syncCombinedPlate(st);
                 continue;
             }
-            if (et.getElementType() != ElementType.SIGNAL_V || et.getElementId() == null) {
+            if (st.getElementType() != ElementType.SIGNAL_V || st.getElementId() == null) {
                 continue;
             }
-            int nextAspect = findNextSignalAspect(i);
-            if (nextAspect >= 0) {
-                model.setElementAspect(et.getElementId(), nextAspect);
+            String mainId = st.getMainSignalId();
+            if (mainId == null) {
+                continue;
+            }
+            Element mainEl = model.getElement(mainId);
+            if (mainEl != null) {
+                int distantAspect = OccupancySimulation.distantAspectForMainSignal(
+                    ElementType.SIGNAL_M3, mainEl.getCurrentAspect());
+                model.setElementAspect(st.getElementId(), distantAspect);
             }
         }
     }
 
-    private void syncCombinedPlate(int fromIndex, SignalTile combined) {
-        int nextAspect = findNextSignalAspect(fromIndex);
-        if (nextAspect >= 0) {
-            combined.setPlateAspect(nextAspect);
+    private void syncCombinedPlate(SignalTile combined) {
+        String mainId = combined.getMainSignalId();
+        if (mainId == null) {
+            return;
         }
-    }
-
-    private int findNextSignalAspect(int fromIndex) {
-        for (int i = fromIndex + 1; i < path.size(); i++) {
-            int[] p = path.get(i);
-            Tile tile = tileGrid.getTile(p[0], p[1]);
-            if (tile instanceof ElementTile et && et.getElementId() != null
-                && (et.getElementType() == ElementType.SIGNAL_M3
-                    || et.getElementType() == ElementType.SIGNAL_COMBINED)) {
-                Element el = model.getElement(et.getElementId());
-                if (el != null) {
-                    return el.getCurrentAspect();
-                }
-            }
+        Element mainEl = model.getElement(mainId);
+        if (mainEl != null) {
+            combined.setPlateAspect(mainEl.getCurrentAspect());
         }
-        return -1;
     }
 }
