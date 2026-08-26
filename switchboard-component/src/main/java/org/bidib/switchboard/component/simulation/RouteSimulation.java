@@ -195,10 +195,7 @@ public class RouteSimulation {
             finished = (currentIndex >= path.size());
             if (finished) {
                 LOG.info("Route '{}' completed", route.getName() != null ? route.getName() : route.getId());
-                if (previousBlock != null) {
-                    recordBlockDeparture(previousBlock);
-                }
-                startBlockCleanupTimer();
+                // Don't record departure — the train is still in the last block
             }
             notifyTick();
             return;
