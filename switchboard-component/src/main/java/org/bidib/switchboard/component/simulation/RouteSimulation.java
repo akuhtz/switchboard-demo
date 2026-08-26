@@ -285,19 +285,9 @@ public class RouteSimulation {
             currentBlock.setAssignedTrainId(trainId);
         }
 
-        // Check if the previous block still has any train tiles
+        // Check if the head has left the previous block
         if (previousBlock != null && previousBlock != currentBlock) {
-            boolean trainStillInPrevious = false;
-            for (int[] pos : trainMovement.getPositions()) {
-                if (tileGrid.getBlockModel().getBlockForTile(pos[0], pos[1]) == previousBlock) {
-                    trainStillInPrevious = true;
-                    break;
-                }
-            }
-            if (!trainStillInPrevious) {
-                // Train has fully left the previous block — record departure for delayed cleanup
-                recordBlockDeparture(previousBlock);
-            }
+            recordBlockDeparture(previousBlock);
         }
         // Keep previousBlock even if currentBlock is null (head on unregistered tile)
         if (currentBlock != null) {
@@ -400,7 +390,7 @@ public class RouteSimulation {
     private void checkBlockCleanups() {
         long now = System.currentTimeMillis();
         
-        LOG.info("Check block cleanups.");
+//        LOG.info("Check block cleanups.");
         
         boolean anyRemaining = false;
         Iterator<Map.Entry<Block, Long>> it = blockDepartures.entrySet().iterator();
