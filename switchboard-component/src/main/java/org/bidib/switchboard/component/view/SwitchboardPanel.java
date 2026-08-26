@@ -265,8 +265,6 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private org.bidib.switchboard.component.simulation.RouteSimulation routeSimulation;
 
-    private Timer routeTimer;
-
     public SwitchboardPanel(final OccupancyFactory occupancyFactory, final AssignOccupancyDialogFactory assignOccupancyDialogFactory, final RailwayModel model, RouterService routerService) {
         this(occupancyFactory, assignOccupancyDialogFactory, model, routerService, routerService.getCols(), routerService.getRows(), DEFAULT_TILE_SIZE);
     }
@@ -848,6 +846,10 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         routeSimulation = new org.bidib.switchboard.component.simulation.RouteSimulation(
             model, this, occupancyFactory, routerService, 3);
         routeSimulation.setOnTick(this::repaint);
+        routeSimulation.setOnComplete(() -> {
+            routeSimulation = null;
+            repaint();
+        });
         routeSimulation.setAutoChangeSignal(autoChangeSignal);
 
         // Find the start index in the route path that overlaps with or is adjacent to the block
@@ -884,31 +886,12 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         }
         routeSimulation.start(tr, trainId, startIndex);
         selectedRoute = null;
-
-        // Drive simulation with a timer
-        routeTimer = new Timer(200, e -> {
-            if (routeSimulation != null && routeSimulation.isRunning()) {
-                routeSimulation.tick();
-            } else if (routeSimulation != null && routeSimulation.isFinished()) {
-                // Simulation completed naturally: stop timer, keep occupancies
-                routeTimer.stop();
-                routeTimer = null;
-                repaint();
-            } else {
-                // Simulation was explicitly stopped or failed
-                stopRouteSimulation();
-            }
-        });
-        routeTimer.start();
         repaint();
     }
 
     private void stopRouteSimulation() {
-        if (routeTimer != null) {
-            routeTimer.stop();
-            routeTimer = null;
-        }
         if (routeSimulation != null) {
+            routeSimulation.stop();
             routeSimulation.reset();
             routeSimulation = null;
         }

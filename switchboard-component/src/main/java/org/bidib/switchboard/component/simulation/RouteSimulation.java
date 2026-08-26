@@ -30,6 +30,8 @@ public class RouteSimulation {
     private static final long BLOCK_MARKER_CLEAR_DELAY_MS = 2000;
     private static final int DEFAULT_TRAIN_LENGTH = 3;
     private static final int DEFAULT_SIGNAL_RESET_DISTANCE = 3;
+    private static final int DEFAULT_TICK_INTERVAL_MS = 200;
+    private static final int BLOCK_CLEANUP_EVERY_N_TICKS = 5;
 
     private final RailwayModel model;
     private final TileGrid tileGrid;
@@ -37,6 +39,7 @@ public class RouteSimulation {
     private RouterService routerService;
     private int trainLength = DEFAULT_TRAIN_LENGTH;
     private int signalResetDistance = DEFAULT_SIGNAL_RESET_DISTANCE;
+    private int tickIntervalMs = DEFAULT_TICK_INTERVAL_MS;
 
     private Route route;
     private String trainId;
@@ -54,10 +57,12 @@ public class RouteSimulation {
     private long startedAt;
     private int lastGreenSignalIndex = -1;
     private Runnable onTick;
+    private Runnable onComplete;
     private TrainMovement trainMovement;
     private Block previousBlock;
     private final Map<Block, Long> blockDepartures = new HashMap<>();
-    private Timer blockCleanupTimer;
+    private Timer simulationTimer;
+    private int tickCount;
 
     public RouteSimulation(RailwayModel model, TileGrid tileGrid, OccupancyFactory occupancyFactory) {
         this(model, tileGrid, occupancyFactory, null, DEFAULT_TRAIN_LENGTH);
@@ -94,8 +99,20 @@ public class RouteSimulation {
         return signalResetDistance;
     }
 
+    public void setTickInterval(int tickIntervalMs) {
+        this.tickIntervalMs = Math.max(50, tickIntervalMs);
+    }
+
+    public int getTickInterval() {
+        return tickIntervalMs;
+    }
+
     public void setOnTick(Runnable onTick) {
         this.onTick = onTick;
+    }
+
+    public void setOnComplete(Runnable onComplete) {
+        this.onComplete = onComplete;
     }
 
     public void setAutoChangeSignal(boolean autoChangeSignal) {
@@ -121,6 +138,7 @@ public class RouteSimulation {
         this.finished = false;
         this.previousBlock = null;
         this.lastGreenSignalIndex = -1;
+        this.tickCount = 0;
 
         if (path.isEmpty()) {
             running = false;
@@ -167,22 +185,24 @@ public class RouteSimulation {
         assignTrainToFirstBlock();
 
         running = true;
-        startBlockCleanupTimer();
+        startSimulationTimer();
         LOG.info("Started route '{}' with train {} (length {})",
             route.getName() != null ? route.getName() : route.getId(), trainId, trainLength);
         notifyTick();
     }
 
     public void stop() {
+        LOG.info("Stop route simulation.");
         running = false;
         finished = false;
         pausedAtStation = false;
         stationPausedSince = -1;
+        stopSimulationTimer();
         // Record departure for the current block so it gets cleaned up
         if (previousBlock != null) {
             recordBlockDeparture(previousBlock);
         }
-        startBlockCleanupTimer();
+        checkBlockCleanups();
     }
 
     public void reset() {
@@ -190,7 +210,7 @@ public class RouteSimulation {
         finished = false;
         pausedAtStation = false;
         stationPausedSince = -1;
-        stopBlockCleanupTimer();
+        stopSimulationTimer();
         blockDepartures.clear();
         previousBlock = null;
         // Free all train positions
@@ -208,9 +228,12 @@ public class RouteSimulation {
             finished = (currentIndex >= path.size());
             if (finished) {
                 LOG.info("Route '{}' completed", route.getName() != null ? route.getName() : route.getId());
-                // Don't record departure — the train is still in the last block
+                stopSimulationTimer();
             }
             notifyTick();
+            if (finished && onComplete != null) {
+                onComplete.run();
+            }
             return;
         }
 
@@ -333,6 +356,33 @@ public class RouteSimulation {
         notifyTick();
     }
 
+    private void simulationTick() {
+        if (running) {
+            tick();
+        }
+        tickCount++;
+        if (tickCount % BLOCK_CLEANUP_EVERY_N_TICKS == 0) {
+            checkBlockCleanups();
+        }
+    }
+
+    private void startSimulationTimer() {
+        if (simulationTimer != null) {
+            return;
+        }
+        simulationTimer = new Timer(tickIntervalMs, e -> simulationTick());
+        simulationTimer.setRepeats(true);
+        simulationTimer.start();
+    }
+
+    private void stopSimulationTimer() {
+        if (simulationTimer != null) {
+            LOG.info("Stop simulation timer.");
+            simulationTimer.stop();
+            simulationTimer = null;
+        }
+    }
+
     private void clearOccupancies() {
         if (path == null) {
             return;
@@ -391,31 +441,8 @@ public class RouteSimulation {
         }
     }
 
-    private void startBlockCleanupTimer() {
-        if (blockCleanupTimer != null) {
-            return; // already running
-        }
-        LOG.info("Starting block cleanup timer ({} blocks pending)", blockDepartures.size());
-        blockCleanupTimer = new Timer(1000, e -> checkBlockCleanups());
-        blockCleanupTimer.setRepeats(true);
-        blockCleanupTimer.start();
-    }
-
-    private void stopBlockCleanupTimer() {
-        if (blockCleanupTimer != null) {
-	    		LOG.info(">>> stopBlockCleanupTimer");
-	
-	    		blockCleanupTimer.stop();
-            blockCleanupTimer = null;
-        }
-    }
-
     private void checkBlockCleanups() {
         long now = System.currentTimeMillis();
-        
-//        LOG.info("Check block cleanups.");
-        
-        boolean anyRemaining = false;
         Iterator<Map.Entry<Block, Long>> it = blockDepartures.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<Block, Long> entry = it.next();
@@ -429,14 +456,8 @@ public class RouteSimulation {
                 } else {
                     LOG.info("Block '{}' already has no assignment, skipping", block.getName());
                 }
-            } else {
-                anyRemaining = true;
             }
         }
-//        if (!anyRemaining) {
-//            LOG.info("No more blocks pending cleanup, stopping timer");
-//            stopBlockCleanupTimer();
-//        }
     }
 
     private void notifyTick() {
