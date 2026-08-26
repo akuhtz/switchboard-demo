@@ -154,6 +154,7 @@ public class RouteSimulation {
         assignTrainToFirstBlock();
 
         running = true;
+        startBlockCleanupTimer();
         LOG.info("Started route '{}' with train {} (length {})",
             route.getName() != null ? route.getName() : route.getId(), trainId, trainLength);
         notifyTick();
