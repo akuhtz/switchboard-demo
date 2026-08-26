@@ -29,12 +29,14 @@ public class RouteSimulation {
     private static final long AUTO_CHANGE_DELAY_MS = 2000;
     private static final long BLOCK_MARKER_CLEAR_DELAY_MS = 2000;
     private static final int DEFAULT_TRAIN_LENGTH = 3;
+    private static final int DEFAULT_SIGNAL_RESET_DISTANCE = 3;
 
     private final RailwayModel model;
     private final TileGrid tileGrid;
     private final OccupancyFactory occupancyFactory;
     private RouterService routerService;
     private int trainLength = DEFAULT_TRAIN_LENGTH;
+    private int signalResetDistance = DEFAULT_SIGNAL_RESET_DISTANCE;
 
     private Route route;
     private String trainId;
@@ -82,6 +84,14 @@ public class RouteSimulation {
 
     public int getTrainLength() {
         return trainLength;
+    }
+
+    public void setSignalResetDistance(int distance) {
+        this.signalResetDistance = Math.max(1, distance);
+    }
+
+    public int getSignalResetDistance() {
+        return signalResetDistance;
     }
 
     public void setOnTick(Runnable onTick) {
@@ -297,8 +307,8 @@ public class RouteSimulation {
 
         currentIndex++;
 
-        // Reset signal to red when head is 2 tiles past it
-        if (lastGreenSignalIndex >= 0 && currentIndex >= lastGreenSignalIndex + 2) {
+        // Reset signal to red when head is past the signal by the configured distance
+        if (lastGreenSignalIndex >= 0 && currentIndex >= lastGreenSignalIndex + signalResetDistance) {
             int[] sigPos = path.get(lastGreenSignalIndex);
             Tile sigTile = tileGrid.getTile(sigPos[0], sigPos[1]);
             if (sigTile instanceof ElementTile et && et.getElementId() != null) {
