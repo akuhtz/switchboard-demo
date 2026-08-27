@@ -207,7 +207,7 @@ After a route is created, you can animate a train moving along it:
 - **Multiple simulations**: Each route can have its own independent simulation running concurrently.
 - **Stop simulation**: Right-click the source tile of a running simulation → **Stop simulation ({id})** to stop it mid-route.
 - **Block marker cleanup**: When the train head leaves a block, the block marker's train assignment is cleared after a 5-second delay.
-- **Reserved block rendering**: Reserved blocks are drawn in dark blue. Occupied tiles are drawn in red on top, so an occupied-and-reserved tile shows red. When the train leaves a block, the dark blue disappears after a 2s delay.
+- **Reserved block rendering**: Reserved blocks and turnouts between blocks are drawn in dark blue. Occupied tiles are drawn in red on top, so an occupied-and-reserved tile shows red. When the train leaves a block, the dark blue disappears after a 2s delay.
 - **Self-driving timer**: The simulation uses a single configurable timer (default 200ms step interval) that drives both movement and block cleanup.
 - **Simulate occupancy** is disabled while that route's simulation is already running.
 

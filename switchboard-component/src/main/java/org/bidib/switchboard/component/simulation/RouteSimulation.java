@@ -1,6 +1,8 @@
 package org.bidib.switchboard.component.simulation;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,7 @@ public class RouteSimulation {
     private boolean autoChangeSignal;
     private long signalBlockedSince = -1;
     private boolean startSignalSet;
+    private boolean startGreenSet;
     private long startedAt;
     private int lastGreenSignalIndex = -1;
     private Runnable onTick;
@@ -63,6 +66,7 @@ public class RouteSimulation {
     private TrainMovement trainMovement;
     private Block previousBlock;
     private final Map<Block, Long> blockDepartures = new HashMap<>();
+    private final Map<String, String> reservedGapTiles = new HashMap<>();
     private Timer simulationTimer;
     private int tickCount;
 
@@ -137,11 +141,13 @@ public class RouteSimulation {
         this.stationPausedSince = -1;
         this.stationReservationSince = -1;
         this.startSignalSet = false;
+        this.startGreenSet = false;
         this.startedAt = System.currentTimeMillis();
         this.finished = false;
         this.previousBlock = null;
         this.lastGreenSignalIndex = -1;
         this.tickCount = 0;
+        this.reservedGapTiles.clear();
 
         if (path.isEmpty()) {
             running = false;
@@ -177,6 +183,7 @@ public class RouteSimulation {
         Block nextBlock = findGuardedBlock(0);
         if (nextBlock != null && nextBlock.getAssignedTrainId() == null) {
             nextBlock.setAssignedTrainId(trainId);
+            reserveGapTiles(findGapTiles(0, nextBlock), nextBlock.getId());
             LOG.info("Reserved block '{}' for train {} at start", nextBlock.getName(), trainId);
         }
 
@@ -209,6 +216,7 @@ public class RouteSimulation {
         stationPausedSince = -1;
         stationReservationSince = -1;
         stopSimulationTimer();
+        reservedGapTiles.clear();
         // Record departure for the current block so it gets cleaned up
         if (previousBlock != null) {
             recordBlockDeparture(previousBlock);
@@ -224,6 +232,7 @@ public class RouteSimulation {
         stationReservationSince = -1;
         stopSimulationTimer();
         blockDepartures.clear();
+        reservedGapTiles.clear();
         previousBlock = null;
         // Free all train positions
         for (int[] pos : trainMovement.getPositions()) {
@@ -255,6 +264,22 @@ public class RouteSimulation {
             return;
         }
         startSignalSet = true;
+
+        // Set start signal to green after the 2s delay (only once)
+        if (!startGreenSet && currentIndex >= 1) {
+            startGreenSet = true;
+            int[] startPos = path.get(0);
+            Tile startTile = tileGrid.getTile(startPos[0], startPos[1]);
+            if (startTile instanceof ElementTile et && et.getElementId() != null) {
+                ElementType type = et.getElementType();
+                if (type == ElementType.SIGNAL_M3 || type == ElementType.SIGNAL_COMBINED) {
+                    model.setElementAspect(et.getElementId(), 1);
+                    lastGreenSignalIndex = 0;
+                    syncDistantSignals();
+                    LOG.info("Set start signal {} to green after delay", et.getElementId());
+                }
+            }
+        }
 
         // Handle station stop dwell
         if (pausedAtStation) {
@@ -296,8 +321,22 @@ public class RouteSimulation {
                         notifyTick();
                         return;
                     }
+                    // Check if any gap tiles are reserved by another train
+                    Set<int[]> gapTiles = findGapTiles(stationIndex, guardBlock);
+                    for (int[] coord : gapTiles) {
+                        String blockId = reservedGapTiles.get(coord[0] + "," + coord[1]);
+                        if (blockId != null && !blockId.equals(guardBlock.getId())) {
+                            pausedAtStation = true;
+                            stationPausedSince = System.currentTimeMillis() - dwellTimeMs;
+                            LOG.info("Station dwell complete but gap tile ({},{}) reserved by another block, waiting",
+                                coord[0], coord[1]);
+                            notifyTick();
+                            return;
+                        }
+                    }
                     if (reservedBy == null) {
                         guardBlock.setAssignedTrainId(trainId);
+                        reserveGapTiles(gapTiles, guardBlock.getId());
                         LOG.info("Reserved block '{}' for train {} after station dwell",
                             guardBlock.getName(), trainId);
                     }
@@ -346,6 +385,17 @@ public class RouteSimulation {
                 // Check if this signal guards a block boundary
                 Block guardBlock = findGuardedBlock(prev);
                 if (guardBlock != null) {
+                    // Check if any gap tiles between signal and guard block are reserved by another train
+                    Set<int[]> gapTiles = findGapTiles(prev, guardBlock);
+                    for (int[] coord : gapTiles) {
+                        String gapBlockId = reservedGapTiles.get(coord[0] + "," + coord[1]);
+                        if (gapBlockId != null && !gapBlockId.equals(guardBlock.getId())) {
+                            LOG.info("Signal at ({},{}) stays red — gap tile ({},{}) reserved by block {}",
+                                path.get(prev)[0], path.get(prev)[1], coord[0], coord[1], gapBlockId);
+                            notifyTick();
+                            return;
+                        }
+                    }
                     String reservedBy = guardBlock.getAssignedTrainId();
                     if (reservedBy != null && !reservedBy.equals(trainId)) {
                         // Another train has reserved this block — signal stays red
@@ -357,6 +407,7 @@ public class RouteSimulation {
                     // Block is free — reserve it and set signal to green
                     if (reservedBy == null) {
                         guardBlock.setAssignedTrainId(trainId);
+                        reserveGapTiles(gapTiles, guardBlock.getId());
                         LOG.info("Reserved block '{}' for train {} at signal ({},{})",
                             guardBlock.getName(), trainId, path.get(prev)[0], path.get(prev)[1]);
                     }
@@ -535,6 +586,8 @@ public class RouteSimulation {
             if (elapsed >= BLOCK_MARKER_CLEAR_DELAY_MS) {
                 Block block = entry.getKey();
                 it.remove();
+                // Release gap tiles belonging to this block
+                reservedGapTiles.values().removeIf(v -> v.equals(block.getId()));
                 LOG.info("Block '{}' departure delay elapsed ({}ms), clearing assignment", block.getName(), elapsed);
                 if (block.getAssignedTrainId() != null) {
                     clearBlockAssignment(block);
@@ -561,6 +614,35 @@ public class RouteSimulation {
             }
         }
         return null;
+    }
+
+    /**
+     * Finds non-block tiles (turnouts, straights) between the signal at {@code fromIndex}
+     * and the first tile of {@code targetBlock}. These are the gap tiles that need to be
+     * reserved alongside the guarded block.
+     */
+    private Set<int[]> findGapTiles(int fromIndex, Block targetBlock) {
+        Set<int[]> gapTiles = new HashSet<>();
+        for (int i = fromIndex + 1; i < path.size(); i++) {
+            Block block = tileGrid.getBlockModel().getBlockForTile(path.get(i)[0], path.get(i)[1]);
+            if (block == targetBlock) {
+                break; // reached the target block — stop
+            }
+            if (block == null) {
+                gapTiles.add(path.get(i));
+            }
+        }
+        return gapTiles;
+    }
+
+    private void reserveGapTiles(Set<int[]> gapTiles, String blockId) {
+        for (int[] coord : gapTiles) {
+            reservedGapTiles.put(coord[0] + "," + coord[1], blockId);
+        }
+    }
+
+    public Map<String, String> getReservedGapTiles() {
+        return Collections.unmodifiableMap(reservedGapTiles);
     }
 
     private void notifyTick() {

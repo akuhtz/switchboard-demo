@@ -2554,30 +2554,50 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                 || el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
                 continue; // skip occupied tiles — drawOccupancy handles those
             }
-            int cx = tile.getCol() * tileSize + half;
-            int cy = tile.getRow() * tileSize + half;
-            int d = (tileSize - 2) / 2;
-            int rotSteps = (tile.getRotation() / 90) % 4;
-
-            if (et.getElementType() == ElementType.DIAGONAL) {
-                drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
-                continue;
-            }
-            if (et.getElementType() == ElementType.DIAGONAL_TURNOUT_RIGHT
-                || et.getElementType() == ElementType.DIAGONAL_TURNOUT_LEFT) {
-                drawDiagonalTurnoutOccupancy(g2, cx, cy, d, rotSteps, et, el);
-                continue;
-            }
-            int[] ports = et.getElementType().getActivePorts(el.getCurrentAspect(), tile.getRotation());
-            if (ports.length == 2
-                && (et.getElementType() == ElementType.CURVE_LEFT
-                || et.getElementType() == ElementType.CURVE_RIGHT
-                || et.getElementType() == ElementType.TURNOUT_3WAY)) {
-                drawCurveOccupancy(g2, cx, cy, d, ports);
-                continue;
-            }
-            drawPortsOccupancy(g2, cx, cy, d, rotSteps, et, el, ports);
+            drawReservedTile(g2, tile, et, el, half);
         }
+        // Draw reserved gap tiles (turnouts between blocks) in dark blue
+        if (routeSimulation != null) {
+            for (String key : routeSimulation.getReservedGapTiles().keySet()) {
+                String[] parts = key.split(",");
+                int col = Integer.parseInt(parts[0]);
+                int row = Integer.parseInt(parts[1]);
+                Tile tile = tiles.get(Tile.key(col, row));
+                if (tile instanceof ElementTile et && et.getElementId() != null) {
+                    Element el = model.getElement(et.getElementId());
+                    if (el != null && el.getOccupancy() != null
+                        && el.getOccupancy().getState() != Occupancy.OccupancyState.OCCUPIED) {
+                        drawReservedTile(g2, tile, et, el, half);
+                    }
+                }
+            }
+        }
+    }
+
+    private void drawReservedTile(Graphics2D g2, Tile tile, ElementTile et, Element el, int half) {
+        int cx = tile.getCol() * tileSize + half;
+        int cy = tile.getRow() * tileSize + half;
+        int d = (tileSize - 2) / 2;
+        int rotSteps = (tile.getRotation() / 90) % 4;
+
+        if (et.getElementType() == ElementType.DIAGONAL) {
+            drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
+            return;
+        }
+        if (et.getElementType() == ElementType.DIAGONAL_TURNOUT_RIGHT
+            || et.getElementType() == ElementType.DIAGONAL_TURNOUT_LEFT) {
+            drawDiagonalTurnoutOccupancy(g2, cx, cy, d, rotSteps, et, el);
+            return;
+        }
+        int[] ports = et.getElementType().getActivePorts(el.getCurrentAspect(), tile.getRotation());
+        if (ports.length == 2
+            && (et.getElementType() == ElementType.CURVE_LEFT
+            || et.getElementType() == ElementType.CURVE_RIGHT
+            || et.getElementType() == ElementType.TURNOUT_3WAY)) {
+            drawCurveOccupancy(g2, cx, cy, d, ports);
+            return;
+        }
+        drawPortsOccupancy(g2, cx, cy, d, rotSteps, et, el, ports);
     }
 
     private void drawOccupancy(Graphics2D g2) {

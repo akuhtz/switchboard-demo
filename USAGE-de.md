@@ -222,7 +222,7 @@ Nach dem Erstellen einer Fahrstraße kann ein Zug entlang der Strecke animiert w
 - **Mehrere Simulationen**: Jede Fahrstraße kann ihre eigene unabhängige Simulation gleichzeitig ausführen.
 - **Simulation stoppen**: Rechtsklick auf die Startkachel einer laufenden Simulation → **Simulation stoppen ({id})**, um sie mitten in der Strecke zu stoppen.
 - **Blockmarker-Aufräumen**: Wenn der Zugkopf einen Block verlässt, wird die Zugzuordnung des Blockmarkers nach 5 Sekunden gelöscht.
-- **Blockreservierung rendern**: Reservierte Blöcke werden in Dunkelblau dargestellt. Belegte Kacheln werden in Rot darüber gezeichnet, sodass eine belegte und reservierte Kachel Rot zeigt. Wenn der Zug einen Block verlässt, verschwindet das Dunkelblau nach 2 Sekunden.
+- **Blockreservierung rendern**: Reservierte Blöcke und Weichen zwischen Blöcken werden in Dunkelblau dargestellt. Belegte Kacheln werden in Rot darüber gezeichnet, sodass eine belegte und reservierte Kachel Rot zeigt. Wenn der Zug einen Block verlässt, verschwindet das Dunkelblau nach 2 Sekunden.
 - **Selbststeuernder Timer**: Die Simulation verwendet einen einzigen konfigurierbaren Timer (Standard 200ms Intervall), der sowohl die Bewegung als auch die Blockbereinigung steuert.
 - **Belegung simulieren** ist deaktiviert, solange die Simulation dieser Fahrstraße bereits läuft.
 
