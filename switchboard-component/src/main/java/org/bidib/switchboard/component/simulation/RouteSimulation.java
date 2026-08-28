@@ -723,24 +723,27 @@ public class RouteSimulation {
     }
 
     /**
-     * Sets turnout aspects only on gap tiles this train has reserved.
-     * Does not touch turnouts owned by other trains.
+     * Sets turnout aspects on gap tiles between the current position and the guard block.
+     * Only sets aspects on tiles this train will traverse — does not touch turnouts
+     * owned by another train's reservation.
      */
     private void setReservedGapTileAspects() {
         if (routerService == null || path == null) return;
-        for (int i = 0; i < path.size(); i++) {
-            int[] coord = path.get(i);
-            String key = coord[0] + "," + coord[1];
-            if (!reservedGapTiles.containsKey(key)) {
-                continue; // not a reserved gap tile — skip
+        // Compute gap tiles from current index to the guard block
+        int fromIndex = Math.max(0, currentIndex - 1);
+        Block guardBlock = findGuardedBlock(fromIndex);
+        if (guardBlock == null) return;
+        Set<int[]> gapTiles = findGapTiles(fromIndex, guardBlock);
+        for (int[] coord : gapTiles) {
+            // Find this tile's index in the path for prev/next context
+            for (int i = 0; i < path.size(); i++) {
+                if (path.get(i)[0] == coord[0] && path.get(i)[1] == coord[1]) {
+                    int[] prev = i > 0 ? path.get(i - 1) : null;
+                    int[] next = i < path.size() - 1 ? path.get(i + 1) : null;
+                    routerService.setRouteAspectForTile(coord[0], coord[1], prev, next, model);
+                    break;
+                }
             }
-            Tile tile = tileGrid.getTile(coord[0], coord[1]);
-            if (!(tile instanceof ElementTile et) || et.getElementId() == null) continue;
-            ElementType type = et.getElementType();
-            if (type.getAspectCount() <= 1) continue;
-            int[] prev = i > 0 ? path.get(i - 1) : null;
-            int[] next = i < path.size() - 1 ? path.get(i + 1) : null;
-            routerService.setRouteAspectForTile(coord[0], coord[1], prev, next, model);
         }
     }
 
