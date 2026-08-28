@@ -210,10 +210,17 @@ public class RouteSimulation {
 
         // Reserve the next block before setting signal to green
         Block nextBlock = findGuardedBlock(0);
-        if (nextBlock != null && !nextBlock.isReserved()) {
-            nextBlock.addAssignedTrain(trainId);
-            reserveGapTiles(findGapTiles(0, nextBlock), nextBlock.getId());
-            LOG.info("Reserved block '{}' for train {} at start", nextBlock.getName(), trainId);
+        if (nextBlock != null) {
+            String reservedBy = nextBlock.getAssignedTrainIds().stream()
+                .filter(id -> !id.equals(trainId)).findFirst().orElse(null);
+            if (reservedBy != null) {
+                LOG.info("Block '{}' reserved by train {} — train {} will wait at start signal",
+                    nextBlock.getName(), reservedBy, trainId);
+            } else if (!nextBlock.isReserved()) {
+                nextBlock.addAssignedTrain(trainId);
+                reserveGapTiles(findGapTiles(0, nextBlock), nextBlock.getId());
+                LOG.info("Reserved block '{}' for train {} at start", nextBlock.getName(), trainId);
+            }
         }
 
         // Ensure signal at start position is red — tick() will set it to green after the delay
@@ -296,6 +303,17 @@ public class RouteSimulation {
 
         // Set start signal to green after the 2s delay (only once)
         if (!startGreenSet && currentIndex >= 1) {
+            // Check if the next block is reserved by another train — wait if so
+            Block nextBlock = findGuardedBlock(0);
+            if (nextBlock != null) {
+                String reservedBy = nextBlock.getAssignedTrainIds().stream()
+                    .filter(id -> !id.equals(trainId)).findFirst().orElse(null);
+                if (reservedBy != null) {
+                    LOG.info("Start signal stays red — block '{}' reserved by train {}", nextBlock.getName(), reservedBy);
+                    notifyTick();
+                    return;
+                }
+            }
             startGreenSet = true;
             int[] startPos = path.get(0);
             Tile startTile = tileGrid.getTile(startPos[0], startPos[1]);
