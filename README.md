@@ -745,6 +745,13 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 - **Block marker labels**: When multiple trains are assigned to a block, the marker displays comma-separated train names.
 - **Gap tile rendering**: Reserved turnout gap tiles are aggregated from all simulations.
 
+**2026-08-28 — multi-train gap tile reservation**
+
+- **Gap tile reservation across simulations**: When a second train starts, its `setReservedGapTileAspects()` no longer overrides turnout aspects that another train's simulation had set for the same gap tile. Each simulation carries an `otherTrainGapTileCheck` predicate wired by `SwitchboardPanel` to query all other simulations' `reservedGapTiles` maps. If a gap tile is already reserved by another simulation, its aspect is preserved.
+- **Signal blocking with cross-simulation gap tiles**: The signal-blocking gap tile check now also queries other simulations' reservations via `otherTrainGapTileCheck`. A signal stays red when any gap tile between the signal and the guarded block is reserved by another train, even if the local simulation has no record of it.
+- **Station dwell gap tile check**: The station-dwell block reservation code also checks other simulations' gap tile reservations before proceeding.
+- **Full-path gap tile aspects at start**: `setReservedGapTileAspects(true)` now finds all gap tiles on the entire route path (via `findGapTiles(-1, null)`) instead of only up to the first guard block. This ensures turnouts far along the path (e.g. TL-004 at index 16) are correctly switched when the simulation starts.
+
 **2026-08-25 — configurable train length (3 tiles)**
 
 - Added `TrainMovement` utility class to track train positions with configurable length (default 3 tiles: head + 2 trailing cars).
