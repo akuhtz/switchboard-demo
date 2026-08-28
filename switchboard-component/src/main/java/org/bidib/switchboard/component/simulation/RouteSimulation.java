@@ -180,10 +180,10 @@ public class RouteSimulation {
             canReserve = true;
         }
 
-        // Only configure turnout aspects if the guard block is free — turnouts
+        // Only set reserved gap tile aspects if the guard block is free — turnouts
         // must not be switched when another train holds the next block
         if (canReserve && routerService != null) {
-            routerService.setRouteAspects(path, model);
+            setReservedGapTileAspects();
         }
 
         // Reset all signals on the route to red — the simulation manages them
@@ -324,9 +324,9 @@ public class RouteSimulation {
                 }
             }
             startGreenSet = true;
-            // Configure turnout aspects now that the signal is going green
+            // Configure turnout aspects only for the gap tiles this train has reserved
             if (routerService != null) {
-                routerService.setRouteAspects(path, model);
+                setReservedGapTileAspects();
             }
             int[] startPos = path.get(0);
             Tile startTile = tileGrid.getTile(startPos[0], startPos[1]);
@@ -720,6 +720,28 @@ public class RouteSimulation {
 
     public Map<String, String> getReservedGapTiles() {
         return Collections.unmodifiableMap(reservedGapTiles);
+    }
+
+    /**
+     * Sets turnout aspects only on gap tiles this train has reserved.
+     * Does not touch turnouts owned by other trains.
+     */
+    private void setReservedGapTileAspects() {
+        if (routerService == null || path == null) return;
+        for (int i = 0; i < path.size(); i++) {
+            int[] coord = path.get(i);
+            String key = coord[0] + "," + coord[1];
+            if (!reservedGapTiles.containsKey(key)) {
+                continue; // not a reserved gap tile — skip
+            }
+            Tile tile = tileGrid.getTile(coord[0], coord[1]);
+            if (!(tile instanceof ElementTile et) || et.getElementId() == null) continue;
+            ElementType type = et.getElementType();
+            if (type.getAspectCount() <= 1) continue;
+            int[] prev = i > 0 ? path.get(i - 1) : null;
+            int[] next = i < path.size() - 1 ? path.get(i + 1) : null;
+            routerService.setRouteAspectForTile(coord[0], coord[1], prev, next, model);
+        }
     }
 
     private void notifyTick() {

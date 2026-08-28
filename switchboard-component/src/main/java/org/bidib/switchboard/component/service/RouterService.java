@@ -365,6 +365,58 @@ public class RouterService {
         }
     }
 
+    /**
+     * Sets the turnout aspect for a single tile based on its neighbors in the route path.
+     * If prev is null, the tile is at the path start (only exit port used).
+     * If next is null, the tile is at the path end (only entry port used).
+     */
+    public void setRouteAspectForTile(int col, int row, int[] prev, int[] next, RailwayModel model) {
+        Tile tile = getTile(col, row);
+        if (!(tile instanceof ElementTile et)) return;
+        ElementType type = et.getElementType();
+        if (type.getAspectCount() <= 1) return;
+        String id = et.getElementId();
+        if (id == null) return;
+
+        int aspect;
+        if (prev == null && next != null) {
+            aspect = type.aspectForPort(diagonalAwarePort(col, row, next[0], next[1], false), tile.getRotation());
+        } else if (next == null && prev != null) {
+            aspect = type.aspectForPort(diagonalAwarePort(prev[0], prev[1], col, row, true), tile.getRotation());
+        } else if (prev != null && next != null) {
+            int entryPort = diagonalAwarePort(prev[0], prev[1], col, row, true);
+            int exitPort = diagonalAwarePort(col, row, next[0], next[1], false);
+
+            int dc = next[0] - col;
+            int dr = next[1] - row;
+            boolean diagonalTurnout = type == ElementType.DIAGONAL_TURNOUT_RIGHT
+                || type == ElementType.DIAGONAL_TURNOUT_LEFT;
+            if (dc != 0 && dr != 0 && !diagonalTurnout) {
+                boolean entryIsHorizontal = entryPort == ElementType.PORT_LEFT || entryPort == ElementType.PORT_RIGHT;
+                boolean exitIsHorizontal = exitPort == ElementType.PORT_LEFT || exitPort == ElementType.PORT_RIGHT;
+                if (entryIsHorizontal == exitIsHorizontal) {
+                    exitPort = exitIsHorizontal
+                        ? (dr > 0 ? ElementType.PORT_BOTTOM : ElementType.PORT_TOP)
+                        : (dc > 0 ? ElementType.PORT_RIGHT : ElementType.PORT_LEFT);
+                }
+            }
+
+            int prevDc = col - prev[0];
+            int prevDr = row - prev[1];
+            aspect = type.aspectForRoute(entryPort, exitPort, tile.getRotation());
+            if (prevDc != 0 && prevDr != 0 && type.getAspectCount() > 1 && !diagonalTurnout) {
+                int altEntry = prevDc > 0 ? ElementType.PORT_LEFT : ElementType.PORT_RIGHT;
+                int altAspect = type.aspectForRoute(altEntry, exitPort, tile.getRotation());
+                if (altAspect > aspect) {
+                    aspect = altAspect;
+                }
+            }
+        } else {
+            return; // no context — skip
+        }
+        model.setElementAspect(id, aspect);
+    }
+
     public int diagonalAwarePort(int fromCol, int fromRow, int toCol, int toRow, boolean isEntry) {
         int dc = toCol - fromCol;
         int dr = toRow - fromRow;
