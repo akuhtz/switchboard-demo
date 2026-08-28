@@ -159,11 +159,13 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `Block`
 - A connected path of tiles forming a railway block section.
-- Fields: `id` (String, unique), `name` (String, user-editable), `path` (ordered `List<int[]>` of `[col, row]`), `assignedTrainId` (String, nullable).
+- Fields: `id` (String, unique), `name` (String, user-editable), `path` (ordered `List<int[]>` of `[col, row]`), `assignedTrainIds` (`Set<String>`, supports multiple trains).
 - Default name equals the id (`blk001`, `blk002`, ... zero-padded).
 - A block never contains turnout tiles (TURNOUT_LEFT/RIGHT/3WAY are excluded during path finding).
 - `containsTile(col, row)` — checks if a grid tile is part of the block.
-- `setAssignedTrainId(String)` / `getAssignedTrainId()` / `clearAssignedTrain()` — manage the train assigned to this block. A train can only be assigned to one block at a time.
+- `addAssignedTrain(String)` / `removeAssignedTrain(String)` / `isReserved()` / `isAssignedTo(String)` — manage train assignments. Multiple trains can be assigned to the same block (e.g. coupled trains).
+- `getAssignedTrainId()` (deprecated) — returns the first/primary train, or null.
+- `clearAssignedTrains()` — clears all train assignments.
 
 ### `BlockModel`
 - Manages all blocks on the switchboard.
@@ -182,7 +184,7 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 ### `Train`
 - Represents a locomotive or trainset that can be assigned to blocks.
 - Fields: `id` (String, unique), `address` (Integer, optional DCC/NMRA address), `name` (String), `image` (String, optional).
-- Used by `TrainListModel` and referenced by `Block.assignedTrainId`.
+- Used by `TrainListModel` and referenced by `Block.assignedTrainIds`.
 
 ### `TrainListModel`
 - Manages the list of all trains with `PropertyChangeSupport`.
@@ -194,8 +196,9 @@ IDs are generated uniquely per prefix by scanning existing model elements for th
 
 ### `Occupancy`
 - Concrete class in `org.bidib.switchboard.component.model` representing track occupancy.
-- Fields: `id` (String, auto-generated as `"occ-N"`), `state` (OccupancyState: FREE/OCCUPIED).
+- Fields: `id` (String, auto-generated as `"occ-N"`), `state` (OccupancyState: FREE/OCCUPIED), `occupantTrainIds` (`Set<String>`, supports multiple trains).
 - Extends `com.jgoodies.binding.beans.Model` — fires `"state"` property changes via `firePropertyChange` in `setState()`.
+- `addOccupant(String trainId)` / `removeOccupant(String trainId)` / `isOccupiedBy(String)` — reference-counted occupancy. Multiple trains can occupy the same tile simultaneously.
 - Subclasses can add hardware-specific fields:
   - `DemoOccupancy` in `org.bidib.switchboard.demoapp.config` adds `nodeId`/`portId`.
   - `TestOccupancy` in `org.bidib.switchboard.component.config` adds `extReference`.
@@ -731,6 +734,16 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 ## Changelog
 
 ### v1.0-SNAPSHOT
+
+**2026-08-28 — decoupled RouteSimulation and multi-train simulation**
+
+- **Decoupled RouteSimulation from SwitchboardPanel**: `RouteSimulation.start()` now configures turnout aspects, resets signals to red, and reserves blocks internally. The panel no longer manages pre-start logic. A pluggable tick source (`setTickSource(Runnable)`) allows headless use without `javax.swing.Timer` — callers can invoke `simulationTick()` at their own interval.
+- **Multi-train support**: `SwitchboardPanel.routeSimulation` (single field) replaced with `routeSimulations` map keyed by train ID. Starting a new simulation does not kill existing ones — multiple trains run concurrently.
+- **Block multi-assignment**: `Block.assignedTrainId` (single String) replaced with `Set<String> assignedTrainIds`. Multiple trains can be assigned to the same block (e.g. coupled trains). New methods: `addAssignedTrain()`, `removeAssignedTrain()`, `isReserved()`, `isAssignedTo()`. Legacy `setAssignedTrainId()` / `clearAssignedTrain()` retained as deprecated.
+- **Occupancy reference counting**: `Occupancy` now tracks `Set<String> occupantTrainIds`. Adding/removing occupant trains sets the state to OCCUPIED/FREE automatically. Multiple trains can occupy the same tile simultaneously.
+- **Per-train stop**: Context menu on block markers shows per-train "Stop {trainId}" items plus "Stop all" when simulations are running.
+- **Block marker labels**: When multiple trains are assigned to a block, the marker displays comma-separated train names.
+- **Gap tile rendering**: Reserved turnout gap tiles are aggregated from all simulations.
 
 **2026-08-25 — configurable train length (3 tiles)**
 

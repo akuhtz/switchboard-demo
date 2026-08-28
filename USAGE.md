@@ -204,8 +204,8 @@ After a route is created, you can animate a train moving along it:
 - **Distant signals (Vorsignal)**: The distant signal never stops the train. It mirrors the aspect of its linked main signal (via `mainSignalId`), previewing the upcoming aspect: orange "Halt erwarten", green "Frei erwarten", orange+green "Langsamfahrt erwarten". A distant signal linked to a main signal (see [section 12](#12-link-a-distant-signal-to-a-main-signal)) also mirrors the main signal's aspect when you click it manually, outside the simulation.
 - **Combined signals**: The main head stops the train like a main signal. During simulation the combined signal's distant plate mirrors its linked main signal; outside a simulation it mirrors its linked main signal as well.
 - **Auto-change signal**: Enable via **Edit → Auto-change signal**. When active, a main signal that blocks a train auto-switches to aspect 1 (green) after 2 seconds, allowing the train to resume. Toggling this option immediately affects all running simulations.
-- **Multiple simulations**: Each route can have its own independent simulation running concurrently.
-- **Stop simulation**: Right-click the source tile of a running simulation → **Stop simulation ({id})** to stop it mid-route.
+- **Multiple simulations**: Multiple trains can run simulations concurrently. Each train gets its own simulation that manages block reservation, signal control, and occupancy independently.
+- **Stop simulation**: Right-click the source tile of a running simulation → **Stop {trainId}** to stop that train's simulation. **Stop all** stops all running simulations.
 - **Block marker cleanup**: When the train head leaves a block, the block marker's train assignment is cleared after a 5-second delay.
 - **Reserved block rendering**: Reserved blocks and turnouts between blocks are drawn in dark blue. Occupied tiles are drawn in red on top, so an occupied-and-reserved tile shows red. When the train leaves a block, the dark blue disappears after a 2s delay.
 - **Self-driving timer**: The simulation uses a single configurable timer (default 200ms step interval) that drives both movement and block cleanup.

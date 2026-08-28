@@ -63,6 +63,7 @@ public class RouteSimulation {
     private int lastGreenSignalIndex = -1;
     private Runnable onTick;
     private Runnable onComplete;
+    private Runnable tickSource;
     private TrainMovement trainMovement;
     private Block previousBlock;
     private final Map<Block, Long> blockDepartures = new HashMap<>();
@@ -125,6 +126,15 @@ public class RouteSimulation {
         this.autoChangeSignal = autoChangeSignal;
     }
 
+    /**
+     * Sets a custom tick source. When set, the simulation does not create an internal
+     * Swing Timer. The caller is responsible for calling {@link #simulationTick()} at
+     * the desired interval. When not set (default), a Swing Timer drives the tick loop.
+     */
+    public void setTickSource(Runnable tickSource) {
+        this.tickSource = tickSource;
+    }
+
     public void start(Route route, String trainId) {
         start(route, trainId, 0);
     }
@@ -154,18 +164,37 @@ public class RouteSimulation {
             return;
         }
 
-        // Clear any existing occupancies along the path
+        // Configure turnout aspects for the entire route
+        if (routerService != null) {
+            routerService.setRouteAspects(path, model);
+        }
+
+        // Reset all signals on the route to red — the simulation manages them
+        for (int[] p : path) {
+            Tile tile = tileGrid.getTile(p[0], p[1]);
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                ElementType type = et.getElementType();
+                if (type == ElementType.SIGNAL_M3 || type == ElementType.SIGNAL_COMBINED) {
+                    model.setElementAspect(et.getElementId(), 0);
+                }
+            }
+        }
+
+        // Clear any existing occupancies along the path (only this train's)
         clearOccupancies();
 
-        // Create occupancies on all path tiles
+        // Ensure occupancies exist on all path tiles (reuse existing if present)
         for (int[] p : path) {
             Tile tile = tileGrid.getTile(p[0], p[1]);
             if (tile instanceof ElementTile et && et.getElementId() != null) {
                 Element el = model.getElement(et.getElementId());
                 if (el != null) {
-                    Occupancy occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
-                    model.addOccupancy(occ);
-                    el.setOccupancy(occ);
+                    Occupancy occ = el.getOccupancy();
+                    if (occ == null) {
+                        occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
+                        model.addOccupancy(occ);
+                        el.setOccupancy(occ);
+                    }
                 }
             }
         }
@@ -181,8 +210,8 @@ public class RouteSimulation {
 
         // Reserve the next block before setting signal to green
         Block nextBlock = findGuardedBlock(0);
-        if (nextBlock != null && nextBlock.getAssignedTrainId() == null) {
-            nextBlock.setAssignedTrainId(trainId);
+        if (nextBlock != null && !nextBlock.isReserved()) {
+            nextBlock.addAssignedTrain(trainId);
             reserveGapTiles(findGapTiles(0, nextBlock), nextBlock.getId());
             LOG.info("Reserved block '{}' for train {} at start", nextBlock.getName(), trainId);
         }
@@ -307,41 +336,42 @@ public class RouteSimulation {
                 }
             }
 
-            // Reserve the guard block if needed
-            if (stationIndex >= 0 && stationIndex < path.size()) {
-                Block guardBlock = findGuardedBlock(stationIndex);
-                if (guardBlock != null) {
-                    String reservedBy = guardBlock.getAssignedTrainId();
-                    if (reservedBy != null && !reservedBy.equals(trainId)) {
-                        // Another train has this block — stay paused, retry next tick
-                        pausedAtStation = true;
-                        stationPausedSince = System.currentTimeMillis() - dwellTimeMs;
-                        LOG.info("Station dwell complete but block '{}' reserved by train {}, waiting",
-                            guardBlock.getName(), reservedBy);
-                        notifyTick();
-                        return;
-                    }
-                    // Check if any gap tiles are reserved by another train
-                    Set<int[]> gapTiles = findGapTiles(stationIndex, guardBlock);
-                    for (int[] coord : gapTiles) {
-                        String blockId = reservedGapTiles.get(coord[0] + "," + coord[1]);
-                        if (blockId != null && !blockId.equals(guardBlock.getId())) {
-                            pausedAtStation = true;
-                            stationPausedSince = System.currentTimeMillis() - dwellTimeMs;
-                            LOG.info("Station dwell complete but gap tile ({},{}) reserved by another block, waiting",
-                                coord[0], coord[1]);
-                            notifyTick();
-                            return;
+                    // Reserve the guard block if needed
+                    if (stationIndex >= 0 && stationIndex < path.size()) {
+                        Block guardBlock = findGuardedBlock(stationIndex);
+                        if (guardBlock != null) {
+                            String reservedBy = guardBlock.getAssignedTrainIds().stream()
+                                .filter(id -> !id.equals(trainId)).findFirst().orElse(null);
+                            if (reservedBy != null) {
+                                // Another train has this block — stay paused, retry next tick
+                                pausedAtStation = true;
+                                stationPausedSince = System.currentTimeMillis() - dwellTimeMs;
+                                LOG.info("Station dwell complete but block '{}' reserved by train {}, waiting",
+                                    guardBlock.getName(), reservedBy);
+                                notifyTick();
+                                return;
+                            }
+                            // Check if any gap tiles are reserved by another train
+                            Set<int[]> gapTiles = findGapTiles(stationIndex, guardBlock);
+                            for (int[] coord : gapTiles) {
+                                String blockId = reservedGapTiles.get(coord[0] + "," + coord[1]);
+                                if (blockId != null && !blockId.equals(guardBlock.getId())) {
+                                    pausedAtStation = true;
+                                    stationPausedSince = System.currentTimeMillis() - dwellTimeMs;
+                                    LOG.info("Station dwell complete but gap tile ({},{}) reserved by another block, waiting",
+                                        coord[0], coord[1]);
+                                    notifyTick();
+                                    return;
+                                }
+                            }
+                            if (!guardBlock.isReserved()) {
+                                guardBlock.addAssignedTrain(trainId);
+                                reserveGapTiles(gapTiles, guardBlock.getId());
+                                LOG.info("Reserved block '{}' for train {} after station dwell",
+                                    guardBlock.getName(), trainId);
+                            }
                         }
                     }
-                    if (reservedBy == null) {
-                        guardBlock.setAssignedTrainId(trainId);
-                        reserveGapTiles(gapTiles, guardBlock.getId());
-                        LOG.info("Reserved block '{}' for train {} after station dwell",
-                            guardBlock.getName(), trainId);
-                    }
-                }
-            }
 
             // Wait 2s after block reservation before setting signal to green
             if (stationReservationSince < 0) {
@@ -396,8 +426,9 @@ public class RouteSimulation {
                             return;
                         }
                     }
-                    String reservedBy = guardBlock.getAssignedTrainId();
-                    if (reservedBy != null && !reservedBy.equals(trainId)) {
+                    String reservedBy = guardBlock.getAssignedTrainIds().stream()
+                        .filter(id -> !id.equals(trainId)).findFirst().orElse(null);
+                    if (reservedBy != null) {
                         // Another train has reserved this block — signal stays red
                         LOG.info("Signal at ({},{}) stays red — block '{}' reserved by train {}",
                             path.get(prev)[0], path.get(prev)[1], guardBlock.getName(), reservedBy);
@@ -405,8 +436,8 @@ public class RouteSimulation {
                         return;
                     }
                     // Block is free — reserve it and set signal to green
-                    if (reservedBy == null) {
-                        guardBlock.setAssignedTrainId(trainId);
+                    if (!guardBlock.isReserved()) {
+                        guardBlock.addAssignedTrain(trainId);
                         reserveGapTiles(gapTiles, guardBlock.getId());
                         LOG.info("Reserved block '{}' for train {} at signal ({},{})",
                             guardBlock.getName(), trainId, path.get(prev)[0], path.get(prev)[1]);
@@ -452,7 +483,7 @@ public class RouteSimulation {
         // Assign train to the block containing the head
         Block currentBlock = tileGrid.getBlockModel().getBlockForTile(newHead[0], newHead[1]);
         if (currentBlock != null) {
-            currentBlock.setAssignedTrainId(trainId);
+            currentBlock.addAssignedTrain(trainId);
         }
 
         // Check if the head has left the previous block
@@ -492,7 +523,12 @@ public class RouteSimulation {
         notifyTick();
     }
 
-    private void simulationTick() {
+    /**
+     * Advances the simulation by one tick. When using a custom tick source,
+     * the caller should invoke this method at the desired interval.
+     * Handles both movement and block cleanup.
+     */
+    public void simulationTick() {
         if (running) {
             tick();
         }
@@ -503,6 +539,10 @@ public class RouteSimulation {
     }
 
     private void startSimulationTimer() {
+        if (tickSource != null) {
+            LOG.info("Using custom tick source");
+            return;
+        }
         if (simulationTimer != null) {
             return;
         }
@@ -528,7 +568,7 @@ public class RouteSimulation {
             if (tile instanceof ElementTile et && et.getElementId() != null) {
                 Element el = model.getElement(et.getElementId());
                 if (el != null && el.getOccupancy() != null) {
-                    el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                    el.getOccupancy().removeOccupant(trainId);
                 }
             }
         }
@@ -538,8 +578,14 @@ public class RouteSimulation {
         Tile tile = tileGrid.getTile(coord[0], coord[1]);
         if (tile instanceof ElementTile et && et.getElementId() != null) {
             Element el = model.getElement(et.getElementId());
-            if (el != null && el.getOccupancy() != null) {
-                el.getOccupancy().setState(Occupancy.OccupancyState.OCCUPIED);
+            if (el != null) {
+                Occupancy occ = el.getOccupancy();
+                if (occ == null) {
+                    occ = occupancyFactory.create(Occupancy.OccupancyState.FREE);
+                    model.addOccupancy(occ);
+                    el.setOccupancy(occ);
+                }
+                occ.addOccupant(trainId);
             }
         }
     }
@@ -549,7 +595,7 @@ public class RouteSimulation {
         if (tile instanceof ElementTile et && et.getElementId() != null) {
             Element el = model.getElement(et.getElementId());
             if (el != null && el.getOccupancy() != null) {
-                el.getOccupancy().setState(Occupancy.OccupancyState.FREE);
+                el.getOccupancy().removeOccupant(trainId);
             }
         }
     }
@@ -559,15 +605,15 @@ public class RouteSimulation {
         int[] first = path.get(0);
         Block block = tileGrid.getBlockModel().getBlockForTile(first[0], first[1]);
         if (block != null) {
-            block.setAssignedTrainId(trainId);
+            block.addAssignedTrain(trainId);
             previousBlock = block;
         }
     }
 
     private void clearBlockAssignment(Block block) {
-        block.setAssignedTrainId(null);
+        block.removeAssignedTrain(trainId);
         notifyTick();
-        LOG.info("Cleared train assignment from block '{}'", block.getName());
+        LOG.info("Cleared train {} assignment from block '{}'", trainId, block.getName());
     }
 
     private void recordBlockDeparture(Block block) {
@@ -589,10 +635,10 @@ public class RouteSimulation {
                 // Release gap tiles belonging to this block
                 reservedGapTiles.values().removeIf(v -> v.equals(block.getId()));
                 LOG.info("Block '{}' departure delay elapsed ({}ms), clearing assignment", block.getName(), elapsed);
-                if (block.getAssignedTrainId() != null) {
+                if (block.isAssignedTo(trainId)) {
                     clearBlockAssignment(block);
                 } else {
-                    LOG.info("Block '{}' already has no assignment, skipping", block.getName());
+                    LOG.info("Block '{}' has no assignment from train {}, skipping", block.getName(), trainId);
                 }
             }
         }

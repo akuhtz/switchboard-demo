@@ -192,9 +192,8 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         for (SimulationEntry entry : simulations.values()) {
             entry.simulation().setAutoChangeSignal(autoChange);
         }
-        
-        if (routeSimulation!= null) {
-        		routeSimulation.setAutoChangeSignal(autoChangeSignal);
+        for (var sim : routeSimulations.values()) {
+            sim.setAutoChangeSignal(autoChange);
         }
     }
 
@@ -267,7 +266,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private List<List<int[]>> routeCreationPendingAlternatives = java.util.Collections.emptyList();
 
-    private org.bidib.switchboard.component.simulation.RouteSimulation routeSimulation;
+    private final Map<String, org.bidib.switchboard.component.simulation.RouteSimulation> routeSimulations = new java.util.LinkedHashMap<>();
 
     public SwitchboardPanel(final OccupancyFactory occupancyFactory, final AssignOccupancyDialogFactory assignOccupancyDialogFactory, final RailwayModel model, RouterService routerService) {
         this(occupancyFactory, assignOccupancyDialogFactory, model, routerService, routerService.getCols(), routerService.getRows(), DEFAULT_TILE_SIZE);
@@ -828,9 +827,6 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     }
 
     public void startRouteSimulation(org.bidib.switchboard.component.model.Route tr) {
-        // Stop any existing simulation
-        stopRouteSimulation();
-
         // Find the block where this route's first tile is located
         String trainId = null;
         Block startBlock = null;
@@ -847,14 +843,16 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             return;
         }
 
-        routeSimulation = new org.bidib.switchboard.component.simulation.RouteSimulation(
-            model, this, occupancyFactory, routerService, 3);
-        routeSimulation.setOnTick(this::repaint);
-        routeSimulation.setOnComplete(() -> {
-            routeSimulation = null;
+        final String finalTrainId = trainId;
+        org.bidib.switchboard.component.simulation.RouteSimulation sim =
+            new org.bidib.switchboard.component.simulation.RouteSimulation(
+                model, this, occupancyFactory, routerService, 3);
+        sim.setOnTick(this::repaint);
+        sim.setOnComplete(() -> {
+            routeSimulations.remove(finalTrainId);
             repaint();
         });
-        routeSimulation.setAutoChangeSignal(autoChangeSignal);
+        sim.setAutoChangeSignal(autoChangeSignal);
 
         // Find the start index in the route path that overlaps with or is adjacent to the block
         int startIndex = 0;
@@ -877,33 +875,55 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                 if (startIndex > 0) break;
             }
         }
-        routerService.setRouteAspects(tr.getPath(), model);
-        // Reset signals on the route to red — the simulation manages them
-        for (int[] p : tr.getPath()) {
-            Tile tile = getTile(p[0], p[1]);
-            if (tile instanceof ElementTile et && et.getElementId() != null) {
-                ElementType type = et.getElementType();
-                if (type == ElementType.SIGNAL_M3 || type == ElementType.SIGNAL_COMBINED) {
-                    model.setElementAspect(et.getElementId(), 0);
-                }
-            }
-        }
-        routeSimulation.start(tr, trainId, startIndex);
+        sim.start(tr, trainId, startIndex);
+        routeSimulations.put(trainId, sim);
         selectedRoute = null;
         repaint();
     }
 
-    private void stopRouteSimulation() {
-        if (routeSimulation != null) {
-            routeSimulation.stop();
-            routeSimulation.reset();
-            routeSimulation = null;
+    private void stopRouteSimulation(String trainId) {
+        org.bidib.switchboard.component.simulation.RouteSimulation sim = routeSimulations.remove(trainId);
+        if (sim != null) {
+            sim.stop();
+            sim.reset();
+            LOGGER.info("Stopped route simulation for train {}", trainId);
         }
         repaint();
     }
 
+    private void stopAllRouteSimulations() {
+        for (var sim : routeSimulations.values()) {
+            sim.stop();
+            sim.reset();
+        }
+        routeSimulations.clear();
+        LOGGER.info("Stopped all route simulations");
+        repaint();
+    }
+
+    /**
+     * @deprecated Use {@link #stopRouteSimulation(String)} or {@link #stopAllRouteSimulations()} instead.
+     */
+    @Deprecated
+    private void stopRouteSimulation() {
+        stopAllRouteSimulations();
+    }
+
+    public boolean isAnyRouteSimulationRunning() {
+        return routeSimulations.values().stream().anyMatch(
+            org.bidib.switchboard.component.simulation.RouteSimulation::isRunning);
+    }
+
+    public Map<String, org.bidib.switchboard.component.simulation.RouteSimulation> getRouteSimulations() {
+        return java.util.Collections.unmodifiableMap(routeSimulations);
+    }
+
+    /**
+     * @deprecated Use {@link #getRouteSimulations()} instead.
+     */
+    @Deprecated
     public org.bidib.switchboard.component.simulation.RouteSimulation getRouteSimulation() {
-        return routeSimulation;
+        return routeSimulations.isEmpty() ? null : routeSimulations.values().iterator().next();
     }
 
     private void clearPendingRoute() {
@@ -1085,7 +1105,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                 String blockId = blockModel.blockIdForTile(col, row);
                 if (blockId != null) {
                     Block block = blockModel.getBlock(blockId);
-                    if (block != null && block.getAssignedTrainId() != null) {
+                    if (block != null && block.isReserved()) {
                         // Find train routes that start at this block
                         List<org.bidib.switchboard.component.model.Route> matchingRoutes =
                             findRoutesStartingAtBlock(block);
@@ -1106,16 +1126,29 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                             }
                         }
 
-                        if (routeSimulation != null && routeSimulation.isRunning()) {
-                            JMenuItem stopItem = new JMenuItem("Stop Route");
-                            stopItem.addActionListener(e -> stopRouteSimulation());
-                            menu.add(stopItem);
+                        if (!routeSimulations.isEmpty()) {
+                            // Per-train stop items
+                            for (var entry : routeSimulations.entrySet()) {
+                                if (entry.getValue().isRunning()) {
+                                    String tid = entry.getKey();
+                                    JMenuItem stopItem = new JMenuItem("Stop " + tid);
+                                    stopItem.addActionListener(e -> stopRouteSimulation(tid));
+                                    menu.add(stopItem);
+                                }
+                            }
+                            // Stop all
+                            if (routeSimulations.values().stream().anyMatch(
+                                    org.bidib.switchboard.component.simulation.RouteSimulation::isRunning)) {
+                                JMenuItem stopAllItem = new JMenuItem("Stop all");
+                                stopAllItem.addActionListener(e -> stopAllRouteSimulations());
+                                menu.add(stopAllItem);
+                            }
                         }
 
                         JMenuItem clearTrainItem = new JMenuItem(messages.getString("context.blockClearTrain"));
                         clearTrainItem.addActionListener(e -> {
-                            block.clearAssignedTrain();
-                            LOGGER.info("Cleared train from block {} ({})", blockId, block.getName());
+                            block.clearAssignedTrains();
+                            LOGGER.info("Cleared all trains from block {} ({})", blockId, block.getName());
                             repaint();
                         });
                         menu.add(clearTrainItem);
@@ -1463,11 +1496,11 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             linkItem.addActionListener(e -> editBlockLinks(existingBlockId));
             blockMenu.add(linkItem);
             // Show "Clear Train" if a train is assigned to this block
-            if (block.getAssignedTrainId() != null) {
+            if (block.isReserved()) {
                 JMenuItem clearTrainItem = new JMenuItem(messages.getString("context.blockClearTrain"));
                 clearTrainItem.addActionListener(e -> {
-                    block.clearAssignedTrain();
-                    LOGGER.info("Cleared train from block {} ({})", existingBlockId, block.getName());
+                    block.clearAssignedTrains();
+                    LOGGER.info("Cleared all trains from block {} ({})", existingBlockId, block.getName());
                     repaint();
                 });
                 blockMenu.add(clearTrainItem);
@@ -1578,12 +1611,12 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         }
         // Remove train from any previously assigned block
         for (Block b : blockModel.getBlocks().values()) {
-            if (train.getId().equals(b.getAssignedTrainId())) {
-                b.clearAssignedTrain();
+            if (b.isAssignedTo(train.getId())) {
+                b.removeAssignedTrain(train.getId());
                 LOGGER.info("Removed train {} from block {} ({})", train.getId(), b.getId(), b.getName());
             }
         }
-        block.setAssignedTrainId(train.getId());
+        block.addAssignedTrain(train.getId());
         LOGGER.info("Assigned train {} ({}) to block {} ({})", train.getId(), train.getName(), blockId, block.getName());
         repaint();
     }
@@ -1950,10 +1983,17 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             FontMetrics fm = g2.getFontMetrics();
             // Show train name if assigned, otherwise show block name
             String label = block.getName();
-            if (block.getAssignedTrainId() != null) {
-                Train train = model.getTrain(block.getAssignedTrainId());
-                if (train != null) {
-                    label = train.getName();
+            if (block.isReserved()) {
+                StringBuilder sb = new StringBuilder();
+                for (String tid : block.getAssignedTrainIds()) {
+                    Train train = model.getTrain(tid);
+                    if (train != null) {
+                        if (!sb.isEmpty()) sb.append(", ");
+                        sb.append(train.getName());
+                    }
+                }
+                if (!sb.isEmpty()) {
+                    label = sb.toString();
                 }
             }
             int textX = px + tileSize / 2 - fm.stringWidth(label) / 2;
@@ -2546,7 +2586,7 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                 continue;
             }
             Block block = blockModel.getBlockForTile(tile.getCol(), tile.getRow());
-            if (block == null || block.getAssignedTrainId() == null) {
+            if (block == null || !block.isReserved()) {
                 continue;
             }
             Element el = model.getElement(et.getElementId());
@@ -2556,19 +2596,21 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             }
             drawReservedTile(g2, tile, et, el, half);
         }
-        // Draw reserved gap tiles (turnouts between blocks) in dark blue
-        if (routeSimulation != null) {
-            for (String key : routeSimulation.getReservedGapTiles().keySet()) {
-                String[] parts = key.split(",");
-                int col = Integer.parseInt(parts[0]);
-                int row = Integer.parseInt(parts[1]);
-                Tile tile = tiles.get(Tile.key(col, row));
-                if (tile instanceof ElementTile et && et.getElementId() != null) {
-                    Element el = model.getElement(et.getElementId());
-                    if (el != null && el.getOccupancy() != null
-                        && el.getOccupancy().getState() != Occupancy.OccupancyState.OCCUPIED) {
-                        drawReservedTile(g2, tile, et, el, half);
-                    }
+        // Draw reserved gap tiles (turnouts between blocks) in dark blue — aggregate from all simulations
+        java.util.Set<String> allGapKeys = new java.util.LinkedHashSet<>();
+        for (var sim : routeSimulations.values()) {
+            allGapKeys.addAll(sim.getReservedGapTiles().keySet());
+        }
+        for (String key : allGapKeys) {
+            String[] parts = key.split(",");
+            int col = Integer.parseInt(parts[0]);
+            int row = Integer.parseInt(parts[1]);
+            Tile tile = tiles.get(Tile.key(col, row));
+            if (tile instanceof ElementTile et && et.getElementId() != null) {
+                Element el = model.getElement(et.getElementId());
+                if (el != null && el.getOccupancy() != null
+                    && el.getOccupancy().getState() != Occupancy.OccupancyState.OCCUPIED) {
+                    drawReservedTile(g2, tile, et, el, half);
                 }
             }
         }

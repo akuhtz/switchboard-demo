@@ -278,7 +278,7 @@ public class LayoutPersistence {
                     }
                 }
                 if (bd.getAssignedTrainId() != null) {
-                    block.setAssignedTrainId(bd.getAssignedTrainId());
+                    block.addAssignedTrain(bd.getAssignedTrainId());
                 }
             }
         }

@@ -86,7 +86,7 @@ class RouteRunUiTest {
         var blockModel = panel.getBlockModel();
         var blk001 = blockModel.getBlock("blk001");
         assertThat(blk001).as("blk001 should exist").isNotNull();
-        assertThat(blk001.getAssignedTrainId()).as("blk001 should have train T002 assigned").isEqualTo("T002");
+        assertThat(blk001.isAssignedTo("T002")).as("blk001 should have train T002 assigned").isTrue();
 
         // Verify TR-002 train route exists and has a path (starts in blk001)
         var routeModel = panel.getRouteModel();
