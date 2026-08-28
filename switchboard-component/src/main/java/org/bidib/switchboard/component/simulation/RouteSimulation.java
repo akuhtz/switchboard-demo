@@ -324,9 +324,9 @@ public class RouteSimulation {
                 }
             }
             startGreenSet = true;
-            // Configure turnout aspects only for the gap tiles this train has reserved
+            // Configure turnout aspects for ALL gap tiles on the entire route
             if (routerService != null) {
-                setReservedGapTileAspects();
+                setReservedGapTileAspects(true);
             }
             int[] startPos = path.get(0);
             Tile startTile = tileGrid.getTile(startPos[0], startPos[1]);
@@ -398,6 +398,9 @@ public class RouteSimulation {
                             if (!guardBlock.isReserved()) {
                                 guardBlock.addAssignedTrain(trainId);
                                 reserveGapTiles(gapTiles, guardBlock.getId());
+                                if (routerService != null) {
+                                    setReservedGapTileAspects();
+                                }
                                 LOG.info("Reserved block '{}' for train {} after station dwell",
                                     guardBlock.getName(), trainId);
                             }
@@ -470,6 +473,9 @@ public class RouteSimulation {
                     if (!guardBlock.isReserved()) {
                         guardBlock.addAssignedTrain(trainId);
                         reserveGapTiles(gapTiles, guardBlock.getId());
+                        if (routerService != null) {
+                            setReservedGapTileAspects();
+                        }
                         LOG.info("Reserved block '{}' for train {} at signal ({},{})",
                             guardBlock.getName(), trainId, path.get(prev)[0], path.get(prev)[1]);
                     }
@@ -702,7 +708,7 @@ public class RouteSimulation {
         Set<int[]> gapTiles = new HashSet<>();
         for (int i = fromIndex + 1; i < path.size(); i++) {
             Block block = tileGrid.getBlockModel().getBlockForTile(path.get(i)[0], path.get(i)[1]);
-            if (block == targetBlock) {
+            if (targetBlock != null && block == targetBlock) {
                 break; // reached the target block — stop
             }
             if (block == null) {
@@ -723,19 +729,27 @@ public class RouteSimulation {
     }
 
     /**
-     * Sets turnout aspects on gap tiles between the current position and the guard block.
-     * Only sets aspects on tiles this train will traverse — does not touch turnouts
-     * owned by another train's reservation.
+     * Sets turnout aspects on gap tiles this train traverses.
+     * At start, covers the entire path. At intermediate signals, only
+     * tiles up to the guard block (earlier tiles are already set).
+     * Does not touch turnouts inside blocks.
      */
     private void setReservedGapTileAspects() {
+        setReservedGapTileAspects(false);
+    }
+
+    private void setReservedGapTileAspects(boolean entirePath) {
         if (routerService == null || path == null) return;
-        // Compute gap tiles from current index to the guard block
-        int fromIndex = Math.max(0, currentIndex - 1);
-        Block guardBlock = findGuardedBlock(fromIndex);
-        if (guardBlock == null) return;
-        Set<int[]> gapTiles = findGapTiles(fromIndex, guardBlock);
+        Set<int[]> gapTiles;
+        if (entirePath) {
+            gapTiles = findGapTiles(-1, null);
+        } else {
+            int fromIndex = Math.max(0, currentIndex - 1);
+            Block guardBlock = findGuardedBlock(fromIndex);
+            if (guardBlock == null) return;
+            gapTiles = findGapTiles(fromIndex, guardBlock);
+        }
         for (int[] coord : gapTiles) {
-            // Find this tile's index in the path for prev/next context
             for (int i = 0; i < path.size(); i++) {
                 if (path.get(i)[0] == coord[0] && path.get(i)[1] == coord[1]) {
                     int[] prev = i > 0 ? path.get(i - 1) : null;
