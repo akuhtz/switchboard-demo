@@ -3425,7 +3425,15 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     }
 
     protected void testStopRouteSimulation() {
-        stopRouteSimulation();
+        stopAllRouteSimulations();
+    }
+
+    protected void testStopRouteSimulation(String trainId) {
+        stopRouteSimulation(trainId);
+    }
+
+    protected Map<String, org.bidib.switchboard.component.simulation.RouteSimulation> testGetRouteSimulations() {
+        return getRouteSimulations();
     }
 
     protected void testEnterRouteCreationMode() {
