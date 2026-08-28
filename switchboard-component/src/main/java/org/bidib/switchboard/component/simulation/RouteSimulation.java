@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.swing.Timer;
 
@@ -68,6 +69,7 @@ public class RouteSimulation {
     private Block previousBlock;
     private final Map<Block, Long> blockDepartures = new HashMap<>();
     private final Map<String, String> reservedGapTiles = new HashMap<>();
+    private Predicate<String> otherTrainGapTileCheck;
     private Timer simulationTimer;
     private int tickCount;
 
@@ -87,6 +89,15 @@ public class RouteSimulation {
 
     public void setRouterService(RouterService routerService) {
         this.routerService = routerService;
+    }
+
+    /**
+     * Sets a check for gap tiles reserved by other train simulations.
+     * The predicate receives a "col,row" coordinate and returns true if the
+     * tile is already reserved by another train's simulation.
+     */
+    public void setOtherTrainGapTileCheck(Predicate<String> check) {
+        this.otherTrainGapTileCheck = check;
     }
 
     public void setTrainLength(int trainLength) {
@@ -750,6 +761,11 @@ public class RouteSimulation {
             gapTiles = findGapTiles(fromIndex, guardBlock);
         }
         for (int[] coord : gapTiles) {
+            String key = coord[0] + "," + coord[1];
+            if (otherTrainGapTileCheck != null && otherTrainGapTileCheck.test(key)) {
+                LOG.info("Skipping gap tile ({},{}) — already reserved by another train", coord[0], coord[1]);
+                continue;
+            }
             for (int i = 0; i < path.size(); i++) {
                 if (path.get(i)[0] == coord[0] && path.get(i)[1] == coord[1]) {
                     int[] prev = i > 0 ? path.get(i - 1) : null;

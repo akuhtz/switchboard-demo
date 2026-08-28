@@ -77,6 +77,7 @@ import org.bidib.switchboard.component.model.TileDirection;
 import org.bidib.switchboard.component.model.Train;
 import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.simulation.OccupancySimulation;
+import org.bidib.switchboard.component.simulation.RouteSimulation;
 import org.bidib.switchboard.component.util.SvgIconLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -853,6 +854,17 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             repaint();
         });
         sim.setAutoChangeSignal(autoChangeSignal);
+
+        // Set check for gap tiles reserved by other simulations
+        sim.setOtherTrainGapTileCheck(coord -> {
+            for (RouteSimulation other : routeSimulations.values()) {
+                if (other == sim) continue;
+                if (other.getReservedGapTiles().containsKey(coord)) {
+                    return true;
+                }
+            }
+            return false;
+        });
 
         // Find the start index in the route path that overlaps with or is adjacent to the block
         int startIndex = 0;
