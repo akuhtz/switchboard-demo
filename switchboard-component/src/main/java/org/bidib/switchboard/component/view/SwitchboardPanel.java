@@ -2590,8 +2590,11 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
                 continue;
             }
             Element el = model.getElement(et.getElementId());
-            if (el == null || el.getOccupancy() == null
-                || el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
+            if (el == null) {
+                continue;
+            }
+            if (el.getOccupancy() != null
+                && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
                 continue; // skip occupied tiles — drawOccupancy handles those
             }
             drawReservedTile(g2, tile, et, el, half);
