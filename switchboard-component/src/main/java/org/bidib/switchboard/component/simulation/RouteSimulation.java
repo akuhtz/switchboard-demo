@@ -405,6 +405,15 @@ public class RouteSimulation {
                                     notifyTick();
                                     return;
                                 }
+                                if (otherTrainGapTileCheck != null
+                                        && otherTrainGapTileCheck.test(coord[0] + "," + coord[1])) {
+                                    pausedAtStation = true;
+                                    stationPausedSince = System.currentTimeMillis() - dwellTimeMs;
+                                    LOG.info("Station dwell complete but gap tile ({},{}) reserved by another train, waiting",
+                                        coord[0], coord[1]);
+                                    notifyTick();
+                                    return;
+                                }
                             }
                             if (!guardBlock.isReserved()) {
                                 guardBlock.addAssignedTrain(trainId);
@@ -467,6 +476,14 @@ public class RouteSimulation {
                         if (gapBlockId != null && !gapBlockId.equals(guardBlock.getId())) {
                             LOG.info("Signal at ({},{}) stays red — gap tile ({},{}) reserved by block {}",
                                 path.get(prev)[0], path.get(prev)[1], coord[0], coord[1], gapBlockId);
+                            notifyTick();
+                            return;
+                        }
+                        // Also check if another simulation reserved this gap tile
+                        if (otherTrainGapTileCheck != null
+                                && otherTrainGapTileCheck.test(coord[0] + "," + coord[1])) {
+                            LOG.info("Signal at ({},{}) stays red — gap tile ({},{}) reserved by another train",
+                                path.get(prev)[0], path.get(prev)[1], coord[0], coord[1]);
                             notifyTick();
                             return;
                         }

@@ -254,21 +254,58 @@ class MultiTrainSimulationUiTest {
         // Wait for T003's startGreenSet to fire (2s delay)
         waitSeconds(3);
 
-        // Check TL-004 aspect after T003 started
+        // Verify TL-004 aspect is not overridden
         int aspectAfterT003 = GuiActionRunner.execute(() -> model.getElementAspect("TL-004"));
         LOG.info("TL-004 aspect after T003 started: {} (should still be 1=diverted if reservation honored)",
             aspectAfterT003);
-
-        // Check T002's gap tile reservation still shows TL-004
-        Map<String, String> t002GapTilesAfter = GuiActionRunner.execute(() -> t002Sim.getReservedGapTiles());
-        String reservedByAfter = t002GapTilesAfter.get("26,14");
-        LOG.info("TL-004 gap tile after T003 start — reserved by: {}", reservedByAfter);
-
-        // Verify: TL-004 should NOT be overridden to straight (aspect 0)
-        // It should remain diverted (aspect 1) because T002 reserved it first
         assertThat(aspectAfterT003)
             .as("TL-004 should remain diverted (aspect 1) — T003 must not override T002's gap tile reservation")
             .isEqualTo(1);
+
+        // Now wait for T003 to reach the signal before TL-004 (SM-002 at index 16 on TR-001)
+        // T003 should be blocked there because TL-004 is reserved by T002
+        boolean blockedAtSignal = false;
+        for (int i = 0; i < 30; i++) {
+            waitSeconds(1);
+            int t003Idx = GuiActionRunner.execute(() -> t003Sim.getCurrentIndex());
+            boolean t003Running = GuiActionRunner.execute(() -> t003Sim.isRunning());
+            LOG.info("T003 currentIndex: {}, running: {}", t003Idx, t003Running);
+            // T003 should not advance past index 16 (signal SM-002 guarding TL-004/blk003)
+            if (t003Idx >= 16 && !t003Running) {
+                blockedAtSignal = true;
+                break;
+            }
+            // Also check if T003 is stuck at index 15-16 (blocked at signal)
+            if (t003Idx >= 15 && t003Idx <= 16) {
+                blockedAtSignal = true;
+                break;
+            }
+        }
+
+        // Verify T003 did NOT enter blk003
+        Block blk003 = blockModel.getBlock("blk003");
+        assertThat(blk003).as("blk003 should exist").isNotNull();
+        boolean t003InBlk003 = GuiActionRunner.execute(() -> blk003.getAssignedTrainIds().contains("T003"));
+        LOG.info("T003 in blk003: {} (expected false)", t003InBlk003);
+        assertThat(t003InBlk003)
+            .as("T003 must NOT be in blk003 — TL-004 should block it")
+            .isFalse();
+
+        // Verify T003 did NOT enter blk004
+        Block blk004 = blockModel.getBlock("blk004");
+        assertThat(blk004).as("blk004 should exist").isNotNull();
+        boolean t003InBlk004 = GuiActionRunner.execute(() -> blk004.getAssignedTrainIds().contains("T003"));
+        LOG.info("T003 in blk004: {} (expected false)", t003InBlk004);
+        assertThat(t003InBlk004)
+            .as("T003 must NOT be in blk004 — TL-004 should block it")
+            .isFalse();
+
+        // Verify T002 is still in blk004
+        boolean t002InBlk004 = GuiActionRunner.execute(() -> blk004.getAssignedTrainIds().contains("T002"));
+        LOG.info("T002 in blk004: {} (expected true)", t002InBlk004);
+        assertThat(t002InBlk004)
+            .as("T002 should still be in blk004")
+            .isTrue();
 
         // Cleanup
         GuiActionRunner.execute(() -> panel.testStopRouteSimulation());
