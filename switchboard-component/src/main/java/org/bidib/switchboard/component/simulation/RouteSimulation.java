@@ -164,8 +164,25 @@ public class RouteSimulation {
             return;
         }
 
-        // Configure turnout aspects for the entire route
-        if (routerService != null) {
+        // Check if the guard block is reserved before configuring turnout aspects
+        Block nextBlock = findGuardedBlock(0);
+        boolean canReserve = false;
+        if (nextBlock != null) {
+            String reservedBy = nextBlock.getAssignedTrainIds().stream()
+                .filter(id -> !id.equals(trainId)).findFirst().orElse(null);
+            if (reservedBy != null) {
+                LOG.info("Block '{}' reserved by train {} — train {} will wait at start signal",
+                    nextBlock.getName(), reservedBy, trainId);
+            } else if (!nextBlock.isReserved()) {
+                canReserve = true;
+            }
+        } else {
+            canReserve = true;
+        }
+
+        // Only configure turnout aspects if the guard block is free — turnouts
+        // must not be switched when another train holds the next block
+        if (canReserve && routerService != null) {
             routerService.setRouteAspects(path, model);
         }
 
@@ -208,19 +225,11 @@ public class RouteSimulation {
             setOccupied(pos);
         }
 
-        // Reserve the next block before setting signal to green
-        Block nextBlock = findGuardedBlock(0);
-        if (nextBlock != null) {
-            String reservedBy = nextBlock.getAssignedTrainIds().stream()
-                .filter(id -> !id.equals(trainId)).findFirst().orElse(null);
-            if (reservedBy != null) {
-                LOG.info("Block '{}' reserved by train {} — train {} will wait at start signal",
-                    nextBlock.getName(), reservedBy, trainId);
-            } else if (!nextBlock.isReserved()) {
-                nextBlock.addAssignedTrain(trainId);
-                reserveGapTiles(findGapTiles(0, nextBlock), nextBlock.getId());
-                LOG.info("Reserved block '{}' for train {} at start", nextBlock.getName(), trainId);
-            }
+        // Reserve the next block if it's free
+        if (canReserve && nextBlock != null) {
+            nextBlock.addAssignedTrain(trainId);
+            reserveGapTiles(findGapTiles(0, nextBlock), nextBlock.getId());
+            LOG.info("Reserved block '{}' for train {} at start", nextBlock.getName(), trainId);
         }
 
         // Ensure signal at start position is red — tick() will set it to green after the delay
@@ -315,6 +324,10 @@ public class RouteSimulation {
                 }
             }
             startGreenSet = true;
+            // Configure turnout aspects now that the signal is going green
+            if (routerService != null) {
+                routerService.setRouteAspects(path, model);
+            }
             int[] startPos = path.get(0);
             Tile startTile = tileGrid.getTile(startPos[0], startPos[1]);
             if (startTile instanceof ElementTile et && et.getElementId() != null) {
