@@ -170,8 +170,7 @@ public class RouteService {
      * movement or wait.
      */
     public TickDecision onTickPreMovement(int currentIndex, List<int[]> path, String trainId,
-            long startedAt, Set<Integer> stops, boolean autoChangeSignal) {
-        this.autoChangeSignal = autoChangeSignal;
+            long startedAt, Set<Integer> stops) {
 
         // Wait 2s after start for turnouts to switch before moving
         if (!startSignalSet && System.currentTimeMillis() - startedAt < AUTO_CHANGE_DELAY_MS) {
@@ -315,13 +314,40 @@ public class RouteService {
 
     /**
      * Called after train movement. Handles signal reset to red, station stop detection,
-     * and block departure tracking.
+     * block departure tracking, and gap tile reservation on block change.
      */
     public void onTickPostMovement(int currentIndex, List<int[]> path, String trainId,
             Block currentBlock, Set<Integer> stops, Route route) {
-        // Track block departure
+        // Track block departure and reserve gap tiles on block change
         if (previousBlock != null && previousBlock != currentBlock) {
             recordBlockDeparture(previousBlock);
+
+            // When entering a new block, reserve gap tiles between the previous and current block.
+            // This handles the case where no signal guards the block boundary (e.g. gap tiles
+            // between blk006 and blk002 on TR-001's path without a signal in between).
+            if (currentBlock != null) {
+                // Find the last path index belonging to the previous block
+                int prevBlockEndIndex = -1;
+                for (int i = currentIndex; i >= 0; i--) {
+                    Block b = tileGrid.getBlockModel().getBlockForTile(
+                        path.get(i)[0], path.get(i)[1]);
+                    if (b == previousBlock) {
+                        prevBlockEndIndex = i;
+                        break;
+                    }
+                }
+                if (prevBlockEndIndex >= 0) {
+                    Set<int[]> gapTiles = findGapTiles(prevBlockEndIndex, currentBlock, path);
+                    if (!gapTiles.isEmpty()) {
+                        reserveGapTiles(gapTiles, currentBlock.getId());
+                        if (routerService != null) {
+                            setReservedGapTileAspects(path, currentIndex, false);
+                        }
+                        LOG.info("Reserved gap tiles for block '{}' at path index {}",
+                            currentBlock.getName(), currentIndex);
+                    }
+                }
+            }
         }
         if (currentBlock != null) {
             previousBlock = currentBlock;

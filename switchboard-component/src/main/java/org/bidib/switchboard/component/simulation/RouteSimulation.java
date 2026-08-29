@@ -238,7 +238,7 @@ public class RouteSimulation {
         // Delegate pre-movement decisions to RouteService
         if (routeService != null) {
             RouteService.TickDecision decision = routeService.onTickPreMovement(
-                currentIndex, path, trainId, startedAt, stops, false);
+                currentIndex, path, trainId, startedAt, stops);
             if (decision.shouldReturn()) {
                 notifyTick();
                 return;
