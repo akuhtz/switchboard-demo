@@ -140,6 +140,14 @@ public class RouteService {
             setReservedGapTileAspects(path, startIndex, false);
         }
 
+        // Reserve the guard block and its gap tiles at start
+        if (canReserve && nextBlock != null) {
+            nextBlock.addAssignedTrain(trainId);
+            Set<int[]> gapTiles = findGapTiles(0, nextBlock, path);
+            reserveGapTiles(gapTiles, nextBlock.getId());
+            LOG.info("Reserved block '{}' for train {} at start", nextBlock.getName(), trainId);
+        }
+
         // Reset all signals on the route to red
         for (int[] p : path) {
             Tile tile = tileGrid.getTile(p[0], p[1]);
