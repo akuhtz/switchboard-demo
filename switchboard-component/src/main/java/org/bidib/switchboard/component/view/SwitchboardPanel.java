@@ -77,6 +77,7 @@ import org.bidib.switchboard.component.model.TileDirection;
 import org.bidib.switchboard.component.model.Train;
 import org.bidib.switchboard.component.service.RouterService;
 import org.bidib.switchboard.component.simulation.OccupancySimulation;
+import org.bidib.switchboard.component.simulation.RouteService;
 import org.bidib.switchboard.component.simulation.RouteSimulation;
 import org.bidib.switchboard.component.util.SvgIconLoader;
 import org.slf4j.Logger;
@@ -194,7 +195,10 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             entry.simulation().setAutoChangeSignal(autoChange);
         }
         for (var sim : routeSimulations.values()) {
-            sim.setAutoChangeSignal(autoChange);
+            RouteService routeService = sim.getRouteService();
+            if (routeService != null) {
+                routeService.setAutoChangeSignal(autoChange);
+            }
         }
     }
 
@@ -845,18 +849,24 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         }
 
         final String finalTrainId = trainId;
+
+        // Create RouteService for signal/block/gap/dwell state
+        org.bidib.switchboard.component.simulation.RouteService routeService =
+            new org.bidib.switchboard.component.simulation.RouteService(model, this, routerService);
+        routeService.setAutoChangeSignal(autoChangeSignal);
+
         org.bidib.switchboard.component.simulation.RouteSimulation sim =
             new org.bidib.switchboard.component.simulation.RouteSimulation(
                 model, this, occupancyFactory, routerService, 3);
+        sim.setRouteService(routeService);
         sim.setOnTick(this::repaint);
         sim.setOnComplete(() -> {
             routeSimulations.remove(finalTrainId);
             repaint();
         });
-        sim.setAutoChangeSignal(autoChangeSignal);
 
         // Set check for gap tiles reserved by other simulations
-        sim.setOtherTrainGapTileCheck(coord -> {
+        routeService.setOtherTrainGapTileCheck(coord -> {
             for (RouteSimulation other : routeSimulations.values()) {
                 if (other == sim) continue;
                 if (other.getReservedGapTiles().containsKey(coord)) {
