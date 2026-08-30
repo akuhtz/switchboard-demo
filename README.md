@@ -735,6 +735,14 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 
 ### v1.0-SNAPSHOT
 
+**2026-08-29 — extracted RouteService from RouteSimulation**
+
+- **Extracted `RouteService`** (~530 lines) from `RouteSimulation` (~310 lines). RouteService owns signal state management, block reservation, gap tile tracking, and dwell timer state machine. RouteSimulation handles train movement, occupancy changes, timer, and the core tick loop.
+- **Lifecycle methods**: `onStart()`, `onTickPreMovement()`, `onTickPostMovement()`, `onStop()`, `onReset()`. The tick loop in RouteSimulation delegates to RouteService for pre/post-movement decisions.
+- **`TickDecision` record**: Return type for `onTickPreMovement()` — `proceed()`, `ofBlocked()`, `ofPaused()`, `shouldReturn()`.
+- **`autoChangeSignal` parameter removed from tick**: The value is now set once via `setAutoChangeSignal()` instead of being passed as a parameter each tick (which was hardcoded to `false`, breaking auto-change signal).
+- **Gap tile reservation on block transition**: When a train enters a new block during movement (not just at signal blocking or simulation start), the gap tiles between the previous block and the new block are now found and reserved. This handles the case where no signal guards the block boundary (e.g. DTL-001/TR-002 between blk006 and blk002 on TR-001's path).
+
 **2026-08-28 — decoupled RouteSimulation and multi-train simulation**
 
 - **Decoupled RouteSimulation from SwitchboardPanel**: `RouteSimulation.start()` now configures turnout aspects, resets signals to red, and reserves blocks internally. The panel no longer manages pre-start logic. A pluggable tick source (`setTickSource(Runnable)`) allows headless use without `javax.swing.Timer` — callers can invoke `simulationTick()` at their own interval.
