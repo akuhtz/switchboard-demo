@@ -21,6 +21,8 @@ public class Occupancy extends Model {
 
     private OccupancyState state;
 
+    private Integer length;
+
     private final Set<String> occupantTrainIds = new LinkedHashSet<>();
 
     public Occupancy(OccupancyState state) {
@@ -44,6 +46,18 @@ public class Occupancy extends Model {
         OccupancyState oldValue = this.state;
         this.state = state;
         firePropertyChange("state", oldValue, this.state);
+    }
+
+    /** Returns the length in mm, or null if not set. */
+    public Integer getLength() {
+        return length;
+    }
+
+    /** Sets the length in mm. */
+    public void setLength(Integer length) {
+        Integer oldValue = this.length;
+        this.length = length;
+        firePropertyChange("length", oldValue, this.length);
     }
 
     /** Returns the IDs of all trains currently occupying this tile. */

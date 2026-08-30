@@ -115,6 +115,8 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private static final Color COLOR_OCCUPIED = new Color(255, 80, 80);
 
+    private static final Color COLOR_FREE = new Color(128, 0, 0);
+
     private static final Color COLOR_RESERVED = new Color(0, 0, 160);
 
     private static final Color[] COLOR_ALT_PALETTE = {
@@ -1930,6 +1932,8 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             case DIAGONAL_TURNOUT_LEFT -> new ElementTile(col, row, id, type, List.of("/icons/tracks/diag_turnout_straight_left.svg", "/icons/tracks/diag_turnout_diverted_left.svg"));
             case BLOCK_MARKER -> new ElementTile(col, row, id, type, List.of("/icons/tracks/block_marker.svg"));
             case BUMPER -> new ElementTile(col, row, id, type, List.of("/icons/tracks/bumper_stop.svg"));
+            case OCCUPANCY -> new ElementTile(col, row, id, type, List.of("/icons/tracks/occupancy.svg"));
+            case DIAGONAL_OCCUPANCY -> new ElementTile(col, row, id, type, List.of("/icons/tracks/diagonal_occupancy.svg"));
         };
     }
 
@@ -2647,6 +2651,14 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         int d = (tileSize - 2) / 2;
         int rotSteps = (tile.getRotation() / 90) % 4;
 
+        if (et.getElementType() == ElementType.OCCUPANCY) {
+            drawReservedOccupancyTrack(g2, cx, cy, d, rotSteps);
+            return;
+        }
+        if (et.getElementType() == ElementType.DIAGONAL_OCCUPANCY) {
+            drawReservedDiagonalOccupancyTrack(g2, cx, cy, d, rotSteps);
+            return;
+        }
         if (et.getElementType() == ElementType.DIAGONAL) {
             drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
             return;
@@ -2669,42 +2681,196 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
 
     private void drawOccupancy(Graphics2D g2) {
         int half = tileSize / 2;
-        g2.setColor(COLOR_OCCUPIED);
-        g2.setStroke(new BasicStroke(4, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
         for (Tile tile : tiles.values()) {
-            if (tile instanceof ElementTile et && et.getElementId() != null) {
-                Element el = model.getElement(et.getElementId());
-                if (el != null && el.getOccupancy() != null && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED) {
-                    int cx = tile.getCol() * tileSize + half;
-                    int cy = tile.getRow() * tileSize + half;
-                    int d = (tileSize - 2) / 2;
-                    int rotSteps = (tile.getRotation() / 90) % 4;
-
-                    if (et.getElementType() == ElementType.DIAGONAL) {
-                        drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
-                        continue;
-                    }
-
-                    if (et.getElementType() == ElementType.DIAGONAL_TURNOUT_RIGHT
-                        || et.getElementType() == ElementType.DIAGONAL_TURNOUT_LEFT) {
-                        drawDiagonalTurnoutOccupancy(g2, cx, cy, d, rotSteps, et, el);
-                        continue;
-                    }
-
-                    int[] ports = et.getElementType().getActivePorts(el.getCurrentAspect(), tile.getRotation());
-
-                    if (ports.length == 2
-                        && (et.getElementType() == ElementType.CURVE_LEFT
-                        || et.getElementType() == ElementType.CURVE_RIGHT
-                        || et.getElementType() == ElementType.TURNOUT_3WAY)) {
-                        drawCurveOccupancy(g2, cx, cy, d, ports);
-                        continue;
-                    }
-
-                    drawPortsOccupancy(g2, cx, cy, d, rotSteps, et, el, ports);
-                }
+            if (!(tile instanceof ElementTile et) || et.getElementId() == null) {
+                continue;
             }
+            Element el = model.getElement(et.getElementId());
+            if (el == null) {
+                continue;
+            }
+
+            // OCCUPANCY / DIAGONAL_OCCUPANCY: always draw rectangle (dark red FREE, bright red OCCUPIED)
+            if (et.getElementType() == ElementType.OCCUPANCY
+                || et.getElementType() == ElementType.DIAGONAL_OCCUPANCY) {
+                boolean occupied = el.getOccupancy() != null
+                    && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED;
+                int cx = tile.getCol() * tileSize + half;
+                int cy = tile.getRow() * tileSize + half;
+                int rotSteps = (tile.getRotation() / 90) % 4;
+
+                // Draw red occupancy line on track portions outside the rectangle
+                if (occupied) {
+                    g2.setColor(COLOR_OCCUPIED);
+                    int d = (tileSize - 2) / 2;
+                    if (et.getElementType() == ElementType.DIAGONAL_OCCUPANCY) {
+                        drawReservedDiagonalOccupancyTrack(g2, cx, cy, d, rotSteps);
+                    } else {
+                        drawReservedOccupancyTrack(g2, cx, cy, d, rotSteps);
+                    }
+                }
+                
+                g2.setColor(occupied ? COLOR_OCCUPIED : COLOR_FREE);
+                if (et.getElementType() == ElementType.DIAGONAL_OCCUPANCY) {
+                    drawDiagonalOccupancyRectangle(g2, cx, cy, rotSteps);
+                } else {
+                    drawOccupancyRectangle(g2, cx, cy, rotSteps);
+                }
+
+                continue;
+            }
+
+            // All other element types: existing behavior (only when OCCUPIED)
+            if (el.getOccupancy() == null
+                || el.getOccupancy().getState() != Occupancy.OccupancyState.OCCUPIED) {
+                continue;
+            }
+            g2.setColor(COLOR_OCCUPIED);
+            g2.setStroke(new BasicStroke(4, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
+            int cx = tile.getCol() * tileSize + half;
+            int cy = tile.getRow() * tileSize + half;
+            int d = (tileSize - 2) / 2;
+            int rotSteps = (tile.getRotation() / 90) % 4;
+
+            if (et.getElementType() == ElementType.DIAGONAL) {
+                drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
+                continue;
+            }
+
+            if (et.getElementType() == ElementType.DIAGONAL_TURNOUT_RIGHT
+                || et.getElementType() == ElementType.DIAGONAL_TURNOUT_LEFT) {
+                drawDiagonalTurnoutOccupancy(g2, cx, cy, d, rotSteps, et, el);
+                continue;
+            }
+
+            int[] ports = et.getElementType().getActivePorts(el.getCurrentAspect(), tile.getRotation());
+
+            if (ports.length == 2
+                && (et.getElementType() == ElementType.CURVE_LEFT
+                || et.getElementType() == ElementType.CURVE_RIGHT
+                || et.getElementType() == ElementType.TURNOUT_3WAY)) {
+                drawCurveOccupancy(g2, cx, cy, d, ports);
+                continue;
+            }
+
+            drawPortsOccupancy(g2, cx, cy, d, rotSteps, et, el, ports);
         }
+    }
+
+    /**
+     * Draws a filled 16x6 rectangle for OCCUPANCY tiles with a border on top,
+     * rotated around the tile center.
+     * At rotation=0: horizontal (16 wide, 6 tall). At rotation=90: vertical (6 wide, 16 tall).
+     */
+    private static void drawOccupancyRectangle(Graphics2D g2, int cx, int cy, int rotSteps) {
+        // Rectangle corners relative to center (before rotation)
+        // 16x6 rectangle centered at (0,0): halfW=8, halfH=3
+        int[][] corners = { { -8, -3 }, { 8, -3 }, { 8, 3 }, { -8, 3 } };
+        int[] xPoints = new int[4];
+        int[] yPoints = new int[4];
+        for (int i = 0; i < 4; i++) {
+            int x = corners[i][0];
+            int y = corners[i][1];
+            // Rotate by rotSteps * 90 degrees
+            for (int r = 0; r < rotSteps; r++) {
+                int tmp = x;
+                x = -y;
+                y = tmp;
+            }
+            xPoints[i] = cx + x;
+            yPoints[i] = cy + y;
+        }
+        g2.fillPolygon(xPoints, yPoints, 4);
+        Color trackColor = new Color(0xaa, 0xaa, 0xaa);
+        g2.setColor(trackColor);
+        g2.setStroke(new BasicStroke(1));
+        g2.drawPolygon(xPoints, yPoints, 4);
+    }
+
+    /**
+     * Draws reserved blue track on an OCCUPANCY tile only on the track portions
+     * outside the 16×6 rectangle, so the rectangle remains visible.
+     */
+    private static void drawReservedOccupancyTrack(Graphics2D g2, int cx, int cy, int d, int rotSteps) {
+        int strokeW = 4;
+        g2.setStroke(new BasicStroke(strokeW, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
+        // Rectangle half-extent along the track: halfW=8, plus 1px border gap plus half of stroke width
+        int halfW = 11;
+        // Draw two track segments on each side of the rectangle
+        for (int sign = -1; sign <= 1; sign += 2) {
+            int x1 = cx + sign * halfW;
+            int x2 = cx + sign * d;
+            int dx1 = x1 - cx, dy1 = 0;
+            int dx2 = x2 - cx, dy2 = 0;
+            for (int r = 0; r < rotSteps; r++) {
+                int t1 = dx1; dx1 = -dy1; dy1 = t1;
+                int t2 = dx2; dx2 = -dy2; dy2 = t2;
+            }
+            g2.drawLine(cx + dx1, cy + dy1, cx + dx2, cy + dy2);
+        }
+    }
+
+    /**
+     * Draws reserved blue track on a DIAGONAL_OCCUPANCY tile only on the track portions
+     * outside the diagonal rectangle, so the rectangle remains visible.
+     */
+    private static void drawReservedDiagonalOccupancyTrack(Graphics2D g2, int cx, int cy, int d, int rotSteps) {
+        int strokeW = 4;
+        g2.setStroke(new BasicStroke(strokeW, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
+        // Diagonal direction: (1, -1) normalized. halfLen=8 + 1px border + 2px half stroke = 11
+        double s = 1.0 / Math.sqrt(2);
+        double startDist = 8;
+        double endDist = d+5;
+        for (int sign = -1; sign <= 1; sign += 2) {
+            double sx = sign * startDist * s;
+            double sy = -sign * startDist * s;
+            double ex = sign * endDist * s;
+            double ey = -sign * endDist * s;
+            // Rotate by rotSteps * 90 degrees
+            for (int r = 0; r < rotSteps; r++) {
+                double tmp = sx; sx = -sy; sy = tmp;
+                tmp = ex; ex = -ey; ey = tmp;
+            }
+            g2.drawLine(cx + (int) Math.round(sx), cy + (int) Math.round(sy),
+                        cx + (int) Math.round(ex), cy + (int) Math.round(ey));
+        }
+    }
+
+    /**
+     * Draws a filled 16×6 rectangle for DIAGONAL_OCCUPANCY tiles, aligned with the
+     * diagonal track (45°). At rotation=0 the track runs bottom-left → top-right.
+     */
+    private static void drawDiagonalOccupancyRectangle(Graphics2D g2, int cx, int cy, int rotSteps) {
+        // 16×6 rectangle along 45° diagonal: halfLen=8 along track, halfW=3 perpendicular
+        // dir = (1/√2, -1/√2), perp = (1/√2, 1/√2)
+        double s = 1.0 / Math.sqrt(2);
+        double halfLen = 8, halfW = 3;
+        double dx = halfLen * s, dy = -halfLen * s;   // along track
+        double px = halfW * s, py = halfW * s;         // perpendicular
+        double[][] corners = {
+            { dx + px, dy + py },   // top-right side
+            { -dx + px, -dy + py }, // bottom-left side
+            { -dx - px, -dy - py },
+            { dx - px, dy - py }
+        };
+        int[] xPoints = new int[4];
+        int[] yPoints = new int[4];
+        for (int i = 0; i < 4; i++) {
+            double x = corners[i][0];
+            double y = corners[i][1];
+            for (int r = 0; r < rotSteps; r++) {
+                double tmp = x;
+                x = -y;
+                y = tmp;
+            }
+            xPoints[i] = cx + (int) Math.round(x);
+            yPoints[i] = cy + (int) Math.round(y);
+        }
+        g2.fillPolygon(xPoints, yPoints, 4);
+        Color trackColor = new Color(0xaa, 0xaa, 0xaa);
+        g2.setColor(trackColor);
+        g2.setStroke(new BasicStroke(1));
+        g2.drawPolygon(xPoints, yPoints, 4);
     }
 
     private static void drawDiagonalOccupancy(Graphics2D g2, int cx, int cy, int d, int rotSteps) {

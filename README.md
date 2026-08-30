@@ -82,6 +82,8 @@ type-specific enums — just element types distinguished by prefix.
 | `DIAGONAL_TURNOUT_LEFT` | `DTL` | yes | 2 (straight, diverted left) | yes |
 | `BUMPER` | `BS` | yes | 1 | no |
 | `BLOCK_MARKER` | `BM` | yes | 1 | no |
+| `OCCUPANCY` | `OC` | yes | 1 | no |
+| `DIAGONAL_OCCUPANCY` | `DOC` | yes | 1 | no |
 
 Route finding uses `isValidThroughPath(port1, port2, rotation)` which validates that
 a train can traverse the tile from an entry port to an exit port. Turnouts only allow
@@ -734,6 +736,14 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 ## Changelog
 
 ### v1.0-SNAPSHOT
+
+**2026-08-30 — OCCUPANCY and DIAGONAL_OCCUPANCY element types**
+
+- **`OCCUPANCY` (`OC`)**: Straight track tile with a 16×6 rectangle overlay. When the tile has no `Occupancy` object, a dark red (`COLOR_FREE`) rectangle is drawn. When OCCUPIED, the rectangle turns bright red (`COLOR_OCCUPIED`) and the track portions outside the rectangle are also drawn in bright red.
+- **`DIAGONAL_OCCUPANCY` (`DOC`)**: Diagonal track tile with a 16×6 rectangle aligned along the 45° diagonal. Same fill/border/track rendering as OCCUPANCY, adapted for diagonal geometry.
+- **Reserved track rendering**: Both OCCUPANCY and DIAGONAL_OCCUPANCY draw reserved blue track only on track portions outside the rectangle, preserving the rectangle border visibility.
+- **`Occupancy.length`**: New nullable `Integer` field (mm) on `Occupancy`, serialized via `DefaultOccupancySerializer`.
+- **Duplicate occupancy ID fix**: All elements in test layouts now have unique `occupancyId` assignments.
 
 **2026-08-29 — extracted RouteService from RouteSimulation**
 

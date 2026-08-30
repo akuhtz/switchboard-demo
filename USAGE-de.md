@@ -41,6 +41,8 @@ Folgende Kacheltypen sind verfügbar:
 | SIGNAL_COMBINED | SM | Kombinationssignal (Hauptsignal + Vorsignalplatte auf einem Mast) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Prellbock (Gleisende)                | 0 / 90 / 180 / 270 |
 | BLOCK_MARKER   | BM | Blockmarkierung (gerades Gleis, zeigt Blockname) | 0 / 90 |
+| OCCUPANCY      | OC | Beleggungsgleis (gerades Gleis + 16×6-Rechteck, dunkelrot=frei, hellrot=belegt) | 0 / 90 |
+| DIAGONAL_OCCUPANCY | DOC | Diagonales Beleggungsgleis (diagonal + 16×6-Rechteck) | 0 / 90 / 180 / 270 |
 
 
 ## 4. Kacheln auswählen und verschieben

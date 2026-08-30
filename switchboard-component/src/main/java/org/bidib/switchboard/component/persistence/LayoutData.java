@@ -97,6 +97,7 @@ public class LayoutData {
         private long nodeId;
         private int portId;
         private String state;
+        private Integer length;
 
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
@@ -109,6 +110,9 @@ public class LayoutData {
 
         public String getState() { return state; }
         public void setState(String state) { this.state = state; }
+
+        public Integer getLength() { return length; }
+        public void setLength(Integer length) { this.length = length; }
     }
 
     public static class ElementData {

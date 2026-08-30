@@ -38,6 +38,8 @@ The following tile types are available:
 | SIGNAL_COMBINED | SM | Combined signal (main head + distant plate on one mast) | 0 / 90 / 180 / 270 |
 | BUMPER         | BS | Bumper stop (dead end)             | 0 / 90 / 180 / 270 |
 | BLOCK_MARKER   | BM | Block marker (straight, shows block name) | 0 / 90 |
+| OCCUPANCY      | OC | Occupancy track (straight + 16×6 rectangle, dark red=free, bright red=occupied) | 0 / 90 |
+| DIAGONAL_OCCUPANCY | DOC | Diagonal occupancy track (diagonal + 16×6 rectangle) | 0 / 90 / 180 / 270 |
 
 ## 4. Select and move tiles
 
