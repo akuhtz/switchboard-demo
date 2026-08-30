@@ -521,6 +521,8 @@ Logging configuration lives in `switchboard-demo-app/src/main/resources/logback.
 | `diagonal.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/diagonal.svg" width="32" height="32"> | Diagonal from lower-left to upper-right corner |
 | `bumper_stop.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/bumper_stop.svg" width="32" height="32"> | Bumper stop (red/white) at a dead end |
 | `block_marker.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/block_marker.svg" width="32" height="32"> | Block marker: straight track with yellow square for block identification |
+| `occupancy.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/occupancy.svg" width="32" height="32"> | Occupancy track: straight track with 16x6 rectangle overlay (dark red=free, bright red=occupied) |
+| `diagonal_occupancy.svg` | <img src="switchboard-component/src/main/resources/icons/tracks/diagonal_occupancy.svg" width="32" height="32"> | Diagonal occupancy track: diagonal track with 16x6 rectangle aligned along 45° diagonal |
 | `signal_m3_red_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_m3_red_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — red active, orange+green dim |
 | `signal_m3_yellow_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_m3_yellow_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — orange active, red+green dim |
 | `signal_m3_green_left.svg` / `_right` | <img src="switchboard-component/src/main/resources/icons/signals/sbb_l/signal_m3_green_left.svg" width="32" height="32"> | SBB signal shape (Swiss/German) — green active, red+orange dim |
@@ -744,6 +746,13 @@ mvn clean package -DskipTests -pl switchboard-demo-wix-installer -am   # build W
 - **Reserved track rendering**: Both OCCUPANCY and DIAGONAL_OCCUPANCY draw reserved blue track only on track portions outside the rectangle, preserving the rectangle border visibility.
 - **`Occupancy.length`**: New nullable `Integer` field (mm) on `Occupancy`, serialized via `DefaultOccupancySerializer`.
 - **Duplicate occupancy ID fix**: All elements in test layouts now have unique `occupancyId` assignments.
+
+**2026-08-30 — route selection improvements**
+
+- **Click to deselect route**: Clicking an already-selected route in the route list deselects it and clears the route from the switchboard display.
+- **Layout load clears route selection**: Loading a layout (File > Open or MRU menu) clears the current route selection in both the route list and the switchboard.
+- **Block marker square enlarged**: Increased from 8×8 to 10×10. Reservation and occupancy lines now split around the marker square so it stays visible.
+- **Block marker reservation/occupancy lines**: Blue reserved track and red occupancy line draw two segments on each side of the yellow marker square, never over it.
 
 **2026-08-29 — extracted RouteService from RouteSimulation**
 

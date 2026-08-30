@@ -134,6 +134,7 @@ Fahrstraßen werden auf dem Schaltbild nur angezeigt, während sie in der Routen
 ### Fahrstraßen verwalten
 
 - **Einzelne Fahrstraße löschen**: in der Routenliste auswählen, dann Rechtsklick auf eine Kachel der Fahrstraße → **Fahrstraße löschen ({id})**.
+- **Fahrstraße abwählen**: Nochmals auf die ausgewählte Fahrstraße in der Routenliste klicken, um sie abzuwählen und vom Schaltbild zu entfernen.
 - **Fahrstraße löschen (nur Bearbeitungsmodus)**: Rechtsklick auf eine Fahrstraße in der Routenliste → **Fahrstraße löschen**. Ein Bestätigungsdialog fragt, ob die Fahrstraße gelöscht werden soll. Wenn eine Simulation läuft, wird sie vor dem Löschen gestoppt.
 - Mehrere überlappende Fahrstraßen können gleichzeitig existieren — BFS überspringt keine Kacheln, die von anderen Fahrstraßen belegt sind.
 - **Alte Layouts**: Fahrstraßen, die von älteren Versionen als Signal-zu-Signal-Routen gespeichert wurden, werden beim Laden des Layouts automatisch in benannte Zugrouten umgewandelt (Name bleibt erhalten).

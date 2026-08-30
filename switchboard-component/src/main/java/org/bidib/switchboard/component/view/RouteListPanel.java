@@ -20,14 +20,12 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.bidib.switchboard.component.model.Route;
 import org.bidib.switchboard.component.model.RouteModel;
 
-import com.vlsolutions.swing.docking.Dockable;
 import com.vlsolutions.swing.docking.DockKey;
+import com.vlsolutions.swing.docking.Dockable;
 
 public class RouteListPanel extends JPanel implements Dockable, PropertyChangeListener {
 
@@ -47,6 +45,8 @@ public class RouteListPanel extends JPanel implements Dockable, PropertyChangeLi
 
     private boolean editMode;
 
+    private Route lastSelectedRoute;
+
     private final ResourceBundle messages = ResourceBundle.getBundle("i18n.messages");
 
     public RouteListPanel(RouteModel routeModel) {
@@ -62,26 +62,40 @@ public class RouteListPanel extends JPanel implements Dockable, PropertyChangeLi
         routeList = new JList<>(listModel);
         routeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         routeList.setCellRenderer(new RouteCellRenderer());
-        routeList.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    Route selected = routeList.getSelectedValue();
-                    if (selectionListener != null) {
-                        selectionListener.accept(selected);
-                    }
-                }
-            }
-        });
         routeList.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                showContextMenu(e);
+                if (e.isPopupTrigger()) {
+                    showContextMenu(e);
+                    return;
+                }
+                int idx = routeList.locationToIndex(e.getPoint());
+                Route clicked = idx >= 0 ? listModel.getElementAt(idx) : null;
+                if (clicked != null && clicked == lastSelectedRoute) {
+                    SwingUtilities.invokeLater(() -> {
+                        routeList.clearSelection();
+                        lastSelectedRoute = null;
+                        if (selectionListener != null) {
+                            selectionListener.accept(null);
+                        }
+                    });
+                }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                showContextMenu(e);
+                if (e.isPopupTrigger()) {
+                    showContextMenu(e);
+                }
+            }
+        });
+        routeList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                Route selected = routeList.getSelectedValue();
+                lastSelectedRoute = selected;
+                if (selectionListener != null) {
+                    selectionListener.accept(selected);
+                }
             }
         });
 
@@ -93,6 +107,11 @@ public class RouteListPanel extends JPanel implements Dockable, PropertyChangeLi
 
     public void setSelectionListener(Consumer<Route> listener) {
         this.selectionListener = listener;
+    }
+
+    public void clearSelection() {
+        routeList.clearSelection();
+        lastSelectedRoute = null;
     }
 
     public void setDeleteAction(Consumer<Route> action) {

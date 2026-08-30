@@ -125,6 +125,7 @@ Routes are shown on the switchboard only while selected in the Routes list.
 ### Manage routes
 
 - **Clear a single route**: select it in the Routes list, then right-click any tile on the route → **Clear route ({id})**.
+- **Deselect a route**: click the selected route again in the Routes list to deselect it and clear it from the switchboard.
 - **Delete a route (edit mode only)**: right-click a route in the Routes list → **Delete route**. A confirmation dialog asks whether to delete the route. If a simulation is running, it is stopped before deletion.
 - Multiple overlapping routes can coexist — the BFS does not skip tiles reserved by other routes.
 - **Legacy layouts**: routes saved as signal-to-signal routes by older versions are automatically converted to named train routes when the layout is loaded (name preserved).

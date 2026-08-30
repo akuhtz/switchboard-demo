@@ -238,6 +238,8 @@ public class SwitchboardApp {
         loadItem.setAccelerator(KeyStroke.getKeyStroke("control L"));
         loadItem.addActionListener(e -> {
             layoutService.onLoad();
+            switchboardPanel.setSelectedRoute(null);
+            routeListPanel.clearSelection();
             updateTitle();
             rebuildRecentMenu();
         });
@@ -558,6 +560,8 @@ public class SwitchboardApp {
             item.addActionListener(e -> {
                 try {
                     org.bidib.switchboard.component.persistence.LayoutData data = layoutService.loadLayout(path);
+                    switchboardPanel.setSelectedRoute(null);
+                    routeListPanel.clearSelection();
                     updateTitle();
                     rebuildRecentMenu();
                 } catch (Exception ex) {
