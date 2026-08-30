@@ -2651,6 +2651,10 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         int d = (tileSize - 2) / 2;
         int rotSteps = (tile.getRotation() / 90) % 4;
 
+        if (et.getElementType() == ElementType.BLOCK_MARKER) {
+            drawReservedBlockMarkerTrack(g2, cx, cy, d, rotSteps);
+            return;
+        }
         if (et.getElementType() == ElementType.OCCUPANCY) {
             drawReservedOccupancyTrack(g2, cx, cy, d, rotSteps);
             return;
@@ -2732,6 +2736,11 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             int d = (tileSize - 2) / 2;
             int rotSteps = (tile.getRotation() / 90) % 4;
 
+            if (et.getElementType() == ElementType.BLOCK_MARKER) {
+                drawReservedBlockMarkerTrack(g2, cx, cy, d, rotSteps);
+                continue;
+            }
+
             if (et.getElementType() == ElementType.DIAGONAL) {
                 drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
                 continue;
@@ -2811,7 +2820,28 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
     }
 
     /**
-     * Draws reserved blue track on a DIAGONAL_OCCUPANCY tile only on the track portions
+     * Draws reserved blue track on a BLOCK_MARKER tile, splitting the line around the
+     * yellow marker square (10×10 centered at tile center) so the square stays visible.
+     */
+    private static void drawReservedBlockMarkerTrack(Graphics2D g2, int cx, int cy, int d, int rotSteps) {
+        int strokeW = 4;
+        g2.setStroke(new BasicStroke(strokeW, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
+        // Square: 10×10 centered at (0,0) → half extent = 5 + 1 border + 2 half stroke = 8
+        int gapHalf = 8 - 1;
+        for (int sign = -1; sign <= 1; sign += 2) {
+            int x1 = sign * gapHalf;
+            int x2 = sign * d;
+            int dx1 = x1, dy1 = 0;
+            int dx2 = x2, dy2 = 0;
+            for (int r = 0; r < rotSteps; r++) {
+                int t1 = dx1; dx1 = -dy1; dy1 = t1;
+                int t2 = dx2; dx2 = -dy2; dy2 = t2;
+            }
+            g2.drawLine(cx + dx1, cy + dy1, cx + dx2, cy + dy2);
+        }
+    }
+
+    /**
      * outside the diagonal rectangle, so the rectangle remains visible.
      */
     private static void drawReservedDiagonalOccupancyTrack(Graphics2D g2, int cx, int cy, int d, int rotSteps) {
