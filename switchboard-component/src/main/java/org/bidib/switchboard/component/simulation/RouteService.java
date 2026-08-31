@@ -185,7 +185,7 @@ public class RouteService {
                 String reservedBy = nextBlock.getAssignedTrainIds().stream()
                     .filter(id -> !id.equals(trainId)).findFirst().orElse(null);
                 if (reservedBy != null) {
-                    LOG.info("Start signal stays red — block '{}' reserved by train {}",
+                    LOG.debug("Start signal stays red — block '{}' reserved by train {}",
                         nextBlock.getName(), reservedBy);
                     return TickDecision.ofPaused();
                 }
@@ -249,13 +249,13 @@ public class RouteService {
             for (int[] coord : gapTiles) {
                 String gapBlockId = reservedGapTiles.get(coord[0] + "," + coord[1]);
                 if (gapBlockId != null && !gapBlockId.equals(guardBlock.getId())) {
-                    LOG.info("Signal at ({},{}) stays red — gap tile ({},{}) reserved by block {}",
+                    LOG.debug("Signal at ({},{}) stays red — gap tile ({},{}) reserved by block {}",
                         path.get(prev)[0], path.get(prev)[1], coord[0], coord[1], gapBlockId);
                     return true;
                 }
                 if (otherTrainGapTileCheck != null
                         && otherTrainGapTileCheck.test(coord[0] + "," + coord[1])) {
-                    LOG.info("Signal at ({},{}) stays red — gap tile ({},{}) reserved by another train",
+                    LOG.debug("Signal at ({},{}) stays red — gap tile ({},{}) reserved by another train",
                         path.get(prev)[0], path.get(prev)[1], coord[0], coord[1]);
                     return true;
                 }
@@ -264,7 +264,7 @@ public class RouteService {
             String reservedBy = guardBlock.getAssignedTrainIds().stream()
                 .filter(id -> !id.equals(trainId)).findFirst().orElse(null);
             if (reservedBy != null) {
-                LOG.info("Signal at ({},{}) stays red — block '{}' reserved by train {}",
+                LOG.debug("Signal at ({},{}) stays red — block '{}' reserved by train {}",
                     path.get(prev)[0], path.get(prev)[1], guardBlock.getName(), reservedBy);
                 return true;
             }
