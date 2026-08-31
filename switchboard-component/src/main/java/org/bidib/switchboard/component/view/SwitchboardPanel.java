@@ -2650,7 +2650,67 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
         int cy = tile.getRow() * tileSize + half;
         int d = (tileSize - 2) / 2;
         int rotSteps = (tile.getRotation() / 90) % 4;
+        drawTrackOverlay(g2, cx, cy, d, rotSteps, et, el, tile);
+    }
 
+    private void drawOccupancy(Graphics2D g2) {
+        int half = tileSize / 2;
+        for (Tile tile : tiles.values()) {
+            if (!(tile instanceof ElementTile et) || et.getElementId() == null) {
+                continue;
+            }
+            Element el = model.getElement(et.getElementId());
+            if (el == null) {
+                continue;
+            }
+
+            // OCCUPANCY / DIAGONAL_OCCUPANCY: always draw rectangle (dark red FREE, bright red OCCUPIED)
+            if (et.getElementType() == ElementType.OCCUPANCY
+                || et.getElementType() == ElementType.DIAGONAL_OCCUPANCY) {
+                boolean occupied = el.getOccupancy() != null
+                    && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED;
+                int cx = tile.getCol() * tileSize + half;
+                int cy = tile.getRow() * tileSize + half;
+                int rotSteps = (tile.getRotation() / 90) % 4;
+
+                // Draw red occupancy line on track portions outside the rectangle
+                if (occupied) {
+                    g2.setColor(COLOR_OCCUPIED);
+                    int d = (tileSize - 2) / 2;
+                    drawTrackOverlay(g2, cx, cy, d, rotSteps, et, el, tile);
+                }
+                
+                g2.setColor(occupied ? COLOR_OCCUPIED : COLOR_FREE);
+                if (et.getElementType() == ElementType.DIAGONAL_OCCUPANCY) {
+                    drawDiagonalOccupancyRectangle(g2, cx, cy, rotSteps);
+                } else {
+                    drawOccupancyRectangle(g2, cx, cy, rotSteps);
+                }
+
+                continue;
+            }
+
+            // All other element types: existing behavior (only when OCCUPIED)
+            if (el.getOccupancy() == null
+                || el.getOccupancy().getState() != Occupancy.OccupancyState.OCCUPIED) {
+                continue;
+            }
+            g2.setColor(COLOR_OCCUPIED);
+            g2.setStroke(new BasicStroke(4, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
+            int cx = tile.getCol() * tileSize + half;
+            int cy = tile.getRow() * tileSize + half;
+            int d = (tileSize - 2) / 2;
+            int rotSteps = (tile.getRotation() / 90) % 4;
+            drawTrackOverlay(g2, cx, cy, d, rotSteps, et, el, tile);
+        }
+    }
+
+    /**
+     * Shared dispatch for drawing a track overlay (reservation or occupancy line) on a tile.
+     * Uses the current color and stroke already set on the Graphics2D context.
+     */
+    private void drawTrackOverlay(Graphics2D g2, int cx, int cy, int d, int rotSteps,
+                                   ElementTile et, Element el, Tile tile) {
         if (et.getElementType() == ElementType.BLOCK_MARKER) {
             drawReservedBlockMarkerTrack(g2, cx, cy, d, rotSteps);
             return;
@@ -2681,89 +2741,6 @@ public class SwitchboardPanel extends JPanel implements Dockable, TileGrid, Prop
             return;
         }
         drawPortsOccupancy(g2, cx, cy, d, rotSteps, et, el, ports);
-    }
-
-    private void drawOccupancy(Graphics2D g2) {
-        int half = tileSize / 2;
-        for (Tile tile : tiles.values()) {
-            if (!(tile instanceof ElementTile et) || et.getElementId() == null) {
-                continue;
-            }
-            Element el = model.getElement(et.getElementId());
-            if (el == null) {
-                continue;
-            }
-
-            // OCCUPANCY / DIAGONAL_OCCUPANCY: always draw rectangle (dark red FREE, bright red OCCUPIED)
-            if (et.getElementType() == ElementType.OCCUPANCY
-                || et.getElementType() == ElementType.DIAGONAL_OCCUPANCY) {
-                boolean occupied = el.getOccupancy() != null
-                    && el.getOccupancy().getState() == Occupancy.OccupancyState.OCCUPIED;
-                int cx = tile.getCol() * tileSize + half;
-                int cy = tile.getRow() * tileSize + half;
-                int rotSteps = (tile.getRotation() / 90) % 4;
-
-                // Draw red occupancy line on track portions outside the rectangle
-                if (occupied) {
-                    g2.setColor(COLOR_OCCUPIED);
-                    int d = (tileSize - 2) / 2;
-                    if (et.getElementType() == ElementType.DIAGONAL_OCCUPANCY) {
-                        drawReservedDiagonalOccupancyTrack(g2, cx, cy, d, rotSteps);
-                    } else {
-                        drawReservedOccupancyTrack(g2, cx, cy, d, rotSteps);
-                    }
-                }
-                
-                g2.setColor(occupied ? COLOR_OCCUPIED : COLOR_FREE);
-                if (et.getElementType() == ElementType.DIAGONAL_OCCUPANCY) {
-                    drawDiagonalOccupancyRectangle(g2, cx, cy, rotSteps);
-                } else {
-                    drawOccupancyRectangle(g2, cx, cy, rotSteps);
-                }
-
-                continue;
-            }
-
-            // All other element types: existing behavior (only when OCCUPIED)
-            if (el.getOccupancy() == null
-                || el.getOccupancy().getState() != Occupancy.OccupancyState.OCCUPIED) {
-                continue;
-            }
-            g2.setColor(COLOR_OCCUPIED);
-            g2.setStroke(new BasicStroke(4, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
-            int cx = tile.getCol() * tileSize + half;
-            int cy = tile.getRow() * tileSize + half;
-            int d = (tileSize - 2) / 2;
-            int rotSteps = (tile.getRotation() / 90) % 4;
-
-            if (et.getElementType() == ElementType.BLOCK_MARKER) {
-                drawReservedBlockMarkerTrack(g2, cx, cy, d, rotSteps);
-                continue;
-            }
-
-            if (et.getElementType() == ElementType.DIAGONAL) {
-                drawDiagonalOccupancy(g2, cx, cy, d, rotSteps);
-                continue;
-            }
-
-            if (et.getElementType() == ElementType.DIAGONAL_TURNOUT_RIGHT
-                || et.getElementType() == ElementType.DIAGONAL_TURNOUT_LEFT) {
-                drawDiagonalTurnoutOccupancy(g2, cx, cy, d, rotSteps, et, el);
-                continue;
-            }
-
-            int[] ports = et.getElementType().getActivePorts(el.getCurrentAspect(), tile.getRotation());
-
-            if (ports.length == 2
-                && (et.getElementType() == ElementType.CURVE_LEFT
-                || et.getElementType() == ElementType.CURVE_RIGHT
-                || et.getElementType() == ElementType.TURNOUT_3WAY)) {
-                drawCurveOccupancy(g2, cx, cy, d, ports);
-                continue;
-            }
-
-            drawPortsOccupancy(g2, cx, cy, d, rotSteps, et, el, ports);
-        }
     }
 
     /**
